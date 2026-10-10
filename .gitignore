@@ -1,1 +1,41 @@
 docs/reference/
+
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Google ADK runtime artifacts and session storage
+.adk/
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment variables & secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Python virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Testing & coverage artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Static analysis & linter caches
+.mypy_cache/
+.ruff_cache/
+
+# Editor & OS temporary files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
