@@ -13,6 +13,7 @@ This directory contains resources, guides, official documentation, source code r
 | [`references/adk-python/`](file:///C:/tools/github/agentic-news/docs/references/adk-python) | **ADK Source Code**: Complete source code repository of the Python Agent Development Kit (ADK) for inspecting underlying implementation details and APIs. |
 | [`references/adk-samples/`](file:///C:/tools/github/agentic-news/docs/references/adk-samples) | **Sample Code & Examples**: Working sample projects, recipes, and end-to-end demonstrations illustrating how ADK is used across different agent architectures. |
 | [`ai-builder-cup.md`](file:///C:/tools/github/agentic-news/docs/ai-builder-cup.md) | **Hackathon Reference**: Summary of the Google Cloud AI Builder Cup guidelines, judging criteria, technical constraints, and the selected *Media, Content & Digital Experiences* theme. |
+| [`news-analyser.md`](file:///C:/tools/github/agentic-news/docs/news-analyser.md) | **Project Specification**: Concept, multi-agent architecture, Google ADK integration, and deep insights roadmap for the News Analyser application. |
 
 ---
 
