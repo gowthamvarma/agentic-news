@@ -27,6 +27,10 @@ try:
     from google.cloud import firestore
     
     emulator_host = os.environ.get("FIRESTORE_EMULATOR_HOST")
+    if emulator_host and "127.0.0.1" in emulator_host:
+        emulator_host = emulator_host.replace("127.0.0.1", "localhost")
+        os.environ["FIRESTORE_EMULATOR_HOST"] = emulator_host
+
     project_id = os.environ.get("FIREBASE_PROJECT_ID") or os.environ.get("GOOGLE_CLOUD_PROJECT") or "agentic-news-dev"
 
     if emulator_host:
