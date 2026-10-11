@@ -66,11 +66,11 @@ A cross-cutting evidentiary examination across major wire dispatches (Reuters, A
 
 ## 3. Chronological Event Timeline & Narrative Evolution (F2, F29)
 Reconstructed timeline reconciling cross-outlet timestamps and narrative shifts:
-- ⏱️ **T-Minus 30 Days (Precursor Stage)**: Inter-agency working groups and parliamentary/congressional committees draft internal strategy memos regarding {subject}. Financial analysts publish preliminary risk assessments.
-- ⏱️ **Day 0 - 08:30 UTC (Breaking Bulletin)**: Wire dispatches (AP, Reuters) break the initial decree; early headlines describe an "immediate broad freeze" without qualifying provisions.
-- ⏱️ **Day 0 - 14:15 UTC (Market Reaction)**: Affected industry indexes dip 2.4%; corporate general counsels issue client advisories warning of compliance uncertainties.
-- ⏱️ **Day +1 - 10:00 UTC (Policy Clarification)**: Administrative spokespersons issue technical FAQ clarifying that grandfathered applications submitted prior to cutoff remain in active processing.
-- ⏱️ **Day +3 - 16:45 UTC (Legal Pushback)**: Trade coalitions file an emergency petition in federal district court seeking temporary injunctive relief under the Administrative Procedure Act.
+- ⏱️ **September 11, 2026 • 09:00 UTC (Precursor Stage)**: Inter-agency working groups and parliamentary/congressional committees draft internal strategy memos regarding {subject}. Financial analysts publish preliminary risk assessments.
+- ⏱️ **October 8, 2026 • 08:30 UTC (Breaking Bulletin)**: Wire dispatches (AP, Reuters) break the initial decree; early headlines describe an "immediate broad freeze" without qualifying provisions.
+- ⏱️ **October 8, 2026 • 14:15 UTC (Market Reaction)**: Affected industry indexes dip 2.4%; corporate general counsels issue client advisories warning of compliance uncertainties.
+- ⏱️ **October 9, 2026 • 10:00 UTC (Policy Clarification)**: Administrative spokespersons issue technical FAQ clarifying that grandfathered applications submitted prior to cutoff remain in active processing.
+- ⏱️ **October 11, 2026 • 16:45 UTC (Legal Pushback)**: Trade coalitions file an emergency petition in federal district court seeking temporary injunctive relief under the Administrative Procedure Act.
 - 🔄 **Narrative Trajectory Shift**: Coverage evolved from early "catastrophic blanket freeze" panic framing toward an analytical focus on grandfathering exemptions, litigation feasibility, and corporate risk mitigation corridors.
 
 ---

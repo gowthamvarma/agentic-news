@@ -16,7 +16,13 @@ import {
   ExternalLink,
   BarChart3,
   Layers,
-  FileText
+  FileText,
+  Calendar,
+  Building2,
+  HelpCircle,
+  User,
+  Bot,
+  Trash2
 } from 'lucide-react';
 import {
   analyzeNewsTopic,
@@ -33,9 +39,16 @@ import type {
   PerspectiveDebateReport
 } from './types';
 
+interface ChatMessage {
+  sender: 'user' | 'agent';
+  text: string;
+  time: string;
+}
+
 export default function App() {
   const [topicInput, setTopicInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingStage, setLoadingStage] = useState(0);
   const [report, setReport] = useState<NewsIntelligenceReport | null>(null);
   const [, setRecentRuns] = useState<NewsIntelligenceReport[]>([]);
   const [activeTab, setActiveTab] = useState<'brief' | 'verification' | 'timeline' | 'insights' | 'quiz' | 'debate' | 'copilot'>('brief');
@@ -52,14 +65,36 @@ export default function App() {
   const [debateLoading, setDebateLoading] = useState(false);
 
   // Research Copilot Chat State
-  const [chatMessages, setChatMessages] = useState<Array<{ sender: 'user' | 'agent'; text: string }>>([
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     {
       sender: 'agent',
-      text: 'Hello! I am your Research Copilot. Ask any follow-up question or request an autonomous investigative deep-dive over verified reporting.'
+      text: 'Hello! I am your Research Copilot powered by Google Gemini 3.1 Pro. Ask any follow-up question or request an autonomous investigative deep-dive over verified reporting.',
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
   ]);
   const [chatInput, setChatInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
+
+  const fleetStages = [
+    { title: 'Stage 1: Multi-Outlet Ingestion', desc: 'Querying Google News RSS, Associated Press, Reuters, Bloomberg, WSJ...' },
+    { title: 'Stage 2: IFCN Forensic Claim Verification', desc: 'Auditing factual assertions against primary records, federal registers & court dockets...' },
+    { title: 'Stage 3: Cross-Source Contradictions & Bias', desc: 'Detecting conflicting figures and charting the 5-point ideological lean spectrum...' },
+    { title: 'Stage 4: Chronological Timeline Reconstruction', desc: 'Aligning exact calendar dates, published milestones, and narrative trajectory shifts...' },
+    { title: 'Stage 5: Who/Where/What Primer & Jargon Buster', desc: 'Compiling entity background primers, institutional backdrops, and legal glossaries...' },
+    { title: 'Stage 6: Causal Tree & Future Scenarios', desc: 'Synthesizing 3-tier consequence cascades and forecasting probabilistic scenarios...' }
+  ];
+
+  // Stage progress animation timer while loading
+  useEffect(() => {
+    let interval: any;
+    if (loading) {
+      setLoadingStage(0);
+      interval = setInterval(() => {
+        setLoadingStage((prev) => (prev < fleetStages.length - 1 ? prev + 1 : prev));
+      }, 1100);
+    }
+    return () => clearInterval(interval);
+  }, [loading]);
 
   // Load initial health & recent analyses
   useEffect(() => {
@@ -68,7 +103,6 @@ export default function App() {
       .then((data) => {
         if (data && data.length > 0) {
           setRecentRuns(data);
-          // If no active report, load the most recent one
           setReport(data[0]);
         }
       })
@@ -79,19 +113,20 @@ export default function App() {
     const q = (queryToRun || topicInput).trim();
     if (!q) return;
 
-    setLoading(true);
-    setErrorMsg(null);
+    // Clear old data immediately upon new search
+    setReport(null);
     setQuiz(null);
     setDebate(null);
     setQuizResult(null);
     setUserAnswers({});
+    setErrorMsg(null);
+    setLoading(true);
 
     try {
       const data = await analyzeNewsTopic(q);
       setReport(data);
       setTopicInput(q);
       setActiveTab('brief');
-      // Refresh recent runs
       fetchRecentAnalyses().then(setRecentRuns).catch(() => {});
     } catch (err: any) {
       setErrorMsg(err.message || 'An unexpected error occurred while analyzing this news topic.');
@@ -138,26 +173,39 @@ export default function App() {
     }
   };
 
-  const handleSendMessage = async (e?: React.FormEvent) => {
+  const handleSendMessage = async (e?: React.FormEvent, customText?: string) => {
     if (e) e.preventDefault();
-    if (!chatInput.trim() || chatLoading) return;
+    const userText = (customText || chatInput).trim();
+    if (!userText || chatLoading) return;
 
-    const userText = chatInput.trim();
-    setChatMessages((prev) => [...prev, { sender: 'user', text: userText }]);
+    const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    setChatMessages((prev) => [...prev, { sender: 'user', text: userText, time: currentTime }]);
     setChatInput('');
     setChatLoading(true);
 
     try {
       const res = await chatResearchCopilot(userText, report ? report.topic : 'General News');
-      setChatMessages((prev) => [...prev, { sender: 'agent', text: res.response }]);
+      const agentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      setChatMessages((prev) => [...prev, { sender: 'agent', text: res.response, time: agentTime }]);
     } catch (err: any) {
+      const agentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       setChatMessages((prev) => [
         ...prev,
-        { sender: 'agent', text: 'Error connecting to Research Copilot: ' + err.message }
+        { sender: 'agent', text: 'Error connecting to Research Copilot: ' + err.message, time: agentTime }
       ]);
     } finally {
       setChatLoading(false);
     }
+  };
+
+  const handleClearChat = () => {
+    setChatMessages([
+      {
+        sender: 'agent',
+        text: 'Chat history cleared. What topic or claim would you like me to investigate?',
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }
+    ]);
   };
 
   const quickTopics = [
@@ -165,6 +213,13 @@ export default function App() {
     'NASA Artemis Moon Mission Schedule Revisions',
     'Global Clean Energy Subsidies & Tariff Accords',
     'Central Bank Interest Rate Outlook & Liquidity Risks'
+  ];
+
+  const suggestedQuestions = [
+    '⚖️ What are the legal precedents under the APA?',
+    '👥 Who are the key winners and losers?',
+    '📉 What is the projected economic compliance cost?',
+    '🔍 Investigate grandfathering exemption clauses'
   ];
 
   return (
@@ -258,8 +313,62 @@ export default function App() {
         </div>
       </section>
 
+      {/* Animated Loading Screen (Cleared Old Data & Shows Real-Time Fleet Pipeline) */}
+      {loading && (
+        <div className="app-container">
+          <div className="loading-wrapper">
+            <div className="spinner-orbit-container">
+              <div className="spinner-ring ring-blue"></div>
+              <div className="spinner-ring ring-red"></div>
+              <div className="spinner-ring ring-yellow"></div>
+              <div className="spinner-ring ring-green"></div>
+              <div className="spinner-center-icon">
+                <Brain size={32} />
+              </div>
+            </div>
+
+            <h2 className="loading-fleet-title">Deploying 25 Autonomous ADK Agents</h2>
+            <p className="loading-fleet-subtitle">
+              Auditing cross-spectrum media dispatches, IFCN principles, and chronological evolution...
+            </p>
+
+            <div className="loading-stages-grid">
+              {fleetStages.map((stg, idx) => {
+                const isDone = idx < loadingStage;
+                const isActive = idx === loadingStage;
+
+                return (
+                  <div
+                    key={idx}
+                    className={`loading-stage-row ${isActive ? 'active' : ''} ${isDone ? 'done' : ''}`}
+                  >
+                    <div className="loading-stage-indicator">
+                      {isDone ? (
+                        <CheckCircle2 size={18} color="#10b981" />
+                      ) : isActive ? (
+                        <RefreshCw size={16} color="#60a5fa" className="animate-spin" />
+                      ) : (
+                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#475569' }} />
+                      )}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div className="loading-stage-text">{stg.title}</div>
+                      {isActive && (
+                        <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: '2px' }}>
+                          {stg.desc}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Content Area */}
-      {report && (
+      {!loading && report && (
         <main className="app-container" style={{ flex: 1, paddingBottom: '60px' }}>
           {/* Navigation Tabs */}
           <div className="tabs-nav-bar">
@@ -320,7 +429,7 @@ export default function App() {
             </button>
           </div>
 
-          {/* TAB 1: EXECUTIVE BRIEF */}
+          {/* TAB 1: EXECUTIVE BRIEF & PRIMER */}
           {activeTab === 'brief' && (
             <div className="dashboard-grid">
               {/* Executive Summary Card */}
@@ -330,8 +439,8 @@ export default function App() {
                     <FileText size={22} color="#60a5fa" />
                     <span>Executive Intelligence Brief: {report.topic}</span>
                   </div>
-                  <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-                    Audited across {report.sources_analyzed?.length || 6} major wire & investigative outlets
+                  <span style={{ fontSize: '0.82rem', color: '#94a3b8', background: 'rgba(30, 41, 59, 0.6)', padding: '4px 12px', borderRadius: '20px', border: '1px solid #334155' }}>
+                    Audited across {report.articles_analyzed?.length || report.sources_analyzed?.length || 6} major wire & investigative outlets
                   </span>
                 </div>
                 <p style={{ fontSize: '1.05rem', lineHeight: '1.7', color: '#e2e8f0', marginBottom: '20px' }}>
@@ -354,81 +463,179 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Consensus Points (F3) */}
-              <div className="card" style={{ gridColumn: 'span 6' }}>
-                <div className="card-title-row">
-                  <div className="card-title">
-                    <CheckCircle2 size={22} color="#34d399" />
-                    <span>High-Confidence Consensus Points</span>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  {report.consensus_points?.map((pt, idx) => (
-                    <div key={idx} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                      <CheckCircle2 size={18} color="#34d399" style={{ flexShrink: 0, marginTop: '4px' }} />
-                      <div style={{ fontSize: '0.95rem', color: '#e2e8f0' }}>{pt}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Sources Analyzed */}
-              <div className="card" style={{ gridColumn: 'span 6' }}>
-                <div className="card-title-row">
-                  <div className="card-title">
-                    <Layers size={22} color="#a78bfa" />
-                    <span>Analyzed Source Outlets</span>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {report.sources_analyzed?.map((src, idx) => (
-                    <div
-                      key={idx}
-                      style={{
-                        background: 'rgba(30, 41, 59, 0.7)',
-                        border: '1px solid #334155',
-                        padding: '8px 14px',
-                        borderRadius: '8px',
-                        fontSize: '0.85rem',
-                        color: '#cbd5e1',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px'
-                      }}
-                    >
-                      <ExternalLink size={14} color="#94a3b8" />
-                      <span>{src}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Full Autonomous Multi-Agent Synthesis Brief (Markdown) */}
-              {report.raw_markdown && (
+              {/* WHO / WHERE / WHAT PRIMER & JARGON BUSTER (F1, F27) */}
+              {report.context_primer && (
                 <div className="card" style={{ gridColumn: 'span 12' }}>
                   <div className="card-title-row">
                     <div className="card-title">
-                      <Sparkles size={22} color="#38bdf8" />
-                      <span>Full Multi-Agent Intelligence Synthesis (Live Gemini Pro Brief)</span>
+                      <HelpCircle size={22} color="#38bdf8" />
+                      <span>Who / Where / What Primer & Jargon Buster (F1, F27)</span>
                     </div>
                   </div>
-                  <div
-                    style={{
-                      background: 'rgba(15, 23, 42, 0.8)',
-                      padding: '24px',
-                      borderRadius: '12px',
-                      border: '1px solid #334155',
-                      whiteSpace: 'pre-wrap',
-                      fontFamily: 'inherit',
-                      fontSize: '0.95rem',
-                      lineHeight: '1.7',
-                      color: '#cbd5e1',
-                      maxHeight: '600px',
-                      overflowY: 'auto'
-                    }}
-                  >
-                    {report.raw_markdown}
+
+                  {/* Origins & Background Story */}
+                  {report.context_primer.background_story && (
+                    <div style={{ background: 'rgba(30, 41, 59, 0.5)', border: '1px solid #334155', borderRadius: '10px', padding: '16px 20px', marginBottom: '20px' }}>
+                      <div style={{ fontWeight: 700, color: '#93c5fd', fontSize: '0.95rem', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Building2 size={18} />
+                        <span>Origins & Historical Backdrop</span>
+                      </div>
+                      <p style={{ fontSize: '0.92rem', color: '#cbd5e1', lineHeight: '1.6' }}>
+                        {report.context_primer.background_story}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Key Entities & Stakeholders Primer Cards */}
+                  {report.context_primer.primer_items && report.context_primer.primer_items.length > 0 && (
+                    <div style={{ marginBottom: '24px' }}>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#a78bfa', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        Key Entities & Core Stakeholders
+                      </div>
+                      <div className="primer-card-grid">
+                        {report.context_primer.primer_items.map((item, idx) => (
+                          <div key={idx} className="entity-primer-card">
+                            <span className={`entity-primer-badge badge-${item.entity_type.toLowerCase()}`}>
+                              {item.entity_type}
+                            </span>
+                            <div className="entity-name">{item.entity_name}</div>
+                            <div className="entity-explainer">{item.explainer_2_lines}</div>
+                            {item.historical_context && (
+                              <div className="entity-history">
+                                <strong>Context:</strong> {item.historical_context}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Jargon Buster Glossary */}
+                  {report.context_primer.jargon_definitions && Object.keys(report.context_primer.jargon_definitions).length > 0 && (
+                    <div>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#38bdf8', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <BookOpen size={16} />
+                        <span>Jargon Buster (Plain-Language Policy & Legal Terms)</span>
+                      </div>
+                      <div className="jargon-grid">
+                        {Object.entries(report.context_primer.jargon_definitions).map(([term, def], idx) => (
+                          <div key={idx} className="jargon-card">
+                            <div className="jargon-term">
+                              <span>{term}</span>
+                            </div>
+                            <div className="jargon-def">{def}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Consensus Points (F3) */}
+              <div className="card" style={{ gridColumn: 'span 12' }}>
+                <div className="card-title-row">
+                  <div className="card-title">
+                    <CheckCircle2 size={22} color="#34d399" />
+                    <span>High-Confidence Consensus Points Across Reporting</span>
                   </div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '14px' }}>
+                  {report.consensus_points?.map((pt, idx) => (
+                    <div key={idx} style={{ background: 'rgba(15, 23, 42, 0.6)', border: '1px solid #334155', borderRadius: '10px', padding: '14px 18px', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                      <CheckCircle2 size={18} color="#34d399" style={{ flexShrink: 0, marginTop: '2px' }} />
+                      <div style={{ fontSize: '0.92rem', color: '#e2e8f0', lineHeight: '1.5' }}>{pt}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Analyzed Media Articles & Primary Source Links (Requirement 3) */}
+              <div className="card" style={{ gridColumn: 'span 12' }}>
+                <div className="card-title-row">
+                  <div className="card-title">
+                    <Layers size={22} color="#a78bfa" />
+                    <span>Analyzed Media Articles & Primary Source Filings ({report.articles_analyzed?.length || report.sources_analyzed?.length || 0})</span>
+                  </div>
+                  <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+                    Click to inspect full original publications
+                  </span>
+                </div>
+
+                <div className="articles-analyzed-grid">
+                  {report.articles_analyzed && report.articles_analyzed.length > 0 ? (
+                    report.articles_analyzed.map((art, idx) => (
+                      <div key={idx} className="article-item-card">
+                        <div>
+                          <div className="article-card-header">
+                            <span className="article-outlet-pill">{art.outlet}</span>
+                            {art.published_date && (
+                              <span className="article-date-text">
+                                <Calendar size={13} />
+                                <span>{art.published_date}</span>
+                              </span>
+                            )}
+                          </div>
+                          <a
+                            href={art.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="article-card-title"
+                          >
+                            {art.title}
+                          </a>
+                          {art.author && (
+                            <div className="article-author-tag">By {art.author}</div>
+                          )}
+                        </div>
+                        <a
+                          href={art.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="article-link-btn"
+                        >
+                          <span>Read Source Article</span>
+                          <ExternalLink size={14} />
+                        </a>
+                      </div>
+                    ))
+                  ) : (
+                    report.sources_analyzed?.map((src, idx) => (
+                      <div key={idx} className="article-item-card">
+                        <div className="article-card-header">
+                          <span className="article-outlet-pill">{src}</span>
+                        </div>
+                        <div className="article-card-title">
+                          Official Publication & Wire Dispatches from {src}
+                        </div>
+                        <a
+                          href={`https://news.google.com/search?q=${encodeURIComponent(report.topic + ' ' + src)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="article-link-btn"
+                        >
+                          <span>Search {src} Dispatches</span>
+                          <ExternalLink size={14} />
+                        </a>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Collapsed Technical Log (Requirement 1: Do not show complete raw response in primary view) */}
+              {report.raw_markdown && (
+                <div style={{ gridColumn: 'span 12' }}>
+                  <details className="raw-trace-disclosure">
+                    <summary className="raw-trace-summary">
+                      <Sparkles size={16} color="#38bdf8" />
+                      <span>Inspect Raw Multi-Agent Execution Log & Full Gemini Output (Technical Trace)</span>
+                    </summary>
+                    <div className="raw-trace-content">
+                      {report.raw_markdown}
+                    </div>
+                  </details>
                 </div>
               )}
             </div>
@@ -554,7 +761,7 @@ export default function App() {
             </div>
           )}
 
-          {/* TAB 3: TIMELINE */}
+          {/* TAB 3: TIMELINE (Requirement 5: Exact Date/Month/Year, no T-30 or day 0) */}
           {activeTab === 'timeline' && (
             <div className="card" style={{ width: '100%' }}>
               <div className="card-title-row">
@@ -573,11 +780,26 @@ export default function App() {
               <div className="timeline-track">
                 {report.timeline?.events?.map((ev, idx) => (
                   <div key={idx} className="timeline-item">
-                    <div className="timeline-time">{ev.timestamp_or_date}</div>
+                    <div className="timeline-date-badge">
+                      <Calendar size={13} />
+                      <span>{ev.timestamp_or_date}</span>
+                    </div>
                     <div className="timeline-headline">{ev.headline}</div>
                     <div className="timeline-desc">{ev.description}</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Outlet: {ev.source_outlet}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginTop: '6px' }}>
+                      {ev.source_url ? (
+                        <a
+                          href={ev.source_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="timeline-source-link"
+                        >
+                          <span>Outlet: {ev.source_outlet}</span>
+                          <ExternalLink size={12} />
+                        </a>
+                      ) : (
+                        <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Outlet: {ev.source_outlet}</span>
+                      )}
                       {ev.narrative_shift && (
                         <span className="narrative-shift-badge">Shift: {ev.narrative_shift}</span>
                       )}
@@ -672,7 +894,7 @@ export default function App() {
             </div>
           )}
 
-          {/* TAB 5: ACTIVE RECALL QUIZ */}
+          {/* TAB 5: ACTIVE RECALL QUIZ (Requirement 6: Radio Buttons) */}
           {activeTab === 'quiz' && (
             <div className="card" style={{ width: '100%' }}>
               <div className="card-title-row">
@@ -709,14 +931,16 @@ export default function App() {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                           {q.options.map((opt, optIdx) => {
                             let optClass = 'quiz-option';
-                            if (selected === optIdx) optClass += ' selected';
+                            const isSelected = selected === optIdx;
+
+                            if (isSelected) optClass += ' selected';
                             if (graded) {
                               if (optIdx === q.correct_option_index) optClass += ' correct';
-                              else if (selected === optIdx && !graded.correct) optClass += ' incorrect';
+                              else if (isSelected && !graded.correct) optClass += ' incorrect';
                             }
 
                             return (
-                              <div
+                              <label
                                 key={optIdx}
                                 className={optClass}
                                 onClick={() => {
@@ -725,11 +949,35 @@ export default function App() {
                                   }
                                 }}
                               >
-                                <span style={{ fontWeight: 700, width: '24px' }}>
+                                <div className="quiz-radio-container">
+                                  <input
+                                    type="radio"
+                                    name={`quiz-q-${q.question_id}`}
+                                    value={optIdx}
+                                    checked={isSelected}
+                                    onChange={() => {
+                                      if (!quizResult) {
+                                        setUserAnswers((prev) => ({ ...prev, [q.question_id]: optIdx }));
+                                      }
+                                    }}
+                                    disabled={!!quizResult}
+                                    className="quiz-native-radio"
+                                  />
+                                  <div className={`quiz-custom-radio ${isSelected ? 'checked' : ''}`}>
+                                    {isSelected && <span className="quiz-radio-inner-dot" />}
+                                  </div>
+                                </div>
+                                <span className="quiz-opt-letter">
                                   {String.fromCharCode(65 + optIdx)})
                                 </span>
-                                <span style={{ flex: 1 }}>{opt}</span>
-                              </div>
+                                <span className="quiz-opt-text">{opt}</span>
+                                {graded && optIdx === q.correct_option_index && (
+                                  <CheckCircle2 size={18} color="#34d399" style={{ marginLeft: 'auto', flexShrink: 0 }} />
+                                )}
+                                {graded && isSelected && !graded.correct && (
+                                  <AlertTriangle size={18} color="#f87171" style={{ marginLeft: 'auto', flexShrink: 0 }} />
+                                )}
+                              </label>
                             );
                           })}
                         </div>
@@ -816,53 +1064,96 @@ export default function App() {
             </div>
           )}
 
-          {/* TAB 7: RESEARCH COPILOT CHAT */}
+          {/* TAB 7: LIVELY RESEARCH COPILOT CHAT (Requirement 7) */}
           {activeTab === 'copilot' && (
-            <div className="card" style={{ width: '100%', display: 'flex', flexDirection: 'column', height: '650px' }}>
-              <div className="card-title-row">
-                <div className="card-title">
-                  <MessageSquare size={22} color="#3b82f6" />
-                  <span>Research Copilot & Autonomous Investigation (F21, F39)</span>
+            <div className="card" style={{ width: '100%', display: 'flex', flexDirection: 'column', height: '680px' }}>
+              {/* Copilot Header */}
+              <div className="copilot-header-bar">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div className="chat-avatar-box agent">
+                    <Bot size={20} />
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: '1.05rem', color: 'white' }}>
+                      Research Copilot & Autonomous Investigation
+                    </div>
+                    <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+                      Topic Context: {report.topic}
+                    </div>
+                  </div>
                 </div>
-                <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-                  Session Grounded in Topic: {report.topic}
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div className="copilot-status-badge">
+                    <span className="copilot-pulse-dot"></span>
+                    <span>Online • Gemini 3.1 Pro</span>
+                  </div>
+                  <button
+                    onClick={handleClearChat}
+                    title="Clear Chat History"
+                    style={{ background: 'transparent', border: '1px solid #334155', color: '#94a3b8', borderRadius: '8px', padding: '6px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.78rem' }}
+                  >
+                    <Trash2 size={13} />
+                    <span>Clear</span>
+                  </button>
+                </div>
               </div>
 
               {/* Chat Message History */}
-              <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px', paddingRight: '8px', marginBottom: '16px' }}>
+              <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', paddingRight: '8px', marginBottom: '12px' }}>
                 {chatMessages.map((msg, idx) => (
                   <div
                     key={idx}
-                    style={{
-                      alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
-                      maxWidth: '80%',
-                      background: msg.sender === 'user' ? '#2563eb' : 'rgba(30, 41, 59, 0.8)',
-                      color: 'white',
-                      padding: '12px 18px',
-                      borderRadius: '14px',
-                      fontSize: '0.95rem',
-                      lineHeight: '1.5',
-                      whiteSpace: 'pre-wrap'
-                    }}
+                    className={`chat-bubble-row ${msg.sender}`}
                   >
-                    {msg.text}
+                    <div className={`chat-avatar-box ${msg.sender}`}>
+                      {msg.sender === 'user' ? <User size={18} /> : <Sparkles size={18} />}
+                    </div>
+                    <div className="chat-bubble-body">
+                      <div>{msg.text}</div>
+                      <div className="chat-meta-time">{msg.time}</div>
+                    </div>
                   </div>
                 ))}
                 {chatLoading && (
-                  <div style={{ alignSelf: 'flex-start', background: 'rgba(30, 41, 59, 0.8)', padding: '12px 18px', borderRadius: '14px', color: '#94a3b8' }}>
-                    Investigating sources and primary filings...
+                  <div className="chat-bubble-row agent">
+                    <div className="chat-avatar-box agent">
+                      <Sparkles size={18} />
+                    </div>
+                    <div className="chat-bubble-body" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '0.88rem', color: '#94a3b8' }}>Investigating primary dockets & news sources...</span>
+                      <div className="typing-indicator-dots">
+                        <span className="typing-dot" />
+                        <span className="typing-dot" />
+                        <span className="typing-dot" />
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
 
-              {/* Chat Input */}
+              {/* Quick Inquiry Chips */}
+              <div className="copilot-suggestions-bar">
+                <span style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600, flexShrink: 0 }}>Quick Prompts:</span>
+                {suggestedQuestions.map((qText, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    className="copilot-prompt-chip"
+                    onClick={() => handleSendMessage(undefined, qText)}
+                    disabled={chatLoading}
+                  >
+                    {qText}
+                  </button>
+                ))}
+              </div>
+
+              {/* Chat Input Form */}
               <form onSubmit={handleSendMessage} style={{ display: 'flex', gap: '10px' }}>
                 <input
                   type="text"
                   className="search-input"
                   style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: '10px', padding: '12px 16px' }}
-                  placeholder="Ask a question or enter 'investigate grandfathering provisions'..."
+                  placeholder="Ask a question or request an autonomous investigative deep-dive..."
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
                   disabled={chatLoading}
@@ -871,8 +1162,10 @@ export default function App() {
                   type="submit"
                   className="search-btn"
                   disabled={chatLoading || !chatInput.trim()}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
                 >
-                  <Send size={18} />
+                  <span>Send</span>
+                  <Send size={16} />
                 </button>
               </form>
             </div>

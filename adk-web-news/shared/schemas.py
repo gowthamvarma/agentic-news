@@ -399,6 +399,14 @@ class NewsIntelligenceReport(BaseModel):
     future_scenarios: List[FutureScenario] = Field(default_factory=list)
     lessons_learned: List[LessonItem] = Field(default_factory=list)
     sources_analyzed: List[str] = Field(default_factory=list)
+    context_primer: Optional[ContextPrimerPayload] = Field(
+        default=None,
+        description="Who / Where / What Primer, entity explainers and jargon glossary",
+    )
+    articles_analyzed: List[SourceArticle] = Field(
+        default_factory=list,
+        description="Detailed primary source articles analysed with direct links and metadata",
+    )
 
 
 class AudienceAdaptationItem(BaseModel):

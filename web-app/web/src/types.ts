@@ -7,6 +7,20 @@ export interface SourceArticle {
   author?: string;
 }
 
+export interface EntityPrimer {
+  entity_name: string;
+  entity_type: 'PERSON' | 'ORGANIZATION' | 'LOCATION' | 'CONCEPT' | 'EVENT';
+  explainer_2_lines: string;
+  historical_context?: string;
+}
+
+export interface ContextPrimerPayload {
+  topic: string;
+  primer_items: EntityPrimer[];
+  jargon_definitions: Record<string, string>;
+  background_story: string;
+}
+
 export interface ClaimVerification {
   claim_id: string;
   claim_text: string;
@@ -92,6 +106,8 @@ export interface NewsIntelligenceReport {
   future_scenarios: FutureScenario[];
   lessons_learned: LessonItem[];
   sources_analyzed: string[];
+  context_primer?: ContextPrimerPayload;
+  articles_analyzed?: SourceArticle[];
   evidence_ledger?: Array<{
     timestamp: number;
     tool: string;
