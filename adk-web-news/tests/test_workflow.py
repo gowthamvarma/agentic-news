@@ -16,6 +16,13 @@ from research_copilot.agent import root_agent as copilot_root
 from perspective_debate.agent import root_agent as debate_root
 from timeline_agent.agent import root_agent as timeline_root
 from scenario_prediction.agent import root_agent as scenario_root
+from shared.simulation import (
+    generate_news_analyser_response,
+    generate_timeline_agent_response,
+    generate_perspective_debate_response,
+    generate_scenario_prediction_response,
+    generate_research_copilot_response,
+)
 
 
 class TestWorkflowAndDiscovery(unittest.TestCase):
@@ -104,6 +111,68 @@ class TestWorkflowAndDiscovery(unittest.TestCase):
 
         loaded_scenario = loader.load_agent("scenario_prediction")
         self.assertEqual(loaded_scenario.name, "scenario_prediction")
+
+    def test_agent_descriptions_comprehensive(self):
+        """Verify all standalone agents have rich, multi-line professional descriptions (>60 chars)."""
+        agents = [
+            news_root,
+            fact_root,
+            tutor_root,
+            copilot_root,
+            debate_root,
+            timeline_root,
+            scenario_root,
+        ]
+        for agent in agents:
+            self.assertIsNotNone(agent.description, f"Agent {agent.name} has no description")
+            self.assertGreater(
+                len(agent.description),
+                60,
+                f"Agent {agent.name} description is too short ({len(agent.description)} chars): '{agent.description}'",
+            )
+            # Verify feature tags or role descriptors are present
+            self.assertTrue(
+                any(keyword in agent.description for keyword in ["Feature", "Reconstructs", "Forensic", "Pedagogical", "Orchestrator", "Dialectical", "Forecasting", "Investigative"]),
+                f"Agent {agent.name} description lacks standard role markers: '{agent.description}'",
+            )
+
+    def test_simulation_news_analyser_contains_timeline(self):
+        """Verify simulation output contains Chronological Event Timeline & Narrative Evolution (F2, F29)."""
+        resp = generate_news_analyser_response("Global Semiconductor Subsidies")
+        self.assertIn("Chronological Event Timeline", resp)
+        self.assertIn("Narrative Evolution", resp)
+        self.assertIn("Consensus Points", resp)
+        self.assertIn("Contradictions", resp)
+        self.assertIn("Bias", resp)
+        self.assertIn("Root Cause", resp)
+        self.assertIn("Lessons", resp)
+        self.assertIn("Scenario", resp)
+        self.assertIn("Comprehension Quiz", resp)
+
+    def test_simulation_specialized_agents(self):
+        """Verify standalone agent simulation response generators return tailored outputs."""
+        topic = "Artemis Moon Mission"
+
+        timeline_resp = generate_timeline_agent_response(topic)
+        self.assertIn("Chronological Event Timeline", timeline_resp)
+        self.assertIn("Phase 1: Precursor", timeline_resp)
+        self.assertIn("Narrative Evolution Tracking", timeline_resp)
+
+        debate_resp = generate_perspective_debate_response(topic)
+        self.assertIn("Dialectical Perspective Debate", debate_resp)
+        self.assertIn("Advocate Position", debate_resp)
+        self.assertIn("Critic Position", debate_resp)
+        self.assertIn("Neutral Compromise Synthesis", debate_resp)
+
+        scenario_resp = generate_scenario_prediction_response(topic)
+        self.assertIn("Forward-Looking Scenario Prediction", scenario_resp)
+        self.assertIn("Scenario 1", scenario_resp)
+        self.assertIn("What-If Branching", scenario_resp)
+
+        copilot_resp = generate_research_copilot_response(topic)
+        self.assertIn("Autonomous Investigative Research Dossier", copilot_resp)
+        self.assertIn("Primary Regulatory Filings", copilot_resp)
+        self.assertIn("Open Investigative Leads", copilot_resp)
 
 
 if __name__ == "__main__":

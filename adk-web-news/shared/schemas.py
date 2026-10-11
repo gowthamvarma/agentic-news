@@ -65,6 +65,18 @@ class AtomicClaim(BaseModel):
     category: Optional[str] = Field(default="Factual", description="Category: Factual, Statistical, Projection, Quote")
 
 
+class SourceCollectorPayload(BaseModel):
+    """Collection of gathered articles and source diversity assessment."""
+    topic: str = Field(description="Search topic or investigative query")
+    articles: List[SourceArticle] = Field(default_factory=list, description="Gathered source articles")
+    total_articles_retrieved: int = Field(default=0, description="Total articles collected")
+    breadth_assessment: str = Field(
+        default="Cross-spectrum coverage verified",
+        description="Assessment of ideological, geographic, and institutional diversity",
+    )
+    collection_summary: Optional[str] = Field(default=None, description="Summary of collection results")
+
+
 class ExtractedClaimsPayload(BaseModel):
     """Aggregated claims extracted across all ingested sources."""
     topic: str
@@ -213,10 +225,61 @@ class ManipulationFlag(BaseModel):
     rationale: str
 
 
+class FactVerifierReport(BaseModel):
+    """Aggregated fact-checking report for evaluated claims."""
+    topic: str
+    total_claims_audited: int = 0
+    verifications: List[ClaimVerification] = Field(default_factory=list)
+    consensus_summary: str = Field(
+        default="Consensus established on core verified facts",
+        description="High-level consensus across audited claims",
+    )
+    overall_verdict_summary: Optional[str] = Field(default=None, description="Overall verdict summary")
+
+
+class ContradictionReport(BaseModel):
+    """Collection of detected cross-source contradictions."""
+    topic: str
+    contradictions: List[ContradictionItem] = Field(default_factory=list)
+    divergence_level: Optional[str] = Field(default="LOW", description="LOW, MODERATE, HIGH")
+    divergence_summary: str = Field(
+        default="Summary of primary factual and statistical splits",
+        description="Summary of primary factual and statistical splits",
+    )
+    synthesis_summary: Optional[str] = Field(default=None, description="Synthesis summary")
+
+
+class BiasReport(BaseModel):
+    """Cross-source political lean and media framing distribution."""
+    topic: str
+    evaluations: List[BiasEvaluation] = Field(default_factory=list)
+    spectrum_summary: str = Field(
+        default="Ideological spectrum balanced across reporting",
+        description="Overview of ideological distribution and common framing angles",
+    )
+    predominant_framing: Optional[str] = Field(default=None, description="Predominant framing")
+
+
+class SourceReliabilityReport(BaseModel):
+    """Institutional credibility audits of reporting outlets."""
+    topic: str
+    outlet_scores: List[SourceReliabilityScore] = Field(default_factory=list)
+    sources: List[SourceReliabilityScore] = Field(default_factory=list)
+    fleet_reliability_score: float = Field(default=0.85, description="Fleet reliability score")
+
+
+class ManipulationReport(BaseModel):
+    """Flags for loaded language, sensationalism, and propaganda rhetoric."""
+    topic: str
+    flags: List[ManipulationFlag] = Field(default_factory=list)
+    sensationalism_index: float = Field(default=0.0, description="Sensationalism index 0.0 to 1.0")
+
+
 class CoverageGapReport(BaseModel):
     """Identification of omissions, underreported areas, and unanswered questions."""
     topic: str
     missing_perspectives: List[str] = Field(default_factory=list)
+    underreported_perspectives: List[str] = Field(default_factory=list)
     unanswered_questions: List[str] = Field(default_factory=list)
     underreported_regions: List[str] = Field(default_factory=list)
 
@@ -318,9 +381,21 @@ class NewsIntelligenceReport(BaseModel):
     executive_summary: str
     key_metrics_and_numbers: List[str] = Field(default_factory=list)
     consensus_points: List[str] = Field(default_factory=list, description="Points confirmed across all reporting")
+    timeline: Optional[TimelinePayload] = Field(
+        default=None,
+        description="Chronological event timeline and narrative evolution trajectory",
+    )
     contradictions: List[ContradictionItem] = Field(default_factory=list)
     verifications: List[ClaimVerification] = Field(default_factory=list)
     bias_evaluations: List[BiasEvaluation] = Field(default_factory=list)
+    root_cause_analysis: Optional[RootCauseReport] = Field(
+        default=None,
+        description="Immediate triggers, contributing factors, and structural failure points",
+    )
+    consequences_tree: List[ConsequenceNode] = Field(
+        default_factory=list,
+        description="3-tier consequence ripple effects (first, second, third order)",
+    )
     future_scenarios: List[FutureScenario] = Field(default_factory=list)
     lessons_learned: List[LessonItem] = Field(default_factory=list)
     sources_analyzed: List[str] = Field(default_factory=list)

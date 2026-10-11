@@ -45,7 +45,11 @@ Conform strictly to ContextPrimerPayload with primer_items, jargon_definitions, 
 context_builder = Agent(
     name="context_builder",
     model=MODEL_AGENT_FAST,
-    description="Builds who/where/what primers, jargon glossaries, and historical background for newcomers.",
+    description=(
+        "Newcomer onboarding & background context architect (P0, Features F1, F3, F5). "
+        "Formulates Who/Where/What primers, inline jargon definitions, and historical background narrative "
+        "('How did we get here?') to ground readers with zero domain background."
+    ),
     instruction=CONTEXT_BUILDER_INSTRUCTION,
     output_schema=ContextPrimerPayload,
     generate_content_config=types.GenerateContentConfig(
@@ -80,7 +84,11 @@ Conform strictly to TimelinePayload with chronologically ordered events and narr
 timeline_agent = Agent(
     name="timeline_agent",
     model=MODEL_AGENT_FAST,
-    description="Reconstructs chronological timelines and tracks narrative framing shifts across outlets.",
+    description=(
+        "Forensic chronological sequencer & narrative evolution investigator (P0, Features F2, F29). "
+        "Reconstructs verified, deduplicated milestone timelines and traces shifts in reported metrics, "
+        "blame attribution, and editorial tone from breaking alerts to current coverage."
+    ),
     instruction=TIMELINE_RECONSTRUCTION_INSTRUCTION,
     output_schema=TimelinePayload,
     generate_content_config=types.GenerateContentConfig(
@@ -113,7 +121,11 @@ Conform strictly to KnowledgeGraphPayload with typed nodes and directed edges.
 knowledge_graph_agent = Agent(
     name="knowledge_graph_agent",
     model=MODEL_AGENT_FAST,
-    description="Maps entity relationships and causal event dependency networks.",
+    description=(
+        "Entity relationship & causal event dependency graph modeler (P1/P2, Features F4, F30). "
+        "Extracts network nodes for persons, institutions, and regulatory bodies, mapping directed alliances, "
+        "adversarial conflicts, and causal dependency chains."
+    ),
     instruction=KNOWLEDGE_GRAPH_INSTRUCTION,
     output_schema=KnowledgeGraphPayload,
     generate_content_config=types.GenerateContentConfig(
@@ -146,7 +158,11 @@ Conform strictly to StakeholderMapPayload with stakeholder profiles.
 stakeholder_map_agent = Agent(
     name="stakeholder_map_agent",
     model=MODEL_AGENT_FAST,
-    description="Maps stakeholder positions, underlying incentives, and who gains or loses.",
+    description=(
+        "Political economy & stakeholder incentives auditor (P1, Feature F31). "
+        "Maps actor positions, underlying economic and regulatory incentives, contrasting stated positions "
+        "against structural motivations to determine who gains, loses, or faces mixed outcomes."
+    ),
     instruction=STAKEHOLDER_MAP_INSTRUCTION,
     output_schema=StakeholderMapPayload,
     generate_content_config=types.GenerateContentConfig(

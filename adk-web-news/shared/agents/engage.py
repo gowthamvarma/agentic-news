@@ -44,7 +44,12 @@ Conform to QuizPayload and FlashcardDeck models.
 tutor_agent = Agent(
     name="tutor_agent",
     model=MODEL_AGENT_FAST,
-    description="Interactive News Literacy Tutor creating comprehension quizzes and active recall flashcards.",
+    description=(
+        "Pedagogical News Literacy & Active Recall Tutor (Features F20, F22, F23). "
+        "Generates diagnostic comprehension multiple-choice questions (MCQs), concept retention flashcards, "
+        "and critical reflection prompts to test understanding of conflicting reporting, factual subtleties, "
+        "and systemic causes."
+    ),
     instruction=TUTOR_INSTRUCTION,
     generate_content_config=types.GenerateContentConfig(
         temperature=0.3,
@@ -78,7 +83,11 @@ Conform to PerspectiveDebateReport detailing resolution_under_debate, debate_tur
 perspective_debate_agent = Agent(
     name="perspective_debate_agent",
     model=MODEL_REASONING_PRO,
-    description="Simulates a structured, evidence-grounded debate between pro and con viewpoints with neutral synthesis.",
+    description=(
+        "Dialectical Discourse & Perspective Simulation Moderator (Feature F38). "
+        "Simulates structured, evidence-grounded debates between steelmanned advocate and critic positions "
+        "on controversial news topics, culminating in a balanced compromise synthesis and shared principles matrix."
+    ),
     instruction=PERSPECTIVE_DEBATE_INSTRUCTION,
     output_schema=PerspectiveDebateReport,
     generate_content_config=types.GenerateContentConfig(
@@ -114,7 +123,11 @@ Provide clear Markdown answers with citations or structured InvestigationReport 
 research_copilot = Agent(
     name="research_copilot",
     model=MODEL_REASONING_PRO,
-    description="Interactive investigative chat companion and autonomous investigation agent chasing leads.",
+    description=(
+        "Autonomous Investigative Research Copilot & Ask-the-News Chat Companion (Features F21, F39). "
+        "Answers deep follow-up queries with pinpoint citation traceability, formulates investigative sub-queries, "
+        "scrapes supplementary sources, queries factcheck databases, and compiles comprehensive investigative dossiers."
+    ),
     instruction=RESEARCH_COPILOT_INSTRUCTION,
     tools=[fetch_news_tool, scrape_article_tool, factcheck_db_tool],
     generate_content_config=types.GenerateContentConfig(

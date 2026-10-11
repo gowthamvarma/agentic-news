@@ -21,7 +21,11 @@ from shared.agents.analyse import SCENARIO_PREDICTION_INSTRUCTION
 root_agent = Agent(
     name="scenario_prediction",
     model=MODEL_REASONING_PRO,
-    description="Forecasts future developments with Best/Likely/Worst paths and What-If simulations.",
+    description=(
+        "Forward-Looking Scenario Forecasting & What-If Simulation Engine (Feature F18). "
+        "Forecasts plausible trajectories across Best Case, Most Likely, and Worst Case scenarios with explicit "
+        "probability weighting, leading early-warning indicators to monitor, and What-If hypothesis branching."
+    ),
     instruction=SCENARIO_PREDICTION_INSTRUCTION,
     tools=[fetch_news_tool],
     generate_content_config=types.GenerateContentConfig(

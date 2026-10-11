@@ -27,7 +27,12 @@ from shared.schemas import ClaimVerification
 root_agent = Agent(
     name="fact_verifier",
     model=MODEL_REASONING_PRO,
-    description="Dedicated Fact Verifier evaluating factual accuracy, statistics, and contradictions.",
+    description=(
+        "Forensic Evidentiary Fact Verifier (Features F5, F7, F8, F9, F10). "
+        "Audits atomic claims against primary databases, public registers, and fact-check ledgers using the "
+        "IFCN Code of Principles to assign calibrated verdicts (VERIFIED, DISPUTED, UNVERIFIED, MISLEADING) "
+        "with explicit evidentiary confidence scoring."
+    ),
     instruction=FACT_VERIFIER_INSTRUCTION,
     tools=[factcheck_db_tool, scrape_article_tool, fetch_news_tool, fact_check_toolset],
     generate_content_config=types.GenerateContentConfig(

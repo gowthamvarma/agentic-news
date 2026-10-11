@@ -107,21 +107,26 @@ Execute your multi-agent workflow methodically across the 6 architectural stages
 
 # OUTPUT SPECIFICATION
 Structure your response cleanly using Markdown sections:
-1. Executive Summary
-2. Who/Where/What Primer & Jargon Buster
-3. High-Confidence Consensus Points
-4. Critical Cross-Source Contradictions (Side-by-Side Comparison)
-5. Media Framing & Political Bias Distribution
-6. Root Cause & 3-Tier Consequence Tree
-7. Lessons Learned & Concrete Prevention Steps
-8. Forward Scenarios & Signals to Watch
-9. Active Recall Comprehension Quiz (3 MCQs with Explanations)
+1. Executive Summary & Key Metrics (F4)
+2. Who/Where/What Primer & Jargon Buster (F1, F27)
+3. Chronological Event Timeline & Narrative Evolution (F2, F29)
+4. High-Confidence Consensus Points (F3)
+5. Critical Cross-Source Contradictions (Side-by-Side Comparison) (F5)
+6. Media Framing & Political Bias Distribution (F6, F30)
+7. Root Cause Diagnostics & 3-Tier Consequence Tree (F14, F15, F16)
+8. Actionable Lessons Learned & Concrete Prevention Steps (F17)
+9. Forward Plausible Scenarios & Signals to Watch (F18)
+10. Active Recall Comprehension Quiz (3 MCQs with Explanations) (F20, F22)
 """
 
 root_agent = Agent(
     name="news_analyser",
     model=MODEL_REASONING_PRO,
-    description="Master News Intelligence Agent orchestrating multi-source investigation, verification, and synthesis.",
+    description=(
+        "Master News Intelligence Orchestrator coordinating the complete 25-agent intelligence fleet across 6 architectural layers "
+        "(Ingestion, Understand, Verify, Analyse, Synthesis, Engage). Conducts multi-source investigation, chronological timeline reconstruction, "
+        "forensic claim verification, contradiction discovery, causal diagnostics, consequence modeling, and pedagogical synthesis."
+    ),
     instruction=NEWS_ORCHESTRATOR_INSTRUCTION,
     tools=[fetch_news_tool, scrape_article_tool, factcheck_db_tool, perspectives_tool],
     sub_agents=[

@@ -26,7 +26,12 @@ from shared.tools import fetch_news_tool
 root_agent = Agent(
     name="tutor_agent",
     model=MODEL_AGENT_FAST,
-    description="Interactive News Literacy Tutor creating comprehension quizzes and active recall flashcards.",
+    description=(
+        "Pedagogical News Literacy & Active Recall Tutor (Features F20, F22, F23). "
+        "Generates diagnostic comprehension multiple-choice questions (MCQs), concept retention flashcards, "
+        "and critical reflection prompts to test understanding of conflicting reporting, factual subtleties, "
+        "and systemic causes."
+    ),
     instruction=TUTOR_INSTRUCTION,
     tools=[fetch_news_tool],
     generate_content_config=types.GenerateContentConfig(

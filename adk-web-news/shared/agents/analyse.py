@@ -45,7 +45,11 @@ Conform to RootCauseReport with immediate_triggers, underlying_systemic_factors,
 root_cause_agent = Agent(
     name="root_cause_agent",
     model=MODEL_REASONING_PRO,
-    description="Diagnoses proximate triggers, contributing factors, and structural failure points.",
+    description=(
+        "Systems dynamics & multi-causal root cause investigator (P1, Feature F34). "
+        "Applies 5-Whys and causal tree analysis to diagnose proximate acute triggers, "
+        "pre-existing contributing conditions, and institutional/regulatory structural failure points."
+    ),
     instruction=ROOT_CAUSE_INSTRUCTION,
     output_schema=RootCauseReport,
     generate_content_config=types.GenerateContentConfig(
@@ -80,7 +84,11 @@ Conform strictly to LessonsPreventionReport containing lessons with lesson_takea
 lessons_prevention_agent = Agent(
     name="lessons_prevention_agent",
     model=MODEL_AGENT_FAST,
-    description="Distils lessons learned and concrete preventive actions for individuals, organisations, and policymakers.",
+    description=(
+        "Resilience strategist & preventive action formulator (P0/P1, Features F13, F14). "
+        "Transforms complex crises into concrete, pragmatic mitigation steps tailored for "
+        "individuals (personal contingencies), organisations (operational hedges), and policymakers (statutory reforms)."
+    ),
     instruction=LESSONS_PREVENTION_INSTRUCTION,
     output_schema=LessonsPreventionReport,
     generate_content_config=types.GenerateContentConfig(
@@ -118,7 +126,11 @@ Conform to ImpactReport with economic_impact_summary, citizen_impact_what_it_mea
 impact_analyzer = Agent(
     name="impact_analyzer",
     model=MODEL_REASONING_PRO,
-    description="Analyzes economic effects, citizen impact ('what it means for me'), and 3-tier consequence cascades.",
+    description=(
+        "Macro-economic fallout & citizen consequence analyst (P1, Features F17, F35, F37). "
+        "Synthesizes sector and employment effects, delivers a plain-language 'What It Means For Me' personal impact guide, "
+        "and maps 3-tier consequence cascades (first, second, and third-order ripple effects) without stock tips."
+    ),
     instruction=IMPACT_ANALYSIS_INSTRUCTION,
     output_schema=ImpactReport,
     generate_content_config=types.GenerateContentConfig(
@@ -151,7 +163,11 @@ Conform to HistoricalParallelsReport containing parallels with historical_event,
 historical_parallels_agent = Agent(
     name="historical_parallels_agent",
     model=MODEL_REASONING_PRO,
-    description="Identifies historical parallels, compares past outcomes, and draws historical lessons.",
+    description=(
+        "Comparative history & precedent analyst (P1, Feature F18). "
+        "Identifies authentic 20th and 21st-century historical analogues to ongoing crises, "
+        "contrasting structural dynamics, differing conditions, and past resolutions to extract empirical lessons."
+    ),
     instruction=HISTORICAL_PARALLELS_INSTRUCTION,
     output_schema=HistoricalParallelsReport,
     generate_content_config=types.GenerateContentConfig(
@@ -189,7 +205,11 @@ Conform strictly to ScenarioPredictionReport with future scenarios and speculati
 scenario_prediction_agent = Agent(
     name="scenario_prediction_agent",
     model=MODEL_REASONING_PRO,
-    description="Forecasts future developments with Best/Likely/Worst paths, signals to watch, and What-If simulations.",
+    description=(
+        "Probabilistic scenario forecasting & what-if simulation modeler (P0/P2, Features F15, F36). "
+        "Constructs Best-Case, Most-Likely, and Worst-Case trajectories with calibrated probabilities, "
+        "concrete leading indicators ('Signals to Watch'), and counterfactual assumption sensitivity testing."
+    ),
     instruction=SCENARIO_PREDICTION_INSTRUCTION,
     output_schema=ScenarioPredictionReport,
     generate_content_config=types.GenerateContentConfig(
@@ -221,7 +241,11 @@ Conform to CountryTransferabilityReport detailing target_country, could_it_happe
 country_transferability_agent = Agent(
     name="country_transferability_agent",
     model=MODEL_REASONING_PRO,
-    description="Assesses whether a foreign news event could occur in the user's country and what safeguards apply.",
+    description=(
+        "Cross-jurisdiction policy transfer & 'Could It Happen Here?' auditor (P1, Feature F16). "
+        "Evaluates whether crises originating in one nation could replicate in another, auditing institutional safeguards, "
+        "statutory differences, and adaptable policy safeguards."
+    ),
     instruction=COUNTRY_TRANSFERABILITY_INSTRUCTION,
     output_schema=CountryTransferabilityReport,
     generate_content_config=types.GenerateContentConfig(

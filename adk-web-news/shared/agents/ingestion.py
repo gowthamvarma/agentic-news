@@ -14,7 +14,7 @@ from google.adk.agents import Agent
 from google.genai import types
 
 from shared.config import MODEL_AGENT_FAST
-from shared.schemas import ExtractedClaimsPayload
+from shared.schemas import ExtractedClaimsPayload, SourceCollectorPayload
 from shared.tools import fetch_news_tool, scrape_article_tool, perspectives_tool
 
 
@@ -46,9 +46,14 @@ Output an inventory of collected articles containing:
 source_collector = Agent(
     name="source_collector",
     model=MODEL_AGENT_FAST,
-    description="Expands queries and gathers diverse cross-spectrum news reporting from live outlets.",
+    description=(
+        "Autonomous multi-spectrum news retrieval specialist (P0, Feature F11/Collector). "
+        "Expands user queries into comprehensive search terms across international wire desks, "
+        "financial papers, and regional outlets via Google News RSS and DuckDuckGo to guarantee ideological diversity."
+    ),
     instruction=SOURCE_COLLECTOR_INSTRUCTION,
     tools=[fetch_news_tool, perspectives_tool],
+    output_schema=SourceCollectorPayload,
     generate_content_config=types.GenerateContentConfig(
         temperature=0.2,
         top_p=0.8,
@@ -86,7 +91,11 @@ Output an ExtractedClaimsPayload containing a list of AtomicClaim items with cla
 claim_extractor = Agent(
     name="claim_extractor",
     model=MODEL_AGENT_FAST,
-    description="Decomposes news articles into atomic, verifiable factual claims with strict source attribution.",
+    description=(
+        "Forensic atomic claim decomposition engine (P0, Feature F6/Claims). "
+        "Deconstructs journalistic articles into discrete verifiable propositions, numerical metrics, "
+        "and named attributions while deduplicating syndicated wire dispatches across publications."
+    ),
     instruction=CLAIM_EXTRACTOR_INSTRUCTION,
     tools=[scrape_article_tool],
     output_schema=ExtractedClaimsPayload,

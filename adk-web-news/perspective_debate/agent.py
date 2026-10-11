@@ -21,7 +21,11 @@ from shared.agents.engage import PERSPECTIVE_DEBATE_INSTRUCTION
 root_agent = Agent(
     name="perspective_debate",
     model=MODEL_REASONING_PRO,
-    description="Simulates structured, evidence-grounded debates between pro and con viewpoints.",
+    description=(
+        "Dialectical Discourse & Perspective Simulation Moderator (Feature F38). "
+        "Simulates structured, evidence-grounded debates between steelmanned advocate and critic positions "
+        "on controversial news topics, culminating in a balanced compromise synthesis and shared principles matrix."
+    ),
     instruction=PERSPECTIVE_DEBATE_INSTRUCTION,
     tools=[fetch_news_tool, perspectives_tool],
     generate_content_config=types.GenerateContentConfig(

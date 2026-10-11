@@ -12,10 +12,15 @@ from shared.schemas import (
     AtomicClaim,
     AudienceAdaptationReport,
     BiasEvaluation,
+    BiasReport,
     ClaimVerification,
+    ConsequenceNode,
     ContradictionItem,
+    ContradictionReport,
     CountryTransferabilityReport,
+    CoverageGapReport,
     EntityPrimer,
+    FactVerifierReport,
     FlashcardDeck,
     HistoricalParallelsReport,
     ImpactReport,
@@ -23,6 +28,7 @@ from shared.schemas import (
     KnowledgeGraphPayload,
     LessonsPreventionReport,
     ManipulationFlag,
+    ManipulationReport,
     NewsIntelligenceReport,
     PerspectiveDebateReport,
     PoliticalLean,
@@ -31,6 +37,8 @@ from shared.schemas import (
     RootCauseReport,
     ScenarioPredictionReport,
     SourceArticle,
+    SourceCollectorPayload,
+    SourceReliabilityReport,
     StakeholderMapPayload,
     TimelinePayload,
     VerificationStatus,
@@ -205,6 +213,114 @@ class TestSchemas(unittest.TestCase):
             deep_dive_verdict="Independent audit logs corroborate procurement anomalies.",
         )
         self.assertEqual(investigation.topic, "Port Security")
+
+    def test_container_and_extended_report_schemas(self):
+        """Verify container schemas for verify layer and extended fields in NewsIntelligenceReport."""
+        # SourceCollectorPayload
+        collector = SourceCollectorPayload(
+            topic="Global Semiconductor Subsidies",
+            articles=[
+                SourceArticle(
+                    url="https://reuters.com/semi-1",
+                    title="Chip Fab Funding Announced",
+                    outlet="Reuters",
+                    content="Details on funding...",
+                )
+            ],
+            total_articles_retrieved=1,
+            collection_summary="Retrieved 1 wire article on fab funding.",
+        )
+        self.assertEqual(len(collector.articles), 1)
+        self.assertEqual(collector.total_articles_retrieved, 1)
+
+        # FactVerifierReport
+        fact_rep = FactVerifierReport(
+            topic="Chip Subsidies",
+            verifications=[
+                ClaimVerification(
+                    claim_id="C-1",
+                    claim_text="Subsidies exceed $50B.",
+                    status=VerificationStatus.VERIFIED,
+                    confidence=0.95,
+                    reasoning="Matches statute budget appropriation.",
+                )
+            ],
+            overall_verdict_summary="Statutory funding verified by legislative record.",
+        )
+        self.assertEqual(len(fact_rep.verifications), 1)
+
+        # ContradictionReport
+        contra_rep = ContradictionReport(
+            topic="Chip Subsidies",
+            contradictions=[],
+            divergence_level="LOW",
+            synthesis_summary="No substantial discrepancies identified.",
+        )
+        self.assertEqual(contra_rep.divergence_level, "LOW")
+
+        # BiasReport
+        bias_rep = BiasReport(
+            topic="Chip Subsidies",
+            evaluations=[],
+            predominant_framing="Industrial policy and national competitiveness.",
+        )
+        self.assertEqual(bias_rep.predominant_framing, "Industrial policy and national competitiveness.")
+
+        # SourceReliabilityReport
+        rel_rep = SourceReliabilityReport(
+            topic="Chip Subsidies",
+            sources=[],
+            fleet_reliability_score=0.92,
+        )
+        self.assertEqual(rel_rep.fleet_reliability_score, 0.92)
+
+        # ManipulationReport
+        manip_rep = ManipulationReport(
+            topic="Chip Subsidies",
+            flags=[],
+            sensationalism_index=0.15,
+        )
+        self.assertEqual(manip_rep.sensationalism_index, 0.15)
+
+        # CoverageGapReport
+        gap_rep = CoverageGapReport(
+            topic="Chip Subsidies",
+            underreported_perspectives=["Environmental impact on local water supply"],
+            unanswered_questions=["Timeline for cleanroom environmental permits"],
+        )
+        self.assertEqual(len(gap_rep.underreported_perspectives), 1)
+
+        # NewsIntelligenceReport with timeline and consequence tree
+        tl = TimelinePayload(
+            topic="Chip Subsidies",
+            events=[],
+            narrative_evolution_summary="Shifted from subsidy bidding to workforce readiness.",
+        )
+        root = RootCauseReport(
+            topic="Chip Subsidies",
+            immediate_triggers=["Supply chain shortages"],
+            underlying_systemic_factors=["Geopolitical supply concentration"],
+            structural_failure_points=["Single-region advanced packaging dependence"],
+        )
+        node = ConsequenceNode(
+            order="FIRST_ORDER",
+            impact_description="Domestic fab construction commences",
+            affected_sector_or_group="Semiconductor manufacturing",
+        )
+        report = NewsIntelligenceReport(
+            topic="Chip Subsidies",
+            executive_summary="Comprehensive analysis of fab funding.",
+            key_metrics_and_numbers=["$52B total"],
+            consensus_points=["All outlets confirm signing"],
+            sources_analyzed=["Reuters", "Bloomberg"],
+            timeline=tl,
+            root_cause_analysis=root,
+            consequences_tree=[node],
+        )
+        self.assertIsNotNone(report.timeline)
+        self.assertEqual(report.timeline.narrative_evolution_summary, "Shifted from subsidy bidding to workforce readiness.")
+        self.assertEqual(len(report.consequences_tree), 1)
+        self.assertEqual(report.consequences_tree[0].order, "FIRST_ORDER")
 
 
 if __name__ == "__main__":

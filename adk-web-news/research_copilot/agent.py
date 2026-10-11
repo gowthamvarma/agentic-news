@@ -21,7 +21,11 @@ from shared.agents.engage import RESEARCH_COPILOT_INSTRUCTION
 root_agent = Agent(
     name="research_copilot",
     model=MODEL_REASONING_PRO,
-    description="Autonomous Investigative Research Copilot and interactive news Q&A companion.",
+    description=(
+        "Autonomous Investigative Research Copilot & Ask-the-News Chat Companion (Features F21, F39). "
+        "Answers deep follow-up queries with pinpoint citation traceability, formulates investigative sub-queries, "
+        "scrapes supplementary sources, queries factcheck databases, and compiles comprehensive investigative dossiers."
+    ),
     instruction=RESEARCH_COPILOT_INSTRUCTION,
     tools=[fetch_news_tool, scrape_article_tool, factcheck_db_tool, perspectives_tool],
     generate_content_config=types.GenerateContentConfig(

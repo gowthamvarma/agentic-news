@@ -43,11 +43,7 @@ from shared.config import (
 from shared.plugins.evidence_ledger import EvidenceLedgerPlugin
 from shared.plugins.token_tracker import TokenTrackerPlugin
 from shared.plugins.news_guardrail import NewsGuardrailPlugin
-from shared.simulation import (
-    generate_fact_verifier_response,
-    generate_news_analyser_response,
-    generate_tutor_response,
-)
+from shared.simulation import _route_simulation_response
 
 # Agent imports
 from news_analyser.agent import root_agent as news_agent
@@ -167,20 +163,10 @@ def main():
         except Exception as e:
             logger.error("Live execution encountered exception: %s. Engaging dynamic fallback.", e)
             print(f"\n[Notice: Error in live execution ({e}), falling back to dynamic intelligence synthesis]:\n")
-            if args.agent == "fact_verifier":
-                output = generate_fact_verifier_response(args.query)
-            elif args.agent == "tutor_agent":
-                output = generate_tutor_response(args.query)
-            else:
-                output = generate_news_analyser_response(args.query)
+            output = _route_simulation_response(args.agent, args.query)
             print(output)
     else:
-        if args.agent == "fact_verifier":
-            output = generate_fact_verifier_response(args.query)
-        elif args.agent == "tutor_agent":
-            output = generate_tutor_response(args.query)
-        else:
-            output = generate_news_analyser_response(args.query)
+        output = _route_simulation_response(args.agent, args.query)
         print(output)
 
     print("=" * 80)

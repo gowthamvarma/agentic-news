@@ -40,7 +40,11 @@ Conform strictly to the NewsIntelligenceReport schema.
 report_synthesizer = Agent(
     name="report_synthesizer",
     model=MODEL_REASONING_PRO,
-    description="Synthesizes all multi-agent investigative layers into an executive news intelligence brief.",
+    description=(
+        "Master intelligence brief & executive dashboard assembler (P0/P2, Features F19, F28). "
+        "Assembles all multi-agent investigative outputs into a unified NewsIntelligenceReport containing "
+        "executive brief, key metrics dashboard, chronological timeline, consensus points, side-by-side contradictions, and action recommendations."
+    ),
     instruction=REPORT_SYNTHESIZER_INSTRUCTION,
     output_schema=NewsIntelligenceReport,
     generate_content_config=types.GenerateContentConfig(
@@ -80,7 +84,11 @@ Conform strictly to AudienceAdaptationReport with audience_adaptations and trans
 audience_adaptation_agent = Agent(
     name="audience_adaptation_agent",
     model=MODEL_AGENT_FAST,
-    description="Adapts briefs for diverse audiences (ELI5, Teenager, Academic, Executive) and translates into multiple languages.",
+    description=(
+        "Cognitive tone rewriter & multilingual translation specialist (P0/P1, Features F24, F25, F26). "
+        "Rewrites reports across 5 reading personas (ELI5, Teenager, Academic Essay, Executive Brief, Wire Dispatch) "
+        "and translates summaries into international and regional languages while preserving named entities and dates."
+    ),
     instruction=AUDIENCE_ADAPTATION_INSTRUCTION,
     output_schema=AudienceAdaptationReport,
     generate_content_config=types.GenerateContentConfig(

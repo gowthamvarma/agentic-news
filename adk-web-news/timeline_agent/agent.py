@@ -21,7 +21,12 @@ from shared.agents.understand import TIMELINE_RECONSTRUCTION_INSTRUCTION
 root_agent = Agent(
     name="timeline_agent",
     model=MODEL_AGENT_FAST,
-    description="Reconstructs chronological event timelines and tracks media narrative evolution.",
+    description=(
+        "Chronological Event Timeline & Narrative Evolution Tracker (Features F2, F29). "
+        "Reconstructs exact event sequences from multi-source reporting, resolves cross-outlet time zone "
+        "and timestamp discrepancies, and maps how media narrative framing evolved from breaking reports "
+        "to retrospective analysis."
+    ),
     instruction=TIMELINE_RECONSTRUCTION_INSTRUCTION,
     tools=[fetch_news_tool],
     generate_content_config=types.GenerateContentConfig(

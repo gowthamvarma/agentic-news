@@ -16,10 +16,15 @@ from google.genai import types
 from shared.config import MODEL_AGENT_FAST, MODEL_REASONING_PRO
 from shared.schemas import (
     BiasEvaluation,
+    BiasReport,
     ClaimVerification,
     ContradictionItem,
+    ContradictionReport,
     CoverageGapReport,
+    FactVerifierReport,
     ManipulationFlag,
+    ManipulationReport,
+    SourceReliabilityReport,
     SourceReliabilityScore,
 )
 from shared.tools import factcheck_db_tool, scrape_article_tool
@@ -64,9 +69,14 @@ Conform to ClaimVerification items detailing claim_id, claim_text, status, confi
 fact_verifier = Agent(
     name="fact_verifier",
     model=MODEL_REASONING_PRO,
-    description="Audits claims using IFCN standards, historical fact-check databases, and primary records.",
+    description=(
+        "Forensic evidentiary fact-checking auditor (P0, Feature F6). "
+        "Applies International Fact-Checking Network (IFCN) principles, querying primary registries, "
+        "verifying statistical denominators and attributions, and assigning calibrated confidence scores."
+    ),
     instruction=FACT_VERIFIER_INSTRUCTION,
     tools=[factcheck_db_tool, scrape_article_tool, fact_check_toolset],
+    output_schema=FactVerifierReport,
     generate_content_config=types.GenerateContentConfig(
         temperature=0.0,
         top_p=0.95,
@@ -93,14 +103,19 @@ Evaluate the journalistic credibility and institutional reliability of reporting
 - Wire services (Reuters, AP) and established national broadcasters require evaluation based on sourcing standards.
 
 # OUTPUT SPECIFICATION
-Return a list of SourceReliabilityScore entries with outlet, tier, track_record_score, sourcing_quality, and corrections_policy_status.
+Return a SourceReliabilityReport containing topic and a list of SourceReliabilityScore entries with outlet, tier, track_record_score, sourcing_quality, and corrections_policy_status.
 """
 
 source_reliability_agent = Agent(
     name="source_reliability_agent",
     model=MODEL_AGENT_FAST,
-    description="Audits news outlets for institutional reliability, sourcing standards, and corrections records.",
+    description=(
+        "Journalistic credibility & institutional integrity auditor (P1, Feature F9). "
+        "Evaluates media publications across historical correction transparency, on-the-record attribution rigor, "
+        "and factual track records to weight downstream claim credibility."
+    ),
     instruction=SOURCE_RELIABILITY_INSTRUCTION,
+    output_schema=SourceReliabilityReport,
     generate_content_config=types.GenerateContentConfig(
         temperature=0.1,
         top_p=0.85,
@@ -126,14 +141,19 @@ Compare coverage across all analyzed publications on the same story. Identify cr
 - Do NOT dismiss genuine discrepancies as mere 'differences in tone'; highlight hard factual discrepancies.
 
 # OUTPUT SPECIFICATION
-Conform to ContradictionItem containing contradiction_id, topic_aspect, outlet_a, claim_a, outlet_b, claim_b, divergence_type, and analysis.
+Conform to ContradictionReport containing topic, divergence_summary, and a list of ContradictionItem objects.
 """
 
 contradiction_analyst = Agent(
     name="contradiction_analyst",
     model=MODEL_REASONING_PRO,
-    description="Detects and diagnoses cross-source factual contradictions, conflicting numbers, and divergent attributions.",
+    description=(
+        "Cross-source factual contradiction & divergence investigator (P0, Feature F7). "
+        "Compares competing publications side-by-side to pinpoint statistical discrepancies, "
+        "divergent casualty or financial counts, timeline conflicts, and conflicting attribution claims."
+    ),
     instruction=CONTRADICTION_ANALYST_INSTRUCTION,
+    output_schema=ContradictionReport,
     generate_content_config=types.GenerateContentConfig(
         temperature=0.1,
         top_p=0.95,
@@ -159,15 +179,20 @@ Evaluate media coverage for political lean, narrative framing, and omitted conte
 - ALWAYS provide direct textual evidence and quotes from the articles for flagged bias.
 
 # OUTPUT SPECIFICATION
-Conform to BiasEvaluation with outlet, assessed_lean, loaded_terms_identified, framing_narrative, and omitted_context.
+Conform to BiasReport containing topic, evaluations (list of BiasEvaluation objects), and spectrum_summary.
 """
 
 bias_analyst = Agent(
     name="bias_analyst",
     model=MODEL_AGENT_FAST,
-    description="Evaluates ideological lean, framing emphasis, loaded adjectives, and omitted context.",
+    description=(
+        "Nonpartisan media framing & ideological spectrum evaluator (P0, Feature F8). "
+        "Audits publications across economic and social policy axes, identifying loaded adjectives, "
+        "editorial spin, narrative prioritization, and critical context omissions."
+    ),
     instruction=BIAS_ANALYST_INSTRUCTION,
     tools=[framing_toolset],
+    output_schema=BiasReport,
     generate_content_config=types.GenerateContentConfig(
         temperature=0.2,
         top_p=0.8,
@@ -196,14 +221,19 @@ Analyze headlines and article texts to flag sensationalism, propaganda technique
 - Cite specific textual quotations for every flagged item.
 
 # OUTPUT SPECIFICATION
-Return a list of ManipulationFlag entries with outlet, quote_or_headline, technique, and rationale.
+Return a ManipulationReport containing topic and a list of ManipulationFlag entries.
 """
 
 manipulation_detector = Agent(
     name="manipulation_detector",
     model=MODEL_AGENT_FAST,
-    description="Detects clickbait, propaganda techniques, and reader-targeted cognitive bias triggers.",
+    description=(
+        "Propaganda rhetoric & cognitive-bias manipulation detector (P1, Features F10, F33). "
+        "Flags sensationalist clickbait, headline-body mismatches, emotional fear appeals, "
+        "false dilemmas, and psychological anchoring triggers aimed at reader manipulation."
+    ),
     instruction=MANIPULATION_DETECTOR_INSTRUCTION,
+    output_schema=ManipulationReport,
     generate_content_config=types.GenerateContentConfig(
         temperature=0.1,
         top_p=0.85,
@@ -235,7 +265,11 @@ Conform to CoverageGapReport with missing_perspectives, unanswered_questions, an
 coverage_gap_agent = Agent(
     name="coverage_gap_agent",
     model=MODEL_AGENT_FAST,
-    description="Finds missing perspectives, unanswered questions, and underreported regions.",
+    description=(
+        "Media blindspot & coverage gap investigator (P1, Feature F11). "
+        "Scans reporting corpora to discover vital omitted voices, unquoted affected communities, "
+        "underreported geographic regions, and critical unanswered questions."
+    ),
     instruction=COVERAGE_GAP_INSTRUCTION,
     output_schema=CoverageGapReport,
     generate_content_config=types.GenerateContentConfig(
