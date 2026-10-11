@@ -22,7 +22,9 @@ import {
   HelpCircle,
   User,
   Bot,
-  Trash2
+  Trash2,
+  Palette,
+  ChevronDown
 } from 'lucide-react';
 import {
   analyzeNewsTopic,
@@ -45,7 +47,46 @@ interface ChatMessage {
   time: string;
 }
 
+const DAISY_THEMES = [
+  { id: 'dark', name: 'Dark', icon: '🌙' },
+  { id: 'night', name: 'Night', icon: '🌃' },
+  { id: 'dim', name: 'Dim', icon: '🌘' },
+  { id: 'sunset', name: 'Sunset', icon: '🌆' },
+  { id: 'synthwave', name: 'Synthwave', icon: '🌆' },
+  { id: 'cyberpunk', name: 'Cyberpunk', icon: '⚡' },
+  { id: 'dracula', name: 'Dracula', icon: '🧛' },
+  { id: 'luxury', name: 'Luxury', icon: '💎' },
+  { id: 'black', name: 'Black', icon: '⬛' },
+  { id: 'coffee', name: 'Coffee', icon: '☕' },
+  { id: 'forest', name: 'Forest', icon: '🌲' },
+  { id: 'halloween', name: 'Halloween', icon: '🎃' },
+  { id: 'business', name: 'Business', icon: '💼' },
+  { id: 'aqua', name: 'Aqua', icon: '🌊' },
+  { id: 'emerald', name: 'Emerald', icon: '💚' },
+  { id: 'corporate', name: 'Corporate', icon: '🏢' },
+  { id: 'nord', name: 'Nord', icon: '❄️' },
+  { id: 'winter', name: 'Winter', icon: '⛄' },
+  { id: 'light', name: 'Light', icon: '☀️' },
+  { id: 'cupcake', name: 'Cupcake', icon: '🧁' },
+  { id: 'bumblebee', name: 'Bumblebee', icon: '🐝' },
+  { id: 'retro', name: 'Retro', icon: '📻' },
+  { id: 'valentine', name: 'Valentine', icon: '💖' },
+  { id: 'garden', name: 'Garden', icon: '🌻' },
+  { id: 'lofi', name: 'Lofi', icon: '🎧' },
+  { id: 'pastel', name: 'Pastel', icon: '🎨' },
+  { id: 'fantasy', name: 'Fantasy', icon: '🦄' },
+  { id: 'wireframe', name: 'Wireframe', icon: '📐' },
+  { id: 'cmyk', name: 'CMYK', icon: '🖨️' },
+  { id: 'autumn', name: 'Autumn', icon: '🍂' },
+  { id: 'acid', name: 'Acid', icon: '🧪' },
+  { id: 'lemonade', name: 'Lemonade', icon: '🍋' },
+] as const;
+
 export default function App() {
+  const [theme, setTheme] = useState<string>(() => {
+    return localStorage.getItem('agentic_news_theme') || 'dark';
+  });
+
   const [topicInput, setTopicInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [loadingStage, setLoadingStage] = useState(0);
@@ -75,11 +116,17 @@ export default function App() {
   const [chatInput, setChatInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
 
+  // Sync DaisyUI theme with document root
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('agentic_news_theme', theme);
+  }, [theme]);
+
   const fleetStages = [
     { title: 'Stage 1: Multi-Outlet Ingestion', desc: 'Querying Google News RSS, Associated Press, Reuters, Bloomberg, WSJ...' },
-    { title: 'Stage 2: IFCN Forensic Claim Verification', desc: 'Auditing factual assertions against primary records, federal registers & court dockets...' },
-    { title: 'Stage 3: Cross-Source Contradictions & Bias', desc: 'Detecting conflicting figures and charting the 5-point ideological lean spectrum...' },
-    { title: 'Stage 4: Chronological Timeline Reconstruction', desc: 'Aligning exact calendar dates, published milestones, and narrative trajectory shifts...' },
+    { title: 'Stage 2: IFCN Forensic Claim Verification', desc: 'Auditing assertions against primary records, federal registers & court dockets...' },
+    { title: 'Stage 3: Cross-Source Contradictions & Bias', desc: 'Detecting conflicting figures and charting ideological lean spectrums...' },
+    { title: 'Stage 4: Chronological Timeline Reconstruction', desc: 'Aligning exact calendar dates, milestones, and narrative trajectory shifts...' },
     { title: 'Stage 5: Who/Where/What Primer & Jargon Buster', desc: 'Compiling entity background primers, institutional backdrops, and legal glossaries...' },
     { title: 'Stage 6: Causal Tree & Future Scenarios', desc: 'Synthesizing 3-tier consequence cascades and forecasting probabilistic scenarios...' }
   ];
@@ -91,7 +138,7 @@ export default function App() {
       setLoadingStage(0);
       interval = setInterval(() => {
         setLoadingStage((prev) => (prev < fleetStages.length - 1 ? prev + 1 : prev));
-      }, 1100);
+      }, 1000);
     }
     return () => clearInterval(interval);
   }, [loading]);
@@ -217,53 +264,105 @@ export default function App() {
 
   const suggestedQuestions = [
     '⚖️ What are the legal precedents under the APA?',
-    '👥 Who are the key winners and losers?',
+    '👥 Who are the key winners and losers in this policy?',
     '📉 What is the projected economic compliance cost?',
     '🔍 Investigate grandfathering exemption clauses'
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      {/* Header */}
-      <header className="app-header">
-        <div className="app-container header-content">
-          <div className="brand-badge">
-            <div className="brand-icon-box">
-              <Brain size={24} />
+    <div className="min-h-screen bg-base-100 text-base-content flex flex-col font-sans">
+      {/* DaisyUI Navbar with Brand & Theme Switcher */}
+      <header className="navbar bg-base-200/90 backdrop-blur-md border-b border-base-300 sticky top-0 z-50 px-4 lg:px-8">
+        <div className="navbar-start gap-3">
+          <div className="btn btn-ghost btn-circle bg-primary text-primary-content shadow-lg hover:bg-primary/90">
+            <Brain size={24} />
+          </div>
+          <div>
+            <div className="font-extrabold text-lg md:text-xl tracking-tight flex items-center gap-2">
+              <span>Agentic News Analyser</span>
+              <span className="badge badge-primary badge-sm font-bold hidden sm:inline-flex">ADK 2.0</span>
             </div>
-            <div>
-              <div className="brand-title">Agentic News Analyser</div>
-              <div className="brand-subtitle">25-Agent Autonomous Intelligence Platform • Google ADK & Gemini</div>
+            <div className="text-xs text-base-content/60 font-medium hidden md:block">
+              25-Agent Autonomous Fleet • Google ADK & Gemini
             </div>
           </div>
-          <div className="nav-status">
-            <span className="status-dot"></span>
+        </div>
+
+        <div className="navbar-center hidden lg:flex">
+          <div className="badge badge-success badge-outline gap-2 py-3 px-4 text-xs font-semibold shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-success animate-pulse"></span>
             <span>Firestore Live Sync Active</span>
+          </div>
+        </div>
+
+        <div className="navbar-end gap-2">
+          {/* DaisyUI Theme Selector Dropdown */}
+          <div className="dropdown dropdown-end">
+            <div
+              tabIndex={0}
+              role="button"
+              className="btn btn-sm btn-outline border-base-300 hover:border-primary gap-2 shadow-sm font-medium"
+            >
+              <Palette size={16} className="text-primary" />
+              <span className="capitalize hidden sm:inline">{theme}</span>
+              <ChevronDown size={14} className="opacity-60" />
+            </div>
+            <ul
+              tabIndex={0}
+              className="dropdown-content z-[100] menu p-2 shadow-2xl bg-base-200 rounded-box w-56 max-h-96 overflow-y-auto border border-base-300 mt-2"
+            >
+              <li className="menu-title text-xs uppercase tracking-wider text-primary font-bold px-3 py-1">
+                Select Theme ({DAISY_THEMES.length})
+              </li>
+              {DAISY_THEMES.map((th) => (
+                <li key={th.id}>
+                  <button
+                    className={`flex items-center justify-between py-2 px-3 rounded-lg text-sm ${
+                      theme === th.id ? 'active font-bold text-primary-content bg-primary' : 'hover:bg-base-300'
+                    }`}
+                    onClick={() => setTheme(th.id)}
+                  >
+                    <span className="flex items-center gap-2">
+                      <span>{th.icon}</span>
+                      <span className="capitalize">{th.name}</span>
+                    </span>
+                    {theme === th.id && <span className="badge badge-xs badge-ghost">Active</span>}
+                  </button>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="hero-section">
-        <div className="app-container">
-          <div className="hero-pill">
+      {/* DaisyUI Hero Section */}
+      <section className="hero py-12 px-4 bg-gradient-to-b from-base-200/60 to-base-100">
+        <div className="hero-content text-center max-w-4xl flex-col p-0">
+          <div className="badge badge-primary badge-outline gap-2 py-3 px-4 font-semibold shadow-sm mb-4">
             <Sparkles size={16} />
             <span>Google Cloud AI Builder Cup 2026 Submission</span>
           </div>
-          <h1 className="hero-heading">
+
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
             Autonomous Multi-Agent <br />
-            Media Intelligence & Verification
+            <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+              Media Intelligence & Verification
+            </span>
           </h1>
-          <p className="hero-desc">
+
+          <p className="py-4 text-base-content/70 text-base md:text-lg max-w-2xl leading-relaxed">
             Forensic cross-source auditing under IFCN principles, contradiction detection, chronological narrative evolution, and causal consequence modeling.
           </p>
 
-          <div className="search-box-wrapper">
-            <div className="search-input-group">
-              <Search size={22} color="#64748b" />
+          {/* Search Box with DaisyUI Join */}
+          <div className="w-full max-w-3xl mt-2">
+            <div className="join w-full shadow-2xl border border-base-300 rounded-2xl bg-base-100 p-1.5 focus-within:border-primary transition-all">
+              <div className="join-item flex items-center pl-4 text-base-content/50">
+                <Search size={22} />
+              </div>
               <input
                 type="text"
-                className="search-input"
+                className="input input-ghost join-item w-full focus:outline-none text-base px-3"
                 placeholder="Enter breaking event, headline, or policy topic..."
                 value={topicInput}
                 onChange={(e) => setTopicInput(e.target.value)}
@@ -271,14 +370,14 @@ export default function App() {
                 disabled={loading}
               />
               <button
-                className="search-btn"
+                className="btn btn-primary join-item rounded-xl gap-2 px-6 shadow-md"
                 onClick={() => handleSearch()}
                 disabled={loading || !topicInput.trim()}
               >
                 {loading ? (
                   <>
-                    <RefreshCw size={18} className="animate-spin" />
-                    <span>Analyzing Fleet...</span>
+                    <span className="loading loading-spinner loading-sm"></span>
+                    <span>Analyzing...</span>
                   </>
                 ) : (
                   <>
@@ -289,12 +388,15 @@ export default function App() {
               </button>
             </div>
 
-            <div className="suggestions-row">
-              <span style={{ fontWeight: 600 }}>Suggested Topics:</span>
+            {/* Suggested Topic Chips */}
+            <div className="flex flex-wrap items-center justify-center gap-2 mt-5">
+              <span className="text-xs font-bold text-base-content/60 uppercase tracking-wider mr-1">
+                Suggested Topics:
+              </span>
               {quickTopics.map((qt, idx) => (
                 <button
                   key={idx}
-                  className="suggestion-chip"
+                  className="btn btn-xs btn-outline btn-neutral rounded-full hover:btn-primary transition-all shadow-sm font-medium"
                   onClick={() => handleSearch(qt)}
                   disabled={loading}
                 >
@@ -305,34 +407,35 @@ export default function App() {
           </div>
 
           {errorMsg && (
-            <div style={{ marginTop: '20px', padding: '12px 18px', background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.4)', borderRadius: '10px', color: '#f87171', display: 'inline-block' }}>
-              <AlertTriangle size={18} style={{ verticalAlign: 'middle', marginRight: '8px' }} />
-              {errorMsg}
+            <div className="alert alert-error shadow-lg max-w-2xl mt-6 rounded-xl">
+              <AlertTriangle size={20} />
+              <span>{errorMsg}</span>
             </div>
           )}
         </div>
       </section>
 
-      {/* Animated Loading Screen (Cleared Old Data & Shows Real-Time Fleet Pipeline) */}
+      {/* DaisyUI Animated Loading Screen */}
       {loading && (
-        <div className="app-container">
-          <div className="loading-wrapper">
-            <div className="spinner-orbit-container">
-              <div className="spinner-ring ring-blue"></div>
-              <div className="spinner-ring ring-red"></div>
-              <div className="spinner-ring ring-yellow"></div>
-              <div className="spinner-ring ring-green"></div>
-              <div className="spinner-center-icon">
-                <Brain size={32} />
-              </div>
+        <div className="container mx-auto px-4 max-w-3xl my-8">
+          <div className="card bg-base-200 border border-base-300 shadow-2xl p-6 md:p-10 text-center">
+            {/* Multi-Ring Spinner Visual */}
+            <div className="relative w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+              <span className="loading loading-spinner text-primary loading-lg absolute scale-150"></span>
+              <span className="loading loading-ring text-secondary loading-lg absolute scale-125"></span>
+              <span className="loading loading-dots text-accent loading-md absolute"></span>
+              <Brain size={30} className="text-primary animate-pulse relative z-10" />
             </div>
 
-            <h2 className="loading-fleet-title">Deploying 25 Autonomous ADK Agents</h2>
-            <p className="loading-fleet-subtitle">
-              Auditing cross-spectrum media dispatches, IFCN principles, and chronological evolution...
+            <h2 className="text-2xl font-black text-base-content mb-2">
+              Deploying 25 Autonomous ADK Agents
+            </h2>
+            <p className="text-sm text-base-content/70 max-w-md mx-auto mb-8">
+              Auditing cross-spectrum media dispatches, IFCN principles, and chronological narrative evolution...
             </p>
 
-            <div className="loading-stages-grid">
+            {/* Stages Pipeline */}
+            <div className="flex flex-col gap-3 text-left max-w-xl mx-auto w-full">
               {fleetStages.map((stg, idx) => {
                 const isDone = idx < loadingStage;
                 const isActive = idx === loadingStage;
@@ -340,21 +443,29 @@ export default function App() {
                 return (
                   <div
                     key={idx}
-                    className={`loading-stage-row ${isActive ? 'active' : ''} ${isDone ? 'done' : ''}`}
+                    className={`flex items-start gap-4 p-3.5 rounded-xl border transition-all ${
+                      isActive
+                        ? 'bg-primary/10 border-primary shadow-md scale-[1.01]'
+                        : isDone
+                        ? 'bg-base-100 border-success/30'
+                        : 'bg-base-100/50 border-base-300 opacity-60'
+                    }`}
                   >
-                    <div className="loading-stage-indicator">
+                    <div className="mt-0.5 flex-shrink-0">
                       {isDone ? (
-                        <CheckCircle2 size={18} color="#10b981" />
+                        <CheckCircle2 size={20} className="text-success" />
                       ) : isActive ? (
-                        <RefreshCw size={16} color="#60a5fa" className="animate-spin" />
+                        <span className="loading loading-spinner loading-sm text-primary"></span>
                       ) : (
-                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#475569' }} />
+                        <div className="w-4 h-4 rounded-full border-2 border-base-content/20 m-0.5"></div>
                       )}
                     </div>
-                    <div style={{ flex: 1 }}>
-                      <div className="loading-stage-text">{stg.title}</div>
+                    <div className="flex-1">
+                      <div className={`text-sm font-bold ${isActive ? 'text-primary' : 'text-base-content'}`}>
+                        {stg.title}
+                      </div>
                       {isActive && (
-                        <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: '2px' }}>
+                        <div className="text-xs text-base-content/70 mt-0.5 leading-relaxed">
                           {stg.desc}
                         </div>
                       )}
@@ -367,51 +478,70 @@ export default function App() {
         </div>
       )}
 
-      {/* Main Content Area */}
+      {/* Main Content Dashboard */}
       {!loading && report && (
-        <main className="app-container" style={{ flex: 1, paddingBottom: '60px' }}>
-          {/* Navigation Tabs */}
-          <div className="tabs-nav-bar">
+        <main className="container mx-auto px-4 lg:px-8 pb-16 flex-1 max-w-7xl">
+          {/* DaisyUI Tabs Bar */}
+          <div className="tabs tabs-boxed bg-base-200 p-1.5 rounded-2xl gap-1 shadow-inner border border-base-300 mb-8 overflow-x-auto flex-nowrap">
             <button
-              className={`tab-btn ${activeTab === 'brief' ? 'active' : ''}`}
+              className={`tab tab-md md:tab-lg rounded-xl gap-2 font-medium transition-all whitespace-nowrap ${
+                activeTab === 'brief' ? 'tab-active font-bold shadow-md bg-primary text-primary-content' : 'hover:bg-base-300/50'
+              }`}
               onClick={() => setActiveTab('brief')}
             >
               <FileText size={18} />
               <span>Executive Brief & Primer</span>
             </button>
+
             <button
-              className={`tab-btn ${activeTab === 'verification' ? 'active' : ''}`}
+              className={`tab tab-md md:tab-lg rounded-xl gap-2 font-medium transition-all whitespace-nowrap ${
+                activeTab === 'verification' ? 'tab-active font-bold shadow-md bg-primary text-primary-content' : 'hover:bg-base-300/50'
+              }`}
               onClick={() => setActiveTab('verification')}
             >
               <ShieldCheck size={18} />
-              <span>Fact Checks & Bias ({report.verifications?.length || 0})</span>
+              <span>Fact Checks & Bias</span>
+              <span className="badge badge-sm badge-neutral">{report.verifications?.length || 0}</span>
             </button>
+
             <button
-              className={`tab-btn ${activeTab === 'timeline' ? 'active' : ''}`}
+              className={`tab tab-md md:tab-lg rounded-xl gap-2 font-medium transition-all whitespace-nowrap ${
+                activeTab === 'timeline' ? 'tab-active font-bold shadow-md bg-primary text-primary-content' : 'hover:bg-base-300/50'
+              }`}
               onClick={() => setActiveTab('timeline')}
             >
               <Clock size={18} />
-              <span>Chronological Timeline ({report.timeline?.events?.length || 0})</span>
+              <span>Timeline</span>
+              <span className="badge badge-sm badge-neutral">{report.timeline?.events?.length || 0}</span>
             </button>
+
             <button
-              className={`tab-btn ${activeTab === 'insights' ? 'active' : ''}`}
+              className={`tab tab-md md:tab-lg rounded-xl gap-2 font-medium transition-all whitespace-nowrap ${
+                activeTab === 'insights' ? 'tab-active font-bold shadow-md bg-primary text-primary-content' : 'hover:bg-base-300/50'
+              }`}
               onClick={() => setActiveTab('insights')}
             >
               <TrendingUp size={18} />
               <span>Causal Diagnostics & Scenarios</span>
             </button>
+
             <button
-              className={`tab-btn ${activeTab === 'quiz' ? 'active' : ''}`}
+              className={`tab tab-md md:tab-lg rounded-xl gap-2 font-medium transition-all whitespace-nowrap ${
+                activeTab === 'quiz' ? 'tab-active font-bold shadow-md bg-primary text-primary-content' : 'hover:bg-base-300/50'
+              }`}
               onClick={() => {
                 setActiveTab('quiz');
                 if (!quiz) handleLoadQuiz();
               }}
             >
               <BookOpen size={18} />
-              <span>Active Recall Tutor (MCQs)</span>
+              <span>Active Recall Tutor</span>
             </button>
+
             <button
-              className={`tab-btn ${activeTab === 'debate' ? 'active' : ''}`}
+              className={`tab tab-md md:tab-lg rounded-xl gap-2 font-medium transition-all whitespace-nowrap ${
+                activeTab === 'debate' ? 'tab-active font-bold shadow-md bg-primary text-primary-content' : 'hover:bg-base-300/50'
+              }`}
               onClick={() => {
                 setActiveTab('debate');
                 if (!debate) handleLoadDebate();
@@ -420,8 +550,11 @@ export default function App() {
               <Scale size={18} />
               <span>Perspective Debate</span>
             </button>
+
             <button
-              className={`tab-btn ${activeTab === 'copilot' ? 'active' : ''}`}
+              className={`tab tab-md md:tab-lg rounded-xl gap-2 font-medium transition-all whitespace-nowrap ${
+                activeTab === 'copilot' ? 'tab-active font-bold shadow-md bg-primary text-primary-content' : 'hover:bg-base-300/50'
+              }`}
               onClick={() => setActiveTab('copilot')}
             >
               <MessageSquare size={18} />
@@ -431,211 +564,251 @@ export default function App() {
 
           {/* TAB 1: EXECUTIVE BRIEF & PRIMER */}
           {activeTab === 'brief' && (
-            <div className="dashboard-grid">
+            <div className="flex flex-col gap-6">
               {/* Executive Summary Card */}
-              <div className="card" style={{ gridColumn: 'span 12' }}>
-                <div className="card-title-row">
-                  <div className="card-title">
-                    <FileText size={22} color="#60a5fa" />
-                    <span>Executive Intelligence Brief: {report.topic}</span>
+              <div className="card bg-base-200 border border-base-300 shadow-xl">
+                <div className="card-body p-6 md:p-8">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-2 border-b border-base-300">
+                    <div className="card-title text-xl md:text-2xl font-black text-base-content flex items-center gap-3">
+                      <FileText size={24} className="text-primary" />
+                      <span>Executive Intelligence Brief: {report.topic}</span>
+                    </div>
+                    <div className="badge badge-outline badge-primary font-medium py-3 px-3 self-start md:self-auto">
+                      Audited across {report.articles_analyzed?.length || report.sources_analyzed?.length || 6} major outlets
+                    </div>
                   </div>
-                  <span style={{ fontSize: '0.82rem', color: '#94a3b8', background: 'rgba(30, 41, 59, 0.6)', padding: '4px 12px', borderRadius: '20px', border: '1px solid #334155' }}>
-                    Audited across {report.articles_analyzed?.length || report.sources_analyzed?.length || 6} major wire & investigative outlets
-                  </span>
-                </div>
-                <p style={{ fontSize: '1.05rem', lineHeight: '1.7', color: '#e2e8f0', marginBottom: '20px' }}>
-                  {report.executive_summary}
-                </p>
 
-                {/* Key Numbers Dashboard (F19) */}
-                <div style={{ marginTop: '20px' }}>
-                  <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#38bdf8', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Key Numbers & Statistical Baseline (F19)
+                  <p className="text-base md:text-lg leading-relaxed text-base-content/90 mt-4 font-normal">
+                    {report.executive_summary}
+                  </p>
+
+                  {/* DaisyUI Stats for Key Numbers (F19) */}
+                  {report.key_metrics_and_numbers && report.key_metrics_and_numbers.length > 0 && (
+                    <div className="mt-6">
+                      <div className="text-xs font-bold uppercase tracking-wider text-primary mb-3">
+                        Key Numbers & Statistical Baseline (F19)
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                        {report.key_metrics_and_numbers.map((metric, idx) => (
+                          <div key={idx} className="stat bg-base-100 rounded-xl border border-base-300 shadow-sm p-4">
+                            <div className="stat-figure text-primary">
+                              <BarChart3 size={20} />
+                            </div>
+                            <div className="stat-title text-xs font-bold uppercase">Metric #{idx + 1}</div>
+                            <div className="stat-value text-sm md:text-base font-bold text-base-content whitespace-normal leading-snug mt-1">
+                              {metric}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* WHO / WHERE / WHAT PRIMER & JARGON BUSTER */}
+              {report.context_primer && (
+                <div className="card bg-base-200 border border-base-300 shadow-xl">
+                  <div className="card-body p-6 md:p-8">
+                    <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-2 border-b border-base-300">
+                      <HelpCircle size={24} className="text-secondary" />
+                      <span>Who / Where / What Primer & Jargon Buster (F1, F27)</span>
+                    </div>
+
+                    {/* Origins & Backdrop */}
+                    {report.context_primer.background_story && (
+                      <div className="alert alert-info bg-info/10 text-info-content border border-info/30 rounded-xl mt-4 shadow-sm">
+                        <Building2 size={22} className="flex-shrink-0 text-info" />
+                        <div>
+                          <div className="font-bold text-sm text-info uppercase tracking-wider">
+                            Origins & Historical Backdrop
+                          </div>
+                          <div className="text-sm md:text-base text-base-content/90 mt-1 leading-relaxed">
+                            {report.context_primer.background_story}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Key Entities & Stakeholders */}
+                    {report.context_primer.primer_items && report.context_primer.primer_items.length > 0 && (
+                      <div className="mt-6">
+                        <div className="text-xs font-bold uppercase tracking-wider text-secondary mb-3">
+                          Key Entities & Core Stakeholders
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {report.context_primer.primer_items.map((item, idx) => (
+                            <div key={idx} className="card bg-base-100 border border-base-300 shadow-sm p-5 hover:border-secondary transition-all">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className={`badge ${
+                                  item.entity_type === 'ORGANIZATION'
+                                    ? 'badge-primary'
+                                    : item.entity_type === 'CONCEPT'
+                                    ? 'badge-secondary'
+                                    : item.entity_type === 'LOCATION'
+                                    ? 'badge-accent'
+                                    : 'badge-neutral'
+                                } badge-sm font-bold uppercase`}>
+                                  {item.entity_type}
+                                </span>
+                              </div>
+                              <div className="font-bold text-base md:text-lg text-base-content">
+                                {item.entity_name}
+                              </div>
+                              <div className="text-sm text-base-content/80 mt-1 leading-relaxed">
+                                {item.explainer_2_lines}
+                              </div>
+                              {item.historical_context && (
+                                <div className="text-xs text-base-content/60 border-t border-base-200 pt-2 mt-3 italic">
+                                  <strong>Context:</strong> {item.historical_context}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Jargon Buster Glossary */}
+                    {report.context_primer.jargon_definitions && Object.keys(report.context_primer.jargon_definitions).length > 0 && (
+                      <div className="mt-6">
+                        <div className="text-xs font-bold uppercase tracking-wider text-accent mb-3 flex items-center gap-2">
+                          <BookOpen size={16} />
+                          <span>Jargon Buster (Plain-Language Policy & Legal Terms)</span>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {Object.entries(report.context_primer.jargon_definitions).map(([term, def], idx) => (
+                            <div key={idx} className="card bg-base-100 border border-base-300 shadow-sm p-4">
+                              <div className="font-bold text-accent text-sm md:text-base flex items-center gap-2">
+                                <span>{term}</span>
+                              </div>
+                              <div className="text-xs md:text-sm text-base-content/80 mt-1.5 leading-relaxed">
+                                {def}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <div className="metric-pills-grid">
-                    {report.key_metrics_and_numbers?.map((metric, idx) => (
-                      <div key={idx} className="metric-pill-item">
-                        <BarChart3 size={18} color="#38bdf8" />
-                        <span>{metric}</span>
+                </div>
+              )}
+
+              {/* Consensus Points */}
+              <div className="card bg-base-200 border border-base-300 shadow-xl">
+                <div className="card-body p-6 md:p-8">
+                  <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-2 border-b border-base-300">
+                    <CheckCircle2 size={24} className="text-success" />
+                    <span>High-Confidence Consensus Points Across Reporting</span>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    {report.consensus_points?.map((pt, idx) => (
+                      <div key={idx} className="card bg-base-100 border border-success/30 shadow-sm p-4 flex flex-row items-start gap-3">
+                        <CheckCircle2 size={20} className="text-success flex-shrink-0 mt-0.5" />
+                        <div className="text-sm md:text-base text-base-content leading-relaxed">{pt}</div>
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
 
-              {/* WHO / WHERE / WHAT PRIMER & JARGON BUSTER (F1, F27) */}
-              {report.context_primer && (
-                <div className="card" style={{ gridColumn: 'span 12' }}>
-                  <div className="card-title-row">
-                    <div className="card-title">
-                      <HelpCircle size={22} color="#38bdf8" />
-                      <span>Who / Where / What Primer & Jargon Buster (F1, F27)</span>
+              {/* Analyzed Media Articles & Primary Source Filings */}
+              <div className="card bg-base-200 border border-base-300 shadow-xl">
+                <div className="card-body p-6 md:p-8">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 pb-2 border-b border-base-300">
+                    <div className="card-title text-xl font-black text-base-content flex items-center gap-3">
+                      <Layers size={24} className="text-primary" />
+                      <span>
+                        Analyzed Media Articles & Primary Source Filings ({report.articles_analyzed?.length || report.sources_analyzed?.length || 0})
+                      </span>
                     </div>
+                    <span className="text-xs text-base-content/60">
+                      Click headline or button to read original publication
+                    </span>
                   </div>
 
-                  {/* Origins & Background Story */}
-                  {report.context_primer.background_story && (
-                    <div style={{ background: 'rgba(30, 41, 59, 0.5)', border: '1px solid #334155', borderRadius: '10px', padding: '16px 20px', marginBottom: '20px' }}>
-                      <div style={{ fontWeight: 700, color: '#93c5fd', fontSize: '0.95rem', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Building2 size={18} />
-                        <span>Origins & Historical Backdrop</span>
-                      </div>
-                      <p style={{ fontSize: '0.92rem', color: '#cbd5e1', lineHeight: '1.6' }}>
-                        {report.context_primer.background_story}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Key Entities & Stakeholders Primer Cards */}
-                  {report.context_primer.primer_items && report.context_primer.primer_items.length > 0 && (
-                    <div style={{ marginBottom: '24px' }}>
-                      <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#a78bfa', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                        Key Entities & Core Stakeholders
-                      </div>
-                      <div className="primer-card-grid">
-                        {report.context_primer.primer_items.map((item, idx) => (
-                          <div key={idx} className="entity-primer-card">
-                            <span className={`entity-primer-badge badge-${item.entity_type.toLowerCase()}`}>
-                              {item.entity_type}
-                            </span>
-                            <div className="entity-name">{item.entity_name}</div>
-                            <div className="entity-explainer">{item.explainer_2_lines}</div>
-                            {item.historical_context && (
-                              <div className="entity-history">
-                                <strong>Context:</strong> {item.historical_context}
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Jargon Buster Glossary */}
-                  {report.context_primer.jargon_definitions && Object.keys(report.context_primer.jargon_definitions).length > 0 && (
-                    <div>
-                      <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#38bdf8', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <BookOpen size={16} />
-                        <span>Jargon Buster (Plain-Language Policy & Legal Terms)</span>
-                      </div>
-                      <div className="jargon-grid">
-                        {Object.entries(report.context_primer.jargon_definitions).map(([term, def], idx) => (
-                          <div key={idx} className="jargon-card">
-                            <div className="jargon-term">
-                              <span>{term}</span>
-                            </div>
-                            <div className="jargon-def">{def}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Consensus Points (F3) */}
-              <div className="card" style={{ gridColumn: 'span 12' }}>
-                <div className="card-title-row">
-                  <div className="card-title">
-                    <CheckCircle2 size={22} color="#34d399" />
-                    <span>High-Confidence Consensus Points Across Reporting</span>
-                  </div>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '14px' }}>
-                  {report.consensus_points?.map((pt, idx) => (
-                    <div key={idx} style={{ background: 'rgba(15, 23, 42, 0.6)', border: '1px solid #334155', borderRadius: '10px', padding: '14px 18px', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                      <CheckCircle2 size={18} color="#34d399" style={{ flexShrink: 0, marginTop: '2px' }} />
-                      <div style={{ fontSize: '0.92rem', color: '#e2e8f0', lineHeight: '1.5' }}>{pt}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Analyzed Media Articles & Primary Source Links (Requirement 3) */}
-              <div className="card" style={{ gridColumn: 'span 12' }}>
-                <div className="card-title-row">
-                  <div className="card-title">
-                    <Layers size={22} color="#a78bfa" />
-                    <span>Analyzed Media Articles & Primary Source Filings ({report.articles_analyzed?.length || report.sources_analyzed?.length || 0})</span>
-                  </div>
-                  <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-                    Click to inspect full original publications
-                  </span>
-                </div>
-
-                <div className="articles-analyzed-grid">
-                  {report.articles_analyzed && report.articles_analyzed.length > 0 ? (
-                    report.articles_analyzed.map((art, idx) => (
-                      <div key={idx} className="article-item-card">
-                        <div>
-                          <div className="article-card-header">
-                            <span className="article-outlet-pill">{art.outlet}</span>
-                            {art.published_date && (
-                              <span className="article-date-text">
-                                <Calendar size={13} />
-                                <span>{art.published_date}</span>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+                    {report.articles_analyzed && report.articles_analyzed.length > 0 ? (
+                      report.articles_analyzed.map((art, idx) => (
+                        <div
+                          key={idx}
+                          className="card bg-base-100 border border-base-300 shadow-md hover:shadow-xl hover:border-primary transition-all p-5 flex flex-col justify-between"
+                        >
+                          <div>
+                            <div className="flex items-center justify-between gap-2 mb-2">
+                              <span className="badge badge-primary badge-outline font-bold text-xs">
+                                {art.outlet}
                               </span>
+                              {art.published_date && (
+                                <span className="badge badge-ghost badge-sm gap-1 text-xs opacity-70">
+                                  <Calendar size={12} />
+                                  <span>{art.published_date}</span>
+                                </span>
+                              )}
+                            </div>
+                            <a
+                              href={art.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-bold text-sm md:text-base text-base-content hover:text-primary transition-colors line-clamp-3 leading-snug mt-1"
+                            >
+                              {art.title}
+                            </a>
+                            {art.author && (
+                              <div className="text-xs text-base-content/60 mt-2">
+                                By {art.author}
+                              </div>
                             )}
                           </div>
                           <a
                             href={art.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="article-card-title"
+                            className="btn btn-sm btn-outline btn-primary w-full gap-2 mt-4"
                           >
-                            {art.title}
+                            <span>Read Article</span>
+                            <ExternalLink size={14} />
                           </a>
-                          {art.author && (
-                            <div className="article-author-tag">By {art.author}</div>
-                          )}
                         </div>
-                        <a
-                          href={art.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="article-link-btn"
-                        >
-                          <span>Read Source Article</span>
-                          <ExternalLink size={14} />
-                        </a>
-                      </div>
-                    ))
-                  ) : (
-                    report.sources_analyzed?.map((src, idx) => (
-                      <div key={idx} className="article-item-card">
-                        <div className="article-card-header">
-                          <span className="article-outlet-pill">{src}</span>
+                      ))
+                    ) : (
+                      report.sources_analyzed?.map((src, idx) => (
+                        <div key={idx} className="card bg-base-100 border border-base-300 shadow-md p-5 flex flex-col justify-between">
+                          <div>
+                            <span className="badge badge-primary badge-outline font-bold text-xs">{src}</span>
+                            <div className="font-bold text-base text-base-content mt-2">
+                              Official Reporting & Wire Dispatches from {src}
+                            </div>
+                          </div>
+                          <a
+                            href={`https://news.google.com/search?q=${encodeURIComponent(report.topic + ' ' + src)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn btn-sm btn-outline btn-primary w-full gap-2 mt-4"
+                          >
+                            <span>Search Dispatches</span>
+                            <ExternalLink size={14} />
+                          </a>
                         </div>
-                        <div className="article-card-title">
-                          Official Publication & Wire Dispatches from {src}
-                        </div>
-                        <a
-                          href={`https://news.google.com/search?q=${encodeURIComponent(report.topic + ' ' + src)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="article-link-btn"
-                        >
-                          <span>Search {src} Dispatches</span>
-                          <ExternalLink size={14} />
-                        </a>
-                      </div>
-                    ))
-                  )}
+                      ))
+                    )}
+                  </div>
                 </div>
               </div>
 
-              {/* Collapsed Technical Log (Requirement 1: Do not show complete raw response in primary view) */}
+              {/* DaisyUI Collapse for Raw Model Trace Log (Clean & Collapsed by Default) */}
               {report.raw_markdown && (
-                <div style={{ gridColumn: 'span 12' }}>
-                  <details className="raw-trace-disclosure">
-                    <summary className="raw-trace-summary">
-                      <Sparkles size={16} color="#38bdf8" />
-                      <span>Inspect Raw Multi-Agent Execution Log & Full Gemini Output (Technical Trace)</span>
-                    </summary>
-                    <div className="raw-trace-content">
+                <div className="collapse collapse-arrow bg-base-200 border border-base-300 shadow-md rounded-2xl">
+                  <input type="checkbox" />
+                  <div className="collapse-title font-medium flex items-center gap-2 text-sm text-base-content/70">
+                    <Sparkles size={16} className="text-primary" />
+                    <span>Inspect Raw Multi-Agent Execution Log & Gemini Output (Technical Trace)</span>
+                  </div>
+                  <div className="collapse-content">
+                    <pre className="bg-base-300/60 p-4 rounded-xl text-xs overflow-x-auto text-base-content/80 font-mono leading-relaxed max-h-96">
                       {report.raw_markdown}
-                    </div>
-                  </details>
+                    </pre>
+                  </div>
                 </div>
               )}
             </div>
@@ -643,317 +816,379 @@ export default function App() {
 
           {/* TAB 2: VERIFICATION & BIAS */}
           {activeTab === 'verification' && (
-            <div className="dashboard-grid">
+            <div className="flex flex-col gap-6">
               {/* Fact Verifications (F6) */}
-              <div className="card" style={{ gridColumn: 'span 12' }}>
-                <div className="card-title-row">
-                  <div className="card-title">
-                    <ShieldCheck size={22} color="#34d399" />
+              <div className="card bg-base-200 border border-base-300 shadow-xl">
+                <div className="card-body p-6 md:p-8">
+                  <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-2 border-b border-base-300">
+                    <ShieldCheck size={24} className="text-success" />
                     <span>IFCN Forensic Claim Verification Audit (F6)</span>
                   </div>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  {report.verifications?.map((v) => (
-                    <div
-                      key={v.claim_id}
-                      style={{
-                        background: 'rgba(15, 23, 42, 0.7)',
-                        border: '1px solid #334155',
-                        borderRadius: '12px',
-                        padding: '18px'
-                      }}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                        <span style={{ fontWeight: 700, color: '#94a3b8', fontSize: '0.85rem' }}>
-                          Claim {v.claim_id}
-                        </span>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-                            Confidence: {Math.round(v.confidence * 100)}%
+
+                  <div className="flex flex-col gap-4 mt-4">
+                    {report.verifications?.map((v) => (
+                      <div key={v.claim_id} className="card bg-base-100 border border-base-300 shadow-sm p-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                          <span className="badge badge-neutral font-bold text-xs">
+                            Claim ID: {v.claim_id}
                           </span>
-                          <span className={`status-badge ${v.status.toLowerCase()}`}>
-                            {v.status}
-                          </span>
+                          <div className="flex items-center gap-3">
+                            <span className="text-xs text-base-content/70 font-semibold">
+                              Confidence: {Math.round(v.confidence * 100)}%
+                            </span>
+                            <span className={`badge ${
+                              v.status === 'VERIFIED'
+                                ? 'badge-success text-success-content'
+                                : v.status === 'DISPUTED'
+                                ? 'badge-warning text-warning-content'
+                                : 'badge-error text-error-content'
+                            } font-bold text-xs py-2.5 px-3`}>
+                              {v.status}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="text-base md:text-lg font-bold text-base-content leading-snug">
+                          "{v.claim_text}"
+                        </div>
+
+                        <p className="text-sm text-base-content/80 mt-2 leading-relaxed">
+                          {v.reasoning}
+                        </p>
+
+                        <div className="text-xs text-base-content/60 mt-3 pt-3 border-t border-base-200 flex flex-wrap gap-2">
+                          <span className="font-bold text-base-content/80">Corroborating:</span>
+                          <span>{v.corroborating_sources?.join(', ') || 'Primary Records'}</span>
                         </div>
                       </div>
-                      <div style={{ fontSize: '1rem', fontWeight: 600, color: '#f8fafc', marginBottom: '8px' }}>
-                        "{v.claim_text}"
-                      </div>
-                      <p style={{ fontSize: '0.9rem', color: '#cbd5e1', lineHeight: '1.5', marginBottom: '10px' }}>
-                        {v.reasoning}
-                      </p>
-                      <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-                        <strong>Corroborating:</strong> {v.corroborating_sources?.join(', ') || 'Primary Records'}
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              {/* Contradictions (F7) */}
-              <div className="card" style={{ gridColumn: 'span 12' }}>
-                <div className="card-title-row">
-                  <div className="card-title">
-                    <AlertTriangle size={22} color="#fbbf24" />
-                    <span>Cross-Source Contradictions (Side-by-Side Comparison) (F7)</span>
+              {/* Cross-Source Contradictions (F7) */}
+              <div className="card bg-base-200 border border-base-300 shadow-xl">
+                <div className="card-body p-6 md:p-8">
+                  <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-2 border-b border-base-300">
+                    <AlertTriangle size={24} className="text-warning" />
+                    <span>Cross-Source Contradictions & Side-by-Side Divergence (F7)</span>
+                  </div>
+
+                  <div className="flex flex-col gap-4 mt-4">
+                    {report.contradictions?.map((c) => (
+                      <div key={c.contradiction_id} className="card bg-base-100 border border-warning/30 shadow-md p-6">
+                        <div className="flex items-center gap-2 text-warning font-bold text-sm mb-3">
+                          <AlertTriangle size={16} />
+                          <span>{c.topic_aspect} ({c.divergence_type})</span>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                          <div className="card bg-base-200 border-l-4 border-primary p-4 rounded-xl">
+                            <div className="text-xs font-bold text-primary uppercase">{c.outlet_a}</div>
+                            <div className="text-sm font-medium text-base-content mt-1">"{c.claim_a}"</div>
+                          </div>
+
+                          <div className="card bg-base-200 border-l-4 border-secondary p-4 rounded-xl">
+                            <div className="text-xs font-bold text-secondary uppercase">{c.outlet_b}</div>
+                            <div className="text-sm font-medium text-base-content mt-1">"{c.claim_b}"</div>
+                          </div>
+                        </div>
+
+                        <div className="alert alert-warning bg-warning/10 text-warning-content border border-warning/20 text-xs md:text-sm py-2 px-3 rounded-lg">
+                          <strong>Evidentiary Audit:</strong> {c.analysis}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-                {report.contradictions?.map((c) => (
-                  <div key={c.contradiction_id} className="contradiction-box">
-                    <div className="contradiction-header">
-                      <AlertTriangle size={18} />
-                      <span>{c.topic_aspect} ({c.divergence_type})</span>
-                    </div>
-                    <div className="compare-grid">
-                      <div className="compare-column">
-                        <div className="compare-outlet">{c.outlet_a}</div>
-                        <div className="compare-text">"{c.claim_a}"</div>
-                      </div>
-                      <div className="compare-column col-b">
-                        <div className="compare-outlet">{c.outlet_b}</div>
-                        <div className="compare-text">"{c.claim_b}"</div>
-                      </div>
-                    </div>
-                    <div className="contradiction-analysis">
-                      <strong>Evidentiary Audit:</strong> {c.analysis}
-                    </div>
-                  </div>
-                ))}
               </div>
 
-              {/* Political Lean & Framing (F8) */}
-              <div className="card" style={{ gridColumn: 'span 12' }}>
-                <div className="card-title-row">
-                  <div className="card-title">
-                    <Scale size={22} color="#c084fc" />
+              {/* Media Framing & Political Lean Spectrum (F8) */}
+              <div className="card bg-base-200 border border-base-300 shadow-xl">
+                <div className="card-body p-6 md:p-8">
+                  <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-2 border-b border-base-300">
+                    <Scale size={24} className="text-accent" />
                     <span>Media Framing & Political Lean Spectrum (F8)</span>
                   </div>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px' }}>
-                  {report.bias_evaluations?.map((b, idx) => (
-                    <div
-                      key={idx}
-                      style={{
-                        background: 'rgba(15, 23, 42, 0.7)',
-                        border: '1px solid #334155',
-                        borderRadius: '12px',
-                        padding: '16px'
-                      }}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                        <span style={{ fontWeight: 700, color: 'white', fontSize: '0.95rem' }}>{b.outlet}</span>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 600, background: 'rgba(99, 102, 241, 0.2)', color: '#818cf8', padding: '3px 8px', borderRadius: '4px' }}>
-                          {b.assessed_lean}
-                        </span>
-                      </div>
-                      <p style={{ fontSize: '0.88rem', color: '#cbd5e1', marginBottom: '10px' }}>
-                        {b.framing_narrative}
-                      </p>
-                      {b.loaded_terms_identified?.length > 0 && (
-                        <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
-                          <span style={{ color: '#fbbf24' }}>Loaded Language:</span> {b.loaded_terms_identified.join(', ')}
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                    {report.bias_evaluations?.map((b, idx) => (
+                      <div key={idx} className="card bg-base-100 border border-base-300 shadow-sm p-5">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-bold text-base text-base-content">{b.outlet}</span>
+                          <span className="badge badge-accent badge-outline text-xs font-bold">
+                            {b.assessed_lean}
+                          </span>
                         </div>
-                      )}
-                    </div>
-                  ))}
+                        <p className="text-sm text-base-content/80 mt-1 leading-relaxed">
+                          {b.framing_narrative}
+                        </p>
+                        {b.loaded_terms_identified?.length > 0 && (
+                          <div className="text-xs text-base-content/60 mt-3 pt-2 border-t border-base-200">
+                            <span className="font-bold text-warning">Loaded Terms:</span>{' '}
+                            {b.loaded_terms_identified.join(', ')}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* TAB 3: TIMELINE (Requirement 5: Exact Date/Month/Year, no T-30 or day 0) */}
+          {/* TAB 3: TIMELINE (DaisyUI Timeline Component) */}
           {activeTab === 'timeline' && (
-            <div className="card" style={{ width: '100%' }}>
-              <div className="card-title-row">
-                <div className="card-title">
-                  <Clock size={22} color="#38bdf8" />
+            <div className="card bg-base-200 border border-base-300 shadow-xl">
+              <div className="card-body p-6 md:p-8">
+                <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-2 border-b border-base-300">
+                  <Clock size={24} className="text-primary" />
                   <span>Chronological Event Timeline & Narrative Evolution (F2, F29)</span>
                 </div>
-              </div>
 
-              {report.timeline?.narrative_evolution_summary && (
-                <div style={{ background: 'rgba(56, 189, 248, 0.1)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '10px', padding: '14px 18px', color: '#bae6fd', marginBottom: '24px', fontSize: '0.95rem' }}>
-                  <strong>Narrative Shift Synthesis:</strong> {report.timeline.narrative_evolution_summary}
-                </div>
-              )}
-
-              <div className="timeline-track">
-                {report.timeline?.events?.map((ev, idx) => (
-                  <div key={idx} className="timeline-item">
-                    <div className="timeline-date-badge">
-                      <Calendar size={13} />
-                      <span>{ev.timestamp_or_date}</span>
-                    </div>
-                    <div className="timeline-headline">{ev.headline}</div>
-                    <div className="timeline-desc">{ev.description}</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginTop: '6px' }}>
-                      {ev.source_url ? (
-                        <a
-                          href={ev.source_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="timeline-source-link"
-                        >
-                          <span>Outlet: {ev.source_outlet}</span>
-                          <ExternalLink size={12} />
-                        </a>
-                      ) : (
-                        <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Outlet: {ev.source_outlet}</span>
-                      )}
-                      {ev.narrative_shift && (
-                        <span className="narrative-shift-badge">Shift: {ev.narrative_shift}</span>
-                      )}
+                {report.timeline?.narrative_evolution_summary && (
+                  <div className="alert alert-info bg-info/10 text-info-content border border-info/30 rounded-xl my-4">
+                    <Clock size={20} className="text-info flex-shrink-0" />
+                    <div>
+                      <div className="font-bold text-xs uppercase text-info tracking-wider">
+                        Narrative Shift Synthesis
+                      </div>
+                      <div className="text-sm md:text-base text-base-content/90 mt-1">
+                        {report.timeline.narrative_evolution_summary}
+                      </div>
                     </div>
                   </div>
-                ))}
+                )}
+
+                {/* DaisyUI Timeline */}
+                <ul className="timeline timeline-snap-icon max-md:timeline-compact timeline-vertical mt-6">
+                  {report.timeline?.events?.map((ev, idx) => {
+                    const isEven = idx % 2 === 0;
+
+                    return (
+                      <li key={idx}>
+                        {idx > 0 && <hr className="bg-primary/40" />}
+                        <div className={`timeline-${isEven ? 'start md:text-end' : 'end'} mb-8`}>
+                          <div className="badge badge-info badge-outline badge-sm gap-1 font-mono font-bold mb-1">
+                            <Calendar size={12} />
+                            <span>{ev.timestamp_or_date}</span>
+                          </div>
+                          <div className="font-bold text-base md:text-lg text-base-content mt-1">
+                            {ev.headline}
+                          </div>
+                          <div className="text-sm text-base-content/80 mt-1 leading-relaxed">
+                            {ev.description}
+                          </div>
+                          <div className="flex flex-wrap items-center gap-2 mt-2">
+                            {ev.source_url ? (
+                              <a
+                                href={ev.source_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="link link-primary text-xs flex items-center gap-1 font-semibold"
+                              >
+                                <span>Outlet: {ev.source_outlet}</span>
+                                <ExternalLink size={12} />
+                              </a>
+                            ) : (
+                              <span className="text-xs text-base-content/60">Outlet: {ev.source_outlet}</span>
+                            )}
+                            {ev.narrative_shift && (
+                              <span className="badge badge-secondary badge-outline text-xs">
+                                Shift: {ev.narrative_shift}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="timeline-middle">
+                          <div className="bg-primary text-primary-content p-1.5 rounded-full shadow-md">
+                            <Clock size={16} />
+                          </div>
+                        </div>
+                        {idx < (report.timeline?.events?.length || 0) - 1 && <hr className="bg-primary/40" />}
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
             </div>
           )}
 
           {/* TAB 4: DEEP INSIGHTS & SCENARIOS */}
           {activeTab === 'insights' && (
-            <div className="dashboard-grid">
-              {/* Root Cause Diagnostics */}
-              <div className="card" style={{ gridColumn: 'span 6' }}>
-                <div className="card-title-row">
-                  <div className="card-title">
-                    <Brain size={22} color="#f43f5e" />
-                    <span>Root Cause Diagnostics (F34)</span>
-                  </div>
-                </div>
-                <div style={{ marginBottom: '14px' }}>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fda4af', marginBottom: '6px' }}>Immediate Triggers</div>
-                  {report.root_cause_analysis?.immediate_triggers?.map((trig, idx) => (
-                    <div key={idx} style={{ fontSize: '0.9rem', color: '#e2e8f0', marginBottom: '4px' }}>• {trig}</div>
-                  ))}
-                </div>
-                <div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fda4af', marginBottom: '6px' }}>Structural Failure Points</div>
-                  {report.root_cause_analysis?.structural_failure_points?.map((sf, idx) => (
-                    <div key={idx} style={{ fontSize: '0.9rem', color: '#e2e8f0', marginBottom: '4px' }}>• {sf}</div>
-                  ))}
-                </div>
-              </div>
+            <div className="flex flex-col gap-6">
+              {/* Root Cause & Consequences */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Root Causes */}
+                <div className="card bg-base-200 border border-base-300 shadow-xl">
+                  <div className="card-body p-6">
+                    <div className="card-title text-xl font-black text-base-content flex items-center gap-2 pb-2 border-b border-base-300">
+                      <Brain size={22} className="text-error" />
+                      <span>Root Cause Diagnostics (F34)</span>
+                    </div>
 
-              {/* Consequences Tree */}
-              <div className="card" style={{ gridColumn: 'span 6' }}>
-                <div className="card-title-row">
-                  <div className="card-title">
-                    <TrendingUp size={22} color="#3b82f6" />
-                    <span>3-Tier Consequences Tree (F35)</span>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {report.consequences_tree?.map((cq, idx) => (
-                    <div key={idx} style={{ background: 'rgba(15, 23, 42, 0.7)', padding: '12px 14px', borderRadius: '8px', borderLeft: '3px solid #3b82f6' }}>
-                      <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#93c5fd', textTransform: 'uppercase' }}>
-                        {cq.order.replace('_', ' ')}: {cq.affected_sector_or_group}
+                    <div className="mt-4">
+                      <div className="text-xs font-bold uppercase tracking-wider text-error mb-2">
+                        Immediate Triggers
                       </div>
-                      <div style={{ fontSize: '0.9rem', color: '#e2e8f0', marginTop: '4px' }}>
-                        {cq.impact_description}
+                      <div className="flex flex-col gap-2">
+                        {report.root_cause_analysis?.immediate_triggers?.map((trig, idx) => (
+                          <div key={idx} className="card bg-base-100 border border-base-300 p-3 text-sm text-base-content">
+                            • {trig}
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  ))}
+
+                    <div className="mt-4">
+                      <div className="text-xs font-bold uppercase tracking-wider text-error mb-2">
+                        Structural Failure Points
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        {report.root_cause_analysis?.structural_failure_points?.map((sf, idx) => (
+                          <div key={idx} className="card bg-base-100 border border-base-300 p-3 text-sm text-base-content">
+                            • {sf}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Consequences Tree */}
+                <div className="card bg-base-200 border border-base-300 shadow-xl">
+                  <div className="card-body p-6">
+                    <div className="card-title text-xl font-black text-base-content flex items-center gap-2 pb-2 border-b border-base-300">
+                      <TrendingUp size={22} className="text-info" />
+                      <span>3-Tier Consequences Tree (F35)</span>
+                    </div>
+
+                    <div className="flex flex-col gap-3 mt-4">
+                      {report.consequences_tree?.map((cq, idx) => (
+                        <div
+                          key={idx}
+                          className="card bg-base-100 border-l-4 border-info border-y border-r border-base-300 p-4 shadow-sm"
+                        >
+                          <div className="text-xs font-bold text-info uppercase tracking-wider">
+                            {cq.order.replace('_', ' ')}: {cq.affected_sector_or_group}
+                          </div>
+                          <div className="text-sm font-medium text-base-content mt-1 leading-snug">
+                            {cq.impact_description}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
 
               {/* Forward Scenarios */}
-              <div className="card" style={{ gridColumn: 'span 12' }}>
-                <div className="card-title-row">
-                  <div className="card-title">
-                    <Sparkles size={22} color="#a855f7" />
+              <div className="card bg-base-200 border border-base-300 shadow-xl">
+                <div className="card-body p-6 md:p-8">
+                  <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-2 border-b border-base-300">
+                    <Sparkles size={24} className="text-secondary" />
                     <span>Forward-Looking Scenarios & Signals to Watch (F15)</span>
                   </div>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px' }}>
-                  {report.future_scenarios?.map((sc, idx) => (
-                    <div key={idx} style={{ background: 'rgba(15, 23, 42, 0.7)', border: '1px solid #334155', borderRadius: '12px', padding: '18px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                        <span style={{ fontWeight: 700, color: 'white', fontSize: '1rem' }}>{sc.scenario_title}</span>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, background: 'rgba(168, 85, 247, 0.2)', color: '#c084fc', padding: '3px 8px', borderRadius: '4px' }}>
-                          {sc.probability_rating} PROBABILITY
-                        </span>
-                      </div>
-                      <p style={{ fontSize: '0.9rem', color: '#cbd5e1', lineHeight: '1.5', marginBottom: '12px' }}>
-                        {sc.potential_impact}
-                      </p>
-                      {sc.signals_to_watch && sc.signals_to_watch.length > 0 && (
-                        <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-                          <strong style={{ color: '#38bdf8' }}>Signals to Watch:</strong>
-                          <ul style={{ paddingLeft: '16px', marginTop: '4px' }}>
-                            {sc.signals_to_watch.map((sig, sidx) => (
-                              <li key={sidx}>{sig}</li>
-                            ))}
-                          </ul>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-4">
+                    {report.future_scenarios?.map((sc, idx) => (
+                      <div key={idx} className="card bg-base-100 border border-base-300 shadow-md p-6 flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-center justify-between gap-2 mb-3">
+                            <span className="font-bold text-base md:text-lg text-base-content">{sc.scenario_title}</span>
+                            <span className="badge badge-secondary badge-sm font-bold">{sc.probability_rating}</span>
+                          </div>
+                          <p className="text-sm text-base-content/80 leading-relaxed mb-4">
+                            {sc.potential_impact}
+                          </p>
                         </div>
-                      )}
-                    </div>
-                  ))}
+                        {sc.signals_to_watch && sc.signals_to_watch.length > 0 && (
+                          <div className="text-xs text-base-content/70 border-t border-base-200 pt-3">
+                            <strong className="text-primary block mb-1">Signals to Watch:</strong>
+                            <ul className="list-disc list-inside space-y-1">
+                              {sc.signals_to_watch.map((sig, sidx) => (
+                                <li key={sidx}>{sig}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* TAB 5: ACTIVE RECALL QUIZ (Requirement 6: Radio Buttons) */}
+          {/* TAB 5: ACTIVE RECALL TUTOR (DaisyUI Radio Buttons & Alerts) */}
           {activeTab === 'quiz' && (
-            <div className="card" style={{ width: '100%' }}>
-              <div className="card-title-row">
-                <div className="card-title">
-                  <BookOpen size={22} color="#34d399" />
-                  <span>Active Recall & News Literacy Tutor (F20)</span>
+            <div className="card bg-base-200 border border-base-300 shadow-xl">
+              <div className="card-body p-6 md:p-8">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-base-300">
+                  <div className="card-title text-xl font-black text-base-content flex items-center gap-3">
+                    <BookOpen size={24} className="text-success" />
+                    <span>Active Recall & News Literacy Tutor (F20)</span>
+                  </div>
+                  <button
+                    className="btn btn-sm btn-outline btn-neutral gap-2 self-start sm:self-auto"
+                    onClick={handleLoadQuiz}
+                    disabled={quizLoading}
+                  >
+                    <RefreshCw size={14} className={quizLoading ? 'animate-spin' : ''} />
+                    <span>Regenerate Quiz</span>
+                  </button>
                 </div>
-                <button
-                  className="suggestion-chip"
-                  onClick={handleLoadQuiz}
-                  disabled={quizLoading}
-                >
-                  <RefreshCw size={14} style={{ marginRight: '6px' }} />
-                  Regenerate Quiz
-                </button>
-              </div>
 
-              {quizLoading ? (
-                <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>
-                  <RefreshCw size={24} className="animate-spin" style={{ margin: '0 auto 12px auto' }} />
-                  <div>Generating pedagogical comprehension questions...</div>
-                </div>
-              ) : quiz ? (
-                <div>
-                  {quiz.questions?.map((q) => {
-                    const selected = userAnswers[q.question_id];
-                    const graded = quizResult?.feedback?.find((f: any) => f.question_id === q.question_id);
+                {quizLoading ? (
+                  <div className="py-16 text-center text-base-content/70">
+                    <span className="loading loading-spinner loading-lg text-primary mb-3"></span>
+                    <div className="text-base font-semibold">Generating pedagogical comprehension questions...</div>
+                  </div>
+                ) : quiz ? (
+                  <div className="mt-6 flex flex-col gap-6">
+                    {quiz.questions?.map((q) => {
+                      const selected = userAnswers[q.question_id];
+                      const graded = quizResult?.feedback?.find((f: any) => f.question_id === q.question_id);
 
-                    return (
-                      <div key={q.question_id} className="quiz-question-box">
-                        <div style={{ fontWeight: 700, fontSize: '1.05rem', color: '#f8fafc', marginBottom: '12px' }}>
-                          Question {q.question_id}: {q.question}
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          {q.options.map((opt, optIdx) => {
-                            let optClass = 'quiz-option';
-                            const isSelected = selected === optIdx;
+                      return (
+                        <div key={q.question_id} className="card bg-base-100 border border-base-300 shadow-sm p-6">
+                          <div className="font-bold text-base md:text-lg text-base-content mb-4 flex items-center gap-2">
+                            <span className="badge badge-primary font-bold">#{q.question_id}</span>
+                            <span>{q.question}</span>
+                          </div>
 
-                            if (isSelected) optClass += ' selected';
-                            if (graded) {
-                              if (optIdx === q.correct_option_index) optClass += ' correct';
-                              else if (isSelected && !graded.correct) optClass += ' incorrect';
-                            }
+                          {/* DaisyUI Radio Button Options */}
+                          <div className="flex flex-col gap-2.5">
+                            {q.options.map((opt, optIdx) => {
+                              const isSelected = selected === optIdx;
+                              let labelBorder = 'border-base-300 hover:border-primary hover:bg-base-200/50';
 
-                            return (
-                              <label
-                                key={optIdx}
-                                className={optClass}
-                                onClick={() => {
-                                  if (!quizResult) {
-                                    setUserAnswers((prev) => ({ ...prev, [q.question_id]: optIdx }));
-                                  }
-                                }}
-                              >
-                                <div className="quiz-radio-container">
+                              if (isSelected) {
+                                labelBorder = 'border-primary bg-primary/10 shadow-sm';
+                              }
+
+                              if (graded) {
+                                if (optIdx === q.correct_option_index) {
+                                  labelBorder = 'border-success bg-success/15';
+                                } else if (isSelected && !graded.correct) {
+                                  labelBorder = 'border-error bg-error/15';
+                                }
+                              }
+
+                              return (
+                                <label
+                                  key={optIdx}
+                                  className={`label cursor-pointer justify-start gap-4 p-4 rounded-xl border transition-all ${labelBorder}`}
+                                  onClick={() => {
+                                    if (!quizResult) {
+                                      setUserAnswers((prev) => ({ ...prev, [q.question_id]: optIdx }));
+                                    }
+                                  }}
+                                >
                                   <input
                                     type="radio"
-                                    name={`quiz-q-${q.question_id}`}
-                                    value={optIdx}
+                                    name={`quiz-radio-${q.question_id}`}
+                                    className="radio radio-primary radio-md"
                                     checked={isSelected}
                                     onChange={() => {
                                       if (!quizResult) {
@@ -961,184 +1196,219 @@ export default function App() {
                                       }
                                     }}
                                     disabled={!!quizResult}
-                                    className="quiz-native-radio"
                                   />
-                                  <div className={`quiz-custom-radio ${isSelected ? 'checked' : ''}`}>
-                                    {isSelected && <span className="quiz-radio-inner-dot" />}
-                                  </div>
-                                </div>
-                                <span className="quiz-opt-letter">
-                                  {String.fromCharCode(65 + optIdx)})
-                                </span>
-                                <span className="quiz-opt-text">{opt}</span>
-                                {graded && optIdx === q.correct_option_index && (
-                                  <CheckCircle2 size={18} color="#34d399" style={{ marginLeft: 'auto', flexShrink: 0 }} />
-                                )}
-                                {graded && isSelected && !graded.correct && (
-                                  <AlertTriangle size={18} color="#f87171" style={{ marginLeft: 'auto', flexShrink: 0 }} />
-                                )}
-                              </label>
-                            );
-                          })}
-                        </div>
-                        {graded && (
-                          <div style={{ marginTop: '12px', padding: '10px 14px', background: graded.correct ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', borderRadius: '8px', fontSize: '0.88rem', color: graded.correct ? '#34d399' : '#f87171' }}>
-                            <strong>{graded.correct ? 'Correct! ' : 'Incorrect. '}</strong>
-                            {graded.explanation}
+                                  <span className="badge badge-neutral font-bold text-xs">
+                                    {String.fromCharCode(65 + optIdx)}
+                                  </span>
+                                  <span className="text-sm md:text-base text-base-content flex-1 font-medium">
+                                    {opt}
+                                  </span>
+                                  {graded && optIdx === q.correct_option_index && (
+                                    <CheckCircle2 size={20} className="text-success flex-shrink-0" />
+                                  )}
+                                  {graded && isSelected && !graded.correct && (
+                                    <AlertTriangle size={20} className="text-error flex-shrink-0" />
+                                  )}
+                                </label>
+                              );
+                            })}
                           </div>
-                        )}
-                      </div>
-                    );
-                  })}
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px' }}>
-                    {quizResult ? (
-                      <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#38bdf8' }}>
-                        Your Score: {quizResult.score_percentage}% ({quizResult.correct_count} of {quizResult.total_questions} correct)
-                      </div>
-                    ) : (
-                      <button
-                        className="search-btn"
-                        onClick={handleGradeQuiz}
-                        disabled={Object.keys(userAnswers).length === 0}
-                      >
-                        Submit & Grade Answers
-                      </button>
-                    )}
+                          {graded && (
+                            <div className={`alert ${graded.correct ? 'alert-success' : 'alert-error'} mt-4 rounded-xl text-sm`}>
+                              {graded.correct ? <CheckCircle2 size={18} /> : <AlertTriangle size={18} />}
+                              <div>
+                                <span className="font-bold">{graded.correct ? 'Correct! ' : 'Incorrect. '}</span>
+                                <span>{graded.explanation}</span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+
+                    {/* Quiz Grading Result Action */}
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 pt-4 border-t border-base-300">
+                      {quizResult ? (
+                        <div className="stat bg-primary text-primary-content rounded-2xl p-4 w-full shadow-md">
+                          <div className="stat-title text-primary-content/80 font-bold uppercase text-xs">Quiz Score</div>
+                          <div className="stat-value text-2xl md:text-3xl font-black">
+                            {quizResult.score_percentage}%
+                          </div>
+                          <div className="stat-desc text-primary-content/90 font-medium">
+                            {quizResult.correct_count} of {quizResult.total_questions} questions correct
+                          </div>
+                        </div>
+                      ) : (
+                        <button
+                          className="btn btn-primary btn-block sm:btn-wide shadow-md font-bold text-base"
+                          onClick={handleGradeQuiz}
+                          disabled={Object.keys(userAnswers).length === 0}
+                        >
+                          Submit & Grade Answers
+                        </button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ) : null}
+                ) : null}
+              </div>
             </div>
           )}
 
           {/* TAB 6: PERSPECTIVE DEBATE */}
           {activeTab === 'debate' && (
-            <div className="card" style={{ width: '100%' }}>
-              <div className="card-title-row">
-                <div className="card-title">
-                  <Scale size={22} color="#fbbf24" />
+            <div className="card bg-base-200 border border-base-300 shadow-xl">
+              <div className="card-body p-6 md:p-8">
+                <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-2 border-b border-base-300">
+                  <Scale size={24} className="text-warning" />
                   <span>Dialectical Perspective Debate Simulator (F38)</span>
                 </div>
-              </div>
 
-              {debateLoading ? (
-                <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>
-                  <RefreshCw size={24} className="animate-spin" style={{ margin: '0 auto 12px auto' }} />
-                  <div>Synthesizing steelmanned opposing viewpoints...</div>
-                </div>
-              ) : debate ? (
-                <div>
-                  <div style={{ background: 'rgba(251, 191, 36, 0.1)', border: '1px solid rgba(251, 191, 36, 0.3)', borderRadius: '10px', padding: '16px', color: '#fde68a', marginBottom: '24px', fontSize: '1rem', fontStyle: 'italic' }}>
-                    <strong>Resolution Under Debate:</strong> {debate.resolution_under_debate}
+                {debateLoading ? (
+                  <div className="py-16 text-center text-base-content/70">
+                    <span className="loading loading-spinner loading-lg text-primary mb-3"></span>
+                    <div className="text-base font-semibold">Synthesizing steelmanned opposing viewpoints...</div>
                   </div>
-
-                  {debate.debate_turns?.map((turn, idx) => {
-                    const isPro = turn.speaker_perspective.includes('PROPONENT');
-                    return (
-                      <div key={idx} className={`debate-turn-card ${isPro ? 'proponent' : 'critic'}`}>
-                        <div className={`debate-speaker ${isPro ? 'proponent' : 'critic'}`}>
-                          {turn.speaker_perspective}
-                        </div>
-                        <div style={{ fontSize: '0.95rem', color: '#f1f5f9', lineHeight: '1.6', marginBottom: '8px' }}>
-                          {turn.core_argument}
-                        </div>
-                        {turn.grounding_citations?.length > 0 && (
-                          <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
-                            <strong>Evidence Grounding:</strong> {turn.grounding_citations.join(' • ')}
-                          </div>
-                        )}
+                ) : debate ? (
+                  <div className="mt-4">
+                    {/* Resolution Banner */}
+                    <div className="alert alert-warning bg-warning/10 text-warning-content border border-warning/30 shadow-sm rounded-xl mb-6">
+                      <Scale size={22} className="text-warning flex-shrink-0" />
+                      <div>
+                        <div className="font-bold text-xs uppercase tracking-wider text-warning">Resolution Under Debate</div>
+                        <div className="text-base font-semibold mt-0.5">{debate.resolution_under_debate}</div>
                       </div>
-                    );
-                  })}
-
-                  <div style={{ marginTop: '24px', background: 'rgba(30, 41, 59, 0.7)', border: '1px solid #334155', borderRadius: '12px', padding: '18px' }}>
-                    <div style={{ fontWeight: 700, color: '#38bdf8', marginBottom: '8px' }}>
-                      Neutral Compromise Synthesis & Policy Bridge
                     </div>
-                    <p style={{ fontSize: '0.92rem', color: '#cbd5e1', lineHeight: '1.6' }}>
-                      {debate.neutral_compromise_synthesis}
-                    </p>
+
+                    {/* DaisyUI Chat turns for debate */}
+                    <div className="flex flex-col gap-4 mb-6">
+                      {debate.debate_turns?.map((turn, idx) => {
+                        const isPro = turn.speaker_perspective.includes('PROPONENT');
+
+                        return (
+                          <div
+                            key={idx}
+                            className={`card bg-base-100 border-l-4 ${isPro ? 'border-primary' : 'border-warning'} border-y border-r border-base-300 p-5 shadow-sm`}
+                          >
+                            <div className={`font-bold text-xs uppercase tracking-wider mb-2 ${isPro ? 'text-primary' : 'text-warning'}`}>
+                              {turn.speaker_perspective}
+                            </div>
+                            <div className="text-sm md:text-base text-base-content leading-relaxed">
+                              {turn.core_argument}
+                            </div>
+                            {turn.grounding_citations?.length > 0 && (
+                              <div className="text-xs text-base-content/60 mt-3 pt-2 border-t border-base-200">
+                                <strong className="text-base-content/80">Grounding Evidence:</strong> {turn.grounding_citations.join(' • ')}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Compromise Synthesis */}
+                    <div className="card bg-base-100 border border-info/40 shadow-md p-6 rounded-2xl">
+                      <div className="font-bold text-base md:text-lg text-info mb-2 flex items-center gap-2">
+                        <Sparkles size={18} />
+                        <span>Neutral Compromise Synthesis & Policy Bridge</span>
+                      </div>
+                      <p className="text-sm md:text-base text-base-content/90 leading-relaxed">
+                        {debate.neutral_compromise_synthesis}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ) : null}
+                ) : null}
+              </div>
             </div>
           )}
 
-          {/* TAB 7: LIVELY RESEARCH COPILOT CHAT (Requirement 7) */}
+          {/* TAB 7: LIVELY RESEARCH COPILOT (DaisyUI Chat Components) */}
           {activeTab === 'copilot' && (
-            <div className="card" style={{ width: '100%', display: 'flex', flexDirection: 'column', height: '680px' }}>
+            <div className="card bg-base-200 border border-base-300 shadow-xl h-[700px] flex flex-col">
               {/* Copilot Header */}
-              <div className="copilot-header-bar">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div className="chat-avatar-box agent">
-                    <Bot size={20} />
+              <div className="p-4 md:p-6 border-b border-base-300 flex items-center justify-between bg-base-200/50">
+                <div className="flex items-center gap-3">
+                  <div className="btn btn-ghost btn-circle bg-primary text-primary-content shadow">
+                    <Bot size={22} />
                   </div>
                   <div>
-                    <div style={{ fontWeight: 700, fontSize: '1.05rem', color: 'white' }}>
-                      Research Copilot & Autonomous Investigation
+                    <div className="font-bold text-base md:text-lg text-base-content flex items-center gap-2">
+                      <span>Research Copilot</span>
+                      <span className="badge badge-primary badge-outline text-xs">Autonomous Mode</span>
                     </div>
-                    <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-                      Topic Context: {report.topic}
+                    <div className="text-xs text-base-content/60">
+                      Context: {report.topic}
                     </div>
                   </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <div className="copilot-status-badge">
-                    <span className="copilot-pulse-dot"></span>
+
+                <div className="flex items-center gap-3">
+                  <div className="badge badge-success badge-sm gap-1.5 py-2.5 font-medium shadow-sm">
+                    <span className="w-2 h-2 rounded-full bg-success-content animate-pulse"></span>
                     <span>Online • Gemini 3.1 Pro</span>
                   </div>
                   <button
                     onClick={handleClearChat}
+                    className="btn btn-sm btn-ghost btn-outline border-base-300 gap-1.5"
                     title="Clear Chat History"
-                    style={{ background: 'transparent', border: '1px solid #334155', color: '#94a3b8', borderRadius: '8px', padding: '6px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.78rem' }}
                   >
-                    <Trash2 size={13} />
-                    <span>Clear</span>
+                    <Trash2 size={14} />
+                    <span className="hidden sm:inline">Clear</span>
                   </button>
                 </div>
               </div>
 
               {/* Chat Message History */}
-              <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', paddingRight: '8px', marginBottom: '12px' }}>
+              <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
                 {chatMessages.map((msg, idx) => (
                   <div
                     key={idx}
-                    className={`chat-bubble-row ${msg.sender}`}
+                    className={`chat ${msg.sender === 'user' ? 'chat-end' : 'chat-start'}`}
                   >
-                    <div className={`chat-avatar-box ${msg.sender}`}>
-                      {msg.sender === 'user' ? <User size={18} /> : <Sparkles size={18} />}
+                    <div className="chat-image avatar">
+                      <div className={`w-9 h-9 rounded-full flex items-center justify-center shadow ${
+                        msg.sender === 'user' ? 'bg-neutral text-neutral-content' : 'bg-primary text-primary-content'
+                      }`}>
+                        {msg.sender === 'user' ? <User size={18} /> : <Bot size={18} />}
+                      </div>
                     </div>
-                    <div className="chat-bubble-body">
-                      <div>{msg.text}</div>
-                      <div className="chat-meta-time">{msg.time}</div>
+                    <div className="chat-header text-xs opacity-60 mb-1 font-medium">
+                      {msg.sender === 'user' ? 'You' : 'Research Copilot'}
+                      <time className="text-[11px] ml-1.5 opacity-60">{msg.time}</time>
+                    </div>
+                    <div className={`chat-bubble text-sm md:text-base leading-relaxed ${
+                      msg.sender === 'user' ? 'chat-bubble-primary text-primary-content' : 'chat-bubble-neutral text-neutral-content'
+                    } shadow-md`}>
+                      {msg.text}
                     </div>
                   </div>
                 ))}
+
                 {chatLoading && (
-                  <div className="chat-bubble-row agent">
-                    <div className="chat-avatar-box agent">
-                      <Sparkles size={18} />
-                    </div>
-                    <div className="chat-bubble-body" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ fontSize: '0.88rem', color: '#94a3b8' }}>Investigating primary dockets & news sources...</span>
-                      <div className="typing-indicator-dots">
-                        <span className="typing-dot" />
-                        <span className="typing-dot" />
-                        <span className="typing-dot" />
+                  <div className="chat chat-start">
+                    <div className="chat-image avatar">
+                      <div className="w-9 h-9 rounded-full bg-primary text-primary-content flex items-center justify-center shadow">
+                        <Bot size={18} />
                       </div>
+                    </div>
+                    <div className="chat-bubble chat-bubble-neutral flex items-center gap-2">
+                      <span className="text-sm">Investigating sources...</span>
+                      <span className="loading loading-dots loading-sm text-primary"></span>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* Quick Inquiry Chips */}
-              <div className="copilot-suggestions-bar">
-                <span style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600, flexShrink: 0 }}>Quick Prompts:</span>
+              {/* Quick Prompt Suggestions */}
+              <div className="px-4 py-2 bg-base-300/40 border-t border-base-300 flex items-center gap-2 overflow-x-auto no-scrollbar">
+                <span className="text-xs font-bold text-base-content/60 uppercase whitespace-nowrap">
+                  Prompts:
+                </span>
                 {suggestedQuestions.map((qText, idx) => (
                   <button
                     key={idx}
                     type="button"
-                    className="copilot-prompt-chip"
+                    className="btn btn-xs btn-outline btn-neutral rounded-full whitespace-nowrap hover:btn-primary font-medium"
                     onClick={() => handleSendMessage(undefined, qText)}
                     disabled={chatLoading}
                   >
@@ -1147,37 +1417,43 @@ export default function App() {
                 ))}
               </div>
 
-              {/* Chat Input Form */}
-              <form onSubmit={handleSendMessage} style={{ display: 'flex', gap: '10px' }}>
-                <input
-                  type="text"
-                  className="search-input"
-                  style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: '10px', padding: '12px 16px' }}
-                  placeholder="Ask a question or request an autonomous investigative deep-dive..."
-                  value={chatInput}
-                  onChange={(e) => setChatInput(e.target.value)}
-                  disabled={chatLoading}
-                />
-                <button
-                  type="submit"
-                  className="search-btn"
-                  disabled={chatLoading || !chatInput.trim()}
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                >
-                  <span>Send</span>
-                  <Send size={16} />
-                </button>
+              {/* Chat Input */}
+              <form onSubmit={handleSendMessage} className="p-4 bg-base-200 border-t border-base-300">
+                <div className="join w-full shadow-md">
+                  <input
+                    type="text"
+                    className="input input-bordered join-item w-full focus:outline-none"
+                    placeholder="Ask a question or request an autonomous investigative deep-dive..."
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    disabled={chatLoading}
+                  />
+                  <button
+                    type="submit"
+                    className="btn btn-primary join-item gap-2 px-6"
+                    disabled={chatLoading || !chatInput.trim()}
+                  >
+                    <span>Send</span>
+                    <Send size={16} />
+                  </button>
+                </div>
               </form>
             </div>
           )}
         </main>
       )}
 
-      {/* Footer */}
-      <footer className="app-footer">
-        <div className="app-container">
-          Agentic News Analyser • Built with Google Agent Development Kit (ADK) & Google Gemini • Powered by Cloud Firestore & Firebase
-        </div>
+      {/* DaisyUI Footer */}
+      <footer className="footer footer-center p-8 bg-base-200 text-base-content border-t border-base-300 mt-auto">
+        <aside className="gap-2">
+          <div className="flex items-center gap-2 font-bold text-base">
+            <Brain size={20} className="text-primary" />
+            <span>Agentic News Analyser</span>
+          </div>
+          <p className="text-xs text-base-content/70">
+            Built with Google Agent Development Kit (ADK) & Google Gemini • Powered by Cloud Firestore & DaisyUI Themes
+          </p>
+        </aside>
       </footer>
     </div>
   );
