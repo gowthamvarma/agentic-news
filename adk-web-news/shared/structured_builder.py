@@ -474,3 +474,82 @@ def build_structured_debate(topic: str) -> Dict[str, Any]:
         ),
     )
     return debate.model_dump()
+
+
+def build_structured_scenarios(topic: str) -> Dict[str, Any]:
+    """Generates on-demand causal diagnostics, consequence tree, and future scenarios."""
+    clean_topic = topic.strip().title()
+    words = [w for w in clean_topic.split() if len(w) > 3]
+    subject = " ".join(words[:3]) if words else clean_topic
+
+    root_cause = RootCauseReport(
+        topic=clean_topic,
+        immediate_triggers=[
+            f"Formal issuance of administrative directives concerning {subject} without advance notice-and-comment.",
+            "Shifting executive policy priorities emphasizing stringent domestic audits.",
+        ],
+        underlying_systemic_factors=[
+            "Chronic legislative deadlock leading to reliance on executive rulemaking.",
+            "Technological shifts creating rapid changes in workforce and compliance demands.",
+        ],
+        structural_failure_points=[
+            "Lack of formal stakeholder consultation prior to directive publication.",
+            "Ambiguity between breaking press releases and formal legal gazette text.",
+        ],
+    )
+
+    consequences = [
+        ConsequenceNode(
+            order="FIRST_ORDER",
+            impact_description="Immediate administrative pause and internal compliance audit across affected organizations.",
+            affected_sector_or_group="Enterprise Legal & HR Teams",
+        ),
+        ConsequenceNode(
+            order="SECOND_ORDER",
+            impact_description="Federal court emergency injunction hearings and contingency talent pipeline freezes.",
+            affected_sector_or_group="Tech, Financial, and Research Institutions",
+        ),
+        ConsequenceNode(
+            order="THIRD_ORDER",
+            impact_description="Structural relocation of critical talent and expansion of foreign subsidiaries (Canada, UK, EU).",
+            affected_sector_or_group="Global Competitiveness & Innovation Ecosystems",
+        ),
+    ]
+
+    scenarios = [
+        FutureScenario(
+            scenario_title="Judicial Stay & Grandfathering Compromise",
+            scenario_type="MOST_LIKELY",
+            probability_rating="HIGH",
+            time_horizon="1 - 3 Months",
+            potential_impact="Court issues nationwide preliminary injunction; agency issues revised interim rule with clear transition corridors.",
+            signals_to_watch=[
+                "District court ruling on Plaintiff's emergency TRO motion.",
+                "Department of Justice briefing statements regarding administrative clarifications.",
+            ],
+            what_if_assumption="If court denies injunction, enterprise departures accelerate by 30%.",
+        ),
+        FutureScenario(
+            scenario_title="Regulatory Stalemate & Attrition",
+            scenario_type="BEST_CASE",
+            probability_rating="MODERATE",
+            time_horizon="3 - 6 Months",
+            potential_impact="Agency establishes expedited digital self-certification, alleviating 80% of processing friction.",
+            signals_to_watch=["Publication of digital compliance portal and revised agency FAQ."],
+        ),
+        FutureScenario(
+            scenario_title="Enforcement Hardening & Retaliation",
+            scenario_type="WORST_CASE",
+            probability_rating="LOW",
+            time_horizon="6 - 12 Months",
+            potential_impact="Judicial approval of summary action triggers reciprocal regulatory measures from foreign trading partners.",
+            signals_to_watch=["Foreign ministry advisories and cross-border trade dispute filings."],
+        ),
+    ]
+
+    return {
+        "topic": clean_topic,
+        "root_cause_analysis": root_cause.model_dump(),
+        "consequences_tree": [cq.model_dump() for cq in consequences],
+        "future_scenarios": [sc.model_dump() for sc in scenarios],
+    }

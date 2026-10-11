@@ -37,6 +37,7 @@ from shared.structured_builder import (
     build_structured_intelligence,
     build_structured_quiz,
     build_structured_debate,
+    build_structured_scenarios,
 )
 from shared.simulation import _route_simulation_response
 from shared.plugins.evidence_ledger import EvidenceLedgerPlugin
@@ -280,6 +281,17 @@ async def generate_perspective_debate(req: AnalyzeRequest):
     debate_data["debate_id"] = debate_id
     await FirestoreService.save_debate(debate_id, debate_data)
     return debate_data
+
+
+@app.post("/api/scenarios")
+async def generate_future_scenarios(req: AnalyzeRequest):
+    """Generates on-demand causal diagnostics, consequence tree, and future scenarios."""
+    topic = req.topic.strip()
+    if not topic:
+        raise HTTPException(status_code=400, detail="Topic cannot be empty.")
+
+    scenarios_data = build_structured_scenarios(topic)
+    return scenarios_data
 
 
 @app.post("/api/chat")

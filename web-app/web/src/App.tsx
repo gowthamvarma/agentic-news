@@ -32,6 +32,7 @@ import {
   generateQuiz,
   gradeQuiz,
   generateDebate,
+  generateScenarios,
   chatResearchCopilot,
   checkApiHealth
 } from './api';
@@ -105,6 +106,10 @@ export default function App() {
   const [debate, setDebate] = useState<PerspectiveDebateReport | null>(null);
   const [debateLoading, setDebateLoading] = useState(false);
 
+  // Causal Diagnostics & Forward Scenarios State (On-Demand Option 4)
+  const [scenariosData, setScenariosData] = useState<any | null>(null);
+  const [scenariosLoading, setScenariosLoading] = useState(false);
+
   // Research Copilot Chat State
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     {
@@ -127,8 +132,7 @@ export default function App() {
     { title: 'Stage 2: IFCN Forensic Claim Verification', desc: 'Auditing assertions against primary records, federal registers & court dockets...' },
     { title: 'Stage 3: Cross-Source Contradictions & Bias', desc: 'Detecting conflicting figures and charting ideological lean spectrums...' },
     { title: 'Stage 4: Chronological Timeline Reconstruction', desc: 'Aligning exact calendar dates, milestones, and narrative trajectory shifts...' },
-    { title: 'Stage 5: Who/Where/What Primer & Jargon Buster', desc: 'Compiling entity background primers, institutional backdrops, and legal glossaries...' },
-    { title: 'Stage 6: Causal Tree & Future Scenarios', desc: 'Synthesizing 3-tier consequence cascades and forecasting probabilistic scenarios...' }
+    { title: 'Stage 5: Who/Where/What Primer & Jargon Buster', desc: 'Compiling entity background primers, institutional backdrops, and legal glossaries...' }
   ];
 
   // Stage progress animation timer while loading
@@ -138,7 +142,7 @@ export default function App() {
       setLoadingStage(0);
       interval = setInterval(() => {
         setLoadingStage((prev) => (prev < fleetStages.length - 1 ? prev + 1 : prev));
-      }, 1000);
+      }, 2500);
     }
     return () => clearInterval(interval);
   }, [loading]);
@@ -164,6 +168,8 @@ export default function App() {
     setReport(null);
     setQuiz(null);
     setDebate(null);
+    setScenariosData(null);
+    setScenariosLoading(false);
     setQuizResult(null);
     setUserAnswers({});
     setErrorMsg(null);
@@ -179,6 +185,19 @@ export default function App() {
       setErrorMsg(err.message || 'An unexpected error occurred while analyzing this news topic.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleLoadScenarios = async () => {
+    if (!report) return;
+    setScenariosLoading(true);
+    try {
+      const data = await generateScenarios(report.topic);
+      setScenariosData(data);
+    } catch (err: any) {
+      console.error(err);
+    } finally {
+      setScenariosLoading(false);
     }
   };
 
@@ -488,86 +507,173 @@ export default function App() {
       {/* Main Content Dashboard */}
       {!loading && report && (
         <main className="container mx-auto px-4 lg:px-8 pb-16 flex-1 max-w-7xl">
-          {/* DaisyUI Tabs Bar */}
-          <div className="tabs tabs-boxed bg-base-200 p-1.5 rounded-2xl gap-1 shadow-inner border border-base-300 mb-8 overflow-x-auto flex-nowrap">
-            <button
-              className={`tab tab-md md:tab-lg rounded-xl gap-2 font-medium transition-all whitespace-nowrap ${
-                activeTab === 'brief' ? 'tab-active font-bold shadow-md bg-primary text-primary-content' : 'hover:bg-base-300/50'
-              }`}
-              onClick={() => setActiveTab('brief')}
-            >
-              <FileText size={18} />
-              <span>Executive Brief & Primer</span>
-            </button>
+          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
+            {/* Vertical Side Navigation */}
+            <aside className="w-full lg:w-72 xl:w-80 flex-shrink-0 lg:sticky lg:top-20 z-20">
+              <div className="card bg-base-200/95 backdrop-blur-md border border-base-300 shadow-xl p-3">
+                <div className="flex items-center justify-between px-2.5 pb-2.5 mb-2 border-b border-base-300">
+                  <div className="flex items-center gap-2">
+                    <Layers size={16} className="text-primary" />
+                    <span className="text-xs font-bold uppercase tracking-wider text-base-content/80">
+                      Intelligence Fleet
+                    </span>
+                  </div>
+                  <span className="badge badge-primary badge-xs font-bold">25 Agents</span>
+                </div>
 
-            <button
-              className={`tab tab-md md:tab-lg rounded-xl gap-2 font-medium transition-all whitespace-nowrap ${
-                activeTab === 'verification' ? 'tab-active font-bold shadow-md bg-primary text-primary-content' : 'hover:bg-base-300/50'
-              }`}
-              onClick={() => setActiveTab('verification')}
-            >
-              <ShieldCheck size={18} />
-              <span>Fact Checks & Bias</span>
-              <span className="badge badge-sm badge-neutral">{report.verifications?.length || 0}</span>
-            </button>
+                <ul className="menu menu-sm md:menu-md p-0 gap-1 w-full">
+                  <li>
+                    <button
+                      className={`flex items-center justify-between py-2.5 px-3 rounded-xl font-medium transition-all ${
+                        activeTab === 'brief'
+                          ? 'active font-bold shadow-md bg-primary text-primary-content'
+                          : 'hover:bg-base-300 text-base-content'
+                      }`}
+                      onClick={() => setActiveTab('brief')}
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <FileText size={18} className={activeTab === 'brief' ? 'text-primary-content' : 'text-primary'} />
+                        <span>Executive Brief</span>
+                      </span>
+                    </button>
+                  </li>
 
-            <button
-              className={`tab tab-md md:tab-lg rounded-xl gap-2 font-medium transition-all whitespace-nowrap ${
-                activeTab === 'timeline' ? 'tab-active font-bold shadow-md bg-primary text-primary-content' : 'hover:bg-base-300/50'
-              }`}
-              onClick={() => setActiveTab('timeline')}
-            >
-              <Clock size={18} />
-              <span>Timeline</span>
-              <span className="badge badge-sm badge-neutral">{report.timeline?.events?.length || 0}</span>
-            </button>
+                  <li>
+                    <button
+                      className={`flex items-center justify-between py-2.5 px-3 rounded-xl font-medium transition-all ${
+                        activeTab === 'verification'
+                          ? 'active font-bold shadow-md bg-primary text-primary-content'
+                          : 'hover:bg-base-300 text-base-content'
+                      }`}
+                      onClick={() => setActiveTab('verification')}
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <ShieldCheck size={18} className={activeTab === 'verification' ? 'text-primary-content' : 'text-success'} />
+                        <span>Fact Checks & Bias</span>
+                      </span>
+                      <span className={`badge badge-xs font-bold ${activeTab === 'verification' ? 'badge-neutral' : 'badge-ghost'}`}>
+                        {report.verifications?.length || 0}
+                      </span>
+                    </button>
+                  </li>
 
-            <button
-              className={`tab tab-md md:tab-lg rounded-xl gap-2 font-medium transition-all whitespace-nowrap ${
-                activeTab === 'insights' ? 'tab-active font-bold shadow-md bg-primary text-primary-content' : 'hover:bg-base-300/50'
-              }`}
-              onClick={() => setActiveTab('insights')}
-            >
-              <TrendingUp size={18} />
-              <span>Causal Diagnostics & Scenarios</span>
-            </button>
+                  <li>
+                    <button
+                      className={`flex items-center justify-between py-2.5 px-3 rounded-xl font-medium transition-all ${
+                        activeTab === 'timeline'
+                          ? 'active font-bold shadow-md bg-primary text-primary-content'
+                          : 'hover:bg-base-300 text-base-content'
+                      }`}
+                      onClick={() => setActiveTab('timeline')}
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <Clock size={18} className={activeTab === 'timeline' ? 'text-primary-content' : 'text-info'} />
+                        <span>Timeline</span>
+                      </span>
+                      <span className={`badge badge-xs font-bold ${activeTab === 'timeline' ? 'badge-neutral' : 'badge-ghost'}`}>
+                        {report.timeline?.events?.length || 0}
+                      </span>
+                    </button>
+                  </li>
 
-            <button
-              className={`tab tab-md md:tab-lg rounded-xl gap-2 font-medium transition-all whitespace-nowrap ${
-                activeTab === 'quiz' ? 'tab-active font-bold shadow-md bg-primary text-primary-content' : 'hover:bg-base-300/50'
-              }`}
-              onClick={() => {
-                setActiveTab('quiz');
-                if (!quiz) handleLoadQuiz();
-              }}
-            >
-              <BookOpen size={18} />
-              <span>Active Recall Tutor</span>
-            </button>
+                  <li>
+                    <button
+                      className={`flex items-center justify-between py-2.5 px-3 rounded-xl font-medium transition-all ${
+                        activeTab === 'insights'
+                          ? 'active font-bold shadow-md bg-primary text-primary-content'
+                          : 'hover:bg-base-300 text-base-content'
+                      }`}
+                      onClick={() => {
+                        setActiveTab('insights');
+                        if (!scenariosData && (!report.future_scenarios || report.future_scenarios.length === 0)) {
+                          handleLoadScenarios();
+                        }
+                      }}
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <TrendingUp size={18} className={activeTab === 'insights' ? 'text-primary-content' : 'text-warning'} />
+                        <span>Causal & Scenarios</span>
+                      </span>
+                      {scenariosLoading ? (
+                        <span className="loading loading-spinner loading-xs text-primary"></span>
+                      ) : (
+                        <span className="badge badge-xs badge-outline badge-primary font-semibold">On Demand</span>
+                      )}
+                    </button>
+                  </li>
 
-            <button
-              className={`tab tab-md md:tab-lg rounded-xl gap-2 font-medium transition-all whitespace-nowrap ${
-                activeTab === 'debate' ? 'tab-active font-bold shadow-md bg-primary text-primary-content' : 'hover:bg-base-300/50'
-              }`}
-              onClick={() => {
-                setActiveTab('debate');
-                if (!debate) handleLoadDebate();
-              }}
-            >
-              <Scale size={18} />
-              <span>Perspective Debate</span>
-            </button>
+                  <li>
+                    <button
+                      className={`flex items-center justify-between py-2.5 px-3 rounded-xl font-medium transition-all ${
+                        activeTab === 'quiz'
+                          ? 'active font-bold shadow-md bg-primary text-primary-content'
+                          : 'hover:bg-base-300 text-base-content'
+                      }`}
+                      onClick={() => {
+                        setActiveTab('quiz');
+                        if (!quiz) handleLoadQuiz();
+                      }}
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <BookOpen size={18} className={activeTab === 'quiz' ? 'text-primary-content' : 'text-accent'} />
+                        <span>Active Recall Tutor</span>
+                      </span>
+                    </button>
+                  </li>
 
-            <button
-              className={`tab tab-md md:tab-lg rounded-xl gap-2 font-medium transition-all whitespace-nowrap ${
-                activeTab === 'copilot' ? 'tab-active font-bold shadow-md bg-primary text-primary-content' : 'hover:bg-base-300/50'
-              }`}
-              onClick={() => setActiveTab('copilot')}
-            >
-              <MessageSquare size={18} />
-              <span>Research Copilot Chat</span>
-            </button>
-          </div>
+                  <li>
+                    <button
+                      className={`flex items-center justify-between py-2.5 px-3 rounded-xl font-medium transition-all ${
+                        activeTab === 'debate'
+                          ? 'active font-bold shadow-md bg-primary text-primary-content'
+                          : 'hover:bg-base-300 text-base-content'
+                      }`}
+                      onClick={() => {
+                        setActiveTab('debate');
+                        if (!debate) handleLoadDebate();
+                      }}
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <Scale size={18} className={activeTab === 'debate' ? 'text-primary-content' : 'text-secondary'} />
+                        <span>Perspective Debate</span>
+                      </span>
+                    </button>
+                  </li>
+
+                  <li>
+                    <button
+                      className={`flex items-center justify-between py-2.5 px-3 rounded-xl font-medium transition-all ${
+                        activeTab === 'copilot'
+                          ? 'active font-bold shadow-md bg-primary text-primary-content'
+                          : 'hover:bg-base-300 text-base-content'
+                      }`}
+                      onClick={() => setActiveTab('copilot')}
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <MessageSquare size={18} className={activeTab === 'copilot' ? 'text-primary-content' : 'text-primary'} />
+                        <span>Research Copilot</span>
+                      </span>
+                    </button>
+                  </li>
+                </ul>
+
+                {/* Topic Metadata Box inside Side Nav */}
+                <div className="mt-3 pt-3 border-t border-base-300 text-xs text-base-content/70 flex flex-col gap-1.5 px-1">
+                  <div className="font-semibold text-base-content truncate">
+                    Topic: <span className="font-normal opacity-80">{report.topic}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span>Sources Analyzed:</span>
+                    <span className="badge badge-ghost badge-xs font-bold">
+                      {report.articles_analyzed?.length || report.sources_analyzed?.length || 6}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </aside>
+
+            {/* Main Content Area */}
+            <div className="flex-1 min-w-0 w-full">
 
           {/* TAB 1: EXECUTIVE BRIEF & PRIMER */}
           {activeTab === 'brief' && (
@@ -1024,106 +1130,142 @@ export default function App() {
           {/* TAB 4: DEEP INSIGHTS & SCENARIOS */}
           {activeTab === 'insights' && (
             <div className="flex flex-col gap-6">
-              {/* Root Cause & Consequences */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Root Causes */}
-                <div className="card bg-base-200 border border-base-300 shadow-xl">
-                  <div className="card-body p-6">
-                    <div className="card-title text-xl font-black text-base-content flex items-center gap-2 pb-2 border-b border-base-300">
-                      <Brain size={22} className="text-error" />
-                      <span>Root Cause Diagnostics (F34)</span>
-                    </div>
-
-                    <div className="mt-4">
-                      <div className="text-xs font-bold uppercase tracking-wider text-error mb-2">
-                        Immediate Triggers
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        {report.root_cause_analysis?.immediate_triggers?.map((trig, idx) => (
-                          <div key={idx} className="card bg-base-100 border border-base-300 p-3 text-sm text-base-content">
-                            • {trig}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="mt-4">
-                      <div className="text-xs font-bold uppercase tracking-wider text-error mb-2">
-                        Structural Failure Points
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        {report.root_cause_analysis?.structural_failure_points?.map((sf, idx) => (
-                          <div key={idx} className="card bg-base-100 border border-base-300 p-3 text-sm text-base-content">
-                            • {sf}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
+              {/* Header with Regenerate Button */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-base-300">
+                <div className="text-xl md:text-2xl font-black text-base-content flex items-center gap-3">
+                  <TrendingUp size={24} className="text-primary" />
+                  <span>Causal Diagnostics & Forward Scenarios (F15, F34, F35)</span>
                 </div>
-
-                {/* Consequences Tree */}
-                <div className="card bg-base-200 border border-base-300 shadow-xl">
-                  <div className="card-body p-6">
-                    <div className="card-title text-xl font-black text-base-content flex items-center gap-2 pb-2 border-b border-base-300">
-                      <TrendingUp size={22} className="text-info" />
-                      <span>3-Tier Consequences Tree (F35)</span>
-                    </div>
-
-                    <div className="flex flex-col gap-3 mt-4">
-                      {report.consequences_tree?.map((cq, idx) => (
-                        <div
-                          key={idx}
-                          className="card bg-base-100 border-l-4 border-info border-y border-r border-base-300 p-4 shadow-sm"
-                        >
-                          <div className="text-xs font-bold text-info uppercase tracking-wider">
-                            {cq.order.replace('_', ' ')}: {cq.affected_sector_or_group}
-                          </div>
-                          <div className="text-sm font-medium text-base-content mt-1 leading-snug">
-                            {cq.impact_description}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                <button
+                  className="btn btn-sm btn-outline btn-neutral gap-2 self-start sm:self-auto"
+                  onClick={handleLoadScenarios}
+                  disabled={scenariosLoading}
+                >
+                  <RefreshCw size={14} className={scenariosLoading ? 'animate-spin' : ''} />
+                  <span>{scenariosData ? 'Regenerate Scenarios' : 'Run Scenario Fleet'}</span>
+                </button>
               </div>
 
-              {/* Forward Scenarios */}
-              <div className="card bg-base-200 border border-base-300 shadow-xl">
-                <div className="card-body p-6 md:p-8">
-                  <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-2 border-b border-base-300">
-                    <Sparkles size={24} className="text-secondary" />
-                    <span>Forward-Looking Scenarios & Signals to Watch (F15)</span>
-                  </div>
+              {scenariosLoading ? (
+                <div className="card bg-base-200 border border-base-300 shadow-xl p-12 text-center">
+                  <span className="loading loading-spinner loading-lg text-primary mx-auto mb-4"></span>
+                  <h3 className="text-lg font-bold">Simulating Causal Diagnostics & Forward Scenarios</h3>
+                  <p className="text-sm text-base-content/70 mt-1 max-w-md mx-auto">
+                    Synthesizing 3-tier consequence cascades, root-cause 5-Whys, and forward probabilistic trajectories on demand...
+                  </p>
+                </div>
+              ) : (
+                (() => {
+                  const rootCause = scenariosData?.root_cause_analysis || report.root_cause_analysis;
+                  const consequences = scenariosData?.consequences_tree || report.consequences_tree;
+                  const scenarios = scenariosData?.future_scenarios || report.future_scenarios;
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-4">
-                    {report.future_scenarios?.map((sc, idx) => (
-                      <div key={idx} className="card bg-base-100 border border-base-300 shadow-md p-6 flex flex-col justify-between">
-                        <div>
-                          <div className="flex items-center justify-between gap-2 mb-3">
-                            <span className="font-bold text-base md:text-lg text-base-content">{sc.scenario_title}</span>
-                            <span className="badge badge-secondary badge-sm font-bold">{sc.probability_rating}</span>
+                  return (
+                    <>
+                      {/* Root Cause & Consequences */}
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Root Causes */}
+                        <div className="card bg-base-200 border border-base-300 shadow-xl">
+                          <div className="card-body p-6">
+                            <div className="card-title text-xl font-black text-base-content flex items-center gap-2 pb-2 border-b border-base-300">
+                              <Brain size={22} className="text-error" />
+                              <span>Root Cause Diagnostics (F34)</span>
+                            </div>
+
+                            <div className="mt-4">
+                              <div className="text-xs font-bold uppercase tracking-wider text-error mb-2">
+                                Immediate Triggers
+                              </div>
+                              <div className="flex flex-col gap-2">
+                                {rootCause?.immediate_triggers?.map((trig: string, idx: number) => (
+                                  <div key={idx} className="card bg-base-100 border border-base-300 p-3 text-sm text-base-content">
+                                    • {trig}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div className="mt-4">
+                              <div className="text-xs font-bold uppercase tracking-wider text-error mb-2">
+                                Structural Failure Points
+                              </div>
+                              <div className="flex flex-col gap-2">
+                                {rootCause?.structural_failure_points?.map((sf: string, idx: number) => (
+                                  <div key={idx} className="card bg-base-100 border border-base-300 p-3 text-sm text-base-content">
+                                    • {sf}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
                           </div>
-                          <p className="text-sm text-base-content/80 leading-relaxed mb-4">
-                            {sc.potential_impact}
-                          </p>
                         </div>
-                        {sc.signals_to_watch && sc.signals_to_watch.length > 0 && (
-                          <div className="text-xs text-base-content/70 border-t border-base-200 pt-3">
-                            <strong className="text-primary block mb-1">Signals to Watch:</strong>
-                            <ul className="list-disc list-inside space-y-1">
-                              {sc.signals_to_watch.map((sig, sidx) => (
-                                <li key={sidx}>{sig}</li>
+
+                        {/* Consequences Tree */}
+                        <div className="card bg-base-200 border border-base-300 shadow-xl">
+                          <div className="card-body p-6">
+                            <div className="card-title text-xl font-black text-base-content flex items-center gap-2 pb-2 border-b border-base-300">
+                              <TrendingUp size={22} className="text-info" />
+                              <span>3-Tier Consequences Tree (F35)</span>
+                            </div>
+
+                            <div className="flex flex-col gap-3 mt-4">
+                              {consequences?.map((cq: any, idx: number) => (
+                                <div
+                                  key={idx}
+                                  className="card bg-base-100 border-l-4 border-info border-y border-r border-base-300 p-4 shadow-sm"
+                                >
+                                  <div className="text-xs font-bold text-info uppercase tracking-wider">
+                                    {cq.order.replace('_', ' ')}: {cq.affected_sector_or_group}
+                                  </div>
+                                  <div className="text-sm font-medium text-base-content mt-1 leading-snug">
+                                    {cq.impact_description}
+                                  </div>
+                                </div>
                               ))}
-                            </ul>
+                            </div>
                           </div>
-                        )}
+                        </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+
+                      {/* Forward Scenarios */}
+                      <div className="card bg-base-200 border border-base-300 shadow-xl">
+                        <div className="card-body p-6 md:p-8">
+                          <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-2 border-b border-base-300">
+                            <Sparkles size={24} className="text-secondary" />
+                            <span>Forward-Looking Scenarios & Signals to Watch (F15)</span>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-4">
+                            {scenarios?.map((sc: any, idx: number) => (
+                              <div key={idx} className="card bg-base-100 border border-base-300 shadow-md p-6 flex flex-col justify-between">
+                                <div>
+                                  <div className="flex items-center justify-between gap-2 mb-3">
+                                    <span className="font-bold text-base md:text-lg text-base-content">{sc.scenario_title}</span>
+                                    <span className="badge badge-secondary badge-sm font-bold">{sc.probability_rating}</span>
+                                  </div>
+                                  <p className="text-sm text-base-content/80 leading-relaxed mb-4">
+                                    {sc.potential_impact}
+                                  </p>
+                                </div>
+                                {sc.signals_to_watch && sc.signals_to_watch.length > 0 && (
+                                  <div className="text-xs text-base-content/70 border-t border-base-200 pt-3">
+                                    <strong className="text-primary block mb-1">Signals to Watch:</strong>
+                                    <ul className="list-disc list-inside space-y-1">
+                                      {sc.signals_to_watch.map((sig: string, sidx: number) => (
+                                        <li key={sidx}>{sig}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  );
+                })()
+              )}
             </div>
           )}
 
@@ -1447,6 +1589,8 @@ export default function App() {
               </form>
             </div>
           )}
+            </div>
+          </div>
         </main>
       )}
 

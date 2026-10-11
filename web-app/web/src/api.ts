@@ -63,6 +63,16 @@ export async function generateDebate(topic: string): Promise<PerspectiveDebateRe
   return res.json();
 }
 
+export async function generateScenarios(topic: string) {
+  const res = await fetch(`${API_BASE}/scenarios`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ topic }),
+  });
+  if (!res.ok) throw new Error('Failed to generate scenarios');
+  return res.json();
+}
+
 export async function chatResearchCopilot(query: string, topic: string) {
   const res = await fetch(`${API_BASE}/chat`, {
     method: 'POST',
