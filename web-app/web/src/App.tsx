@@ -307,30 +307,37 @@ export default function App() {
               <span className="capitalize hidden sm:inline">{theme}</span>
               <ChevronDown size={14} className="opacity-60" />
             </div>
-            <ul
+            <div
               tabIndex={0}
-              className="dropdown-content z-[100] menu p-2 shadow-2xl bg-base-200 rounded-box w-56 max-h-96 overflow-y-auto border border-base-300 mt-2"
+              className="dropdown-content z-[100] p-3 shadow-2xl bg-base-200 rounded-2xl w-[92vw] sm:w-[620px] md:w-[700px] max-w-[calc(100vw-1.5rem)] border border-base-300 mt-2"
             >
-              <li className="menu-title text-xs uppercase tracking-wider text-primary font-bold px-3 py-1">
-                Select Theme ({DAISY_THEMES.length})
-              </li>
-              {DAISY_THEMES.map((th) => (
-                <li key={th.id}>
-                  <button
-                    className={`flex items-center justify-between py-2 px-3 rounded-lg text-sm ${
-                      theme === th.id ? 'active font-bold text-primary-content bg-primary' : 'hover:bg-base-300'
-                    }`}
-                    onClick={() => setTheme(th.id)}
-                  >
-                    <span className="flex items-center gap-2">
-                      <span>{th.icon}</span>
-                      <span className="capitalize">{th.name}</span>
-                    </span>
-                    {theme === th.id && <span className="badge badge-xs badge-ghost">Active</span>}
-                  </button>
-                </li>
-              ))}
-            </ul>
+              <div className="flex items-center justify-between px-2 pb-2 mb-2 border-b border-base-300">
+                <span className="text-xs uppercase tracking-wider text-primary font-bold">
+                  Select Theme ({DAISY_THEMES.length})
+                </span>
+                <span className="text-xs text-base-content/70 font-medium">
+                  Active: <span className="capitalize font-bold text-primary">{theme}</span>
+                </span>
+              </div>
+              <ul className="menu p-0 grid grid-cols-2 sm:grid-cols-4 gap-1">
+                {DAISY_THEMES.map((th) => (
+                  <li key={th.id}>
+                    <button
+                      className={`flex items-center justify-between py-1.5 px-2.5 rounded-lg text-xs md:text-sm ${
+                        theme === th.id ? 'active font-bold text-primary-content bg-primary' : 'hover:bg-base-300'
+                      }`}
+                      onClick={() => setTheme(th.id)}
+                    >
+                      <span className="flex items-center gap-1.5 truncate">
+                        <span>{th.icon}</span>
+                        <span className="capitalize truncate">{th.name}</span>
+                      </span>
+                      {theme === th.id && <span className="badge badge-xs badge-ghost ml-1">Active</span>}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
       </header>
