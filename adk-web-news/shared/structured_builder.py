@@ -47,30 +47,46 @@ def generate_live_topic_intelligence(topic: str) -> Optional[Dict[str, Any]]:
 
         client = genai.Client(api_key=GEMINI_API_KEY)
         clean_topic = topic.strip()
+
+        news_context = ""
+        live_articles = []
+        try:
+            from shared.tools import fetch_news_articles
+            raw_articles_str = fetch_news_articles(clean_topic, num_sources=8)
+            live_articles = json.loads(raw_articles_str)
+            if live_articles:
+                news_context = "\nReal-Time News Feeds Ingested:\n" + "\n".join([
+                    f"- [{a.get('published_date', 'Recent')}] {a.get('outlet')}: \"{a.get('title')}\" ({a.get('url', '')})\n  Excerpt: {a.get('content', '')[:180]}"
+                    for a in live_articles
+                ])
+        except Exception as e_news:
+            logger.debug("Failed fetching live articles for topic intelligence: %s", e_news)
+
         prompt = f"""You are a multi-agent news intelligence fleet analyzing the following topic:
 "{clean_topic}"
+{news_context}
 
 Provide a thorough, forensically accurate intelligence report adhering to IFCN fact-checking principles.
 
 CRITICAL READABILITY & VOCABULARY REQUIREMENT:
 1. Clear & Simple Sentence Structure: Write with simple, clear, and direct sentence structures that are easy to read and understand. Avoid overly convoluted, academic, or run-on sentences.
-2. PRESERVE TECHNICAL & DOMAIN WORDS: DO NOT replace or dumb down accurate technical, scientific, legal, economic, or industry terms with informal or colloquial words. For example, in telecom/satellite topics use the exact word "spectrum" (DO NOT replace it with "airwaves"); keep terms like "orbital slot", "semiconductor", "antitrust", "injunction", "frequency allocation", etc. Keep technical terms intact and explain them simply in context or in the jargon definitions.
+2. PRESERVE TECHNICAL & DOMAIN WORDS: DO NOT replace or dumb down accurate technical, scientific, legal, economic, or industry terms with informal or colloquial words. Keep technical terms intact and explain them simply in context or in the jargon definitions.
 
-Return a single valid JSON object with the following fields:
-- "executive_summary": string, 3-4 clear and easy-to-read sentences synthesizing the latest verified reporting while preserving precise technical terminology
-- "key_metrics_and_numbers": list of 4 specific strings with statistics, timelines, financial figures, or dates
-- "consensus_points": list of 3 clear strings outlining uncontested facts across all major outlets
-- "sources_analyzed": list of strings citing major media desks (e.g. Associated Press, Reuters, Bloomberg, WSJ, Nikkei Asia, The Hindu)
-- "articles_analyzed": list of 4-6 objects with 'outlet', 'title', 'url', 'published_date', 'author', 'content', 'country', 'country_code', 'flag', 'editorial_lean', 'reliability_tier'
-- "context_primer": object with 'background_story' (string with clear sentence structure), 'primer_items' (list of 6-8 objects containing BOTH prominent organizations and key figures: at least 4-5 with 'entity_type': 'ORGANIZATION' and at least 2-3 with 'entity_type': 'PERSON'. Each object MUST have 'entity_name', 'entity_type' ['ORGANIZATION'|'PERSON'|'CONCEPT'|'LOCATION'], 'role_or_title', 'explainer_2_lines' [1-2 clear sentences preserving domain terms], 'historical_context', 'wikipedia_url' [valid en.wikipedia.org link e.g. https://en.wikipedia.org/wiki/Exact_Title], and 'image_url' [direct wikimedia photo/logo URL]), and 'jargon_definitions' (dict of term: clear definition of the exact technical term)
-- "verifications": list of 3-4 objects with 'claim_id' (e.g. C-01), 'claim_text', 'status' ('VERIFIED'|'DISPUTED'|'UNVERIFIED'), 'confidence' (float 0.8-1.0), 'reasoning' (clear explanation with exact technical details), 'corroborating_sources' (list of strings), 'conflicting_sources' (list of strings)
-- "contradictions": list of 2 objects with 'contradiction_id' (e.g. CONT-01), 'topic_aspect', 'outlet_a', 'claim_a', 'outlet_b', 'claim_b', 'divergence_type', 'analysis' (clear breakdown explaining why reports disagree)
-- "bias_evaluations": list of 2-3 objects with 'outlet', 'assessed_lean' ('CENTER'|'CENTER_LEFT'|'CENTER_RIGHT'|'FAR_LEFT'|'FAR_RIGHT'), 'loaded_terms_identified' (list of strings), 'framing_narrative', 'omitted_context'
-- "timeline": object with 'narrative_evolution_summary' (string with clear sentences) and 'events' (list of 5-7 chronologically ordered objects from earliest precursor to the MOST RECENT and trending incidents. Each event must have 'timestamp_or_date', 'headline', 'description' [clear, direct sentences preserving technical terms], 'source_outlet', 'source_url', 'narrative_shift', 'is_recent' [boolean: true for recent breaking or trending milestones]. CRITICAL: If the issue is trending right now, ensure the timeline includes the latest developments up to the present day).
-- "root_cause_analysis": object with 'immediate_triggers' (list of clear strings), 'underlying_systemic_factors' (list of clear strings), 'structural_failure_points' (list of clear strings)
-- "consequences_tree": list of 3 objects with 'order' ('FIRST_ORDER'|'SECOND_ORDER'|'THIRD_ORDER'), 'impact_description' (clear direct sentence), 'affected_sector_or_group'
-- "future_scenarios": list of 3 objects with 'scenario_title', 'scenario_type' ('MOST_LIKELY'|'BEST_CASE'|'WORST_CASE'), 'probability_rating' ('HIGH'|'MODERATE'|'LOW'), 'time_horizon', 'potential_impact', 'signals_to_watch' (list of strings), 'what_if_assumption' (optional string)
-- "lessons_learned": list of 3 objects with 'lesson_takeaway', 'target_audience' ('INDIVIDUALS'|'ORGANISATIONS'|'POLICYMAKERS'), 'concrete_preventive_action'
+STRICT DYNAMIC LENGTH RULE:
+DO NOT output a fixed or pre-determined number of items for ANY list. The item count must be dynamically determined based solely on real source evidence:
+- "key_metrics_and_numbers": list of strings. Include all salient quantifiable data points, percentages, dollar amounts, or milestone dates found in the reporting (dynamic length: could be 2, 4, 6, etc.; do NOT force a fixed count).
+- "consensus_points": list of strings. Include all points universally agreed upon across reporting desks (dynamic length).
+- "sources_analyzed": list of strings citing the distinct media outlets represented in the coverage.
+- "articles_analyzed": list of objects. Include all relevant source articles ingested above. For each article: 'outlet', 'title', 'url', 'published_date', 'author', 'content' (1-2 sentence concise factual summary in plain English), 'country', 'country_code', 'flag', 'editorial_lean', 'reliability_tier'.
+- "context_primer": object with 'background_story' (string with clear sentence structure), 'primer_items' (list of objects: include all key organizations and prominent figures essential to the story without forcing a fixed quota; each with 'entity_name', 'entity_type' ['ORGANIZATION'|'PERSON'|'CONCEPT'|'LOCATION'], 'role_or_title', 'explainer_2_lines', 'historical_context', 'wikipedia_url', and 'image_url'), and 'jargon_definitions' (dict of term: clear definition).
+- "verifications": list of objects. Extract as many or as few distinct, testable claims as actually exist in the reporting (do NOT force a fixed count) with 'claim_id' (e.g. C-01, C-02, ...), 'claim_text', 'status' ('VERIFIED'|'DISPUTED'|'UNVERIFIED'), 'confidence' (float 0.8-1.0), 'reasoning', 'corroborating_sources' (list of strings), 'conflicting_sources' (list of strings).
+- "contradictions": list of objects. Include ONLY genuine cross-source contradictions where two outlets directly disagree. If no outlets contradict each other on this story, return an empty array []! If there are genuine disagreements, report all of them with 'contradiction_id' (e.g. CONT-01, ...), 'topic_aspect', 'outlet_a', 'claim_a', 'outlet_b', 'claim_b', 'divergence_type', 'analysis'.
+- "bias_evaluations": list of objects evaluating distinct reporting desks with 'outlet', 'assessed_lean', 'loaded_terms_identified', 'framing_narrative', 'omitted_context'.
+- "timeline": object with 'narrative_evolution_summary' (string) and 'events' (list of chronologically ordered milestone objects, bridging to current trending status).
+- "root_cause_analysis": object with 'immediate_triggers' (list of strings), 'underlying_systemic_factors' (list of strings), 'structural_failure_points' (list of strings).
+- "consequences_tree": list of objects with 'order' ('FIRST_ORDER'|'SECOND_ORDER'|'THIRD_ORDER'), 'impact_description', 'affected_sector_or_group'.
+- "future_scenarios": list of objects with 'scenario_title', 'scenario_type' ('MOST_LIKELY'|'BEST_CASE'|'WORST_CASE'), 'probability_rating', 'time_horizon', 'potential_impact', 'signals_to_watch', 'what_if_assumption'.
+- "lessons_learned": list of objects with 'lesson_takeaway', 'target_audience' ('INDIVIDUALS'|'ORGANISATIONS'|'POLICYMAKERS'), 'concrete_preventive_action'.
 """
         response = client.models.generate_content(
             model=MODEL_AGENT_FAST,
@@ -130,6 +146,16 @@ def build_structured_intelligence(topic: str, raw_markdown: str = "") -> Dict[st
             divergence_type="Numerical Discrepancy",
             analysis="The two sides disagree because they used different estimates for how quickly companies can adapt.",
         ),
+        ContradictionItem(
+            contradiction_id="CONT-03",
+            topic_aspect="Enforcement Timeline and Grace Period",
+            outlet_a="Regional Daily Outlets",
+            claim_a="Policy enforced starting immediately on publication day with zero transition period.",
+            outlet_b="Official Administrative Gazette Notice",
+            claim_b="Mandatory 60-day advisory transition window before formal penalties attach.",
+            divergence_type="Timeline Divergence",
+            analysis="Local reporting focused on the immediate administrative directive issuance, whereas legal filings set an explicit grace period.",
+        ),
     ]
 
     # Build Fact Verifications (IFCN Standards)
@@ -160,6 +186,24 @@ def build_structured_intelligence(topic: str, raw_markdown: str = "") -> Dict[st
             reasoning="Confirmed by independent surveys of affected businesses and reports from financial analysts.",
             corroborating_sources=["Bloomberg Intelligence", "Industry Audit Reports"],
             conflicting_sources=["Government Spokesperson Briefing"],
+        ),
+        ClaimVerification(
+            claim_id="C-104",
+            claim_text=f"Multiple foreign partner nations have initiated retaliatory trade complaints regarding {subject}.",
+            status=VerificationStatus.UNVERIFIED,
+            confidence=0.64,
+            reasoning="While diplomatic communiqués have expressed concern, no formal WTO or bilateral dispute dockets have been registered to date.",
+            corroborating_sources=["Diplomatic Statements"],
+            conflicting_sources=["WTO Dispute Settlement Registry"],
+        ),
+        ClaimVerification(
+            claim_id="C-105",
+            claim_text="All pending visa and operational applications have been completely frozen.",
+            status=VerificationStatus.DISPUTED,
+            confidence=0.94,
+            reasoning="Agency processing statistics show normal adjudications continuing for cases submitted prior to the gazette cutoff date.",
+            corroborating_sources=["Agency Operational Dashboard", "Immigration Bar Association Notice"],
+            conflicting_sources=["Initial Cable News Headlines"],
         ),
     ]
 
@@ -701,8 +745,8 @@ CRITICAL READABILITY & TERMINOLOGY REQUIREMENT:
 
 Return a single JSON object with:
 - "topic": "{clean_topic}"
-- "questions": list of 3 questions, each with:
-  - "question_id": int (1, 2, 3)
+- "questions": list of 3 to 5 questions (scale adaptively based on the scope and complexity of the story), each with:
+  - "question_id": int (1, 2, 3, ...)
   - "question": string asking a clear, thoughtful question testing comprehension while keeping proper technical terms
   - "options": list of 4 distinct string choices
   - "correct_option_index": int (0, 1, 2, or 3)
@@ -788,7 +832,7 @@ CRITICAL READABILITY & TERMINOLOGY REQUIREMENT:
 Return a single JSON object with:
 - "topic": "{clean_topic}"
 - "resolution_under_debate": string (clear debate resolution, e.g. "Resolved: ...")
-- "debate_turns": list of 4 objects alternating between 'PROPONENT / ADVOCATE' and 'CRITIC / OPPONENT', each with:
+- "debate_turns": list of 4 to 6 objects (scale adaptively based on the depth of the controversy) alternating between 'PROPONENT / ADVOCATE' and 'CRITIC / OPPONENT', each with:
   - "speaker_perspective": 'PROPONENT / ADVOCATE' or 'CRITIC / OPPONENT'
   - "core_argument": string (well-reasoned argument in clear, persuasive English preserving domain terminology)
   - "grounding_citations": list of 1-2 strings citing specific reports, audits, or precedents
@@ -859,9 +903,9 @@ CRITICAL READABILITY & TERMINOLOGY REQUIREMENT:
 
 Return a single JSON object with:
 - "topic": "{clean_topic}"
-- "root_cause_analysis": object with 'immediate_triggers' (list of 2 clear strings), 'underlying_systemic_factors' (list of 2 clear strings), 'structural_failure_points' (list of 2 clear strings)
-- "consequences_tree": list of 3 objects with 'order' ('FIRST_ORDER'|'SECOND_ORDER'|'THIRD_ORDER'), 'impact_description' (string with clear sentence structure), 'affected_sector_or_group' (string)
-- "future_scenarios": list of 3 objects with:
+- "root_cause_analysis": object with 'immediate_triggers' (list of strings, dynamic length), 'underlying_systemic_factors' (list of strings, dynamic length), 'structural_failure_points' (list of strings, dynamic length)
+- "consequences_tree": list of objects with 'order' ('FIRST_ORDER'|'SECOND_ORDER'|'THIRD_ORDER'), 'impact_description' (string with clear sentence structure), 'affected_sector_or_group' (string)
+- "future_scenarios": list of objects (dynamic length covering plausible forward scenarios) with:
   - "scenario_title": string in clear English
   - "scenario_type": 'MOST_LIKELY'|'BEST_CASE'|'WORST_CASE'
   - "probability_rating": 'HIGH'|'MODERATE'|'LOW'
@@ -869,7 +913,7 @@ Return a single JSON object with:
   - "potential_impact": string in clear, easy-to-read English preserving technical terms
   - "signals_to_watch": list of strings
   - "what_if_assumption": optional string
-- "lessons_learned": list of 3 objects (exactly one per target_audience) with:
+- "lessons_learned": list of objects (covering applicable audiences like INDIVIDUALS, ORGANISATIONS, POLICYMAKERS) with:
   - "lesson_takeaway": string - what went wrong or right, and why
   - "target_audience": 'INDIVIDUALS'|'ORGANISATIONS'|'POLICYMAKERS'
   - "concrete_preventive_action": string - a specific, actionable step to avoid or mitigate a recurrence
@@ -991,34 +1035,53 @@ def generate_live_brief(topic: str) -> Optional[Dict[str, Any]]:
 
         client = genai.Client(api_key=GEMINI_API_KEY)
         clean_topic = topic.strip()
-        prompt = f"""You are a news intelligence analyst. Generate an Executive Intelligence Brief for:
+
+        news_context = ""
+        live_articles = []
+        try:
+            from shared.tools import fetch_news_articles
+            raw_articles_str = fetch_news_articles(clean_topic, num_sources=8)
+            live_articles = json.loads(raw_articles_str)
+            if live_articles:
+                news_context = "\nReal-Time News Feeds Ingested:\n" + "\n".join([
+                    f"- [{a.get('published_date', 'Recent')}] {a.get('outlet')}: \"{a.get('title')}\" ({a.get('url', '')})\n  Excerpt: {a.get('content', '')[:180]}"
+                    for a in live_articles
+                ])
+        except Exception as e_news:
+            logger.debug("Failed fetching live articles for brief: %s", e_news)
+
+        prompt = f"""You are a senior news intelligence analyst. Generate an Executive Intelligence Brief for:
 "{clean_topic}"
+{news_context}
 
 CRITICAL READABILITY & TERMINOLOGY REQUIREMENT:
 1. Write with simple, clear, and direct sentence structures. Use short, crisp sentences so explanations are easy to read.
 2. PRESERVE TECHNICAL TERMS: Do NOT replace or dumb down accurate technical, scientific, legal, or industry terms with informal words (e.g. use "spectrum", NOT "airwaves"; preserve exact terms like "orbital slot", "injunction", "antitrust", etc.). Keep technical terms exact and explain them simply in jargon_definitions.
 
-Return a single JSON object with:
+STRICT DYNAMIC LENGTH RULE:
+DO NOT output a fixed or pre-determined number of items for ANY list. The item count must be dynamically determined based solely on real source evidence:
+- "key_metrics_and_numbers": list of strings. Include all salient quantifiable data points, percentages, dollar figures, or milestone dates mentioned in the reporting. (Include whatever number of distinct metrics exist; do NOT force a fixed count like 4).
+- "sources_analyzed": list of strings citing the distinct media outlets represented in the coverage.
+- "articles_analyzed": list of objects. Include each relevant news article from the ingested reporting feeds (or prominent reporting covering this event). Include every substantive article available.
+  Schema for EACH article object:
+  {{"outlet": "Outlet Name", "title": "Headline", "url": "Article URL", "published_date": "Publication Date", "author": "Byline or Desk", "country": "Country", "country_code": "US/GB/JP/IN etc.", "flag": "Flag Emoji", "editorial_lean": "Center"|"Center-Left"|"Center-Right"|"Left-Center"|"Right-Center", "reliability_tier": "High"|"Medium", "content": "1-2 sentence concise factual summary in plain English"}}
+- "context_primer": object containing:
+  - "background_story": string explaining background origins and context history with clear sentence structure
+  - "primer_items": list of entity objects. Include all key organizations and prominent figures essential to understanding this story (DYNAMIC COUNT: include as few or as many as relevant; do NOT force a fixed count like 6).
+    Schema for EACH entity item:
+    {{"entity_name": "Name", "entity_type": "ORGANIZATION"|"PERSON"|"CONCEPT"|"LOCATION", "role_or_title": "Role or Title", "explainer_2_lines": "Two clear sentences explaining who they are and what they do", "historical_context": "Background in clear words", "wikipedia_url": "https://en.wikipedia.org/wiki/Exact_Article_Name", "image_url": "https://upload.wikimedia.org/..."}}
+  - "jargon_definitions": dict of term to clear, accessible plain-English explanation of this exact term
+
+Return a single JSON object containing:
 - "topic": "{clean_topic.title()}"
 - "executive_summary": "Clear, direct 3-4 sentence summary of verified reporting in accessible English preserving technical terms"
-- "key_metrics_and_numbers": ["4 specific numerical facts, percentages, dollar amounts, or milestone dates"]
-- "sources_analyzed": ["Associated Press", "Reuters", "Bloomberg", "Wall Street Journal", "Nikkei Asia", "The Hindu"]
-- "articles_analyzed": [
-    {{"outlet": "Reuters", "title": "Headline", "url": "https://www.reuters.com", "published_date": "Recent date", "author": "Wire Desk", "country": "United States", "flag": "🇺🇸", "editorial_lean": "Center", "reliability_tier": "High", "content": "Summary sentence in plain English"}},
-    {{"outlet": "Nikkei Asia", "title": "Headline", "url": "https://asia.nikkei.com", "published_date": "Recent date", "author": "Regional Bureau", "country": "Japan", "flag": "🇯🇵", "editorial_lean": "Center", "reliability_tier": "High", "content": "Regional market summary sentence in plain English"}},
-    {{"outlet": "The Hindu", "title": "Headline", "url": "https://www.thehindu.com", "published_date": "Recent date", "author": "National Desk", "country": "India", "flag": "🇮🇳", "editorial_lean": "Center-Left", "reliability_tier": "High", "content": "Policy overview sentence in plain English"}}
-  ]
+- "key_metrics_and_numbers": [ /* dynamic array of strings: all quantifiable metrics from evidence */ ]
+- "sources_analyzed": [ /* dynamic array of strings: distinct media outlets */ ]
+- "articles_analyzed": [ /* dynamic array of article objects matching ingested coverage */ ]
 - "context_primer": {{
-    "background_story": "Paragraph explaining background context and situation history with clear sentence structure",
-    "primer_items": [
-      {{"entity_name": "Major Corporate or Regulatory Entity 1", "entity_type": "ORGANIZATION", "role_or_title": "Primary Regulatory or Corporate Body", "explainer_2_lines": "Two clear sentences explaining who they are and what they do", "historical_context": "Background in clear words", "wikipedia_url": "https://en.wikipedia.org/wiki/Exact_Article_Name"}},
-      {{"entity_name": "Major Agency or Coalition 2", "entity_type": "ORGANIZATION", "role_or_title": "Executive Oversight / Industry Body", "explainer_2_lines": "Two clear sentences", "historical_context": "Background in clear words", "wikipedia_url": "https://en.wikipedia.org/wiki/Exact_Article_Name"}},
-      {{"entity_name": "International or Regional Body 3", "entity_type": "ORGANIZATION", "role_or_title": "Regional Authority or Trade Partner", "explainer_2_lines": "Two clear sentences", "historical_context": "Relevance in clear words", "wikipedia_url": "https://en.wikipedia.org/wiki/Exact_Article_Name"}},
-      {{"entity_name": "Judicial or Financial Institution 4", "entity_type": "ORGANIZATION", "role_or_title": "Judicial or Financial Arbiter", "explainer_2_lines": "Two clear sentences", "historical_context": "Background in clear words", "wikipedia_url": "https://en.wikipedia.org/wiki/Exact_Article_Name"}},
-      {{"entity_name": "Lead Key Leader or CEO 1", "entity_type": "PERSON", "role_or_title": "Chief Executive / Agency Chair / Prime Minister", "explainer_2_lines": "Two clear sentences explaining their role", "historical_context": "Background in clear words", "wikipedia_url": "https://en.wikipedia.org/wiki/First_Last"}},
-      {{"entity_name": "Prominent Official or Negotiator 2", "entity_type": "PERSON", "role_or_title": "Minister / Judge / Lead Negotiator", "explainer_2_lines": "Two clear sentences", "historical_context": "Background in clear words", "wikipedia_url": "https://en.wikipedia.org/wiki/First_Last"}}
-    ],
-    "jargon_definitions": {{"Exact Technical Term": "Clear, accessible plain-English explanation of this exact term"}}
+    "background_story": "Clear 2-3 sentence overview of historical origins",
+    "primer_items": [ /* dynamic array of entity objects for organizations and leaders */ ],
+    "jargon_definitions": {{ /* dict of technical terms and plain-English definitions */ }}
   }}
 """
         res = client.models.generate_content(
@@ -1030,6 +1093,31 @@ Return a single JSON object with:
             parsed = json.loads(res.text)
             parsed["topic"] = clean_topic.title()
             parsed["available_sections"] = ["brief"]
+
+            # Ensure articles_analyzed is enriched with live ingested articles if Gemini omitted any
+            if live_articles:
+                existing_urls = {a.get("url") for a in parsed.get("articles_analyzed", []) if a.get("url")}
+                for la in live_articles:
+                    if la.get("url") and la.get("url") not in existing_urls:
+                        parsed.setdefault("articles_analyzed", []).append({
+                            "outlet": la.get("outlet", "News Agency"),
+                            "title": la.get("title", ""),
+                            "url": la.get("url", ""),
+                            "published_date": la.get("published_date", "Recent"),
+                            "author": la.get("author", la.get("outlet", "")),
+                            "country": "International",
+                            "country_code": "INT",
+                            "flag": "🌐",
+                            "editorial_lean": "Center",
+                            "reliability_tier": "High",
+                            "content": la.get("content", "")[:200],
+                        })
+                        existing_urls.add(la.get("url"))
+
+            # Synchronize sources_analyzed from actual articles_analyzed
+            if parsed.get("articles_analyzed"):
+                parsed["sources_analyzed"] = list({a["outlet"] for a in parsed["articles_analyzed"] if a.get("outlet")})
+
             return parsed
     except Exception as e:
         logger.warning("Error generating live brief with Gemini: %s", e)
@@ -1046,26 +1134,52 @@ def generate_live_verifications(topic: str) -> Optional[Dict[str, Any]]:
 
         client = genai.Client(api_key=GEMINI_API_KEY)
         clean_topic = topic.strip()
-        prompt = f"""You are an IFCN forensic fact checker. Audit claims and bias for:
+
+        news_context = ""
+        try:
+            from shared.tools import fetch_news_articles
+            raw_articles_str = fetch_news_articles(clean_topic, num_sources=8)
+            live_articles = json.loads(raw_articles_str)
+            if live_articles:
+                news_context = "\nReal-Time News Feeds Ingested for Cross-Verification:\n" + "\n".join([
+                    f"- [{a.get('published_date', 'Recent')}] {a.get('outlet')}: \"{a.get('title')}\"\n  Text: {a.get('content', '')[:200]}"
+                    for a in live_articles
+                ])
+        except Exception as e_news:
+            logger.debug("Failed fetching live articles for verifications: %s", e_news)
+
+        prompt = f"""You are an IFCN forensic fact checker and cross-source intelligence auditor.
+Audit claims, cross-source contradictions, and media bias for:
 "{clean_topic}"
+{news_context}
 
 CRITICAL READABILITY & TERMINOLOGY REQUIREMENT:
 1. Write all reasoning, contradiction breakdowns, and consensus points with clear, straightforward sentence structures.
 2. PRESERVE TECHNICAL TERMS: Do NOT replace or dumb down accurate technical, scientific, legal, or industry terms with informal words (e.g. use "spectrum", NOT "airwaves"). Preserve exact terms while keeping the reasoning easy to read.
 
-Return a single JSON object with:
-- "consensus_points": ["3 points universally agreed upon across all credible outlets in clear English"]
+STRICT DYNAMIC LENGTH RULE:
+DO NOT output a fixed or pre-determined number of items for ANY list. Determine the count purely from real source evidence:
+- "consensus_points": list of strings. Include all universally agreed-upon facts across reporting desks (dynamic length, 0 or more).
+- "verifications": list of ClaimVerification objects. DYNAMIC COUNT: Extract as many or as few distinct, testable claims as actually exist in the reporting. Do not aim for a fixed number like 3 or 4. If there are 2 claims, output 2. If there are 7 claims, output 7.
+  Schema for EACH verification item:
+  {{"claim_id": "C-01", "claim_text": "Self-contained claim statement", "status": "VERIFIED"|"DISPUTED"|"UNVERIFIED", "confidence": 0.95, "reasoning": "Clear explanation preserving exact technical details", "corroborating_sources": ["Primary record"], "conflicting_sources": []}}
+- "contradictions": list of ContradictionItem objects. DYNAMIC COUNT: Include ONLY genuine cross-source contradictions where two outlets directly disagree on numbers, timelines, causality, or facts. If no outlets contradict each other on this story, return an empty array `[]`. If there is 1, return 1. If there are 3 or 4, return all of them. Do NOT fabricate or force a fixed count.
+  Schema for EACH contradiction item:
+  {{"contradiction_id": "CONT-01", "topic_aspect": "Specific Aspect", "outlet_a": "Outlet A", "claim_a": "Assertion A", "outlet_b": "Outlet B", "claim_b": "Assertion B", "divergence_type": "Fact Negation"|"Numerical Discrepancy"|"Timeline Divergence"|"Causal Dispute", "analysis": "Clear explanation in direct English of why the reports disagree"}}
+- "bias_evaluations": list of objects. DYNAMIC COUNT: Evaluate each distinct major reporting desk present in the coverage.
+  Schema for EACH bias evaluation item:
+  {{"outlet": "Outlet Name", "assessed_lean": "CENTER"|"CENTER_LEFT"|"CENTER_RIGHT"|"FAR_LEFT"|"FAR_RIGHT", "loaded_terms_identified": ["term"], "framing_narrative": "Factual framing focus", "omitted_context": null}}
+
+Return a single JSON object containing:
+- "consensus_points": [ /* dynamic list of uncontested facts */ ]
 - "verifications": [
-    {{"claim_id": "C-01", "claim_text": "Claim 1", "status": "VERIFIED", "confidence": 0.95, "reasoning": "Clear explanation preserving exact technical details", "corroborating_sources": ["Primary record"], "conflicting_sources": []}},
-    {{"claim_id": "C-02", "claim_text": "Claim 2", "status": "DISPUTED", "confidence": 0.89, "reasoning": "Clear explanation preserving exact technical details", "corroborating_sources": ["Audit document"], "conflicting_sources": ["Initial headline"]}},
-    {{"claim_id": "C-03", "claim_text": "Claim 3", "status": "VERIFIED", "confidence": 0.92, "reasoning": "Clear explanation preserving exact technical details", "corroborating_sources": ["Official statement"], "conflicting_sources": []}}
+    /* dynamic list of ClaimVerification objects matching all substantive claims in the evidence */
   ]
 - "contradictions": [
-    {{"contradiction_id": "CONT-01", "topic_aspect": "Specific Aspect", "outlet_a": "Outlet A", "claim_a": "Assertion A", "outlet_b": "Outlet B", "claim_b": "Assertion B", "divergence_type": "Fact Negation", "analysis": "Clear explanation in direct English of why the reports disagree"}}
+    /* dynamic list of ContradictionItem objects, or [] if reporting is unanimous */
   ]
 - "bias_evaluations": [
-    {{"outlet": "Associated Press / Reuters", "assessed_lean": "CENTER", "loaded_terms_identified": ["procedural"], "framing_narrative": "Factual procedural focus", "omitted_context": null}},
-    {{"outlet": "Financial Press", "assessed_lean": "CENTER_RIGHT", "loaded_terms_identified": ["economic impact"], "framing_narrative": "Market cost focus", "omitted_context": null}}
+    /* dynamic list of BiasEvaluation objects for reporting outlets */
   ]
 """
         res = client.models.generate_content(

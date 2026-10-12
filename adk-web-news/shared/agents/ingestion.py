@@ -78,6 +78,7 @@ Decompose provided news articles into isolated, verifiable atomic claims, quotes
    - quoted_speaker (named individual or institution, if attributed)
    - source_url (article link)
 5. Merge duplicate syndicated stories (e.g. same AP wire published across multiple local outlets) into a single claim noting syndication.
+6. Comprehensive dynamic extraction: Extract as many distinct atomic claims as the story requires for forensic evaluation (typically 5 to 10+ claims for major developing news stories). Do not artificially truncate or limit testable claims.
 
 # BOUNDARIES
 - NEVER evaluate the truthfulness or veracity of claims at this stage.

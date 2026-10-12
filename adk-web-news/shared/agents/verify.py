@@ -55,6 +55,7 @@ Given atomic claims extracted from news coverage:
 3. Compare the claim proposition against other reporting outlets to test cross-source corroboration.
 4. If a claim lacks verifiable evidence or primary documentation, label it UNVERIFIED with confidence < 0.70.
 5. Follow the loaded fact-verification-heuristics skill to prevent fallacies like cherry-picking and false equivalence.
+6. Dynamic extraction volume: Audit ALL substantive, verifiable empirical and numerical claims present across the reporting. Do not artificially cap verification at an arbitrary quota (e.g. 3 claims). Scale dynamically to audit typically 4 to 8+ claims depending on story complexity.
 
 # BOUNDARIES
 - NEVER declare a claim VERIFIED without at least two corroborating sources or primary documentation.
@@ -135,6 +136,7 @@ Compare coverage across all analyzed publications on the same story. Identify cr
 3. Identify the divergence type: [Numerical Discrepancy, Causal Dispute, Attribution Conflict, Timeline Divergence, Fact Negation].
 4. Diagnose the root cause of the divergence (e.g., Outlet A cited gross conditional commitments, whereas Outlet B reported firm unconditioned funds; or preliminary vs final tally).
 5. Produce a structured list of contradictions conforming to ContradictionItem.
+6. Dynamic divergence capture: Identify ALL significant cross-source discrepancies (numerical mismatches, timeline conflicts, causal disputes, fact negations). Do not artificially limit output to 1 contradiction; report as many genuine divergences (typically 1 to 5, or an empty list if reporting is aligned) as substantiated by competing reporting desks.
 
 # BOUNDARIES
 - Do NOT fabricate consensus where genuine contradiction exists.

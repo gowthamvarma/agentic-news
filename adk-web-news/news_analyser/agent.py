@@ -116,7 +116,7 @@ Structure your response cleanly using Markdown sections:
 7. Root Cause Diagnostics & 3-Tier Consequence Tree
 8. Actionable Lessons Learned & Concrete Prevention Steps
 9. Forward Plausible Scenarios & Signals to Watch
-10. Active Recall Comprehension Quiz (3 MCQs with Explanations)
+10. Active Recall Comprehension Quiz (Adaptive MCQs with Explanations)
 """
 
 root_agent = Agent(

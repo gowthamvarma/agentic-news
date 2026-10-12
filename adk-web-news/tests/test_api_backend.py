@@ -25,7 +25,7 @@ class TestApiBackendAndFirestore(unittest.IsolatedAsyncioTestCase):
     async def test_quiz_and_debate_builder(self):
         quiz = build_structured_quiz("Clean Energy Subsidies")
         self.assertIn("questions", quiz)
-        self.assertEqual(len(quiz["questions"]), 3)
+        self.assertGreaterEqual(len(quiz["questions"]), 3)
 
         debate = build_structured_debate("Clean Energy Subsidies")
         self.assertIn("debate_turns", debate)

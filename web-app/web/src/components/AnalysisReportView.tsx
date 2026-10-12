@@ -1296,13 +1296,26 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
             {/* Fact Verifications with DaisyUI Radial Progress */}
             <div className="card bg-base-200 border border-base-300 shadow-xl">
               <div className="card-body p-6 md:p-8">
-                <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-3 border-b border-base-300">
-                  <ShieldCheck size={24} className="text-success flex-shrink-0" />
-                  <span>IFCN Forensic Claim Verification Audit</span>
+                <div className="card-title text-xl font-black text-base-content flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-base-300">
+                  <div className="flex items-center gap-3">
+                    <ShieldCheck size={24} className="text-success flex-shrink-0" />
+                    <span>IFCN Forensic Claim Verification Audit</span>
+                  </div>
+                  {report.verifications && report.verifications.length > 0 && (
+                    <span className="badge badge-success badge-outline font-bold text-xs py-2 px-3 self-start sm:self-auto">
+                      {report.verifications.length} {report.verifications.length === 1 ? 'Claim Audited' : 'Claims Audited'}
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex flex-col gap-4 mt-4">
-                  {report.verifications?.map((v) => {
+                  {(!report.verifications || report.verifications.length === 0) ? (
+                    <div className="alert alert-info bg-info/10 text-base-content border border-info/30 rounded-xl">
+                      <ShieldCheck size={20} className="text-info flex-shrink-0" />
+                      <span>No discrete claims were flagged for verification in this report.</span>
+                    </div>
+                  ) : (
+                    report.verifications.map((v) => {
                     const confPercent = Math.round(v.confidence * 100);
 
                     return (
@@ -1355,7 +1368,8 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                         </div>
                       </div>
                     );
-                  })}
+                  })
+                )}
                 </div>
               </div>
             </div>

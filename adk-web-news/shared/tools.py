@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import re
+import time
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -112,6 +113,9 @@ def _generate_adaptive_mock_articles(topic: str, num_sources: int = 4) -> List[D
     ][:num_sources]
 
 
+_NEWS_CACHE: Dict[str, tuple[float, str]] = {}
+
+
 def fetch_news_articles(topic: str, num_sources: int = 5) -> str:
     """Fetch recent news articles on a given topic across diverse media outlets.
 
@@ -125,6 +129,14 @@ def fetch_news_articles(topic: str, num_sources: int = 5) -> str:
     Returns:
         JSON string containing a list of source articles with title, outlet, url, content, and date.
     """
+    cache_key = f"{topic.strip().lower()}:{num_sources}"
+    now = time.time()
+    if cache_key in _NEWS_CACHE:
+        cached_time, cached_val = _NEWS_CACHE[cache_key]
+        if now - cached_time < 300:  # 5 min TTL
+            logger.debug("Returning cached articles for '%s'", topic)
+            return cached_val
+
     logger.info("Tool fetch_news_articles called for topic: '%s'", topic)
     articles: List[Dict[str, Any]] = []
 
@@ -214,7 +226,9 @@ def fetch_news_articles(topic: str, num_sources: int = 5) -> str:
         logger.info("Engaging dynamic topic-adaptive fallback articles for '%s'", topic)
         articles = _generate_adaptive_mock_articles(topic, num_sources=num_sources)
 
-    return json.dumps(articles, indent=2)
+    res_json = json.dumps(articles, indent=2)
+    _NEWS_CACHE[cache_key] = (now, res_json)
+    return res_json
 
 
 def scrape_article_text(url: str) -> str:
