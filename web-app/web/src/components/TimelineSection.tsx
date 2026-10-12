@@ -74,9 +74,8 @@ export const TimelineSection: React.FC<TimelineSectionProps> = ({ timeline }) =>
   }, [eventsWithRecentMeta, filterRecentOnly, searchQuery, sortOrder]);
 
   const handleCopyEvent = (ev: TimelineEvent, idx: number) => {
-    const copyText = `[Timeline: ${ev.timestamp_or_date}] ${ev.headline}\nOutlet: ${ev.source_outlet}\nDetails: ${ev.description}${
-      ev.narrative_shift ? `\nNarrative Shift: ${ev.narrative_shift}` : ''
-    }`;
+    const copyText = `[Timeline: ${ev.timestamp_or_date}] ${ev.headline}\nOutlet: ${ev.source_outlet}\nDetails: ${ev.description}${ev.narrative_shift ? `\nNarrative Shift: ${ev.narrative_shift}` : ''
+      }`;
     navigator.clipboard.writeText(copyText);
     setCopiedIdx(idx);
     setTimeout(() => {
@@ -135,11 +134,10 @@ export const TimelineSection: React.FC<TimelineSectionProps> = ({ timeline }) =>
               <button
                 type="button"
                 onClick={() => setSortOrder('chronological')}
-                className={`btn btn-sm join-item font-bold gap-1.5 ${
-                  sortOrder === 'chronological'
-                    ? 'btn-primary text-primary-content'
-                    : 'btn-ghost text-base-content/75 hover:bg-base-300'
-                }`}
+                className={`btn btn-sm join-item font-bold gap-1.5 ${sortOrder === 'chronological'
+                  ? 'btn-primary text-primary-content'
+                  : 'btn-ghost text-base-content/75 hover:bg-base-300'
+                  }`}
                 title="View in chronological order (oldest first)"
               >
                 <Clock size={14} />
@@ -148,15 +146,14 @@ export const TimelineSection: React.FC<TimelineSectionProps> = ({ timeline }) =>
               <button
                 type="button"
                 onClick={() => setSortOrder('reverse')}
-                className={`btn btn-sm join-item font-bold gap-1.5 ${
-                  sortOrder === 'reverse'
+                className={`btn btn-sm join-item font-bold gap-1.5 ${sortOrder === 'reverse'
                     ? 'btn-primary text-primary-content'
                     : 'btn-ghost text-base-content/75 hover:bg-base-300'
-                }`}
+                  }`}
                 title="Reverse order (newest incidents first)"
               >
                 <ArrowUpDown size={14} />
-                <span>Reverse (Newest First)</span>
+                <span>Newest First</span>
               </button>
             </div>
 
@@ -165,9 +162,8 @@ export const TimelineSection: React.FC<TimelineSectionProps> = ({ timeline }) =>
               <button
                 type="button"
                 onClick={() => setFilterRecentOnly(!filterRecentOnly)}
-                className={`btn btn-sm gap-1.5 font-bold shadow-xs transition-all ${
-                  filterRecentOnly ? 'btn-warning text-warning-content' : 'btn-outline btn-warning'
-                }`}
+                className={`btn btn-sm gap-1.5 font-bold shadow-xs transition-all ${filterRecentOnly ? 'btn-warning text-warning-content' : 'btn-outline btn-warning'
+                  }`}
               >
                 <Flame size={14} className={filterRecentOnly ? 'fill-current' : ''} />
                 <span>{filterRecentOnly ? 'Showing Recent Only' : 'Recent Only'}</span>
@@ -276,19 +272,17 @@ export const TimelineSection: React.FC<TimelineSectionProps> = ({ timeline }) =>
                   {/* Timeline End: Full-width card aligned to the right of the timeline */}
                   <div className="timeline-end mb-6 w-full">
                     <div
-                      className={`card transition-all p-4 md:p-6 rounded-2xl shadow-sm text-start w-full ${
-                        ev.isRecent
+                      className={`card transition-all p-4 md:p-6 rounded-2xl shadow-sm text-start w-full ${ev.isRecent
                           ? 'bg-gradient-to-br from-warning/10 via-base-100 to-base-100 border-2 border-warning/60 shadow-md ring-1 ring-warning/30'
                           : 'bg-base-100 border border-base-300 hover:border-primary/50'
-                      }`}
+                        }`}
                     >
                       {/* Top Badges: Date, Recent Indicator & Copy Button */}
                       <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <div
-                            className={`badge badge-sm gap-1 font-mono font-bold ${
-                              ev.isRecent ? 'badge-warning text-warning-content' : 'badge-info badge-outline'
-                            }`}
+                            className={`badge badge-sm gap-1 font-mono font-bold ${ev.isRecent ? 'badge-warning text-warning-content' : 'badge-info badge-outline'
+                              }`}
                           >
                             <Calendar size={12} />
                             <span>{ev.timestamp_or_date}</span>
