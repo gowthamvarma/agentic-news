@@ -10,6 +10,7 @@ from __future__ import annotations
 import re
 import json
 import logging
+from datetime import datetime, timezone, timedelta
 from typing import Any, Dict, List, Optional
 from shared.config import GEMINI_API_KEY, IS_SIMULATION_MODE, MODEL_AGENT_FAST, logger
 from shared.schemas import (
@@ -60,7 +61,7 @@ Return a single valid JSON object with the following fields:
 - "verifications": list of 3-4 objects with 'claim_id' (e.g. C-01), 'claim_text', 'status' ('VERIFIED'|'DISPUTED'|'UNVERIFIED'), 'confidence' (float 0.8-1.0), 'reasoning', 'corroborating_sources' (list of strings), 'conflicting_sources' (list of strings)
 - "contradictions": list of 2 objects with 'contradiction_id' (e.g. CONT-01), 'topic_aspect', 'outlet_a', 'claim_a', 'outlet_b', 'claim_b', 'divergence_type', 'analysis'
 - "bias_evaluations": list of 2-3 objects with 'outlet', 'assessed_lean' ('CENTER'|'CENTER_LEFT'|'CENTER_RIGHT'|'FAR_LEFT'|'FAR_RIGHT'), 'loaded_terms_identified' (list of strings), 'framing_narrative', 'omitted_context'
-- "timeline": object with 'narrative_evolution_summary' (string) and 'events' (list of 3-5 objects with 'timestamp_or_date', 'headline', 'description', 'source_outlet', 'source_url', 'narrative_shift')
+- "timeline": object with 'narrative_evolution_summary' (string) and 'events' (list of 5-7 chronologically ordered objects from earliest precursor to the MOST RECENT and trending incidents. Each event must have 'timestamp_or_date', 'headline', 'description', 'source_outlet', 'source_url', 'narrative_shift', 'is_recent' [boolean: true for recent breaking or trending milestones]. CRITICAL: If the issue is trending right now, ensure the timeline includes the latest developments up to the present day).
 - "root_cause_analysis": object with 'immediate_triggers' (list of strings), 'underlying_systemic_factors' (list of strings), 'structural_failure_points' (list of strings)
 - "consequences_tree": list of 3 objects with 'order' ('FIRST_ORDER'|'SECOND_ORDER'|'THIRD_ORDER'), 'impact_description', 'affected_sector_or_group'
 - "future_scenarios": list of 3 objects with 'scenario_title', 'scenario_type' ('MOST_LIKELY'|'BEST_CASE'|'WORST_CASE'), 'probability_rating' ('HIGH'|'MODERATE'|'LOW'), 'time_horizon', 'potential_impact', 'signals_to_watch' (list of strings), 'what_if_assumption' (optional string)
@@ -182,42 +183,62 @@ def build_structured_intelligence(topic: str, raw_markdown: str = "") -> Dict[st
         ),
     ]
 
-    # Build Timeline & Narrative Evolution
+    # Build Dynamic Timeline & Narrative Evolution (Anchored to current time with recent incidents)
+    now_dt = datetime.now(timezone.utc)
+    t_precursor = (now_dt - timedelta(days=28)).strftime("%B %d, %Y • 09:00 UTC")
+    t_trigger = (now_dt - timedelta(days=4)).strftime("%B %d, %Y • 08:30 UTC")
+    t_clarify = (now_dt - timedelta(days=2)).strftime("%B %d, %Y • 11:15 UTC")
+    t_recent_filing = (now_dt - timedelta(days=1)).strftime("%B %d, %Y • 16:45 UTC")
+    t_trending_now = now_dt.strftime("%B %d, %Y • %H:%M UTC")
+
     timeline = TimelinePayload(
         topic=clean_topic,
-        narrative_evolution_summary="Coverage shifted from breaking 'blanket catastrophe' panic framing toward detailed scrutiny of grandfathering exemptions and litigation merits.",
+        narrative_evolution_summary="Coverage shifted from breaking 'blanket catastrophe' panic framing toward granular scrutiny of grandfathering exemptions, emergency litigation merits, and real-time operational directives.",
         events=[
             TimelineEvent(
-                timestamp_or_date="September 11, 2026 • 09:00 UTC",
+                timestamp_or_date=t_precursor,
                 headline="Inter-Agency Review & Strategy Memos",
                 description="Government working groups review existing procedural frameworks and identify statutory enforcement priorities.",
                 source_outlet="Internal Agency Memos / Trade Journals",
-                source_url="https://www.federalregister.gov/documents/2026/09/11/interagency-review-memo",
+                source_url="https://www.federalregister.gov/documents/interagency-review-memo",
                 narrative_shift="Technical discussions with little mainstream media coverage.",
+                is_recent=False,
             ),
             TimelineEvent(
-                timestamp_or_date="October 8, 2026 • 08:30 UTC",
+                timestamp_or_date=t_trigger,
                 headline="Breaking Bulletin Issued",
                 description=f"Global wire services issue breaking alerts announcing sweeping administrative changes regarding {subject}.",
                 source_outlet="Reuters / AP Wire",
-                source_url="https://www.reuters.com/world/us/breaking-administrative-directive-2026",
+                source_url="https://www.reuters.com/world/breaking-administrative-directive",
                 narrative_shift="Sensationalist framing emphasizing immediate absolute halt.",
+                is_recent=False,
             ),
             TimelineEvent(
-                timestamp_or_date="October 9, 2026 • 10:00 UTC",
+                timestamp_or_date=t_clarify,
                 headline="Administrative Guidance & Grandfathering Clarification",
                 description="Agency publishes technical FAQ confirming grandfathering protections for pre-existing certified filings.",
                 source_outlet="Official Gazette / Bloomberg",
-                source_url="https://www.bloomberg.com/news/articles/2026-10-09/administrative-guidance-faq",
+                source_url="https://www.bloomberg.com/news/articles/administrative-guidance-faq",
                 narrative_shift="Shift from panic to granular legal analysis of exemptions.",
+                is_recent=False,
             ),
             TimelineEvent(
-                timestamp_or_date="October 11, 2026 • 16:45 UTC",
-                headline="Federal Lawsuits & Injunction Petitions Filed",
+                timestamp_or_date=t_recent_filing,
+                headline="Federal Lawsuits & Emergency Injunction Petitions Filed",
                 description="Trade associations file emergency petitions in federal district court alleging APA procedural violations.",
                 source_outlet="Reuters Legal / Politico",
-                source_url="https://www.wsj.com/articles/business-groups-injunction-petitions-2026",
+                source_url="https://www.wsj.com/articles/business-groups-injunction-petitions",
                 narrative_shift="Focus shifts to constitutional authority and likelihood of judicial stay.",
+                is_recent=True,
+            ),
+            TimelineEvent(
+                timestamp_or_date=f"{t_trending_now} (Trending Today)",
+                headline=f"Breaking Incident & Real-Time Enforcement Fallout on {subject}",
+                description=f"Emergency hearings, stakeholder directives, and cross-border adjustments take effect as regulatory bodies and impacted industries address ongoing fallout in real time.",
+                source_outlet="Associated Press / Bloomberg News Wire",
+                source_url="https://www.reuters.com/business/latest-enforcement-actions-realtime",
+                narrative_shift="Active, real-time focus on immediate operational impacts and emergency judicial motions.",
+                is_recent=True,
             ),
         ],
     )
@@ -1014,7 +1035,7 @@ Return a single JSON object with:
 
 
 def generate_live_timeline(topic: str) -> Optional[Dict[str, Any]]:
-    """Generates Stage 3 (Chronological Timeline & Narrative Trajectory) in ~4-6 seconds."""
+    """Generates Stage 3 (Chronological Timeline & Narrative Trajectory) grounded with recent reporting."""
     if IS_SIMULATION_MODE or not GEMINI_API_KEY:
         return None
     try:
@@ -1023,16 +1044,58 @@ def generate_live_timeline(topic: str) -> Optional[Dict[str, Any]]:
 
         client = genai.Client(api_key=GEMINI_API_KEY)
         clean_topic = topic.strip()
-        prompt = f"""You are a timeline reconstruction intelligence agent. Reconstruct the chronology for:
+        now_dt = datetime.now(timezone.utc)
+        current_time_str = now_dt.strftime("%B %d, %Y (%H:%M UTC)")
+
+        # Fetch recent live articles to ground recent/trending developments
+        news_context = ""
+        try:
+            from shared.tools import fetch_news_articles
+            raw_articles = fetch_news_articles(clean_topic, num_sources=6)
+            articles_list = json.loads(raw_articles)
+            if articles_list:
+                news_context = "\nRecent Real-Time & Live Reporting Feeds:\n" + "\n".join([
+                    f"- [{a.get('published_date', 'Recent')}] {a.get('outlet')}: {a.get('title')} ({a.get('url', '')})\n  Snippet: {a.get('content', '')[:160]}"
+                    for a in articles_list
+                ])
+        except Exception as e_news:
+            logger.debug("Failed fetching live articles for timeline grounding: %s", e_news)
+
+        prompt = f"""You are a chronological news investigator and timeline reconstruction intelligence agent.
+Reconstruct the full chronological trajectory for:
 "{clean_topic}"
+
+Current System Reference Time: {current_time_str}
+{news_context}
+
+CRITICAL RECENCY & TRENDING INSTRUCTION:
+1. If this issue is trending, breaking, or actively developing right now, you MUST include the most recent incidents and latest breaking developments (from the past hours, days, or current week).
+2. DO NOT output only old historical events from months or years ago. While you may include 1-2 foundational precursor events to provide background context, the timeline MUST bridge all the way forward to the present day and document the latest incidents that caused this topic to trend.
+3. Provide 5 to 7 detailed milestone events in strict chronological sequence (oldest to newest).
+4. For recent events occurring within the past few days/weeks or representing the latest breaking/trending state, set "is_recent": true (otherwise false). Ensure the final 1-2 milestones reflect current trending status.
 
 Return a single JSON object with:
 - "timeline": {{
-    "narrative_evolution_summary": "Summary of how media coverage and official narratives shifted over time",
+    "narrative_evolution_summary": "Comprehensive 2-3 sentence synthesis documenting how media framing, official responses, and reported figures evolved from initial triggers to the latest trending consensus",
     "events": [
-      {{"timestamp_or_date": "Exact or approximate date", "headline": "Milestone 1", "description": "Details", "source_outlet": "Reporting outlet", "source_url": "https://www.reuters.com", "narrative_shift": "Shift in coverage"}},
-      {{"timestamp_or_date": "Exact or approximate date", "headline": "Milestone 2", "description": "Details", "source_outlet": "Reporting outlet", "source_url": "https://apnews.com", "narrative_shift": "Shift in coverage"}},
-      {{"timestamp_or_date": "Exact or approximate date", "headline": "Milestone 3", "description": "Details", "source_outlet": "Reporting outlet", "source_url": "https://www.bloomberg.com", "narrative_shift": "Shift in coverage"}}
+      {{
+        "timestamp_or_date": "Exact or approximate date and time (e.g. October 12, 2026 • 14:00 UTC)",
+        "headline": "Informative milestone headline",
+        "description": "Specific factual summary of what occurred",
+        "source_outlet": "Reporting outlet (e.g. Reuters, Associated Press, Bloomberg)",
+        "source_url": "URL if available from reporting context",
+        "narrative_shift": "How media framing or focus shifted at this point",
+        "is_recent": false
+      }},
+      {{
+        "timestamp_or_date": "Recent date and time",
+        "headline": "Latest Breaking Incident / Trending Development",
+        "description": "Specific details of recent actions, statements, legal filings, or public reactions",
+        "source_outlet": "Reporting outlet",
+        "source_url": "URL if available",
+        "narrative_shift": "Current editorial focus and forward trajectory",
+        "is_recent": true
+      }}
     ]
   }}
 """

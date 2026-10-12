@@ -122,6 +122,10 @@ class TimelineEvent(BaseModel):
         default=None,
         description="How narrative framing or reported figures changed at this point"
     )
+    is_recent: Optional[bool] = Field(
+        default=False,
+        description="True if milestone represents a recent breaking incident or trending development"
+    )
 
 
 class TimelinePayload(BaseModel):

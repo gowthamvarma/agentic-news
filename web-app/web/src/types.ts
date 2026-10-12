@@ -65,6 +65,7 @@ export interface TimelineEvent {
   source_outlet: string;
   source_url?: string;
   narrative_shift?: string;
+  is_recent?: boolean;
 }
 
 export interface TimelinePayload {

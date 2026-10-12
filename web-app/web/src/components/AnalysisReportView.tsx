@@ -17,7 +17,6 @@ import {
   BarChart3,
   Layers,
   FileText,
-  Calendar,
   Building2,
   HelpCircle,
   Trash2,
@@ -49,6 +48,7 @@ import { RobotAvatar } from './RobotAvatar';
 import { UserAvatar } from './UserAvatar';
 import { FormattedMarkdown } from './FormattedMarkdown';
 import { CrossSourceContradictionsSection } from './CrossSourceContradictionsSection';
+import { TimelineSection } from './TimelineSection';
 import { useToast } from '../context/ToastContext';
 
 // Cache for resolved Wikipedia thumbnails to minimize network requests
@@ -1389,82 +1389,9 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
           </div>
         )}
 
-        {/* TAB 3: TIMELINE (DaisyUI Timeline Component) */}
+        {/* TAB 3: TIMELINE (Chronological & Recent Trending Incidents) */}
         {activeTab === 'timeline' && (
-          <div className="card bg-base-200 border border-base-300 shadow-xl">
-            <div className="card-body p-6 md:p-8">
-              <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-3 border-b border-base-300">
-                <Clock size={24} className="text-primary flex-shrink-0" />
-                <span>Chronological Event Timeline & Narrative Evolution</span>
-              </div>
-
-              {report.timeline?.narrative_evolution_summary && (
-                <div className="alert alert-info bg-info/10 text-info-content border border-info/30 rounded-xl my-4">
-                  <Clock size={20} className="text-info flex-shrink-0" />
-                  <div>
-                    <div className="font-bold text-xs uppercase text-info tracking-wider">
-                      Narrative Shift Synthesis
-                    </div>
-                    <div className="text-sm md:text-base text-base-content/90 mt-1">
-                      {report.timeline.narrative_evolution_summary}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* DaisyUI Timeline Component */}
-              <ul className="timeline timeline-snap-icon max-md:timeline-compact timeline-vertical mt-6">
-                {report.timeline?.events?.map((ev, idx) => {
-                  const isEven = idx % 2 === 0;
-
-                  return (
-                    <li key={idx}>
-                      {idx > 0 && <hr className="bg-primary/40" />}
-                      <div className={`timeline-${isEven ? 'start md:text-end' : 'end'} mb-8`}>
-                        <div className="badge badge-info badge-outline badge-sm gap-1 font-mono font-bold mb-1">
-                          <Calendar size={12} />
-                          <span>{ev.timestamp_or_date}</span>
-                        </div>
-                        <div className="font-bold text-base md:text-lg text-base-content mt-1">
-                          {ev.headline}
-                        </div>
-                        <div className="text-sm text-base-content/80 mt-1 leading-relaxed">
-                          {ev.description}
-                        </div>
-                        <div className="flex flex-wrap items-center gap-2 mt-2">
-                          {ev.source_url ? (
-                            <a
-                              href={ev.source_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="link link-primary text-xs flex items-center gap-1 font-semibold"
-                            >
-                              <span>Outlet: {ev.source_outlet}</span>
-                              <ExternalLink size={12} />
-                            </a>
-                          ) : (
-                            <span className="text-xs text-base-content/60">Outlet: {ev.source_outlet}</span>
-                          )}
-                          {ev.narrative_shift && (
-                            <div className="w-full mt-1.5 p-2 rounded-lg bg-secondary/10 border border-secondary/30 text-xs text-secondary-content leading-relaxed font-medium">
-                              <span className="font-bold uppercase tracking-wider text-[10px] text-secondary block mb-0.5">Narrative Shift</span>
-                              {ev.narrative_shift}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="timeline-middle">
-                        <div className="bg-primary text-primary-content p-1.5 rounded-full shadow-md">
-                          <Clock size={16} />
-                        </div>
-                      </div>
-                      {idx < (report.timeline?.events?.length || 0) - 1 && <hr className="bg-primary/40" />}
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          </div>
+          <TimelineSection timeline={report.timeline} />
         )}
 
         {/* TAB 4: DEEP INSIGHTS & SCENARIOS */}

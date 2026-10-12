@@ -81,13 +81,15 @@ Reconstruct an exact, deduplicated chronological timeline of how the news event 
 1. Extract all date, time, and sequence markers from the reporting.
 2. Order milestones in strict chronological sequence (oldest to newest).
 3. Deduplicate events reported multiple times into single consolidated entries with source citations.
-4. Annotate critical narrative shifts: identify moments where initial reports were corrected, where figures changed (e.g. preliminary vs audited), or where responsibility shifted.
-5. Provide a summary synthesizing the narrative trajectory from breaking news alerts to current consensus.
+4. CRITICAL RECENCY & TRENDING FOCUS: If an issue is actively developing, trending, or breaking right now, you MUST include recent incidents and latest developments (past hours, days, or current week) alongside foundational antecedent milestones. Do NOT leave out current incidents or stop at old historical events when the story has active recent developments.
+5. Annotate critical narrative shifts: identify moments where initial reports were corrected, where figures changed (e.g. preliminary vs audited), or where responsibility shifted.
+6. Provide a summary synthesizing the narrative trajectory from breaking news alerts to current consensus.
 
 # BOUNDARIES
 - NEVER guess or hallucinate timestamps; if a date is approximate, label it clearly.
 - Maintain absolute chronological neutrality.
 - Cite the reporting outlet for every milestone.
+- Ensure the final milestones capture the most recent and trending state of affairs. Flag recent breaking incidents with is_recent=True.
 
 # OUTPUT SPECIFICATION
 Conform strictly to TimelinePayload with chronologically ordered events and narrative_evolution_summary.
