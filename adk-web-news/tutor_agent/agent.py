@@ -27,7 +27,7 @@ root_agent = Agent(
     name="tutor_agent",
     model=MODEL_AGENT_FAST,
     description=(
-        "Pedagogical News Literacy & Active Recall Tutor (Features F20, F22, F23). "
+        "Pedagogical News Literacy & Active Recall Tutor. "
         "Generates diagnostic comprehension multiple-choice questions (MCQs), concept retention flashcards, "
         "and critical reflection prompts to test understanding of conflicting reporting, factual subtleties, "
         "and systemic causes."

@@ -5,13 +5,21 @@ export interface SourceArticle {
   published_date?: string;
   content: string;
   author?: string;
+  country?: string;
+  country_code?: string;
+  flag?: string;
+  editorial_lean?: string;
+  reliability_tier?: string;
 }
 
 export interface EntityPrimer {
   entity_name: string;
   entity_type: 'PERSON' | 'ORGANIZATION' | 'LOCATION' | 'CONCEPT' | 'EVENT';
+  role_or_title?: string;
   explainer_2_lines: string;
   historical_context?: string;
+  wikipedia_url?: string;
+  image_url?: string;
 }
 
 export interface ContextPrimerPayload {

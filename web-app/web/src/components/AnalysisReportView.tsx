@@ -25,7 +25,9 @@ import {
   Copy,
   Check,
   CirclePause,
-  Play
+  Play,
+  User,
+  Globe
 } from 'lucide-react';
 import {
   updateAnalysis,
@@ -53,7 +55,7 @@ interface AnalysisReportViewProps {
   onUpdateReport?: (updated: NewsIntelligenceReport) => void;
   isStreaming?: boolean;
   streamStatus?: string;
-  initialTab?: 'brief' | 'verification' | 'timeline' | 'insights' | 'quiz' | 'debate' | 'copilot';
+  initialTab?: 'brief' | 'sources' | 'verification' | 'timeline' | 'insights' | 'quiz' | 'debate' | 'copilot';
 }
 
 export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
@@ -66,10 +68,10 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
   const { showToast } = useToast();
   const [copiedLink, setCopiedLink] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<'brief' | 'verification' | 'timeline' | 'insights' | 'quiz' | 'debate' | 'copilot'>(() => {
+  const [activeTab, setActiveTab] = useState<'brief' | 'sources' | 'verification' | 'timeline' | 'insights' | 'quiz' | 'debate' | 'copilot'>(() => {
     if (typeof window !== 'undefined' && window.location.hash) {
       const h = window.location.hash.replace('#', '');
-      if (['brief', 'verification', 'timeline', 'insights', 'quiz', 'debate', 'copilot'].includes(h)) {
+      if (['brief', 'sources', 'verification', 'timeline', 'insights', 'quiz', 'debate', 'copilot'].includes(h)) {
         return h as any;
       }
     }
@@ -432,6 +434,25 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
             <li>
               <button
                 className={`flex items-center justify-between py-2.5 px-3 rounded-xl font-medium transition-all ${
+                  activeTab === 'sources'
+                    ? 'active font-bold shadow-md bg-primary text-primary-content'
+                    : 'hover:bg-base-300 text-base-content'
+                }`}
+                onClick={() => setActiveTab('sources')}
+              >
+                <span className="flex items-center gap-2.5">
+                  <Globe size={17} className={activeTab === 'sources' ? 'text-primary-content' : 'text-secondary'} />
+                  <span>Verified Sources</span>
+                </span>
+                <span className={`badge badge-xs font-bold ${activeTab === 'sources' ? 'badge-neutral' : 'badge-ghost'}`}>
+                  {report.articles_analyzed?.length || report.sources_analyzed?.length || 0}
+                </span>
+              </button>
+            </li>
+
+            <li>
+              <button
+                className={`flex items-center justify-between py-2.5 px-3 rounded-xl font-medium transition-all ${
                   activeTab === 'verification'
                     ? 'active font-bold shadow-md bg-primary text-primary-content'
                     : 'hover:bg-base-300 text-base-content'
@@ -623,6 +644,12 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
             Brief
           </button>
           <button
+            className={`tab tab-sm font-medium ${activeTab === 'sources' ? 'tab-active font-bold' : ''}`}
+            onClick={() => setActiveTab('sources')}
+          >
+            Sources ({report.articles_analyzed?.length || report.sources_analyzed?.length || 0})
+          </button>
+          <button
             className={`tab tab-sm font-medium ${activeTab === 'verification' ? 'tab-active font-bold' : ''}`}
             onClick={() => setActiveTab('verification')}
           >
@@ -746,12 +773,12 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                   {report.executive_summary}
                 </p>
 
-                {/* Key Numbers & Statistical Baseline (F19) - Vertical Alignment */}
+                {/* Key Numbers & Statistical Baseline - Vertical Alignment */}
                 {report.key_metrics_and_numbers && report.key_metrics_and_numbers.length > 0 && (
                   <div className="mt-8">
                     <div className="text-xs font-bold uppercase tracking-wider text-primary mb-3 flex items-center gap-2">
                       <BarChart3 size={16} />
-                      <span>Key Numbers & Statistical Baseline (F19)</span>
+                      <span>Key Numbers & Statistical Baseline</span>
                     </div>
                     <div className="flex flex-col gap-3">
                       {report.key_metrics_and_numbers.map((metric, idx) => (
@@ -779,7 +806,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 <div className="card-body p-6 md:p-8">
                   <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-3 border-b border-base-300">
                     <HelpCircle size={24} className="text-secondary flex-shrink-0" />
-                    <span>Who / Where / What Primer & Jargon Buster (F1, F27)</span>
+                    <span>Who / Where / What Primer & Jargon Buster</span>
                   </div>
 
                   {/* Origins & Historical Backdrop */}
@@ -797,48 +824,160 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     </div>
                   )}
 
-                  {/* DaisyUI Accordions for Key Entities */}
-                  {report.context_primer.primer_items && report.context_primer.primer_items.length > 0 && (
-                    <div className="mt-6">
-                      <div className="text-xs font-bold uppercase tracking-wider text-secondary mb-3">
-                        Key Entities & Core Stakeholders
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        {report.context_primer.primer_items.map((item, idx) => (
-                          <div
-                            key={idx}
-                            className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl shadow-sm"
-                          >
-                            <input type="checkbox" defaultChecked={idx === 0} />
-                            <div className="collapse-title text-base font-bold text-base-content flex items-center justify-between pr-10">
-                              <div className="flex items-center gap-3">
-                                <span className={`badge ${
-                                  item.entity_type === 'ORGANIZATION'
-                                    ? 'badge-primary'
-                                    : item.entity_type === 'CONCEPT'
-                                    ? 'badge-secondary'
-                                    : item.entity_type === 'LOCATION'
-                                    ? 'badge-accent'
-                                    : 'badge-neutral'
-                                } badge-sm font-bold uppercase`}>
-                                  {item.entity_type}
-                                </span>
-                                <span>{item.entity_name}</span>
-                              </div>
+                  {/* KEY FIGURES & LEADERS (PERSONS) */}
+                  {(() => {
+                    const personItems = report.context_primer.primer_items?.filter(
+                      (item) => item.entity_type === 'PERSON'
+                    ) || [];
+                    const otherItems = report.context_primer.primer_items?.filter(
+                      (item) => item.entity_type !== 'PERSON'
+                    ) || [];
+
+                    return (
+                      <>
+                        {personItems.length > 0 && (
+                          <div className="mt-6">
+                            <div className="text-xs font-bold uppercase tracking-wider text-primary mb-3 flex items-center gap-2">
+                              <User size={16} />
+                              <span>Key Leaders & Decision Makers (Persons)</span>
                             </div>
-                            <div className="collapse-content text-sm text-base-content/85 leading-relaxed pt-1">
-                              <p>{item.explainer_2_lines}</p>
-                              {item.historical_context && (
-                                <div className="text-xs text-base-content/65 border-t border-base-200 pt-2 mt-3 italic">
-                                  <strong>Historical Context:</strong> {item.historical_context}
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                              {personItems.map((item, idx) => (
+                                <div
+                                  key={idx}
+                                  className="card bg-base-100 border border-base-300 shadow-sm p-4 hover:border-primary/40 transition-all flex flex-col justify-between"
+                                >
+                                  <div>
+                                    <div className="flex items-start gap-3 mb-2">
+                                      {item.image_url ? (
+                                        <img
+                                          src={item.image_url}
+                                          alt={item.entity_name}
+                                          className="w-12 h-12 rounded-full object-cover border-2 border-primary/30 flex-shrink-0"
+                                          loading="lazy"
+                                          onError={(e) => {
+                                            (e.target as HTMLElement).style.display = 'none';
+                                          }}
+                                        />
+                                      ) : (
+                                        <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-lg flex-shrink-0">
+                                          {item.entity_name.charAt(0)}
+                                        </div>
+                                      )}
+                                      <div className="min-w-0">
+                                        <div className="font-bold text-base text-base-content leading-snug">
+                                          {item.entity_name}
+                                        </div>
+                                        {item.role_or_title && (
+                                          <div className="text-xs font-medium text-primary leading-tight mt-0.5">
+                                            {item.role_or_title}
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <p className="text-xs text-base-content/80 mt-2 leading-relaxed">
+                                      {item.explainer_2_lines}
+                                    </p>
+                                    {item.historical_context && (
+                                      <div className="text-[11px] text-base-content/60 mt-2 pt-2 border-t border-base-200">
+                                        <strong>Context:</strong> {item.historical_context}
+                                      </div>
+                                    )}
+                                  </div>
+                                  {item.wikipedia_url && (
+                                    <div className="mt-3 pt-2 border-t border-base-200 flex justify-end">
+                                      <a
+                                        href={item.wikipedia_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="link link-primary text-xs flex items-center gap-1 font-semibold hover:underline"
+                                      >
+                                        <span>Wikipedia Dossier</span>
+                                        <ExternalLink size={12} />
+                                      </a>
+                                    </div>
+                                  )}
                                 </div>
-                              )}
+                              ))}
                             </div>
                           </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                        )}
+
+                        {/* KEY ORGANIZATIONS & INSTITUTIONS */}
+                        {otherItems.length > 0 && (
+                          <div className="mt-6">
+                            <div className="text-xs font-bold uppercase tracking-wider text-secondary mb-3 flex items-center gap-2">
+                              <Building2 size={16} />
+                              <span>Key Organizations, Institutions & Doctrines</span>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                              {otherItems.map((item, idx) => (
+                                <div
+                                  key={idx}
+                                  className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl shadow-sm"
+                                >
+                                  <input type="checkbox" defaultChecked={idx === 0} />
+                                  <div className="collapse-title text-base font-bold text-base-content flex items-center justify-between pr-10">
+                                    <div className="flex items-center gap-3">
+                                      {item.image_url && (
+                                        <img
+                                          src={item.image_url}
+                                          alt={item.entity_name}
+                                          className="w-6 h-6 rounded object-contain flex-shrink-0"
+                                          loading="lazy"
+                                          onError={(e) => {
+                                            (e.target as HTMLElement).style.display = 'none';
+                                          }}
+                                        />
+                                      )}
+                                      <span className={`badge ${
+                                        item.entity_type === 'ORGANIZATION'
+                                          ? 'badge-primary'
+                                          : item.entity_type === 'CONCEPT'
+                                          ? 'badge-secondary'
+                                          : item.entity_type === 'LOCATION'
+                                          ? 'badge-accent'
+                                          : 'badge-neutral'
+                                      } badge-sm font-bold uppercase`}>
+                                        {item.entity_type}
+                                      </span>
+                                      <span>{item.entity_name}</span>
+                                      {item.role_or_title && (
+                                        <span className="text-xs font-normal text-base-content/60 hidden sm:inline">
+                                          — {item.role_or_title}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div className="collapse-content text-sm text-base-content/85 leading-relaxed pt-1">
+                                    <p>{item.explainer_2_lines}</p>
+                                    {item.historical_context && (
+                                      <div className="text-xs text-base-content/65 border-t border-base-200 pt-2 mt-3 italic">
+                                        <strong>Historical Context:</strong> {item.historical_context}
+                                      </div>
+                                    )}
+                                    {item.wikipedia_url && (
+                                      <div className="mt-3 pt-2 border-t border-base-200 flex justify-end">
+                                        <a
+                                          href={item.wikipedia_url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="link link-primary text-xs flex items-center gap-1 font-semibold hover:underline"
+                                        >
+                                          <span>Wikipedia Article</span>
+                                          <ExternalLink size={12} />
+                                        </a>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
 
                   {/* DaisyUI Accordions for Jargon Buster */}
                   {report.context_primer.jargon_definitions && Object.keys(report.context_primer.jargon_definitions).length > 0 && (
@@ -875,7 +1014,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 <div className="card-body p-6 md:p-8">
                   <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-3 border-b border-base-300">
                     <CheckCircle2 size={24} className="text-success flex-shrink-0" />
-                    <span>Cross-Spectrum Consensus Points (F18)</span>
+                    <span>Cross-Spectrum Consensus Points</span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
                     {report.consensus_points.map((pt, idx) => (
@@ -891,15 +1030,119 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
           </div>
         )}
 
+        {/* TAB: VERIFIED SOURCES (Cross-Regional APAC & Global Outlets) */}
+        {activeTab === 'sources' && (
+          <div className="flex flex-col gap-6">
+            <div className="card bg-base-200 border border-base-300 shadow-xl">
+              <div className="card-body p-6 md:p-8">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-base-300">
+                  <div className="card-title text-xl font-black text-base-content flex items-center gap-3">
+                    <Globe size={24} className="text-primary flex-shrink-0" />
+                    <span>Verified Source Articles & Media Bias Directory</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="badge badge-primary font-bold text-xs">
+                      {report.articles_analyzed?.length || 0} Articles Audited
+                    </span>
+                    <span className="badge badge-outline text-xs font-semibold">
+                      APAC & Major Economies
+                    </span>
+                  </div>
+                </div>
+
+                <p className="text-sm text-base-content/80 mt-3 leading-relaxed">
+                  Every source article ingested by the multi-agent fleet is verified, categorized by editorial lean, and linked directly with its canonical URL so you can inspect and audit the reporting firsthand.
+                </p>
+
+                {/* Articles Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                  {report.articles_analyzed && report.articles_analyzed.length > 0 ? (
+                    report.articles_analyzed.map((art, idx) => (
+                      <div
+                        key={idx}
+                        className="card bg-base-100 border border-base-300 shadow-sm p-5 hover:border-primary/50 transition-all flex flex-col justify-between"
+                      >
+                        <div>
+                          <div className="flex items-center justify-between gap-2 mb-2">
+                            <div className="flex items-center gap-2">
+                              {art.flag && <span className="text-lg">{art.flag}</span>}
+                              <span className="font-bold text-sm text-base-content">{art.outlet}</span>
+                              {art.country && (
+                                <span className="text-xs text-base-content/60 hidden sm:inline">
+                                  ({art.country})
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              {art.editorial_lean && (
+                                <span className={`badge badge-xs font-bold ${
+                                  art.editorial_lean.includes('Left')
+                                    ? 'badge-info'
+                                    : art.editorial_lean.includes('Right')
+                                    ? 'badge-warning'
+                                    : 'badge-accent'
+                                }`}>
+                                  {art.editorial_lean}
+                                </span>
+                              )}
+                              {art.reliability_tier && (
+                                <span className="badge badge-outline badge-xs font-medium">
+                                  {art.reliability_tier}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <h4 className="font-bold text-base text-base-content leading-snug mb-2">
+                            {art.title}
+                          </h4>
+
+                          <p className="text-xs text-base-content/75 line-clamp-3 leading-relaxed mb-4">
+                            {art.content}
+                          </p>
+                        </div>
+
+                        <div className="pt-3 border-t border-base-200 flex items-center justify-between text-xs">
+                          <span className="text-base-content/50">
+                            {art.published_date || 'Recent Report'}
+                          </span>
+                          {art.url ? (
+                            <a
+                              href={art.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn btn-xs btn-primary gap-1 font-semibold"
+                            >
+                              <span>Read Original Article</span>
+                              <ExternalLink size={12} />
+                            </a>
+                          ) : (
+                            <span className="text-base-content/40 italic">Link unavailable</span>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="col-span-2 alert alert-info bg-info/10 text-info-content border border-info/30 rounded-xl">
+                      <Globe size={20} className="text-info flex-shrink-0" />
+                      <span>No individual source articles were indexed for this specific query run.</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* TAB 2: VERIFICATION & BIAS */}
         {activeTab === 'verification' && (
           <div className="flex flex-col gap-6">
-            {/* Fact Verifications with DaisyUI Radial Progress (F6) */}
+            {/* Fact Verifications with DaisyUI Radial Progress */}
             <div className="card bg-base-200 border border-base-300 shadow-xl">
               <div className="card-body p-6 md:p-8">
                 <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-3 border-b border-base-300">
                   <ShieldCheck size={24} className="text-success flex-shrink-0" />
-                  <span>IFCN Forensic Claim Verification Audit (F6)</span>
+                  <span>IFCN Forensic Claim Verification Audit</span>
                 </div>
 
                 <div className="flex flex-col gap-4 mt-4">
@@ -961,12 +1204,12 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
               </div>
             </div>
 
-            {/* Cross-Source Contradictions with DaisyUI Table (F7) */}
+            {/* Cross-Source Contradictions with DaisyUI Table */}
             <div className="card bg-base-200 border border-base-300 shadow-xl">
               <div className="card-body p-6 md:p-8">
                 <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-3 border-b border-base-300">
                   <AlertTriangle size={24} className="text-warning flex-shrink-0" />
-                  <span>Cross-Source Contradictions & Side-by-Side Divergence (F7)</span>
+                  <span>Cross-Source Contradictions & Side-by-Side Divergence</span>
                 </div>
 
                 {report.contradictions && report.contradictions.length > 0 && (
@@ -1023,12 +1266,12 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
               </div>
             </div>
 
-            {/* Media Framing & Political Lean Spectrum (F8) */}
+            {/* Media Framing & Political Lean Spectrum */}
             <div className="card bg-base-200 border border-base-300 shadow-xl">
               <div className="card-body p-6 md:p-8">
                 <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-3 border-b border-base-300">
                   <Scale size={24} className="text-accent flex-shrink-0" />
-                  <span>Media Framing & Political Lean Spectrum (F8)</span>
+                  <span>Media Framing & Political Lean Spectrum</span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
@@ -1063,7 +1306,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
             <div className="card-body p-6 md:p-8">
               <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-3 border-b border-base-300">
                 <Clock size={24} className="text-primary flex-shrink-0" />
-                <span>Chronological Event Timeline & Narrative Evolution (F2, F29)</span>
+                <span>Chronological Event Timeline & Narrative Evolution</span>
               </div>
 
               {report.timeline?.narrative_evolution_summary && (
@@ -1142,7 +1385,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
               <div className="flex flex-wrap items-center gap-3">
                 <div className="text-xl md:text-2xl font-black text-base-content flex items-center gap-3">
                   <TrendingUp size={24} className="text-primary flex-shrink-0" />
-                  <span>Causal Diagnostics & Forward Scenarios (F15, F34, F35)</span>
+                  <span>Causal Diagnostics & Forward Scenarios</span>
                 </div>
                 {scenariosStatus === 'paused' && (
                   <span className="badge badge-warning gap-2 py-2.5 px-3.5 text-xs font-bold shadow-sm my-0.5">
@@ -1235,7 +1478,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                         <div className="card-body p-6">
                           <div className="card-title text-xl font-black text-base-content flex items-center gap-2 pb-2 border-b border-base-300">
                             <Brain size={22} className="text-error flex-shrink-0" />
-                            <span>Root Cause Diagnostics (F34)</span>
+                            <span>Root Cause Diagnostics</span>
                           </div>
 
                           <div className="mt-4">
@@ -1270,7 +1513,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                         <div className="card-body p-6">
                           <div className="card-title text-xl font-black text-base-content flex items-center gap-2 pb-2 border-b border-base-300">
                             <TrendingUp size={22} className="text-info flex-shrink-0" />
-                            <span>3-Tier Consequences Tree (F35)</span>
+                            <span>3-Tier Consequences Tree</span>
                           </div>
 
                           <div className="flex flex-col gap-3 mt-4">
@@ -1297,7 +1540,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                       <div className="card-body p-6 md:p-8">
                         <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-3 border-b border-base-300">
                           <Sparkles size={24} className="text-secondary flex-shrink-0" />
-                          <span>Forward-Looking Scenarios & Probability Ratings (F15)</span>
+                          <span>Forward-Looking Scenarios & Probability Ratings</span>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-4">
@@ -1345,7 +1588,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="card-title text-xl font-black text-base-content flex items-center gap-3">
                     <BookOpen size={24} className="text-success flex-shrink-0" />
-                    <span>Active Recall & News Literacy Tutor (F20)</span>
+                    <span>Active Recall & News Literacy Tutor</span>
                   </div>
                   {quizStatus === 'paused' && (
                     <span className="badge badge-warning gap-2 py-2.5 px-3.5 text-xs font-bold shadow-sm my-0.5">
@@ -1548,7 +1791,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="card-title text-xl font-black text-base-content flex items-center gap-3">
                     <Scale size={24} className="text-warning flex-shrink-0" />
-                    <span>Dialectical Perspective Debate Simulator (F38)</span>
+                    <span>Dialectical Perspective Debate Simulator</span>
                   </div>
                   {debateStatus === 'paused' && (
                     <span className="badge badge-warning gap-2 py-2.5 px-3.5 text-xs font-bold shadow-sm my-0.5">

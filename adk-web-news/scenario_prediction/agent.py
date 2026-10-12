@@ -22,7 +22,7 @@ root_agent = Agent(
     name="scenario_prediction",
     model=MODEL_REASONING_PRO,
     description=(
-        "Forward-Looking Scenario Forecasting & What-If Simulation Engine (Feature F18). "
+        "Forward-Looking Scenario Forecasting & What-If Simulation Engine. "
         "Forecasts plausible trajectories across Best Case, Most Likely, and Worst Case scenarios with explicit "
         "probability weighting, leading early-warning indicators to monitor, and What-If hypothesis branching."
     ),

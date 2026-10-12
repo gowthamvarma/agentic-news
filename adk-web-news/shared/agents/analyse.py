@@ -1,6 +1,6 @@
 """Analyse and Learn Layer Agents: Root Cause, Lessons, Impact, Historical Parallels, Scenarios, Transferability.
 
-Implements Features F13, F14, F15, F16, F17, F18, F34, F35, F36, F37 from docs/news-analyser.md.
+Implements deep analytical agents for root cause analysis, prevention, macro-impact, historical parallels, scenario prediction, and cross-country transferability.
 Follows 5-Pattern Professional Instruction Standard.
 """
 
@@ -46,7 +46,7 @@ root_cause_agent = Agent(
     name="root_cause_agent",
     model=MODEL_REASONING_PRO,
     description=(
-        "Systems dynamics & multi-causal root cause investigator (P1, Feature F34). "
+        "Systems dynamics & multi-causal root cause investigator. "
         "Applies 5-Whys and causal tree analysis to diagnose proximate acute triggers, "
         "pre-existing contributing conditions, and institutional/regulatory structural failure points."
     ),
@@ -85,7 +85,7 @@ lessons_prevention_agent = Agent(
     name="lessons_prevention_agent",
     model=MODEL_AGENT_FAST,
     description=(
-        "Resilience strategist & preventive action formulator (P0/P1, Features F13, F14). "
+        "Resilience strategist & preventive action formulator. "
         "Transforms complex crises into concrete, pragmatic mitigation steps tailored for "
         "individuals (personal contingencies), organisations (operational hedges), and policymakers (statutory reforms)."
     ),
@@ -127,7 +127,7 @@ impact_analyzer = Agent(
     name="impact_analyzer",
     model=MODEL_REASONING_PRO,
     description=(
-        "Macro-economic fallout & citizen consequence analyst (P1, Features F17, F35, F37). "
+        "Macro-economic fallout & citizen consequence analyst. "
         "Synthesizes sector and employment effects, delivers a plain-language 'What It Means For Me' personal impact guide, "
         "and maps 3-tier consequence cascades (first, second, and third-order ripple effects) without stock tips."
     ),
@@ -164,7 +164,7 @@ historical_parallels_agent = Agent(
     name="historical_parallels_agent",
     model=MODEL_REASONING_PRO,
     description=(
-        "Comparative history & precedent analyst (P1, Feature F18). "
+        "Comparative history & precedent analyst. "
         "Identifies authentic 20th and 21st-century historical analogues to ongoing crises, "
         "contrasting structural dynamics, differing conditions, and past resolutions to extract empirical lessons."
     ),
@@ -206,7 +206,7 @@ scenario_prediction_agent = Agent(
     name="scenario_prediction_agent",
     model=MODEL_REASONING_PRO,
     description=(
-        "Probabilistic scenario forecasting & what-if simulation modeler (P0/P2, Features F15, F36). "
+        "Probabilistic scenario forecasting & what-if simulation modeler. "
         "Constructs Best-Case, Most-Likely, and Worst-Case trajectories with calibrated probabilities, "
         "concrete leading indicators ('Signals to Watch'), and counterfactual assumption sensitivity testing."
     ),
@@ -242,7 +242,7 @@ country_transferability_agent = Agent(
     name="country_transferability_agent",
     model=MODEL_REASONING_PRO,
     description=(
-        "Cross-jurisdiction policy transfer & 'Could It Happen Here?' auditor (P1, Feature F16). "
+        "Cross-jurisdiction policy transfer & 'Could It Happen Here?' auditor. "
         "Evaluates whether crises originating in one nation could replicate in another, auditing institutional safeguards, "
         "statutory differences, and adaptable policy safeguards."
     ),

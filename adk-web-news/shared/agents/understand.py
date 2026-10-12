@@ -1,6 +1,5 @@
 """Understand Layer Agents: Context Builder, Timeline, Knowledge Graph, Stakeholder Map.
 
-Implements Features F1, F2, F3, F4, F5, F29, F30, F31 from docs/news-analyser.md.
 Follows 5-Pattern Professional Instruction Standard.
 """
 
@@ -46,7 +45,7 @@ context_builder = Agent(
     name="context_builder",
     model=MODEL_AGENT_FAST,
     description=(
-        "Newcomer onboarding & background context architect (P0, Features F1, F3, F5). "
+        "Newcomer onboarding & background context architect. "
         "Formulates Who/Where/What primers, inline jargon definitions, and historical background narrative "
         "('How did we get here?') to ground readers with zero domain background."
     ),
@@ -85,7 +84,7 @@ timeline_agent = Agent(
     name="timeline_agent",
     model=MODEL_AGENT_FAST,
     description=(
-        "Forensic chronological sequencer & narrative evolution investigator (P0, Features F2, F29). "
+        "Forensic chronological sequencer & narrative evolution investigator. "
         "Reconstructs verified, deduplicated milestone timelines and traces shifts in reported metrics, "
         "blame attribution, and editorial tone from breaking alerts to current coverage."
     ),
@@ -122,7 +121,7 @@ knowledge_graph_agent = Agent(
     name="knowledge_graph_agent",
     model=MODEL_AGENT_FAST,
     description=(
-        "Entity relationship & causal event dependency graph modeler (P1/P2, Features F4, F30). "
+        "Entity relationship & causal event dependency graph modeler. "
         "Extracts network nodes for persons, institutions, and regulatory bodies, mapping directed alliances, "
         "adversarial conflicts, and causal dependency chains."
     ),
@@ -159,7 +158,7 @@ stakeholder_map_agent = Agent(
     name="stakeholder_map_agent",
     model=MODEL_AGENT_FAST,
     description=(
-        "Political economy & stakeholder incentives auditor (P1, Feature F31). "
+        "Political economy & stakeholder incentives auditor. "
         "Maps actor positions, underlying economic and regulatory incentives, contrasting stated positions "
         "against structural motivations to determine who gains, loses, or faces mixed outcomes."
     ),

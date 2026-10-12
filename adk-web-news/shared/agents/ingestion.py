@@ -47,7 +47,7 @@ source_collector = Agent(
     name="source_collector",
     model=MODEL_AGENT_FAST,
     description=(
-        "Autonomous multi-spectrum news retrieval specialist (P0, Feature F11/Collector). "
+        "Autonomous multi-spectrum news retrieval specialist. "
         "Expands user queries into comprehensive search terms across international wire desks, "
         "financial papers, and regional outlets via Google News RSS and DuckDuckGo to guarantee ideological diversity."
     ),
@@ -92,7 +92,7 @@ claim_extractor = Agent(
     name="claim_extractor",
     model=MODEL_AGENT_FAST,
     description=(
-        "Forensic atomic claim decomposition engine (P0, Feature F6/Claims). "
+        "Forensic atomic claim decomposition engine. "
         "Deconstructs journalistic articles into discrete verifiable propositions, numerical metrics, "
         "and named attributions while deduplicating syndicated wire dispatches across publications."
     ),

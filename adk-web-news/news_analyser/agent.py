@@ -107,25 +107,32 @@ Execute your multi-agent workflow methodically across the 6 architectural stages
 
 # OUTPUT SPECIFICATION
 Structure your response cleanly using Markdown sections:
-1. Executive Summary & Key Metrics (F4)
-2. Who/Where/What Primer & Jargon Buster (F1, F27)
-3. Chronological Event Timeline & Narrative Evolution (F2, F29)
-4. High-Confidence Consensus Points (F3)
-5. Critical Cross-Source Contradictions (Side-by-Side Comparison) (F5)
-6. Media Framing & Political Bias Distribution (F6, F30)
-7. Root Cause Diagnostics & 3-Tier Consequence Tree (F14, F15, F16)
-8. Actionable Lessons Learned & Concrete Prevention Steps (F17)
-9. Forward Plausible Scenarios & Signals to Watch (F18)
-10. Active Recall Comprehension Quiz (3 MCQs with Explanations) (F20, F22)
+1. Executive Summary & Key Metrics
+2. Who/Where/What Primer & Jargon Buster
+3. Chronological Event Timeline & Narrative Evolution
+4. High-Confidence Consensus Points
+5. Critical Cross-Source Contradictions (Side-by-Side Comparison)
+6. Media Framing & Political Bias Distribution
+7. Root Cause Diagnostics & 3-Tier Consequence Tree
+8. Actionable Lessons Learned & Concrete Prevention Steps
+9. Forward Plausible Scenarios & Signals to Watch
+10. Active Recall Comprehension Quiz (3 MCQs with Explanations)
 """
 
 root_agent = Agent(
     name="news_analyser",
     model=MODEL_REASONING_PRO,
     description=(
-        "Master News Intelligence Orchestrator coordinating the complete 25-agent intelligence fleet across 6 architectural layers "
-        "(Ingestion, Understand, Verify, Analyse, Synthesis, Engage). Conducts multi-source investigation, chronological timeline reconstruction, "
-        "forensic claim verification, contradiction discovery, causal diagnostics, consequence modeling, and pedagogical synthesis."
+        "Master News Intelligence Orchestrator coordinating the complete 25-agent intelligence fleet across 6 architectural layers: "
+        "Ingestion, Understand, Verify, Analyse, Synthesis, and Engage. "
+        "Conducts multi-source cross-regional investigation across global economies and APAC outlets. Dissects high-stakes breaking events "
+        "(such as central bank interest rate decisions, semiconductor trade restrictions, AI regulatory frameworks, immigration visa caps, and critical mineral accords). "
+        "Executes a rigorous 5-step investigative workflow: (1) multi-outlet ingestion and atomic claim extraction, "
+        "(2) chronological event timeline reconstruction and entity relationship mapping, "
+        "(3) forensic IFCN evidentiary claim verification and side-by-side contradiction auditing, "
+        "(4) systems-level root cause diagnostics and 3-tier consequence modeling (first, second, and third-order cascades), and "
+        "(5) probabilistic forward scenario forecasting with leading indicator signals. "
+        "Enforces strict boundaries against speculation, editorial bias, and uncorroborated assertions to deliver audit-grade, grounded news intelligence briefs."
     ),
     instruction=NEWS_ORCHESTRATOR_INSTRUCTION,
     tools=[fetch_news_tool, scrape_article_tool, factcheck_db_tool, perspectives_tool],

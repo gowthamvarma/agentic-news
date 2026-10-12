@@ -1,6 +1,5 @@
 """Verify Layer Agents: Fact Verification, Source Reliability, Contradictions, Bias, Manipulation, Coverage Gap.
 
-Implements Features F6, F7, F8, F9, F10, F11, F32, F33 from docs/news-analyser.md.
 Follows 5-Pattern Professional Instruction Standard and best practices.
 """
 
@@ -70,7 +69,7 @@ fact_verifier = Agent(
     name="fact_verifier",
     model=MODEL_REASONING_PRO,
     description=(
-        "Forensic evidentiary fact-checking auditor (P0, Feature F6). "
+        "Forensic evidentiary fact-checking auditor. "
         "Applies International Fact-Checking Network (IFCN) principles, querying primary registries, "
         "verifying statistical denominators and attributions, and assigning calibrated confidence scores."
     ),
@@ -110,7 +109,7 @@ source_reliability_agent = Agent(
     name="source_reliability_agent",
     model=MODEL_AGENT_FAST,
     description=(
-        "Journalistic credibility & institutional integrity auditor (P1, Feature F9). "
+        "Journalistic credibility & institutional integrity auditor. "
         "Evaluates media publications across historical correction transparency, on-the-record attribution rigor, "
         "and factual track records to weight downstream claim credibility."
     ),
@@ -148,7 +147,7 @@ contradiction_analyst = Agent(
     name="contradiction_analyst",
     model=MODEL_REASONING_PRO,
     description=(
-        "Cross-source factual contradiction & divergence investigator (P0, Feature F7). "
+        "Cross-source factual contradiction & divergence investigator. "
         "Compares competing publications side-by-side to pinpoint statistical discrepancies, "
         "divergent casualty or financial counts, timeline conflicts, and conflicting attribution claims."
     ),
@@ -186,7 +185,7 @@ bias_analyst = Agent(
     name="bias_analyst",
     model=MODEL_AGENT_FAST,
     description=(
-        "Nonpartisan media framing & ideological spectrum evaluator (P0, Feature F8). "
+        "Nonpartisan media framing & ideological spectrum evaluator. "
         "Audits publications across economic and social policy axes, identifying loaded adjectives, "
         "editorial spin, narrative prioritization, and critical context omissions."
     ),
@@ -228,7 +227,7 @@ manipulation_detector = Agent(
     name="manipulation_detector",
     model=MODEL_AGENT_FAST,
     description=(
-        "Propaganda rhetoric & cognitive-bias manipulation detector (P1, Features F10, F33). "
+        "Propaganda rhetoric & cognitive-bias manipulation detector. "
         "Flags sensationalist clickbait, headline-body mismatches, emotional fear appeals, "
         "false dilemmas, and psychological anchoring triggers aimed at reader manipulation."
     ),
@@ -266,7 +265,7 @@ coverage_gap_agent = Agent(
     name="coverage_gap_agent",
     model=MODEL_AGENT_FAST,
     description=(
-        "Media blindspot & coverage gap investigator (P1, Feature F11). "
+        "Media blindspot & coverage gap investigator. "
         "Scans reporting corpora to discover vital omitted voices, unquoted affected communities, "
         "underreported geographic regions, and critical unanswered questions."
     ),

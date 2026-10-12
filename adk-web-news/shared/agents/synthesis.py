@@ -1,6 +1,6 @@
 """Synthesis and Adaptation Layer Agents: Report Synthesizer and Audience & Language Adaptation.
 
-Implements Features F19, F24, F25, F26, F28 from docs/news-analyser.md.
+Implements briefing synthesis and cognitive/multilingual adaptation agents.
 Follows 5-Pattern Professional Instruction Standard.
 """
 
@@ -41,7 +41,7 @@ report_synthesizer = Agent(
     name="report_synthesizer",
     model=MODEL_REASONING_PRO,
     description=(
-        "Master intelligence brief & executive dashboard assembler (P0/P2, Features F19, F28). "
+        "Master intelligence brief & executive dashboard assembler. "
         "Assembles all multi-agent investigative outputs into a unified NewsIntelligenceReport containing "
         "executive brief, key metrics dashboard, chronological timeline, consensus points, side-by-side contradictions, and action recommendations."
     ),
@@ -85,7 +85,7 @@ audience_adaptation_agent = Agent(
     name="audience_adaptation_agent",
     model=MODEL_AGENT_FAST,
     description=(
-        "Cognitive tone rewriter & multilingual translation specialist (P0/P1, Features F24, F25, F26). "
+        "Cognitive tone rewriter & multilingual translation specialist. "
         "Rewrites reports across 5 reading personas (ELI5, Teenager, Academic Essay, Executive Brief, Wire Dispatch) "
         "and translates summaries into international and regional languages while preserving named entities and dates."
     ),

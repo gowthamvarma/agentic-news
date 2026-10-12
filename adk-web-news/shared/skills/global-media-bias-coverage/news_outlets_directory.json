@@ -1,0 +1,480 @@
+{
+  "description": "Comprehensive catalog of 50+ news outlets across major global economies and APAC countries, with AllSides-aligned media bias ratings and factual reliability scores.",
+  "regions": {
+    "APAC": {
+      "Japan": [
+        {
+          "name": "Nikkei Asia",
+          "domain": "asia.nikkei.com",
+          "country": "Japan",
+          "country_code": "JP",
+          "flag": "🇯🇵",
+          "editorial_lean": "Center",
+          "reliability_tier": "High",
+          "ownership": "Nikkei, Inc.",
+          "focus": "Business, Asian markets, semiconductor supply chains, regional geopolitics"
+        },
+        {
+          "name": "The Japan Times",
+          "domain": "japantimes.co.jp",
+          "country": "Japan",
+          "country_code": "JP",
+          "flag": "🇯🇵",
+          "editorial_lean": "Center-Left",
+          "reliability_tier": "High",
+          "ownership": "The Japan Times, Ltd.",
+          "focus": "Japanese domestic politics, foreign policy, technology, social issues"
+        },
+        {
+          "name": "NHK World-Japan",
+          "domain": "www3.nhk.or.jp/nhkworld",
+          "country": "Japan",
+          "country_code": "JP",
+          "flag": "🇯🇵",
+          "editorial_lean": "Center",
+          "reliability_tier": "High",
+          "ownership": "Japan Broadcasting Corporation (Public Broadcaster)",
+          "focus": "East Asian diplomacy, trade pacts, disaster monitoring, public policy"
+        },
+        {
+          "name": "Asahi Shimbun",
+          "domain": "asahi.com",
+          "country": "Japan",
+          "country_code": "JP",
+          "flag": "🇯🇵",
+          "editorial_lean": "Left-Center",
+          "reliability_tier": "High",
+          "ownership": "The Asahi Shimbun Company",
+          "focus": "Constitutional issues, civil liberties, peace diplomacy, nuclear energy critique"
+        },
+        {
+          "name": "Yomiuri Shimbun (The Japan News)",
+          "domain": "japannews.yomiuri.co.jp",
+          "country": "Japan",
+          "country_code": "JP",
+          "flag": "🇯🇵",
+          "editorial_lean": "Center-Right",
+          "reliability_tier": "High",
+          "ownership": "Yomiuri Group",
+          "focus": "National defense, US-Japan security treaty, industrial policy"
+        }
+      ],
+      "India": [
+        {
+          "name": "The Hindu",
+          "domain": "thehindu.com",
+          "country": "India",
+          "country_code": "IN",
+          "flag": "🇮🇳",
+          "editorial_lean": "Center-Left",
+          "reliability_tier": "High",
+          "ownership": "The Hindu Group / Kasturi & Sons Ltd.",
+          "focus": "Judicial rulings, constitutional law, international relations, welfare economics"
+        },
+        {
+          "name": "The Indian Express",
+          "domain": "indianexpress.com",
+          "country": "India",
+          "country_code": "IN",
+          "flag": "🇮🇳",
+          "editorial_lean": "Center",
+          "reliability_tier": "High",
+          "ownership": "Indian Express Group",
+          "focus": "Investigative journalism, governance audits, institutional accountability"
+        },
+        {
+          "name": "The Economic Times",
+          "domain": "economictimes.indiatimes.com",
+          "country": "India",
+          "country_code": "IN",
+          "flag": "🇮🇳",
+          "editorial_lean": "Center-Right",
+          "reliability_tier": "High",
+          "ownership": "Bennett, Coleman & Co. Ltd. (Times Group)",
+          "focus": "Monetary policy, fiscal deficits, corporate investments, tech startups, trade pacts"
+        },
+        {
+          "name": "Mint",
+          "domain": "livemint.com",
+          "country": "India",
+          "country_code": "IN",
+          "flag": "🇮🇳",
+          "editorial_lean": "Center",
+          "reliability_tier": "High",
+          "ownership": "HT Media / Wall Street Journal partnership",
+          "focus": "Banking, capital markets, industrial logistics, economic reform"
+        },
+        {
+          "name": "NDTV",
+          "domain": "ndtv.com",
+          "country": "India",
+          "country_code": "IN",
+          "flag": "🇮🇳",
+          "editorial_lean": "Center",
+          "reliability_tier": "Mixed-High",
+          "ownership": "Adani Media Networks",
+          "focus": "National politics, infrastructure, cross-border diplomacy"
+        }
+      ],
+      "Australia": [
+        {
+          "name": "ABC News Australia",
+          "domain": "abc.net.au",
+          "country": "Australia",
+          "country_code": "AU",
+          "flag": "🇦🇺",
+          "editorial_lean": "Center-Left",
+          "reliability_tier": "High",
+          "ownership": "Australian Broadcasting Corporation (Public)",
+          "focus": "Pacific geopolitics, climate policy, federal parliament, integrity commissions"
+        },
+        {
+          "name": "The Sydney Morning Herald",
+          "domain": "smh.com.au",
+          "country": "Australia",
+          "country_code": "AU",
+          "flag": "🇦🇺",
+          "editorial_lean": "Center-Left",
+          "reliability_tier": "High",
+          "ownership": "Nine Entertainment",
+          "focus": "Public inquiries, federal politics, education, urban planning"
+        },
+        {
+          "name": "The Australian",
+          "domain": "theaustralian.com.au",
+          "country": "Australia",
+          "country_code": "AU",
+          "flag": "🇦🇺",
+          "editorial_lean": "Right-Center",
+          "reliability_tier": "High",
+          "ownership": "News Corp Australia",
+          "focus": "Mining exports, energy security, AUKUS defense, deregulation"
+        },
+        {
+          "name": "Australian Financial Review (AFR)",
+          "domain": "afr.com",
+          "country": "Australia",
+          "country_code": "AU",
+          "flag": "🇦🇺",
+          "editorial_lean": "Center-Right",
+          "reliability_tier": "High",
+          "ownership": "Nine Entertainment",
+          "focus": "RBA monetary policy, commodity exports, banking supervision, corporate mergers"
+        }
+      ],
+      "Singapore": [
+        {
+          "name": "The Straits Times",
+          "domain": "straitstimes.com",
+          "country": "Singapore",
+          "country_code": "SG",
+          "flag": "🇸🇬",
+          "editorial_lean": "Center",
+          "reliability_tier": "High",
+          "ownership": "SPH Media Trust",
+          "focus": "ASEAN diplomacy, maritime trade corridor, sovereign wealth, regional financial hub"
+        },
+        {
+          "name": "Channel News Asia (CNA)",
+          "domain": "channelnewsasia.com",
+          "country": "Singapore",
+          "country_code": "SG",
+          "flag": "🇸🇬",
+          "editorial_lean": "Center",
+          "reliability_tier": "High",
+          "ownership": "Mediacorp (Temasek Holdings)",
+          "focus": "Pan-Asian business, Southeast Asian election monitoring, technology adoption"
+        },
+        {
+          "name": "The Business Times",
+          "domain": "businesstimes.com.sg",
+          "country": "Singapore",
+          "country_code": "SG",
+          "flag": "🇸🇬",
+          "editorial_lean": "Center-Right",
+          "reliability_tier": "High",
+          "ownership": "SPH Media Trust",
+          "focus": "Fintech regulations, wealth management, shipping lanes, green energy finance"
+        }
+      ],
+      "South Korea": [
+        {
+          "name": "The Korea Herald",
+          "domain": "koreaherald.com",
+          "country": "South Korea",
+          "country_code": "KR",
+          "flag": "🇰🇷",
+          "editorial_lean": "Center-Right",
+          "reliability_tier": "High",
+          "ownership": "Herald Corporation",
+          "focus": "Semiconductor manufacturing, trade tensions, North Korea deterrence, chaebol reform"
+        },
+        {
+          "name": "Yonhap News Agency",
+          "domain": "en.yna.co.kr",
+          "country": "South Korea",
+          "country_code": "KR",
+          "flag": "🇰🇷",
+          "editorial_lean": "Center",
+          "reliability_tier": "High",
+          "ownership": "Yonhap Public Wire Service",
+          "focus": "Official government wire, East Asian maritime alerts, industrial data"
+        },
+        {
+          "name": "The Hankyoreh",
+          "domain": "english.hani.co.kr",
+          "country": "South Korea",
+          "country_code": "KR",
+          "flag": "🇰🇷",
+          "editorial_lean": "Left-Center",
+          "reliability_tier": "High",
+          "ownership": "Hankyoreh Media Group (Reader-owned)",
+          "focus": "Labor rights, inter-Korean peace initiatives, judicial independence"
+        }
+      ],
+      "Hong Kong & Greater China": [
+        {
+          "name": "South China Morning Post (SCMP)",
+          "domain": "scmp.com",
+          "country": "Hong Kong",
+          "country_code": "HK",
+          "flag": "🇭🇰",
+          "editorial_lean": "Center",
+          "reliability_tier": "High",
+          "ownership": "Alibaba Group",
+          "focus": "US-China relations, tech sanctions, Hong Kong financial markets, Belt and Road"
+        },
+        {
+          "name": "Caixin Global",
+          "domain": "caixinglobal.com",
+          "country": "China",
+          "country_code": "CN",
+          "flag": "🇨🇳",
+          "editorial_lean": "Center",
+          "reliability_tier": "High",
+          "ownership": "Caixin Media",
+          "focus": "Chinese macroeconomic data, banking regulations, debt restructuring, EV sector"
+        },
+        {
+          "name": "Taipei Times",
+          "domain": "taipeitimes.com",
+          "country": "Taiwan",
+          "country_code": "TW",
+          "flag": "🇹🇼",
+          "editorial_lean": "Center-Left",
+          "reliability_tier": "High",
+          "ownership": "The Liberty Times Group",
+          "focus": "Taiwan strait security, TSMC foundry dynamics, democratic alliances"
+        }
+      ],
+      "New Zealand": [
+        {
+          "name": "RNZ (Radio New Zealand)",
+          "domain": "rnz.co.nz",
+          "country": "New Zealand",
+          "country_code": "NZ",
+          "flag": "🇳🇿",
+          "editorial_lean": "Center",
+          "reliability_tier": "High",
+          "ownership": "Radio New Zealand (Public)",
+          "focus": "Pacific island partnerships, agricultural exports, environmental covenants"
+        },
+        {
+          "name": "The New Zealand Herald",
+          "domain": "nzherald.co.nz",
+          "country": "New Zealand",
+          "country_code": "NZ",
+          "flag": "🇳🇿",
+          "editorial_lean": "Center-Right",
+          "reliability_tier": "High",
+          "ownership": "NZME",
+          "focus": "Monetary policy, agricultural commodities, bilateral free trade agreements"
+        }
+      ]
+    },
+    "Major Global Economies": {
+      "United States": [
+        {
+          "name": "Associated Press (AP)",
+          "domain": "apnews.com",
+          "country": "United States",
+          "country_code": "US",
+          "flag": "🇺🇸",
+          "editorial_lean": "Center",
+          "reliability_tier": "High",
+          "ownership": "The Associated Press (Non-profit Cooperative)",
+          "focus": "Wire dispatches, primary official decrees, unbiased breaking news"
+        },
+        {
+          "name": "Reuters",
+          "domain": "reuters.com",
+          "country": "United States",
+          "country_code": "US",
+          "flag": "🇺🇸",
+          "editorial_lean": "Center",
+          "reliability_tier": "High",
+          "ownership": "Thomson Reuters",
+          "focus": "Global financial intelligence, trade corridors, legal dockets, breaking market alerts"
+        },
+        {
+          "name": "Bloomberg",
+          "domain": "bloomberg.com",
+          "country": "United States",
+          "country_code": "US",
+          "flag": "🇺🇸",
+          "editorial_lean": "Center",
+          "reliability_tier": "High",
+          "ownership": "Bloomberg L.P.",
+          "focus": "Federal Reserve policy, corporate balance sheets, currency fluctuations, regulatory shifts"
+        },
+        {
+          "name": "The Wall Street Journal",
+          "domain": "wsj.com",
+          "country": "United States",
+          "country_code": "US",
+          "flag": "🇺🇸",
+          "editorial_lean": "Center-Right",
+          "reliability_tier": "High",
+          "ownership": "Dow Jones & Company (News Corp)",
+          "focus": "Business law, executive governance, free market economics, fiscal policy"
+        },
+        {
+          "name": "The Washington Post",
+          "domain": "washingtonpost.com",
+          "country": "United States",
+          "country_code": "US",
+          "flag": "🇺🇸",
+          "editorial_lean": "Center-Left",
+          "reliability_tier": "High",
+          "ownership": "Nash Holdings (Jeff Bezos)",
+          "focus": "Congressional investigations, regulatory agency oversight, civil rights"
+        },
+        {
+          "name": "The New York Times",
+          "domain": "nytimes.com",
+          "country": "United States",
+          "country_code": "US",
+          "flag": "🇺🇸",
+          "editorial_lean": "Center-Left",
+          "reliability_tier": "High",
+          "ownership": "The New York Times Company",
+          "focus": "Global investigative journalism, culture, climate policy, Supreme Court jurisprudence"
+        },
+        {
+          "name": "Politico",
+          "domain": "politico.com",
+          "country": "United States",
+          "country_code": "US",
+          "flag": "🇺🇸",
+          "editorial_lean": "Center",
+          "reliability_tier": "High",
+          "ownership": "Axel Springer SE",
+          "focus": "Legislative whip counts, executive lobbying, administrative rule filings"
+        }
+      ],
+      "United Kingdom": [
+        {
+          "name": "BBC News",
+          "domain": "bbc.com/news",
+          "country": "United Kingdom",
+          "country_code": "GB",
+          "flag": "🇬🇧",
+          "editorial_lean": "Center",
+          "reliability_tier": "High",
+          "ownership": "British Broadcasting Corporation (Charter)",
+          "focus": "Public broadcaster dispatches, European policy, international conflict coverage"
+        },
+        {
+          "name": "Financial Times",
+          "domain": "ft.com",
+          "country": "United Kingdom",
+          "country_code": "GB",
+          "flag": "🇬🇧",
+          "editorial_lean": "Center",
+          "reliability_tier": "High",
+          "ownership": "Nikkei, Inc.",
+          "focus": "Global macroeconomic architecture, central banking, cross-border corporate governance"
+        },
+        {
+          "name": "The Guardian",
+          "domain": "theguardian.com",
+          "country": "United Kingdom",
+          "country_code": "GB",
+          "flag": "🇬🇧",
+          "editorial_lean": "Left-Center",
+          "reliability_tier": "High",
+          "ownership": "Scott Trust Limited",
+          "focus": "Social inequality, environmental enforcement, corporate transparency, whistleblower disclosures"
+        },
+        {
+          "name": "The Telegraph",
+          "domain": "telegraph.co.uk",
+          "country": "United Kingdom",
+          "country_code": "GB",
+          "flag": "🇬🇧",
+          "editorial_lean": "Right",
+          "reliability_tier": "High",
+          "ownership": "Telegraph Media Group",
+          "focus": "Conservative policy, national defense, tax competitiveness, Brexit regulatory autonomy"
+        },
+        {
+          "name": "The Economist",
+          "domain": "economist.com",
+          "country": "United Kingdom",
+          "country_code": "GB",
+          "flag": "🇬🇧",
+          "editorial_lean": "Center",
+          "reliability_tier": "High",
+          "ownership": "The Economist Group",
+          "focus": "Classical liberal economics, institutional design, technological disruption"
+        }
+      ],
+      "European Union": [
+        {
+          "name": "Deutsche Welle (DW)",
+          "domain": "dw.com",
+          "country": "Germany",
+          "country_code": "DE",
+          "flag": "🇩🇪",
+          "editorial_lean": "Center",
+          "reliability_tier": "High",
+          "ownership": "German Public International Broadcaster",
+          "focus": "EU directive compliance, German industrial transition, European defense integration"
+        },
+        {
+          "name": "Handelsblatt",
+          "domain": "handelsblatt.com",
+          "country": "Germany",
+          "country_code": "DE",
+          "flag": "🇩🇪",
+          "editorial_lean": "Center-Right",
+          "reliability_tier": "High",
+          "ownership": "DvH Medien",
+          "focus": "European Central Bank, automotive technology, energy transition, industrial subsidies"
+        },
+        {
+          "name": "Le Monde",
+          "domain": "lemonde.fr",
+          "country": "France",
+          "country_code": "FR",
+          "flag": "🇫🇷",
+          "editorial_lean": "Center-Left",
+          "reliability_tier": "High",
+          "ownership": "Le Monde Group",
+          "focus": "French state diplomacy, EU strategic autonomy, labor negotiations, environmental treaties"
+        },
+        {
+          "name": "Euractiv",
+          "domain": "euractiv.com",
+          "country": "Belgium",
+          "country_code": "BE",
+          "flag": "🇪🇺",
+          "editorial_lean": "Center",
+          "reliability_tier": "High",
+          "ownership": "Mediahuis",
+          "focus": "Brussels policy making, EU Parliament legislation, AI Act enforcement, digital privacy"
+        }
+      ]
+    }
+  }
+}

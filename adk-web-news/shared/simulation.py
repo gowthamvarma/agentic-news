@@ -47,14 +47,14 @@ def generate_news_analyser_response(topic: str) -> str:
 
     return f"""# 🌐 News Intelligence Brief: {clean_topic}
 
-## 1. Executive Summary & Key Metrics Primer (F4)
+## 1. Executive Summary & Key Metrics Primer
 Recent cross-source investigative intelligence concerning **{clean_topic}** reveals significant structural developments with broad institutional and public consequences. While official spokespersons and government agencies emphasize administrative compliance, regulatory integrity, and national standards, industry leaders and civil advocacy groups warn of severe near-term friction, talent pipeline disruptions, and compliance bottlenecks. 
 
 A cross-cutting evidentiary examination across major wire dispatches (Reuters, AP), financial desks (Bloomberg, WSJ), and investigative outlets (The Guardian, Politico) isolates broad consensus on the core policy actions, but critical divergences regarding operational timelines, economic fallout, and legal sustainability.
 
 ---
 
-## 2. Who / Where / What Primer & Jargon Buster (F1, F27)
+## 2. Who / Where / What Primer & Jargon Buster
 - **Primary Subject**: {clean_topic}
 - **Key Institutions Involved**: Executive Regulatory Agencies, Industry Trade Associations, Federal Courts, Corporate Legal Desks.
 - **Historical Backdrop**: Pre-existing procedural backlogs, shifting administrative priorities, and statutory mandates precipitated the current enforcement posture.
@@ -64,7 +64,7 @@ A cross-cutting evidentiary examination across major wire dispatches (Reuters, A
 
 ---
 
-## 3. Chronological Event Timeline & Narrative Evolution (F2, F29)
+## 3. Chronological Event Timeline & Narrative Evolution
 Reconstructed timeline reconciling cross-outlet timestamps and narrative shifts:
 - ⏱️ **September 11, 2026 • 09:00 UTC (Precursor Stage)**: Inter-agency working groups and parliamentary/congressional committees draft internal strategy memos regarding {subject}. Financial analysts publish preliminary risk assessments.
 - ⏱️ **October 8, 2026 • 08:30 UTC (Breaking Bulletin)**: Wire dispatches (AP, Reuters) break the initial decree; early headlines describe an "immediate broad freeze" without qualifying provisions.
@@ -75,14 +75,14 @@ Reconstructed timeline reconciling cross-outlet timestamps and narrative shifts:
 
 ---
 
-## 4. High-Confidence Consensus Points (F3)
+## 4. High-Confidence Consensus Points
 - ✅ **Official Action Confirmed**: Key administrative decisions or formal directives regarding {subject} have been formally acknowledged by primary stakeholders.
 - ✅ **Jurisdictional Reach**: Implementation directly impacts enterprise operations, statutory filings, and multi-lateral cross-border compliance.
 - ✅ **Judicial Scrutiny**: Affected coalitions have filed or prepared emergency legal challenges seeking injunctions.
 
 ---
 
-## 5. Critical Cross-Source Contradictions & Divergences (F5)
+## 5. Critical Cross-Source Contradictions & Divergences
 > [!WARNING]
 > **Contradiction #1: Scope of Enforcement vs. Grandfathering Clauses**
 > - **Wire Services (Reuters/AP)** report an immediate comprehensive pause across all pending applications.
@@ -96,7 +96,7 @@ Reconstructed timeline reconciling cross-outlet timestamps and narrative shifts:
 
 ---
 
-## 6. Media Bias, Framing & Manipulation Analysis (F6, F30)
+## 6. Media Bias, Framing & Manipulation Analysis
 - **Center / Wire Services (Reuters, Associated Press)**: Neutral procedural dispatch framing; prioritizes attributed quotes from official spokespersons and litigation dockets.
 - **Center-Right / Financial Media (Bloomberg, Wall Street Journal)**: Frames story around operational cost, corporate competitiveness, labor market friction, and capital flight risks.
 - **Center-Left / Civil Watchdogs (The Guardian, ProPublica)**: Emphasizes civil liberties, due process violations, and lack of stakeholder consultation.
@@ -104,7 +104,7 @@ Reconstructed timeline reconciling cross-outlet timestamps and narrative shifts:
 
 ---
 
-## 7. Root Cause Diagnostics & 3-Tier Consequence Tree (F14, F15, F16)
+## 7. Root Cause Diagnostics & 3-Tier Consequence Tree
 - **Immediate Triggers**: Formal administrative directives and policy enforcement notices issued without prior notice-and-comment.
 - **Contributing Factors**: Chronic legislative inaction, technological labor market shifts, and heightened political polarization.
 - **Consequences Tree**:
@@ -114,21 +114,21 @@ Reconstructed timeline reconciling cross-outlet timestamps and narrative shifts:
 
 ---
 
-## 8. Actionable Lessons Learned & Concrete Prevention Measures (F17)
+## 8. Actionable Lessons Learned & Concrete Prevention Measures
 - **For Individuals**: Secure independent legal audits; document all statutory compliance milestones; maintain contingency professional accreditations.
 - **For Organisations**: Establish redundant operational corridors; maintain compliance reserves; diversify talent pipelines across multiple geographic jurisdictions.
 - **For Policymakers**: Enact clear statutory guidelines; avoid sudden administrative edicts without transition periods; implement transparent notice-and-comment procedures.
 
 ---
 
-## 9. Forward-Looking Scenario Forecast (Speculative) (F18)
+## 9. Forward-Looking Scenario Forecast (Speculative)
 1. **Scenario A (Most Likely, 60% Probability, 1-3 Months)**: Federal courts issue a partial stay or preliminary injunction, pausing enforcement pending full merits hearings.
 2. **Scenario B (Moderate, 25% Probability, 3-6 Months)**: Regulatory agencies negotiate a revised administrative rule that narrows scope while grandfathering existing filers.
 3. **Scenario C (Worst Case, 15% Probability, 6-12 Months)**: Prolonged legal gridlock leading to enterprise departures and retaliatory cross-border measures.
 
 ---
 
-## 10. Active Recall Comprehension Quiz (F20, F22)
+## 10. Active Recall Comprehension Quiz
 **Q1: What key caveat did specialized financial press uncover that was missing from breaking wire headlines?**
 - [ ] A) That the entire regulatory department was being dissolved
 - [x] B) That grandfathering exemptions protect applications certified prior to the cutoff date
@@ -257,7 +257,7 @@ def generate_timeline_agent_response(topic: str) -> str:
 
 ---
 
-### 🔄 Narrative Evolution Tracking (F29)
+### 🔄 Narrative Evolution Tracking
 1. **Breaking Phase (Sensationalist Alarm)**: Outlets led with absolute, alarmist headlines (*"Immediate Freeze across the Board"*).
 2. **Clarification Phase (Caveats & Grandfathering)**: Specialized financial press uncovered significant grandfathering exemptions and regulatory nuance omitted in wire alerts.
 3. **Litigation & Policy Phase (Structural Calculus)**: Current reporting centers on judicial merits, constitutional overreach challenges, and corporate geographic diversification.

@@ -22,7 +22,7 @@ root_agent = Agent(
     name="research_copilot",
     model=MODEL_AGENT_FAST,
     description=(
-        "Autonomous Fast Investigative Research Copilot & Ask-the-News Chat Companion (Features F21, F39). "
+        "Autonomous Fast Investigative Research Copilot & Ask-the-News Chat Companion. "
         "Answers follow-up queries with rapid response time, pinpoint citations, and clean structured formatting."
     ),
     instruction=RESEARCH_COPILOT_INSTRUCTION,

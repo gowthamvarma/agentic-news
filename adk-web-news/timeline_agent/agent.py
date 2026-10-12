@@ -22,7 +22,7 @@ root_agent = Agent(
     name="timeline_agent",
     model=MODEL_AGENT_FAST,
     description=(
-        "Chronological Event Timeline & Narrative Evolution Tracker (Features F2, F29). "
+        "Chronological Event Timeline & Narrative Evolution Tracker. "
         "Reconstructs exact event sequences from multi-source reporting, resolves cross-outlet time zone "
         "and timestamp discrepancies, and maps how media narrative framing evolved from breaking reports "
         "to retrospective analysis."

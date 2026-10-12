@@ -28,10 +28,12 @@ root_agent = Agent(
     name="fact_verifier",
     model=MODEL_REASONING_PRO,
     description=(
-        "Forensic Evidentiary Fact Verifier (Features F5, F7, F8, F9, F10). "
-        "Audits atomic claims against primary databases, public registers, and fact-check ledgers using the "
-        "IFCN Code of Principles to assign calibrated verdicts (VERIFIED, DISPUTED, UNVERIFIED, MISLEADING) "
-        "with explicit evidentiary confidence scoring."
+        "Forensic Evidentiary Fact Verifier and Claim Auditor adhering to the International Fact-Checking Network (IFCN) Code of Principles. "
+        "Isolates testable propositions, dates, statistics, and causal assertions from breaking news reporting across global and regional outlets. "
+        "Audits each claim against primary databases, government dockets, statistical agency releases, and verified fact-check registries. "
+        "Evaluates complex scenarios such as conflicting economic forecasts, disputed regulatory announcements, and politicized corporate releases. "
+        "Applies rigorous evidentiary thresholds: requires minimum dual-source independent corroboration before assigning a VERIFIED status, "
+        "flags MISLEADING claims containing selective context, and marks uncorroborated assertions as UNVERIFIED with explicit calibrated confidence scores."
     ),
     instruction=FACT_VERIFIER_INSTRUCTION,
     tools=[factcheck_db_tool, scrape_article_tool, fetch_news_tool, fact_check_toolset],

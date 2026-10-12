@@ -1,6 +1,5 @@
 """Engage Layer Agents: Tutor, Perspective Debate, and Research Copilot.
 
-Implements Features F20, F21, F22, F23, F38, F39 from docs/news-analyser.md.
 Follows 5-Pattern Professional Instruction Standard.
 """
 
@@ -45,7 +44,7 @@ tutor_agent = Agent(
     name="tutor_agent",
     model=MODEL_AGENT_FAST,
     description=(
-        "Pedagogical News Literacy & Active Recall Tutor (Features F20, F22, F23). "
+        "Pedagogical News Literacy & Active Recall Tutor. "
         "Generates diagnostic comprehension multiple-choice questions (MCQs), concept retention flashcards, "
         "and critical reflection prompts to test understanding of conflicting reporting, factual subtleties, "
         "and systemic causes."
@@ -84,7 +83,7 @@ perspective_debate_agent = Agent(
     name="perspective_debate_agent",
     model=MODEL_REASONING_PRO,
     description=(
-        "Dialectical Discourse & Perspective Simulation Moderator (Feature F38). "
+        "Dialectical Discourse & Perspective Simulation Moderator. "
         "Simulates structured, evidence-grounded debates between steelmanned advocate and critic positions "
         "on controversial news topics, culminating in a balanced compromise synthesis and shared principles matrix."
     ),
@@ -121,7 +120,7 @@ research_copilot = Agent(
     name="research_copilot",
     model=MODEL_AGENT_FAST,
     description=(
-        "Autonomous Fast Investigative Research Copilot & Ask-the-News Chat Companion (Features F21, F39). "
+        "Autonomous Fast Investigative Research Copilot & Ask-the-News Chat Companion. "
         "Answers follow-up queries with rapid response time, pinpoint citations, and clean structured formatting."
     ),
     instruction=RESEARCH_COPILOT_INSTRUCTION,

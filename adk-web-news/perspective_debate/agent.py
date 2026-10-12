@@ -22,7 +22,7 @@ root_agent = Agent(
     name="perspective_debate",
     model=MODEL_REASONING_PRO,
     description=(
-        "Dialectical Discourse & Perspective Simulation Moderator (Feature F38). "
+        "Dialectical Discourse & Perspective Simulation Moderator. "
         "Simulates structured, evidence-grounded debates between steelmanned advocate and critic positions "
         "on controversial news topics, culminating in a balanced compromise synthesis and shared principles matrix."
     ),

@@ -53,6 +53,11 @@ class SourceArticle(BaseModel):
     published_date: Optional[str] = Field(default=None, description="Publication timestamp or date string")
     content: str = Field(description="Body text or clean content snippet")
     author: Optional[str] = Field(default=None, description="Author or wire service attribution")
+    country: Optional[str] = Field(default=None, description="Country of publication, e.g. Japan, India, United States")
+    country_code: Optional[str] = Field(default=None, description="ISO Country code, e.g. JP, IN, US, GB")
+    flag: Optional[str] = Field(default=None, description="Country flag emoji, e.g. 🇯🇵, 🇮🇳, 🇺🇸, 🇬🇧")
+    editorial_lean: Optional[str] = Field(default="Center", description="AllSides-aligned lean: Left, Lean Left, Center, Lean Right, Right")
+    reliability_tier: Optional[str] = Field(default="High", description="Reliability tier: High, Mixed, Specialized")
 
 
 class AtomicClaim(BaseModel):
@@ -91,8 +96,11 @@ class EntityPrimer(BaseModel):
     """Plain-language primer on a key entity or jargon term."""
     entity_name: str
     entity_type: Literal["PERSON", "ORGANIZATION", "LOCATION", "CONCEPT", "EVENT"]
+    role_or_title: Optional[str] = Field(default=None, description="Official role, title, or institutional position")
     explainer_2_lines: str = Field(description="1-2 sentence plain-language explainer for newcomers")
     historical_context: Optional[str] = Field(default=None, description="How did we get here? Historical backdrop")
+    wikipedia_url: Optional[str] = Field(default=None, description="Direct Wikipedia article link for reference")
+    image_url: Optional[str] = Field(default=None, description="Wikipedia portrait or official insignia/logo image URL")
 
 
 class ContextPrimerPayload(BaseModel):
