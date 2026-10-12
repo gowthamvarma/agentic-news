@@ -25,7 +25,9 @@ import {
   Trash2,
   Palette,
   ChevronDown,
-  History
+  History,
+  Menu as MenuIcon,
+  X
 } from 'lucide-react';
 import {
   analyzeNewsTopic,
@@ -123,6 +125,8 @@ export default function App() {
   const [streamStatus, setStreamStatus] = useState<string>('');
   const [report, setReport] = useState<NewsIntelligenceReport | null>(null);
   const [, setRecentRuns] = useState<NewsIntelligenceReport[]>([]);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
   const [activeTab, setActiveTab] = useState<'brief' | 'verification' | 'timeline' | 'insights' | 'quiz' | 'debate' | 'copilot'>(() => {
     if (typeof window !== 'undefined' && window.location.hash) {
       const h = window.location.hash.replace('#', '');
@@ -145,6 +149,7 @@ export default function App() {
     window.addEventListener('hashchange', handleTabHash);
     return () => window.removeEventListener('hashchange', handleTabHash);
   }, []);
+
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // Active Recall Quiz State
@@ -157,9 +162,21 @@ export default function App() {
   const [debate, setDebate] = useState<PerspectiveDebateReport | null>(null);
   const [debateLoading, setDebateLoading] = useState(false);
 
-  // Causal Diagnostics & Forward Scenarios State (On-Demand Option 4)
+  // Causal Diagnostics & Forward Scenarios State
   const [scenariosData, setScenariosData] = useState<any | null>(null);
   const [scenariosLoading, setScenariosLoading] = useState(false);
+
+  // Auto-dismiss toast
+  useEffect(() => {
+    if (toastMessage) {
+      const timer = setTimeout(() => setToastMessage(null), 3500);
+      return () => clearTimeout(timer);
+    }
+  }, [toastMessage]);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+  };
 
   useEffect(() => {
     if (!report) return;
@@ -190,11 +207,11 @@ export default function App() {
   }, [theme]);
 
   const fleetStages = [
-    { title: 'Stage 1: Multi-Outlet Ingestion', desc: 'Querying Google News RSS, Associated Press, Reuters, Bloomberg, WSJ...' },
-    { title: 'Stage 2: IFCN Forensic Claim Verification', desc: 'Auditing assertions against primary records, federal registers & court dockets...' },
-    { title: 'Stage 3: Cross-Source Contradictions & Bias', desc: 'Detecting conflicting figures and charting ideological lean spectrums...' },
-    { title: 'Stage 4: Chronological Timeline Reconstruction', desc: 'Aligning exact calendar dates, milestones, and narrative trajectory shifts...' },
-    { title: 'Stage 5: Who/Where/What Primer & Jargon Buster', desc: 'Compiling entity background primers, institutional backdrops, and legal glossaries...' }
+    { title: 'Stage 1: Multi-Outlet Ingestion', short: 'Ingestion', desc: 'Querying Google News RSS, Associated Press, Reuters, Bloomberg, WSJ...' },
+    { title: 'Stage 2: IFCN Forensic Claim Verification', short: 'Claim Audit', desc: 'Auditing assertions against primary records, federal registers & court dockets...' },
+    { title: 'Stage 3: Cross-Source Contradictions & Bias', short: 'Contradictions', desc: 'Detecting conflicting figures and charting ideological lean spectrums...' },
+    { title: 'Stage 4: Chronological Timeline Reconstruction', short: 'Timeline', desc: 'Aligning exact calendar dates, milestones, and narrative trajectory shifts...' },
+    { title: 'Stage 5: Who/Where/What Primer & Jargon Buster', short: 'Primers', desc: 'Compiling entity background primers, institutional backdrops, and legal glossaries...' }
   ];
 
   // Stage progress animation timer while loading
@@ -204,7 +221,7 @@ export default function App() {
       setLoadingStage(0);
       interval = setInterval(() => {
         setLoadingStage((prev) => (prev < fleetStages.length - 1 ? prev + 1 : prev));
-      }, 2500);
+      }, 2400);
     }
     return () => clearInterval(interval);
   }, [loading]);
@@ -226,7 +243,6 @@ export default function App() {
     const q = (queryToRun || topicInput).trim();
     if (!q) return;
 
-    // Clear old data immediately upon new search
     setReport(null);
     setQuiz(null);
     setDebate(null);
@@ -260,7 +276,6 @@ export default function App() {
           setReport({ ...partialReport } as NewsIntelligenceReport);
           setTopicInput(q);
           setActiveTab('brief');
-          // Once brief is available, stop blocking the UI so user can start reading immediately!
           setLoading(false);
           setStreamStatus('Stage 2: Auditing IFCN forensic fact-checks & bias...');
         } else if (eventType === 'step_verification') {
@@ -285,6 +300,7 @@ export default function App() {
           setIsStreaming(false);
           setStreamStatus('');
           setLoading(false);
+          showToast('Intelligence Report successfully generated!');
           fetchRecentAnalyses().then(setRecentRuns).catch(() => {});
         }
       });
@@ -295,6 +311,7 @@ export default function App() {
         setReport(data);
         setTopicInput(q);
         setActiveTab('brief');
+        showToast('Intelligence Report loaded!');
         fetchRecentAnalyses().then(setRecentRuns).catch(() => {});
       } catch (err: any) {
         setErrorMsg(err.message || 'An unexpected error occurred while analyzing this news topic.');
@@ -318,6 +335,7 @@ export default function App() {
       setScenariosData(null);
       setCurrentView('investigate');
       setActiveTab('brief');
+      showToast(`Loaded "${detail.topic}" from archive`);
       window.scrollTo({ top: 320, behavior: 'smooth' });
     } catch (err: any) {
       console.error('Failed to load analysis details:', err);
@@ -333,6 +351,7 @@ export default function App() {
     try {
       const data = await generateScenarios(report.topic);
       setScenariosData(data);
+      showToast('Forward Scenarios synthesized');
     } catch (err: any) {
       console.error(err);
     } finally {
@@ -348,6 +367,7 @@ export default function App() {
       setQuiz(data);
       setQuizResult(null);
       setUserAnswers({});
+      showToast('Active Recall Quiz ready');
     } catch (err: any) {
       console.error(err);
     } finally {
@@ -360,6 +380,7 @@ export default function App() {
     try {
       const res = await gradeQuiz(quiz.quiz_id, userAnswers);
       setQuizResult(res);
+      showToast(`Quiz Graded: ${res.score_percentage}% Score!`);
     } catch (err) {
       console.error(err);
     }
@@ -371,6 +392,7 @@ export default function App() {
     try {
       const data = await generateDebate(report.topic);
       setDebate(data);
+      showToast('Perspective Debate dialectic generated');
     } catch (err) {
       console.error(err);
     } finally {
@@ -411,6 +433,7 @@ export default function App() {
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }
     ]);
+    showToast('Copilot chat cleared');
   };
 
   const quickTopics = [
@@ -427,1434 +450,1804 @@ export default function App() {
     '🔍 Investigate grandfathering exemption clauses'
   ];
 
+  // Helper function for probability rating
+  const renderProbabilityRating = (ratingStr: string) => {
+    let score = 3;
+    const lower = ratingStr.toLowerCase();
+    if (lower.includes('high') || lower.includes('likely')) score = 5;
+    else if (lower.includes('moderate') || lower.includes('medium')) score = 3;
+    else if (lower.includes('low') || lower.includes('unlikely')) score = 1;
+
+    return (
+      <div className="rating rating-xs" title={`Probability: ${ratingStr}`}>
+        {[1, 2, 3, 4, 5].map((star) => (
+          <input
+            key={star}
+            type="radio"
+            name={`prob-rating-${star}`}
+            className="mask mask-star-2 bg-warning"
+            checked={star <= score}
+            readOnly
+          />
+        ))}
+      </div>
+    );
+  };
+
+  // Close drawer helper
+  const closeDrawer = () => {
+    const el = document.getElementById('main-drawer') as HTMLInputElement | null;
+    if (el) el.checked = false;
+  };
+
   return (
-    <div className="min-h-screen bg-base-100 text-base-content flex flex-col font-sans">
-      {/* DaisyUI Navbar with Brand & Theme Switcher */}
-      <header className="navbar bg-base-200/90 backdrop-blur-md border-b border-base-300 sticky top-0 z-50 px-4 lg:px-8">
-        <div className="navbar-start gap-3">
-          <div className="btn btn-ghost btn-circle bg-primary text-primary-content shadow-lg hover:bg-primary/90">
-            <Brain size={24} />
-          </div>
-          <div>
-            <div className="font-extrabold text-lg md:text-xl tracking-tight flex items-center gap-2">
-              <span>Agentic News Analyser</span>
-              <span className="badge badge-primary badge-sm font-bold hidden sm:inline-flex">ADK 2.0</span>
-            </div>
-            <div className="text-xs text-base-content/60 font-medium hidden md:block">
-              25-Agent Autonomous Fleet • Google ADK & Gemini
-            </div>
-          </div>
-        </div>
+    <div className="drawer min-h-screen bg-base-100 text-base-content font-sans">
+      <input id="main-drawer" type="checkbox" className="drawer-toggle" />
 
-        <div className="navbar-center hidden md:flex items-center gap-2">
-          <div className="join bg-base-300/60 p-0.5 rounded-xl border border-base-300">
-            <button
-              className={`join-item btn btn-xs md:btn-sm rounded-lg gap-1.5 transition-all ${
-                currentView === 'investigate' ? 'btn-primary font-bold shadow-sm' : 'btn-ghost'
-              }`}
-              onClick={() => setCurrentView('investigate')}
-            >
-              <Brain size={15} />
-              <span>Live Fleet</span>
-            </button>
-            <button
-              className={`join-item btn btn-xs md:btn-sm rounded-lg gap-1.5 transition-all ${
-                currentView === 'archive' ? 'btn-primary font-bold shadow-sm' : 'btn-ghost'
-              }`}
-              onClick={() => setCurrentView('archive')}
-            >
-              <History size={15} />
-              <span>Analyses Archive</span>
-            </button>
-          </div>
-          <div className="badge badge-success badge-outline gap-1.5 py-2.5 px-3 text-[11px] font-semibold hidden xl:inline-flex">
-            <span className="w-2 h-2 rounded-full bg-success animate-pulse"></span>
-            <span>Firestore Sync Active</span>
-          </div>
-        </div>
+      {/* DRAWER CONTENT: Main Body */}
+      <div className="drawer-content flex flex-col min-h-screen">
 
-        <div className="navbar-end gap-2">
-          {/* DaisyUI Theme Selector Dropdown */}
-          <div className="dropdown dropdown-end">
-            <div
-              tabIndex={0}
-              role="button"
-              className="btn btn-sm btn-outline border-base-300 hover:border-primary gap-2 shadow-sm font-medium"
-            >
-              <Palette size={16} className="text-primary" />
-              <span className="capitalize hidden sm:inline">{theme}</span>
-              <ChevronDown size={14} className="opacity-60" />
+        {/* DaisyUI Toast Notification */}
+        {toastMessage && (
+          <div className="toast toast-top toast-end z-50">
+            <div className="alert alert-info shadow-xl border border-info/30 flex items-center gap-2 py-2 px-4 rounded-xl">
+              <CheckCircle2 size={18} className="text-info-content" />
+              <span className="text-xs md:text-sm font-semibold text-info-content">{toastMessage}</span>
             </div>
-            <div
-              tabIndex={0}
-              className="dropdown-content z-[100] p-3 shadow-2xl bg-base-200 rounded-2xl w-[92vw] sm:w-[620px] md:w-[700px] max-w-[calc(100vw-1.5rem)] border border-base-300 mt-2"
+          </div>
+        )}
+
+        {/* DaisyUI Navbar Header */}
+        <header className="navbar bg-base-200/90 backdrop-blur-md border-b border-base-300 sticky top-0 z-40 px-3 md:px-6 lg:px-8">
+          <div className="navbar-start gap-2 sm:gap-3">
+            {/* Mobile Drawer Toggle */}
+            <label
+              htmlFor="main-drawer"
+              className="btn btn-ghost btn-circle btn-sm md:btn-md lg:hidden"
+              aria-label="open sidebar"
             >
-              <div className="flex items-center justify-between px-2 pb-2 mb-2 border-b border-base-300">
-                <span className="text-xs uppercase tracking-wider text-primary font-bold">
-                  Select Theme ({DAISY_THEMES.length})
-                </span>
-                <span className="text-xs text-base-content/70 font-medium">
-                  Active: <span className="capitalize font-bold text-primary">{theme}</span>
-                </span>
+              <MenuIcon size={20} />
+            </label>
+
+            {/* Brand Logo with Aura glow */}
+            <div className="relative p-0.5 rounded-full bg-gradient-to-r from-primary via-secondary to-accent shadow-md">
+              <div className="btn btn-ghost btn-circle btn-sm md:btn-md bg-base-100 text-primary hover:bg-base-100">
+                <Brain size={22} className="text-primary" />
               </div>
-              <ul className="menu p-0 grid grid-cols-2 sm:grid-cols-4 gap-1">
-                {DAISY_THEMES.map((th) => (
-                  <li key={th.id}>
-                    <button
-                      className={`flex items-center justify-between py-1.5 px-2.5 rounded-lg text-xs md:text-sm ${
-                        theme === th.id ? 'active font-bold text-primary-content bg-primary' : 'hover:bg-base-300'
-                      }`}
-                      onClick={() => setTheme(th.id)}
-                    >
-                      <span className="flex items-center gap-1.5 truncate">
-                        <span>{th.icon}</span>
-                        <span className="capitalize truncate">{th.name}</span>
-                      </span>
-                      {theme === th.id && <span className="badge badge-xs badge-ghost ml-1">Active</span>}
-                    </button>
-                  </li>
-                ))}
-              </ul>
+            </div>
+
+            <div>
+              <div className="font-black text-base sm:text-lg md:text-xl tracking-tight flex items-center gap-1.5 sm:gap-2">
+                <span>Agentic News</span>
+                <span className="badge badge-primary badge-outline badge-xs sm:badge-sm font-bold">ADK 2.0</span>
+              </div>
+              <div className="text-[11px] text-base-content/60 font-medium hidden md:block">
+                25-Agent Autonomous Media Intelligence • Google Gemini
+              </div>
             </div>
           </div>
-        </div>
-      </header>
 
-      {/* DaisyUI Hero Section */}
-      <section className="hero py-12 px-4 bg-gradient-to-b from-base-200/60 to-base-100">
-        <div className="hero-content text-center max-w-4xl flex-col p-0">
-          <div className="badge badge-primary badge-outline gap-2 py-3 px-4 font-semibold shadow-sm mb-4">
-            <Sparkles size={16} />
-            <span>Google Cloud AI Builder Cup 2026 Submission</span>
-          </div>
-
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
-            Autonomous Multi-Agent <br />
-            <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-              Media Intelligence & Verification
-            </span>
-          </h1>
-
-          <p className="py-4 text-base-content/70 text-base md:text-lg max-w-2xl leading-relaxed">
-            Forensic cross-source auditing under IFCN principles, contradiction detection, chronological narrative evolution, and causal consequence modeling.
-          </p>
-
-          {/* Search Box with DaisyUI Join */}
-          <div className="w-full max-w-3xl mt-2">
-            <div className="join w-full shadow-2xl border border-base-300 rounded-2xl bg-base-100 p-1.5 focus-within:border-primary transition-all">
-              <div className="join-item flex items-center pl-4 text-base-content/50">
-                <Search size={22} />
-              </div>
-              <input
-                type="text"
-                className="input input-ghost join-item w-full focus:outline-none text-base px-3"
-                placeholder="Enter breaking event, headline, or policy topic..."
-                value={topicInput}
-                onChange={(e) => setTopicInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                disabled={loading}
-              />
+          <div className="navbar-center hidden md:flex items-center gap-2">
+            <div className="join bg-base-300/60 p-1 rounded-xl border border-base-300">
               <button
-                className="btn btn-primary join-item rounded-xl gap-2 px-6 shadow-md"
-                onClick={() => handleSearch()}
-                disabled={loading || !topicInput.trim()}
+                className={`join-item btn btn-xs md:btn-sm rounded-lg gap-1.5 transition-all ${
+                  currentView === 'investigate' ? 'btn-primary font-bold shadow-sm' : 'btn-ghost'
+                }`}
+                onClick={() => setCurrentView('investigate')}
               >
-                {loading ? (
-                  <>
-                    <span className="loading loading-spinner loading-sm"></span>
-                    <span>Analyzing...</span>
-                  </>
-                ) : (
-                  <>
-                    <Sparkles size={18} />
-                    <span>Run Fleet (25 Agents)</span>
-                  </>
-                )}
+                <Brain size={15} />
+                <span>Live Fleet</span>
+              </button>
+              <button
+                className={`join-item btn btn-xs md:btn-sm rounded-lg gap-1.5 transition-all ${
+                  currentView === 'archive' ? 'btn-primary font-bold shadow-sm' : 'btn-ghost'
+                }`}
+                onClick={() => setCurrentView('archive')}
+              >
+                <History size={15} />
+                <span>Archive (AG-Grid)</span>
               </button>
             </div>
 
-            {/* Suggested Topic Chips */}
-            <div className="flex flex-wrap items-center justify-center gap-2 mt-5">
-              <span className="text-xs font-bold text-base-content/60 uppercase tracking-wider mr-1">
-                Suggested Topics:
-              </span>
-              {quickTopics.map((qt, idx) => (
-                <button
-                  key={idx}
-                  className="btn btn-xs btn-outline btn-neutral rounded-full hover:btn-primary transition-all shadow-sm font-medium"
-                  onClick={() => handleSearch(qt)}
-                  disabled={loading}
-                >
-                  {qt}
-                </button>
-              ))}
+            <div className="badge badge-success badge-outline gap-1.5 py-2.5 px-3 text-[11px] font-semibold hidden xl:inline-flex">
+              <span className="w-2 h-2 rounded-full bg-success animate-pulse"></span>
+              <span>Firestore Sync Active</span>
             </div>
           </div>
 
-          {errorMsg && (
-            <div className="alert alert-error shadow-lg max-w-2xl mt-6 rounded-xl">
-              <AlertTriangle size={20} />
-              <span>{errorMsg}</span>
+          <div className="navbar-end gap-2">
+            {/* DaisyUI Theme Selector Dropdown */}
+            <div className="dropdown dropdown-end">
+              <div
+                tabIndex={0}
+                role="button"
+                className="btn btn-sm btn-outline border-base-300 hover:border-primary gap-1.5 shadow-sm font-medium"
+              >
+                <Palette size={15} className="text-primary" />
+                <span className="capitalize hidden sm:inline text-xs">{theme}</span>
+                <ChevronDown size={13} className="opacity-60" />
+              </div>
+              <div
+                tabIndex={0}
+                className="dropdown-content z-[100] p-3 shadow-2xl bg-base-200 rounded-2xl w-[92vw] sm:w-[580px] md:w-[680px] max-w-[calc(100vw-1.5rem)] border border-base-300 mt-2"
+              >
+                <div className="flex items-center justify-between px-2 pb-2 mb-2 border-b border-base-300">
+                  <span className="text-xs uppercase tracking-wider text-primary font-bold">
+                    Select DaisyUI Theme ({DAISY_THEMES.length})
+                  </span>
+                  <span className="text-xs text-base-content/70 font-medium">
+                    Active: <span className="capitalize font-bold text-primary">{theme}</span>
+                  </span>
+                </div>
+                <ul className="menu p-0 grid grid-cols-2 sm:grid-cols-4 gap-1 max-h-80 overflow-y-auto">
+                  {DAISY_THEMES.map((th) => (
+                    <li key={th.id}>
+                      <button
+                        className={`flex items-center justify-between py-1.5 px-2.5 rounded-lg text-xs md:text-sm ${
+                          theme === th.id ? 'active font-bold text-primary-content bg-primary' : 'hover:bg-base-300'
+                        }`}
+                        onClick={() => setTheme(th.id)}
+                      >
+                        <span className="flex items-center gap-1.5 truncate">
+                          <span>{th.icon}</span>
+                          <span className="capitalize truncate">{th.name}</span>
+                        </span>
+                        {theme === th.id && <span className="badge badge-xs badge-ghost ml-1">Active</span>}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
-          )}
-        </div>
-      </section>
+          </div>
+        </header>
 
-      {/* DaisyUI Animated Loading Screen */}
-      {loading && (
-        <div className="container mx-auto px-4 max-w-3xl my-8">
-          <div className="card bg-base-200 border border-base-300 shadow-2xl p-6 md:p-10 text-center">
-            {/* Multi-Ring Spinner Visual */}
-            <div className="relative w-24 h-24 mx-auto mb-6 flex items-center justify-center">
-              <span className="loading loading-spinner text-primary loading-lg absolute scale-150"></span>
-              <span className="loading loading-ring text-secondary loading-lg absolute scale-125"></span>
-              <span className="loading loading-dots text-accent loading-md absolute"></span>
-              <Brain size={30} className="text-primary animate-pulse relative z-10" />
+        {/* DaisyUI Hero Section */}
+        <section className="hero py-10 md:py-14 px-4 bg-gradient-to-b from-base-200/60 to-base-100 border-b border-base-300/40">
+          <div className="hero-content text-center max-w-4xl flex-col p-0">
+            <div className="badge badge-primary badge-outline gap-2 py-3 px-4 font-semibold shadow-sm mb-4">
+              <Sparkles size={16} />
+              <span>Google Cloud AI Builder Cup 2026 Submission</span>
             </div>
 
-            <h2 className="text-2xl font-black text-base-content mb-2">
-              Deploying 25 Autonomous ADK Agents
-            </h2>
-            <p className="text-sm text-base-content/70 max-w-md mx-auto mb-8">
-              Auditing cross-spectrum media dispatches, IFCN principles, and chronological narrative evolution...
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
+              Autonomous Multi-Agent <br />
+              <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+                Media Intelligence & Verification
+              </span>
+            </h1>
+
+            <p className="py-4 text-base-content/75 text-sm sm:text-base md:text-lg max-w-2xl leading-relaxed">
+              Forensic cross-source auditing under IFCN principles, contradiction detection, chronological narrative evolution, and causal consequence modeling.
             </p>
 
-            {/* Stages Pipeline */}
-            <div className="flex flex-col gap-3 text-left max-w-xl mx-auto w-full">
-              {fleetStages.map((stg, idx) => {
-                const isDone = idx < loadingStage;
-                const isActive = idx === loadingStage;
-
-                return (
-                  <div
-                    key={idx}
-                    className={`flex items-start gap-4 p-3.5 rounded-xl border transition-all ${
-                      isActive
-                        ? 'bg-primary/10 border-primary shadow-md scale-[1.01]'
-                        : isDone
-                        ? 'bg-base-100 border-success/30'
-                        : 'bg-base-100/50 border-base-300 opacity-60'
-                    }`}
-                  >
-                    <div className="mt-0.5 flex-shrink-0">
-                      {isDone ? (
-                        <CheckCircle2 size={20} className="text-success" />
-                      ) : isActive ? (
-                        <span className="loading loading-spinner loading-sm text-primary"></span>
-                      ) : (
-                        <div className="w-4 h-4 rounded-full border-2 border-base-content/20 m-0.5"></div>
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <div className={`text-sm font-bold ${isActive ? 'text-primary' : 'text-base-content'}`}>
-                        {stg.title}
-                      </div>
-                      {isActive && (
-                        <div className="text-xs text-base-content/70 mt-0.5 leading-relaxed">
-                          {stg.desc}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Analyses Archive View (AG Grid) */}
-      {currentView === 'archive' && (
-        <main className="container mx-auto px-4 lg:px-8 pb-16 flex-1 max-w-7xl">
-          <div className="mb-4">
-            <button
-              onClick={() => setCurrentView('investigate')}
-              className="btn btn-sm btn-ghost gap-2 text-base-content/80 hover:text-primary"
-            >
-              ← Back to Live Fleet Investigation
-            </button>
-          </div>
-          <AnalysisHistoryGrid onSelectAnalysis={handleSelectArchiveItem} />
-        </main>
-      )}
-
-      {/* Main Content Dashboard */}
-      {currentView === 'investigate' && !loading && report && (
-        <main className="container mx-auto px-4 lg:px-8 pb-16 flex-1 max-w-7xl">
-          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
-            {/* Vertical Side Navigation */}
-            <aside className="w-full lg:w-72 xl:w-80 flex-shrink-0 lg:sticky lg:top-20 z-20">
-              <div className="card bg-base-200/95 backdrop-blur-md border border-base-300 shadow-xl p-3">
-                <div className="flex items-center justify-between px-2.5 pb-2.5 mb-2 border-b border-base-300">
-                  <div className="flex items-center gap-2">
-                    <Layers size={16} className="text-primary" />
-                    <span className="text-xs font-bold uppercase tracking-wider text-base-content/80">
-                      Intelligence Fleet
-                    </span>
-                  </div>
-                  <span className="badge badge-primary badge-xs font-bold">25 Agents</span>
+            {/* Search Box with DaisyUI Join */}
+            <div className="w-full max-w-3xl mt-2">
+              <div className="join w-full shadow-2xl border border-base-300 rounded-2xl bg-base-100 p-1.5 focus-within:border-primary transition-all">
+                <div className="join-item flex items-center pl-4 text-base-content/50">
+                  <Search size={20} />
                 </div>
-
-                <ul className="menu menu-sm md:menu-md p-0 gap-1 w-full">
-                  <li>
-                    <button
-                      className={`flex items-center justify-between py-2.5 px-3 rounded-xl font-medium transition-all ${
-                        activeTab === 'brief'
-                          ? 'active font-bold shadow-md bg-primary text-primary-content'
-                          : 'hover:bg-base-300 text-base-content'
-                      }`}
-                      onClick={() => setActiveTab('brief')}
-                    >
-                      <span className="flex items-center gap-2.5">
-                        <FileText size={18} className={activeTab === 'brief' ? 'text-primary-content' : 'text-primary'} />
-                        <span>Executive Brief</span>
-                      </span>
-                    </button>
-                  </li>
-
-                  <li>
-                    <button
-                      className={`flex items-center justify-between py-2.5 px-3 rounded-xl font-medium transition-all ${
-                        activeTab === 'verification'
-                          ? 'active font-bold shadow-md bg-primary text-primary-content'
-                          : 'hover:bg-base-300 text-base-content'
-                      }`}
-                      onClick={() => setActiveTab('verification')}
-                    >
-                      <span className="flex items-center gap-2.5">
-                        <ShieldCheck size={18} className={activeTab === 'verification' ? 'text-primary-content' : 'text-success'} />
-                        <span>Fact Checks & Bias</span>
-                      </span>
-                      <span className={`badge badge-xs font-bold ${activeTab === 'verification' ? 'badge-neutral' : 'badge-ghost'}`}>
-                        {report.verifications?.length || 0}
-                      </span>
-                    </button>
-                  </li>
-
-                  <li>
-                    <button
-                      className={`flex items-center justify-between py-2.5 px-3 rounded-xl font-medium transition-all ${
-                        activeTab === 'timeline'
-                          ? 'active font-bold shadow-md bg-primary text-primary-content'
-                          : 'hover:bg-base-300 text-base-content'
-                      }`}
-                      onClick={() => setActiveTab('timeline')}
-                    >
-                      <span className="flex items-center gap-2.5">
-                        <Clock size={18} className={activeTab === 'timeline' ? 'text-primary-content' : 'text-info'} />
-                        <span>Timeline</span>
-                      </span>
-                      <span className={`badge badge-xs font-bold ${activeTab === 'timeline' ? 'badge-neutral' : 'badge-ghost'}`}>
-                        {report.timeline?.events?.length || 0}
-                      </span>
-                    </button>
-                  </li>
-
-                  <li>
-                    <button
-                      className={`flex items-center justify-between py-2.5 px-3 rounded-xl font-medium transition-all ${
-                        activeTab === 'insights'
-                          ? 'active font-bold shadow-md bg-primary text-primary-content'
-                          : 'hover:bg-base-300 text-base-content'
-                      }`}
-                      onClick={() => {
-                        setActiveTab('insights');
-                        if (!scenariosData && (!report.future_scenarios || report.future_scenarios.length === 0)) {
-                          handleLoadScenarios();
-                        }
-                      }}
-                    >
-                      <span className="flex items-center gap-2.5">
-                        <TrendingUp size={18} className={activeTab === 'insights' ? 'text-primary-content' : 'text-warning'} />
-                        <span>Causal & Scenarios</span>
-                      </span>
-                      {scenariosLoading ? (
-                        <span className="loading loading-spinner loading-xs text-primary"></span>
-                      ) : (
-                        <span className="badge badge-xs badge-outline badge-primary font-semibold">On Demand</span>
-                      )}
-                    </button>
-                  </li>
-
-                  <li>
-                    <button
-                      className={`flex items-center justify-between py-2.5 px-3 rounded-xl font-medium transition-all ${
-                        activeTab === 'quiz'
-                          ? 'active font-bold shadow-md bg-primary text-primary-content'
-                          : 'hover:bg-base-300 text-base-content'
-                      }`}
-                      onClick={() => {
-                        setActiveTab('quiz');
-                        if (!quiz) handleLoadQuiz();
-                      }}
-                    >
-                      <span className="flex items-center gap-2.5">
-                        <BookOpen size={18} className={activeTab === 'quiz' ? 'text-primary-content' : 'text-accent'} />
-                        <span>Active Recall Tutor</span>
-                      </span>
-                    </button>
-                  </li>
-
-                  <li>
-                    <button
-                      className={`flex items-center justify-between py-2.5 px-3 rounded-xl font-medium transition-all ${
-                        activeTab === 'debate'
-                          ? 'active font-bold shadow-md bg-primary text-primary-content'
-                          : 'hover:bg-base-300 text-base-content'
-                      }`}
-                      onClick={() => {
-                        setActiveTab('debate');
-                        if (!debate) handleLoadDebate();
-                      }}
-                    >
-                      <span className="flex items-center gap-2.5">
-                        <Scale size={18} className={activeTab === 'debate' ? 'text-primary-content' : 'text-secondary'} />
-                        <span>Perspective Debate</span>
-                      </span>
-                    </button>
-                  </li>
-
-                  <li>
-                    <button
-                      className={`flex items-center justify-between py-2.5 px-3 rounded-xl font-medium transition-all ${
-                        activeTab === 'copilot'
-                          ? 'active font-bold shadow-md bg-primary text-primary-content'
-                          : 'hover:bg-base-300 text-base-content'
-                      }`}
-                      onClick={() => setActiveTab('copilot')}
-                    >
-                      <span className="flex items-center gap-2.5">
-                        <MessageSquare size={18} className={activeTab === 'copilot' ? 'text-primary-content' : 'text-primary'} />
-                        <span>Research Copilot</span>
-                      </span>
-                    </button>
-                  </li>
-
-                  {/* Archive Link in Side Navigation */}
-                  <li className="mt-1 pt-1 border-t border-base-300">
-                    <button
-                      className="flex items-center justify-between py-2 px-3 rounded-xl font-medium transition-all hover:bg-base-300 text-base-content/90"
-                      onClick={() => setCurrentView('archive')}
-                    >
-                      <span className="flex items-center gap-2.5">
-                        <History size={16} className="text-secondary" />
-                        <span className="text-xs">Browse All Archives</span>
-                      </span>
-                      <span className="badge badge-xs badge-neutral font-mono">AG-Grid</span>
-                    </button>
-                  </li>
-                </ul>
-
-                {/* Topic Metadata Box inside Side Nav */}
-                <div className="mt-3 pt-3 border-t border-base-300 text-xs text-base-content/70 flex flex-col gap-1.5 px-1">
-                  <div className="font-semibold text-base-content truncate">
-                    Topic: <span className="font-normal opacity-80">{report.topic}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-[11px]">
-                    <span>Sources Analyzed:</span>
-                    <span className="badge badge-ghost badge-xs font-bold">
-                      {report.articles_analyzed?.length || report.sources_analyzed?.length || 6}
-                    </span>
-                  </div>
-                </div>
+                <input
+                  type="text"
+                  className="input input-ghost join-item w-full focus:outline-none text-sm md:text-base px-3"
+                  placeholder="Enter breaking event, headline, or policy topic..."
+                  value={topicInput}
+                  onChange={(e) => setTopicInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                  disabled={loading}
+                />
+                <button
+                  className="btn btn-primary join-item rounded-xl gap-2 px-5 md:px-7 shadow-md"
+                  onClick={() => handleSearch()}
+                  disabled={loading || !topicInput.trim()}
+                >
+                  {loading ? (
+                    <>
+                      <span className="loading loading-spinner loading-sm"></span>
+                      <span>Analyzing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles size={18} />
+                      <span className="hidden sm:inline">Run Fleet (25 Agents)</span>
+                      <span className="sm:hidden">Run</span>
+                    </>
+                  )}
+                </button>
               </div>
-            </aside>
 
-            {/* Main Content Area */}
-            <div className="flex-1 min-w-0 w-full">
-
-            {/* Live Fleet Pipeline Streaming Notification */}
-            {isStreaming && (
-              <div className="alert alert-info shadow-md rounded-2xl mb-6 flex items-center justify-between py-3 px-5 border border-info/30">
-                <div className="flex items-center gap-3">
-                  <span className="loading loading-spinner loading-sm text-info-content"></span>
-                  <div>
-                    <div className="font-bold text-xs">Live Fleet Pipeline Streaming</div>
-                    <div className="text-[11px] opacity-90">{streamStatus || 'Progressive sections arriving in real time...'}</div>
-                  </div>
-                </div>
-                <span className="badge badge-sm badge-ghost font-mono uppercase text-[10px] tracking-wider">
-                  SSE Progressive Stream
+              {/* Suggested Topic Chips */}
+              <div className="flex flex-wrap items-center justify-center gap-2 mt-5">
+                <span className="text-xs font-bold text-base-content/60 uppercase tracking-wider mr-1">
+                  Suggested Topics:
                 </span>
+                {quickTopics.map((qt, idx) => (
+                  <button
+                    key={idx}
+                    className="btn btn-xs btn-outline btn-neutral rounded-full hover:btn-primary transition-all shadow-sm font-medium"
+                    onClick={() => handleSearch(qt)}
+                    disabled={loading}
+                  >
+                    {qt}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {errorMsg && (
+              <div className="alert alert-error shadow-lg max-w-2xl mt-6 rounded-xl">
+                <AlertTriangle size={20} />
+                <span>{errorMsg}</span>
               </div>
             )}
+          </div>
+        </section>
 
-          {/* TAB 1: EXECUTIVE BRIEF & PRIMER */}
-          {activeTab === 'brief' && (
-            <div className="flex flex-col gap-6">
-              {/* Executive Summary Card */}
-              <div className="card bg-base-200 border border-base-300 shadow-xl">
-                <div className="card-body p-6 md:p-8">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-2 border-b border-base-300">
-                    <div className="card-title text-xl md:text-2xl font-black text-base-content flex items-center gap-3">
-                      <FileText size={24} className="text-primary" />
-                      <span>Executive Intelligence Brief: {report.topic}</span>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2 self-start md:self-auto flex-shrink-0">
-                      {(report.id || report.analysis_id) && (
-                        <button
-                          onClick={async () => {
-                            const targetId = report.id || report.analysis_id;
-                            if (!targetId) return;
-                            const nextFav = !report.is_favorite;
-                            setReport({ ...report, is_favorite: nextFav });
-                            try {
-                              await updateAnalysis(targetId, { is_favorite: nextFav });
-                            } catch (e) {
-                              console.error(e);
-                            }
-                          }}
-                          className={`btn btn-sm ${
-                            report.is_favorite ? 'btn-warning text-warning-content' : 'btn-outline border-base-300'
-                          } gap-1.5`}
-                          title={report.is_favorite ? 'Remove from favorites' : 'Mark as favorite'}
-                        >
-                          <span>{report.is_favorite ? '★' : '☆'}</span>
-                          <span className="text-xs">{report.is_favorite ? 'Favorited' : 'Favorite'}</span>
-                        </button>
-                      )}
-                      <div className="badge badge-outline badge-primary font-medium py-3 px-3 whitespace-nowrap">
-                        Audited across {report.articles_analyzed?.length || report.sources_analyzed?.length || 6} major outlets
-                      </div>
-                    </div>
-                  </div>
-
-                  <p className="text-base md:text-lg leading-relaxed text-base-content/90 mt-4 font-normal">
-                    {report.executive_summary}
-                  </p>
-
-                  {/* DaisyUI Stats for Key Numbers (F19) */}
-                  {report.key_metrics_and_numbers && report.key_metrics_and_numbers.length > 0 && (
-                    <div className="mt-6">
-                      <div className="text-xs font-bold uppercase tracking-wider text-primary mb-3">
-                        Key Numbers & Statistical Baseline (F19)
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-                        {report.key_metrics_and_numbers.map((metric, idx) => (
-                          <div key={idx} className="stat bg-base-100 rounded-xl border border-base-300 shadow-sm p-4">
-                            <div className="stat-figure text-primary">
-                              <BarChart3 size={20} />
-                            </div>
-                            <div className="stat-title text-xs font-bold uppercase">Metric #{idx + 1}</div>
-                            <div className="stat-value text-sm md:text-base font-bold text-base-content whitespace-normal leading-snug mt-1">
-                              {metric}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
+        {/* DaisyUI Steps & Loading Screen during Fleet Execution */}
+        {loading && (
+          <div className="container mx-auto px-4 max-w-4xl my-8">
+            <div className="card bg-base-200 border border-base-300 shadow-2xl p-6 md:p-10 text-center">
+              {/* Multi-Ring Spinner Visual */}
+              <div className="relative w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+                <span className="loading loading-spinner text-primary loading-lg absolute scale-150"></span>
+                <span className="loading loading-ring text-secondary loading-lg absolute scale-125"></span>
+                <span className="loading loading-dots text-accent loading-md absolute"></span>
+                <Brain size={30} className="text-primary animate-pulse relative z-10" />
               </div>
 
-              {/* WHO / WHERE / WHAT PRIMER & JARGON BUSTER */}
-              {report.context_primer && (
-                <div className="card bg-base-200 border border-base-300 shadow-xl">
-                  <div className="card-body p-6 md:p-8">
-                    <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-2 border-b border-base-300">
-                      <HelpCircle size={24} className="text-secondary" />
-                      <span>Who / Where / What Primer & Jargon Buster (F1, F27)</span>
-                    </div>
+              <h2 className="text-2xl md:text-3xl font-black text-base-content mb-2">
+                Deploying 25 Autonomous ADK Agents
+              </h2>
+              <p className="text-sm text-base-content/70 max-w-lg mx-auto mb-6">
+                Auditing cross-spectrum media dispatches, IFCN principles, and chronological narrative evolution...
+              </p>
 
-                    {/* Origins & Backdrop */}
-                    {report.context_primer.background_story && (
-                      <div className="alert alert-info bg-info/10 text-info-content border border-info/30 rounded-xl mt-4 shadow-sm">
-                        <Building2 size={22} className="flex-shrink-0 text-info" />
-                        <div>
-                          <div className="font-bold text-sm text-info uppercase tracking-wider">
-                            Origins & Historical Backdrop
-                          </div>
-                          <div className="text-sm md:text-base text-base-content/90 mt-1 leading-relaxed">
-                            {report.context_primer.background_story}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Key Entities & Stakeholders */}
-                    {report.context_primer.primer_items && report.context_primer.primer_items.length > 0 && (
-                      <div className="mt-6">
-                        <div className="text-xs font-bold uppercase tracking-wider text-secondary mb-3">
-                          Key Entities & Core Stakeholders
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {report.context_primer.primer_items.map((item, idx) => (
-                            <div key={idx} className="card bg-base-100 border border-base-300 shadow-sm p-5 hover:border-secondary transition-all">
-                              <div className="flex items-center justify-between mb-2">
-                                <span className={`badge ${
-                                  item.entity_type === 'ORGANIZATION'
-                                    ? 'badge-primary'
-                                    : item.entity_type === 'CONCEPT'
-                                    ? 'badge-secondary'
-                                    : item.entity_type === 'LOCATION'
-                                    ? 'badge-accent'
-                                    : 'badge-neutral'
-                                } badge-sm font-bold uppercase`}>
-                                  {item.entity_type}
-                                </span>
-                              </div>
-                              <div className="font-bold text-base md:text-lg text-base-content">
-                                {item.entity_name}
-                              </div>
-                              <div className="text-sm text-base-content/80 mt-1 leading-relaxed">
-                                {item.explainer_2_lines}
-                              </div>
-                              {item.historical_context && (
-                                <div className="text-xs text-base-content/60 border-t border-base-200 pt-2 mt-3 italic">
-                                  <strong>Context:</strong> {item.historical_context}
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Jargon Buster Glossary */}
-                    {report.context_primer.jargon_definitions && Object.keys(report.context_primer.jargon_definitions).length > 0 && (
-                      <div className="mt-6">
-                        <div className="text-xs font-bold uppercase tracking-wider text-accent mb-3 flex items-center gap-2">
-                          <BookOpen size={16} />
-                          <span>Jargon Buster (Plain-Language Policy & Legal Terms)</span>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          {Object.entries(report.context_primer.jargon_definitions).map(([term, def], idx) => (
-                            <div key={idx} className="card bg-base-100 border border-base-300 shadow-sm p-4">
-                              <div className="font-bold text-accent text-sm md:text-base flex items-center gap-2">
-                                <span>{term}</span>
-                              </div>
-                              <div className="text-xs md:text-sm text-base-content/80 mt-1.5 leading-relaxed">
-                                {def}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Consensus Points */}
-              <div className="card bg-base-200 border border-base-300 shadow-xl">
-                <div className="card-body p-6 md:p-8">
-                  <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-2 border-b border-base-300">
-                    <CheckCircle2 size={24} className="text-success" />
-                    <span>High-Confidence Consensus Points Across Reporting</span>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                    {report.consensus_points?.map((pt, idx) => (
-                      <div key={idx} className="card bg-base-100 border border-success/30 shadow-sm p-4 flex flex-row items-start gap-3">
-                        <CheckCircle2 size={20} className="text-success flex-shrink-0 mt-0.5" />
-                        <div className="text-sm md:text-base text-base-content leading-relaxed">{pt}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+              {/* DaisyUI Steps Pipeline */}
+              <div className="w-full my-4">
+                <ul className="steps steps-vertical md:steps-horizontal w-full text-xs font-bold">
+                  {fleetStages.map((stg, idx) => (
+                    <li
+                      key={idx}
+                      className={`step ${idx <= loadingStage ? 'step-primary font-bold' : 'step-neutral opacity-60'}`}
+                      data-content={idx < loadingStage ? '✓' : idx === loadingStage ? '●' : `${idx + 1}`}
+                    >
+                      {stg.short}
+                    </li>
+                  ))}
+                </ul>
               </div>
 
-              {/* Analyzed Media Articles & Primary Source Filings */}
-              <div className="card bg-base-200 border border-base-300 shadow-xl">
-                <div className="card-body p-6 md:p-8">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 pb-2 border-b border-base-300">
-                    <div className="card-title text-xl font-black text-base-content flex items-center gap-3">
-                      <Layers size={24} className="text-primary" />
-                      <span>
-                        Analyzed Media Articles & Primary Source Filings ({report.articles_analyzed?.length || report.sources_analyzed?.length || 0})
+              {/* DaisyUI Linear Progress Bar */}
+              <div className="w-full max-w-md mx-auto mt-4 mb-6">
+                <progress
+                  className="progress progress-primary w-full h-2.5"
+                  value={(loadingStage + 1) * 20}
+                  max="100"
+                ></progress>
+              </div>
+
+              {/* Current Active Stage Card */}
+              <div className="p-4 rounded-xl bg-primary/10 border border-primary/40 max-w-xl mx-auto text-left shadow-sm">
+                <div className="flex items-center gap-2 font-bold text-sm text-primary">
+                  <span className="loading loading-spinner loading-xs"></span>
+                  <span>{fleetStages[loadingStage].title}</span>
+                </div>
+                <p className="text-xs text-base-content/75 mt-1">
+                  {fleetStages[loadingStage].desc}
+                </p>
+              </div>
+
+              {/* DaisyUI Skeleton Placeholders */}
+              <div className="mt-8 pt-6 border-t border-base-300 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="card bg-base-100 p-4 border border-base-300 flex flex-col gap-2">
+                  <div className="skeleton h-4 w-1/2"></div>
+                  <div className="skeleton h-3 w-full"></div>
+                  <div className="skeleton h-3 w-3/4"></div>
+                </div>
+                <div className="card bg-base-100 p-4 border border-base-300 flex flex-col gap-2">
+                  <div className="skeleton h-4 w-2/3"></div>
+                  <div className="skeleton h-3 w-full"></div>
+                  <div className="skeleton h-3 w-4/5"></div>
+                </div>
+                <div className="card bg-base-100 p-4 border border-base-300 flex flex-col gap-2">
+                  <div className="skeleton h-4 w-1/3"></div>
+                  <div className="skeleton h-3 w-full"></div>
+                  <div className="skeleton h-3 w-2/3"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Analyses Archive View (AG Grid) */}
+        {currentView === 'archive' && (
+          <main className="container mx-auto px-4 lg:px-8 pb-16 flex-1 max-w-7xl mt-6">
+            <div className="mb-4">
+              <button
+                onClick={() => setCurrentView('investigate')}
+                className="btn btn-sm btn-ghost gap-2 text-base-content/80 hover:text-primary"
+              >
+                ← Back to Live Fleet Investigation
+              </button>
+            </div>
+            <AnalysisHistoryGrid onSelectAnalysis={handleSelectArchiveItem} />
+          </main>
+        )}
+
+        {/* Main Content Dashboard */}
+        {currentView === 'investigate' && !loading && report && (
+          <main className="container mx-auto px-4 lg:px-8 pb-16 flex-1 max-w-7xl mt-6">
+            <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
+
+              {/* Desktop Sticky Side Navigation */}
+              <aside className="w-full lg:w-72 xl:w-80 flex-shrink-0 lg:sticky lg:top-20 z-20 hidden lg:block">
+                <div className="card bg-base-200/95 backdrop-blur-md border border-base-300 shadow-xl p-3">
+                  <div className="flex items-center justify-between px-2.5 pb-2.5 mb-2 border-b border-base-300">
+                    <div className="flex items-center gap-2">
+                      <Layers size={16} className="text-primary" />
+                      <span className="text-xs font-bold uppercase tracking-wider text-base-content/80">
+                        Intelligence Fleet
                       </span>
                     </div>
-                    <span className="text-xs text-base-content/60">
-                      Click headline or button to read original publication
-                    </span>
+                    <span className="badge badge-primary badge-xs font-bold">25 Agents</span>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
-                    {report.articles_analyzed && report.articles_analyzed.length > 0 ? (
-                      report.articles_analyzed.map((art, idx) => (
-                        <div
-                          key={idx}
-                          className="card bg-base-100 border border-base-300 shadow-md hover:shadow-xl hover:border-primary transition-all p-5 flex flex-col justify-between"
-                        >
-                          <div>
-                            <div className="flex items-center justify-between gap-2 mb-2">
-                              <span className="badge badge-primary badge-outline font-bold text-xs">
-                                {art.outlet}
-                              </span>
-                              {art.published_date && (
-                                <span className="badge badge-ghost badge-sm gap-1 text-xs opacity-70">
-                                  <Calendar size={12} />
-                                  <span>{art.published_date}</span>
-                                </span>
-                              )}
-                            </div>
-                            <a
-                              href={art.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="font-bold text-sm md:text-base text-base-content hover:text-primary transition-colors line-clamp-3 leading-snug mt-1"
-                            >
-                              {art.title}
-                            </a>
-                            {art.author && (
-                              <div className="text-xs text-base-content/60 mt-2">
-                                By {art.author}
-                              </div>
-                            )}
-                          </div>
-                          <a
-                            href={art.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="btn btn-sm btn-outline btn-primary w-full gap-2 mt-4"
-                          >
-                            <span>Read Article</span>
-                            <ExternalLink size={14} />
-                          </a>
-                        </div>
-                      ))
-                    ) : (
-                      report.sources_analyzed?.map((src, idx) => (
-                        <div key={idx} className="card bg-base-100 border border-base-300 shadow-md p-5 flex flex-col justify-between">
-                          <div>
-                            <span className="badge badge-primary badge-outline font-bold text-xs">{src}</span>
-                            <div className="font-bold text-base text-base-content mt-2">
-                              Official Reporting & Wire Dispatches from {src}
-                            </div>
-                          </div>
-                          <a
-                            href={`https://news.google.com/search?q=${encodeURIComponent(report.topic + ' ' + src)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="btn btn-sm btn-outline btn-primary w-full gap-2 mt-4"
-                          >
-                            <span>Search Dispatches</span>
-                            <ExternalLink size={14} />
-                          </a>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-              </div>
+                  <ul className="menu menu-sm p-0 gap-1 w-full">
+                    <li>
+                      <button
+                        className={`flex items-center justify-between py-2.5 px-3 rounded-xl font-medium transition-all ${
+                          activeTab === 'brief'
+                            ? 'active font-bold shadow-md bg-primary text-primary-content'
+                            : 'hover:bg-base-300 text-base-content'
+                        }`}
+                        onClick={() => setActiveTab('brief')}
+                      >
+                        <span className="flex items-center gap-2.5">
+                          <FileText size={17} className={activeTab === 'brief' ? 'text-primary-content' : 'text-primary'} />
+                          <span>Executive Brief</span>
+                        </span>
+                      </button>
+                    </li>
 
-              {/* DaisyUI Collapse for Raw Model Trace Log (Clean & Collapsed by Default) */}
-              {report.raw_markdown && (
-                <div className="collapse collapse-arrow bg-base-200 border border-base-300 shadow-md rounded-2xl">
-                  <input type="checkbox" />
-                  <div className="collapse-title font-medium flex items-center gap-2 text-sm text-base-content/70">
-                    <Sparkles size={16} className="text-primary" />
-                    <span>Inspect Raw Multi-Agent Execution Log & Gemini Output (Technical Trace)</span>
-                  </div>
-                  <div className="collapse-content">
-                    <pre className="bg-base-300/60 p-4 rounded-xl text-xs overflow-x-auto text-base-content/80 font-mono leading-relaxed max-h-96">
-                      {report.raw_markdown}
-                    </pre>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+                    <li>
+                      <button
+                        className={`flex items-center justify-between py-2.5 px-3 rounded-xl font-medium transition-all ${
+                          activeTab === 'verification'
+                            ? 'active font-bold shadow-md bg-primary text-primary-content'
+                            : 'hover:bg-base-300 text-base-content'
+                        }`}
+                        onClick={() => setActiveTab('verification')}
+                      >
+                        <span className="flex items-center gap-2.5">
+                          <ShieldCheck size={17} className={activeTab === 'verification' ? 'text-primary-content' : 'text-success'} />
+                          <span>Fact Checks & Bias</span>
+                        </span>
+                        <span className={`badge badge-xs font-bold ${activeTab === 'verification' ? 'badge-neutral' : 'badge-ghost'}`}>
+                          {report.verifications?.length || 0}
+                        </span>
+                      </button>
+                    </li>
 
-          {/* TAB 2: VERIFICATION & BIAS */}
-          {activeTab === 'verification' && (
-            <div className="flex flex-col gap-6">
-              {/* Fact Verifications (F6) */}
-              <div className="card bg-base-200 border border-base-300 shadow-xl">
-                <div className="card-body p-6 md:p-8">
-                  <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-2 border-b border-base-300">
-                    <ShieldCheck size={24} className="text-success" />
-                    <span>IFCN Forensic Claim Verification Audit (F6)</span>
-                  </div>
+                    <li>
+                      <button
+                        className={`flex items-center justify-between py-2.5 px-3 rounded-xl font-medium transition-all ${
+                          activeTab === 'timeline'
+                            ? 'active font-bold shadow-md bg-primary text-primary-content'
+                            : 'hover:bg-base-300 text-base-content'
+                        }`}
+                        onClick={() => setActiveTab('timeline')}
+                      >
+                        <span className="flex items-center gap-2.5">
+                          <Clock size={17} className={activeTab === 'timeline' ? 'text-primary-content' : 'text-info'} />
+                          <span>Timeline</span>
+                        </span>
+                        <span className={`badge badge-xs font-bold ${activeTab === 'timeline' ? 'badge-neutral' : 'badge-ghost'}`}>
+                          {report.timeline?.events?.length || 0}
+                        </span>
+                      </button>
+                    </li>
 
-                  <div className="flex flex-col gap-4 mt-4">
-                    {report.verifications?.map((v) => (
-                      <div key={v.claim_id} className="card bg-base-100 border border-base-300 shadow-sm p-6">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-                          <span className="badge badge-neutral font-bold text-xs">
-                            Claim ID: {v.claim_id}
-                          </span>
-                          <div className="flex items-center gap-3">
-                            <span className="text-xs text-base-content/70 font-semibold">
-                              Confidence: {Math.round(v.confidence * 100)}%
-                            </span>
-                            <span className={`badge ${
-                              v.status === 'VERIFIED'
-                                ? 'badge-success text-success-content'
-                                : v.status === 'DISPUTED'
-                                ? 'badge-warning text-warning-content'
-                                : 'badge-error text-error-content'
-                            } font-bold text-xs py-2.5 px-3`}>
-                              {v.status}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="text-base md:text-lg font-bold text-base-content leading-snug">
-                          "{v.claim_text}"
-                        </div>
-
-                        <p className="text-sm text-base-content/80 mt-2 leading-relaxed">
-                          {v.reasoning}
-                        </p>
-
-                        <div className="text-xs text-base-content/60 mt-3 pt-3 border-t border-base-200 flex flex-wrap gap-2">
-                          <span className="font-bold text-base-content/80">Corroborating:</span>
-                          <span>{v.corroborating_sources?.join(', ') || 'Primary Records'}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Cross-Source Contradictions (F7) */}
-              <div className="card bg-base-200 border border-base-300 shadow-xl">
-                <div className="card-body p-6 md:p-8">
-                  <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-2 border-b border-base-300">
-                    <AlertTriangle size={24} className="text-warning" />
-                    <span>Cross-Source Contradictions & Side-by-Side Divergence (F7)</span>
-                  </div>
-
-                  <div className="flex flex-col gap-4 mt-4">
-                    {report.contradictions?.map((c) => (
-                      <div key={c.contradiction_id} className="card bg-base-100 border border-warning/30 shadow-md p-6">
-                        <div className="flex items-center gap-2 text-warning font-bold text-sm mb-3">
-                          <AlertTriangle size={16} />
-                          <span>{c.topic_aspect} ({c.divergence_type})</span>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                          <div className="card bg-base-200 border-l-4 border-primary p-4 rounded-xl">
-                            <div className="text-xs font-bold text-primary uppercase">{c.outlet_a}</div>
-                            <div className="text-sm font-medium text-base-content mt-1">"{c.claim_a}"</div>
-                          </div>
-
-                          <div className="card bg-base-200 border-l-4 border-secondary p-4 rounded-xl">
-                            <div className="text-xs font-bold text-secondary uppercase">{c.outlet_b}</div>
-                            <div className="text-sm font-medium text-base-content mt-1">"{c.claim_b}"</div>
-                          </div>
-                        </div>
-
-                        <div className="alert alert-warning bg-warning/10 text-warning-content border border-warning/20 text-xs md:text-sm py-2 px-3 rounded-lg">
-                          <strong>Evidentiary Audit:</strong> {c.analysis}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Media Framing & Political Lean Spectrum (F8) */}
-              <div className="card bg-base-200 border border-base-300 shadow-xl">
-                <div className="card-body p-6 md:p-8">
-                  <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-2 border-b border-base-300">
-                    <Scale size={24} className="text-accent" />
-                    <span>Media Framing & Political Lean Spectrum (F8)</span>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                    {report.bias_evaluations?.map((b, idx) => (
-                      <div key={idx} className="card bg-base-100 border border-base-300 shadow-sm p-5">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="font-bold text-base text-base-content">{b.outlet}</span>
-                          <span className="badge badge-accent badge-outline text-xs font-bold">
-                            {b.assessed_lean}
-                          </span>
-                        </div>
-                        <p className="text-sm text-base-content/80 mt-1 leading-relaxed">
-                          {b.framing_narrative}
-                        </p>
-                        {b.loaded_terms_identified?.length > 0 && (
-                          <div className="text-xs text-base-content/60 mt-3 pt-2 border-t border-base-200">
-                            <span className="font-bold text-warning">Loaded Terms:</span>{' '}
-                            {b.loaded_terms_identified.join(', ')}
-                          </div>
+                    <li>
+                      <button
+                        className={`flex items-center justify-between py-2.5 px-3 rounded-xl font-medium transition-all ${
+                          activeTab === 'insights'
+                            ? 'active font-bold shadow-md bg-primary text-primary-content'
+                            : 'hover:bg-base-300 text-base-content'
+                        }`}
+                        onClick={() => {
+                          setActiveTab('insights');
+                          if (!scenariosData && (!report.future_scenarios || report.future_scenarios.length === 0)) {
+                            handleLoadScenarios();
+                          }
+                        }}
+                      >
+                        <span className="flex items-center gap-2.5">
+                          <TrendingUp size={17} className={activeTab === 'insights' ? 'text-primary-content' : 'text-warning'} />
+                          <span>Causal & Scenarios</span>
+                        </span>
+                        {scenariosLoading ? (
+                          <span className="loading loading-spinner loading-xs text-primary"></span>
+                        ) : (
+                          <span className="badge badge-xs badge-outline badge-primary font-semibold">On Demand</span>
                         )}
-                      </div>
-                    ))}
+                      </button>
+                    </li>
+
+                    <li>
+                      <button
+                        className={`flex items-center justify-between py-2.5 px-3 rounded-xl font-medium transition-all ${
+                          activeTab === 'quiz'
+                            ? 'active font-bold shadow-md bg-primary text-primary-content'
+                            : 'hover:bg-base-300 text-base-content'
+                        }`}
+                        onClick={() => {
+                          setActiveTab('quiz');
+                          if (!quiz) handleLoadQuiz();
+                        }}
+                      >
+                        <span className="flex items-center gap-2.5">
+                          <BookOpen size={17} className={activeTab === 'quiz' ? 'text-primary-content' : 'text-accent'} />
+                          <span>Active Recall Tutor</span>
+                        </span>
+                      </button>
+                    </li>
+
+                    <li>
+                      <button
+                        className={`flex items-center justify-between py-2.5 px-3 rounded-xl font-medium transition-all ${
+                          activeTab === 'debate'
+                            ? 'active font-bold shadow-md bg-primary text-primary-content'
+                            : 'hover:bg-base-300 text-base-content'
+                        }`}
+                        onClick={() => {
+                          setActiveTab('debate');
+                          if (!debate) handleLoadDebate();
+                        }}
+                      >
+                        <span className="flex items-center gap-2.5">
+                          <Scale size={17} className={activeTab === 'debate' ? 'text-primary-content' : 'text-secondary'} />
+                          <span>Perspective Debate</span>
+                        </span>
+                      </button>
+                    </li>
+
+                    <li>
+                      <button
+                        className={`flex items-center justify-between py-2.5 px-3 rounded-xl font-medium transition-all ${
+                          activeTab === 'copilot'
+                            ? 'active font-bold shadow-md bg-primary text-primary-content'
+                            : 'hover:bg-base-300 text-base-content'
+                        }`}
+                        onClick={() => setActiveTab('copilot')}
+                      >
+                        <span className="flex items-center gap-2.5">
+                          <MessageSquare size={17} className={activeTab === 'copilot' ? 'text-primary-content' : 'text-primary'} />
+                          <span>Research Copilot</span>
+                        </span>
+                      </button>
+                    </li>
+
+                    <li className="mt-1 pt-1 border-t border-base-300">
+                      <button
+                        className="flex items-center justify-between py-2 px-3 rounded-xl font-medium transition-all hover:bg-base-300 text-base-content/90"
+                        onClick={() => setCurrentView('archive')}
+                      >
+                        <span className="flex items-center gap-2.5">
+                          <History size={16} className="text-secondary" />
+                          <span className="text-xs">Browse All Archives</span>
+                        </span>
+                        <span className="badge badge-xs badge-neutral font-mono">AG-Grid</span>
+                      </button>
+                    </li>
+                  </ul>
+
+                  {/* Topic Metadata Box */}
+                  <div className="mt-3 pt-3 border-t border-base-300 text-xs text-base-content/70 flex flex-col gap-1.5 px-1">
+                    <div className="font-semibold text-base-content truncate">
+                      Topic: <span className="font-normal opacity-80">{report.topic}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span>Sources Audited:</span>
+                      <span className="badge badge-ghost badge-xs font-bold">
+                        {report.articles_analyzed?.length || report.sources_analyzed?.length || 6}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
+              </aside>
 
-          {/* TAB 3: TIMELINE (DaisyUI Timeline Component) */}
-          {activeTab === 'timeline' && (
-            <div className="card bg-base-200 border border-base-300 shadow-xl">
-              <div className="card-body p-6 md:p-8">
-                <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-2 border-b border-base-300">
-                  <Clock size={24} className="text-primary" />
-                  <span>Chronological Event Timeline & Narrative Evolution (F2, F29)</span>
+              {/* Mobile Horizontal Tabs Switcher */}
+              <div className="w-full lg:hidden mb-2 overflow-x-auto no-scrollbar">
+                <div className="tabs tabs-boxed bg-base-200 p-1 flex-nowrap w-max gap-1">
+                  <button
+                    className={`tab tab-sm font-medium ${activeTab === 'brief' ? 'tab-active' : ''}`}
+                    onClick={() => setActiveTab('brief')}
+                  >
+                    Brief
+                  </button>
+                  <button
+                    className={`tab tab-sm font-medium ${activeTab === 'verification' ? 'tab-active' : ''}`}
+                    onClick={() => setActiveTab('verification')}
+                  >
+                    Fact Checks ({report.verifications?.length || 0})
+                  </button>
+                  <button
+                    className={`tab tab-sm font-medium ${activeTab === 'timeline' ? 'tab-active' : ''}`}
+                    onClick={() => setActiveTab('timeline')}
+                  >
+                    Timeline ({report.timeline?.events?.length || 0})
+                  </button>
+                  <button
+                    className={`tab tab-sm font-medium ${activeTab === 'insights' ? 'tab-active' : ''}`}
+                    onClick={() => {
+                      setActiveTab('insights');
+                      if (!scenariosData && (!report.future_scenarios || report.future_scenarios.length === 0)) handleLoadScenarios();
+                    }}
+                  >
+                    Scenarios
+                  </button>
+                  <button
+                    className={`tab tab-sm font-medium ${activeTab === 'quiz' ? 'tab-active' : ''}`}
+                    onClick={() => {
+                      setActiveTab('quiz');
+                      if (!quiz) handleLoadQuiz();
+                    }}
+                  >
+                    Recall Tutor
+                  </button>
+                  <button
+                    className={`tab tab-sm font-medium ${activeTab === 'debate' ? 'tab-active' : ''}`}
+                    onClick={() => {
+                      setActiveTab('debate');
+                      if (!debate) handleLoadDebate();
+                    }}
+                  >
+                    Debate
+                  </button>
+                  <button
+                    className={`tab tab-sm font-medium ${activeTab === 'copilot' ? 'tab-active' : ''}`}
+                    onClick={() => setActiveTab('copilot')}
+                  >
+                    Copilot
+                  </button>
                 </div>
+              </div>
 
-                {report.timeline?.narrative_evolution_summary && (
-                  <div className="alert alert-info bg-info/10 text-info-content border border-info/30 rounded-xl my-4">
-                    <Clock size={20} className="text-info flex-shrink-0" />
-                    <div>
-                      <div className="font-bold text-xs uppercase text-info tracking-wider">
-                        Narrative Shift Synthesis
+              {/* Main Content Area */}
+              <div className="flex-1 min-w-0 w-full">
+
+                {/* Live Fleet Pipeline Streaming Notification with Aura Glow */}
+                {isStreaming && (
+                  <div className="relative p-0.5 rounded-2xl bg-gradient-to-r from-primary via-secondary to-accent mb-6 shadow-md">
+                    <div className="alert alert-info bg-base-100 text-base-content rounded-[14px] flex items-center justify-between py-3 px-5 border-none">
+                      <div className="flex items-center gap-3">
+                        <span className="loading loading-spinner loading-sm text-primary"></span>
+                        <div>
+                          <div className="font-bold text-xs text-primary uppercase tracking-wider">Live Fleet Pipeline Streaming</div>
+                          <div className="text-xs text-base-content/80">{streamStatus || 'Progressive sections arriving in real time...'}</div>
+                        </div>
                       </div>
-                      <div className="text-sm md:text-base text-base-content/90 mt-1">
-                        {report.timeline.narrative_evolution_summary}
-                      </div>
+                      <span className="badge badge-sm badge-ghost font-mono uppercase text-[10px] tracking-wider">
+                        SSE Active
+                      </span>
                     </div>
                   </div>
                 )}
 
-                {/* DaisyUI Timeline */}
-                <ul className="timeline timeline-snap-icon max-md:timeline-compact timeline-vertical mt-6">
-                  {report.timeline?.events?.map((ev, idx) => {
-                    const isEven = idx % 2 === 0;
+                {/* TAB 1: EXECUTIVE BRIEF & PRIMER */}
+                {activeTab === 'brief' && (
+                  <div className="flex flex-col gap-6">
 
-                    return (
-                      <li key={idx}>
-                        {idx > 0 && <hr className="bg-primary/40" />}
-                        <div className={`timeline-${isEven ? 'start md:text-end' : 'end'} mb-8`}>
-                          <div className="badge badge-info badge-outline badge-sm gap-1 font-mono font-bold mb-1">
-                            <Calendar size={12} />
-                            <span>{ev.timestamp_or_date}</span>
+                    {/* Executive Summary Card */}
+                    <div className="card bg-base-200 border border-base-300 shadow-xl">
+                      <div className="card-body p-6 md:p-8">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-base-300">
+                          <div className="card-title text-xl md:text-2xl font-black text-base-content flex items-center gap-3">
+                            <FileText size={24} className="text-primary" />
+                            <span>Executive Intelligence Brief: {report.topic}</span>
                           </div>
-                          <div className="font-bold text-base md:text-lg text-base-content mt-1">
-                            {ev.headline}
-                          </div>
-                          <div className="text-sm text-base-content/80 mt-1 leading-relaxed">
-                            {ev.description}
-                          </div>
-                          <div className="flex flex-wrap items-center gap-2 mt-2">
-                            {ev.source_url ? (
-                              <a
-                                href={ev.source_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="link link-primary text-xs flex items-center gap-1 font-semibold"
+                          <div className="flex flex-wrap items-center gap-2 self-start md:self-auto flex-shrink-0">
+                            {(report.id || report.analysis_id) && (
+                              <button
+                                onClick={async () => {
+                                  const targetId = report.id || report.analysis_id;
+                                  if (!targetId) return;
+                                  const nextFav = !report.is_favorite;
+                                  setReport({ ...report, is_favorite: nextFav });
+                                  try {
+                                    await updateAnalysis(targetId, { is_favorite: nextFav });
+                                    showToast(nextFav ? 'Saved to favorites!' : 'Removed from favorites');
+                                  } catch (e) {
+                                    console.error(e);
+                                  }
+                                }}
+                                className={`btn btn-sm ${
+                                  report.is_favorite ? 'btn-warning text-warning-content' : 'btn-outline border-base-300'
+                                } gap-1.5`}
+                                title={report.is_favorite ? 'Remove from favorites' : 'Mark as favorite'}
                               >
-                                <span>Outlet: {ev.source_outlet}</span>
-                                <ExternalLink size={12} />
-                              </a>
-                            ) : (
-                              <span className="text-xs text-base-content/60">Outlet: {ev.source_outlet}</span>
+                                <span>{report.is_favorite ? '★' : '☆'}</span>
+                                <span className="text-xs">{report.is_favorite ? 'Favorited' : 'Favorite'}</span>
+                              </button>
                             )}
-                            {ev.narrative_shift && (
-                              <div className="w-full mt-1.5 p-2 rounded-lg bg-secondary/10 border border-secondary/30 text-xs text-secondary-content leading-relaxed font-medium">
-                                <span className="font-bold uppercase tracking-wider text-[10px] text-secondary block mb-0.5">Narrative Shift</span>
-                                {ev.narrative_shift}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="timeline-middle">
-                          <div className="bg-primary text-primary-content p-1.5 rounded-full shadow-md">
-                            <Clock size={16} />
-                          </div>
-                        </div>
-                        {idx < (report.timeline?.events?.length || 0) - 1 && <hr className="bg-primary/40" />}
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 4: DEEP INSIGHTS & SCENARIOS */}
-          {activeTab === 'insights' && (
-            <div className="flex flex-col gap-6">
-              {/* Header with Regenerate Button */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-base-300">
-                <div className="text-xl md:text-2xl font-black text-base-content flex items-center gap-3">
-                  <TrendingUp size={24} className="text-primary" />
-                  <span>Causal Diagnostics & Forward Scenarios (F15, F34, F35)</span>
-                </div>
-                <button
-                  className="btn btn-sm btn-outline btn-neutral gap-2 self-start sm:self-auto"
-                  onClick={handleLoadScenarios}
-                  disabled={scenariosLoading}
-                >
-                  <RefreshCw size={14} className={scenariosLoading ? 'animate-spin' : ''} />
-                  <span>{scenariosData ? 'Regenerate Scenarios' : 'Run Scenario Fleet'}</span>
-                </button>
-              </div>
-
-              {scenariosLoading ? (
-                <div className="card bg-base-200 border border-base-300 shadow-xl p-12 text-center">
-                  <span className="loading loading-spinner loading-lg text-primary mx-auto mb-4"></span>
-                  <h3 className="text-lg font-bold">Simulating Causal Diagnostics & Forward Scenarios</h3>
-                  <p className="text-sm text-base-content/70 mt-1 max-w-md mx-auto">
-                    Synthesizing 3-tier consequence cascades, root-cause 5-Whys, and forward probabilistic trajectories on demand...
-                  </p>
-                </div>
-              ) : (
-                (() => {
-                  const rootCause = scenariosData?.root_cause_analysis || report.root_cause_analysis;
-                  const consequences = scenariosData?.consequences_tree || report.consequences_tree;
-                  const scenarios = scenariosData?.future_scenarios || report.future_scenarios;
-
-                  return (
-                    <>
-                      {/* Root Cause & Consequences */}
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {/* Root Causes */}
-                        <div className="card bg-base-200 border border-base-300 shadow-xl">
-                          <div className="card-body p-6">
-                            <div className="card-title text-xl font-black text-base-content flex items-center gap-2 pb-2 border-b border-base-300">
-                              <Brain size={22} className="text-error" />
-                              <span>Root Cause Diagnostics (F34)</span>
-                            </div>
-
-                            <div className="mt-4">
-                              <div className="text-xs font-bold uppercase tracking-wider text-error mb-2">
-                                Immediate Triggers
-                              </div>
-                              <div className="flex flex-col gap-2">
-                                {rootCause?.immediate_triggers?.map((trig: string, idx: number) => (
-                                  <div key={idx} className="card bg-base-100 border border-base-300 p-3 text-sm text-base-content">
-                                    • {trig}
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-
-                            <div className="mt-4">
-                              <div className="text-xs font-bold uppercase tracking-wider text-error mb-2">
-                                Structural Failure Points
-                              </div>
-                              <div className="flex flex-col gap-2">
-                                {rootCause?.structural_failure_points?.map((sf: string, idx: number) => (
-                                  <div key={idx} className="card bg-base-100 border border-base-300 p-3 text-sm text-base-content">
-                                    • {sf}
-                                  </div>
-                                ))}
-                              </div>
+                            <div className="badge badge-outline badge-primary font-medium py-3 px-3 whitespace-nowrap text-xs">
+                              Audited across {report.articles_analyzed?.length || report.sources_analyzed?.length || 6} major outlets
                             </div>
                           </div>
                         </div>
 
-                        {/* Consequences Tree */}
-                        <div className="card bg-base-200 border border-base-300 shadow-xl">
-                          <div className="card-body p-6">
-                            <div className="card-title text-xl font-black text-base-content flex items-center gap-2 pb-2 border-b border-base-300">
-                              <TrendingUp size={22} className="text-info" />
-                              <span>3-Tier Consequences Tree (F35)</span>
-                            </div>
+                        <p className="text-base md:text-lg leading-relaxed text-base-content/90 mt-4 font-normal">
+                          {report.executive_summary}
+                        </p>
 
-                            <div className="flex flex-col gap-3 mt-4">
-                              {consequences?.map((cq: any, idx: number) => (
-                                <div
-                                  key={idx}
-                                  className="card bg-base-100 border-l-4 border-info border-y border-r border-base-300 p-4 shadow-sm"
-                                >
-                                  <div className="text-xs font-bold text-info uppercase tracking-wider">
-                                    {cq.order.replace('_', ' ')}: {cq.affected_sector_or_group}
+                        {/* DaisyUI Stats Component for Key Numbers (F19) */}
+                        {report.key_metrics_and_numbers && report.key_metrics_and_numbers.length > 0 && (
+                          <div className="mt-8">
+                            <div className="text-xs font-bold uppercase tracking-wider text-primary mb-3 flex items-center gap-2">
+                              <BarChart3 size={16} />
+                              <span>Key Numbers & Statistical Baseline (F19)</span>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                              {report.key_metrics_and_numbers.map((metric, idx) => (
+                                <div key={idx} className="stat bg-base-100 rounded-xl border border-base-300 shadow-sm p-4">
+                                  <div className="stat-figure text-primary">
+                                    <BarChart3 size={20} />
                                   </div>
-                                  <div className="text-sm font-medium text-base-content mt-1 leading-snug">
-                                    {cq.impact_description}
+                                  <div className="stat-title text-[11px] font-bold uppercase opacity-70">Metric #{idx + 1}</div>
+                                  <div className="stat-value text-sm md:text-base font-bold text-base-content whitespace-normal leading-snug mt-1">
+                                    {metric}
                                   </div>
                                 </div>
                               ))}
                             </div>
                           </div>
-                        </div>
+                        )}
                       </div>
+                    </div>
 
-                      {/* Forward Scenarios */}
+                    {/* WHO / WHERE / WHAT PRIMER & JARGON BUSTER WITH ACCORDIONS */}
+                    {report.context_primer && (
                       <div className="card bg-base-200 border border-base-300 shadow-xl">
                         <div className="card-body p-6 md:p-8">
-                          <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-2 border-b border-base-300">
-                            <Sparkles size={24} className="text-secondary" />
-                            <span>Forward-Looking Scenarios & Signals to Watch (F15)</span>
+                          <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-3 border-b border-base-300">
+                            <HelpCircle size={24} className="text-secondary" />
+                            <span>Who / Where / What Primer & Jargon Buster (F1, F27)</span>
                           </div>
 
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-4">
-                            {scenarios?.map((sc: any, idx: number) => (
-                              <div key={idx} className="card bg-base-100 border border-base-300 shadow-md p-6 flex flex-col justify-between">
-                                <div>
-                                  <div className="flex items-center justify-between gap-2 mb-3">
-                                    <span className="font-bold text-base md:text-lg text-base-content">{sc.scenario_title}</span>
-                                    <span className="badge badge-secondary badge-sm font-bold">{sc.probability_rating}</span>
-                                  </div>
-                                  <p className="text-sm text-base-content/80 leading-relaxed mb-4">
-                                    {sc.potential_impact}
-                                  </p>
-                                </div>
-                                {sc.signals_to_watch && sc.signals_to_watch.length > 0 && (
-                                  <div className="text-xs text-base-content/70 border-t border-base-200 pt-3">
-                                    <strong className="text-primary block mb-1">Signals to Watch:</strong>
-                                    <ul className="list-disc list-inside space-y-1">
-                                      {sc.signals_to_watch.map((sig: string, sidx: number) => (
-                                        <li key={sidx}>{sig}</li>
-                                      ))}
-                                    </ul>
-                                  </div>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  );
-                })()
-              )}
-            </div>
-          )}
-
-          {/* TAB 5: ACTIVE RECALL TUTOR (DaisyUI Radio Buttons & Alerts) */}
-          {activeTab === 'quiz' && (
-            <div className="card bg-base-200 border border-base-300 shadow-xl">
-              <div className="card-body p-6 md:p-8">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-base-300">
-                  <div className="card-title text-xl font-black text-base-content flex items-center gap-3">
-                    <BookOpen size={24} className="text-success" />
-                    <span>Active Recall & News Literacy Tutor (F20)</span>
-                  </div>
-                  <button
-                    className="btn btn-sm btn-outline btn-neutral gap-2 self-start sm:self-auto"
-                    onClick={handleLoadQuiz}
-                    disabled={quizLoading}
-                  >
-                    <RefreshCw size={14} className={quizLoading ? 'animate-spin' : ''} />
-                    <span>Regenerate Quiz</span>
-                  </button>
-                </div>
-
-                {quizLoading ? (
-                  <div className="py-16 text-center text-base-content/70">
-                    <span className="loading loading-spinner loading-lg text-primary mb-3"></span>
-                    <div className="text-base font-semibold">Generating pedagogical comprehension questions...</div>
-                  </div>
-                ) : quiz ? (
-                  <div className="mt-6 flex flex-col gap-6">
-                    {quiz.questions?.map((q) => {
-                      const selected = userAnswers[q.question_id];
-                      const graded = quizResult?.feedback?.find((f: any) => f.question_id === q.question_id);
-
-                      return (
-                        <div key={q.question_id} className="card bg-base-100 border border-base-300 shadow-sm p-6">
-                          <div className="font-bold text-base md:text-lg text-base-content mb-4 flex items-center gap-2">
-                            <span className="badge badge-primary font-bold">#{q.question_id}</span>
-                            <span>{q.question}</span>
-                          </div>
-
-                          {/* DaisyUI Radio Button Options */}
-                          <div className="flex flex-col gap-2.5">
-                            {q.options.map((opt, optIdx) => {
-                              const isSelected = selected === optIdx;
-                              let labelBorder = 'border-base-300 hover:border-primary hover:bg-base-200/50';
-
-                              if (isSelected) {
-                                labelBorder = 'border-primary bg-primary/10 shadow-sm';
-                              }
-
-                              if (graded) {
-                                if (optIdx === q.correct_option_index) {
-                                  labelBorder = 'border-success bg-success/15';
-                                } else if (isSelected && !graded.correct) {
-                                  labelBorder = 'border-error bg-error/15';
-                                }
-                              }
-
-                              return (
-                                <label
-                                  key={optIdx}
-                                  className={`label cursor-pointer justify-start gap-4 p-4 rounded-xl border transition-all ${labelBorder}`}
-                                  onClick={() => {
-                                    if (!quizResult) {
-                                      setUserAnswers((prev) => ({ ...prev, [q.question_id]: optIdx }));
-                                    }
-                                  }}
-                                >
-                                  <input
-                                    type="radio"
-                                    name={`quiz-radio-${q.question_id}`}
-                                    className="radio radio-primary radio-md"
-                                    checked={isSelected}
-                                    onChange={() => {
-                                      if (!quizResult) {
-                                        setUserAnswers((prev) => ({ ...prev, [q.question_id]: optIdx }));
-                                      }
-                                    }}
-                                    disabled={!!quizResult}
-                                  />
-                                  <span className="badge badge-neutral font-bold text-xs">
-                                    {String.fromCharCode(65 + optIdx)}
-                                  </span>
-                                  <span className="text-sm md:text-base text-base-content flex-1 font-medium">
-                                    {opt}
-                                  </span>
-                                  {graded && optIdx === q.correct_option_index && (
-                                    <CheckCircle2 size={20} className="text-success flex-shrink-0" />
-                                  )}
-                                  {graded && isSelected && !graded.correct && (
-                                    <AlertTriangle size={20} className="text-error flex-shrink-0" />
-                                  )}
-                                </label>
-                              );
-                            })}
-                          </div>
-
-                          {graded && (
-                            <div className={`alert ${graded.correct ? 'alert-success' : 'alert-error'} mt-4 rounded-xl text-sm`}>
-                              {graded.correct ? <CheckCircle2 size={18} /> : <AlertTriangle size={18} />}
+                          {/* Origins & Historical Backdrop */}
+                          {report.context_primer.background_story && (
+                            <div className="alert alert-info bg-info/10 text-info-content border border-info/30 rounded-xl mt-4 shadow-sm">
+                              <Building2 size={22} className="flex-shrink-0 text-info" />
                               <div>
-                                <span className="font-bold">{graded.correct ? 'Correct! ' : 'Incorrect. '}</span>
-                                <span>{graded.explanation}</span>
+                                <div className="font-bold text-xs uppercase text-info tracking-wider">
+                                  Origins & Historical Backdrop
+                                </div>
+                                <div className="text-sm md:text-base text-base-content/90 mt-1 leading-relaxed">
+                                  {report.context_primer.background_story}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* DaisyUI Accordions for Key Entities */}
+                          {report.context_primer.primer_items && report.context_primer.primer_items.length > 0 && (
+                            <div className="mt-6">
+                              <div className="text-xs font-bold uppercase tracking-wider text-secondary mb-3">
+                                Key Entities & Core Stakeholders
+                              </div>
+                              <div className="flex flex-col gap-2">
+                                {report.context_primer.primer_items.map((item, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl shadow-sm"
+                                  >
+                                    <input type="checkbox" defaultChecked={idx === 0} />
+                                    <div className="collapse-title text-base font-bold text-base-content flex items-center justify-between pr-10">
+                                      <div className="flex items-center gap-3">
+                                        <span className={`badge ${
+                                          item.entity_type === 'ORGANIZATION'
+                                            ? 'badge-primary'
+                                            : item.entity_type === 'CONCEPT'
+                                            ? 'badge-secondary'
+                                            : item.entity_type === 'LOCATION'
+                                            ? 'badge-accent'
+                                            : 'badge-neutral'
+                                        } badge-sm font-bold uppercase`}>
+                                          {item.entity_type}
+                                        </span>
+                                        <span>{item.entity_name}</span>
+                                      </div>
+                                    </div>
+                                    <div className="collapse-content text-sm text-base-content/85 leading-relaxed pt-1">
+                                      <p>{item.explainer_2_lines}</p>
+                                      {item.historical_context && (
+                                        <div className="text-xs text-base-content/65 border-t border-base-200 pt-2 mt-3 italic">
+                                          <strong>Historical Context:</strong> {item.historical_context}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* DaisyUI Accordions for Jargon Buster */}
+                          {report.context_primer.jargon_definitions && Object.keys(report.context_primer.jargon_definitions).length > 0 && (
+                            <div className="mt-6">
+                              <div className="text-xs font-bold uppercase tracking-wider text-accent mb-3 flex items-center gap-2">
+                                <BookOpen size={16} />
+                                <span>Jargon Buster (Expand to Read Plain-Language Legal & Policy Terms)</span>
+                              </div>
+                              <div className="flex flex-col gap-2">
+                                {Object.entries(report.context_primer.jargon_definitions).map(([term, def], idx) => (
+                                  <div
+                                    key={idx}
+                                    className="collapse collapse-plus bg-base-100 border border-base-300 rounded-xl shadow-sm"
+                                  >
+                                    <input type="checkbox" defaultChecked={idx === 0} />
+                                    <div className="collapse-title text-sm md:text-base font-bold text-accent">
+                                      {term}
+                                    </div>
+                                    <div className="collapse-content text-xs md:text-sm text-base-content/85 leading-relaxed pt-1">
+                                      <p>{def}</p>
+                                    </div>
+                                  </div>
+                                ))}
                               </div>
                             </div>
                           )}
                         </div>
-                      );
-                    })}
+                      </div>
+                    )}
 
-                    {/* Quiz Grading Result Action */}
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 pt-4 border-t border-base-300">
-                      {quizResult ? (
-                        <div className="stat bg-primary text-primary-content rounded-2xl p-4 w-full shadow-md">
-                          <div className="stat-title text-primary-content/80 font-bold uppercase text-xs">Quiz Score</div>
-                          <div className="stat-value text-2xl md:text-3xl font-black">
-                            {quizResult.score_percentage}%
-                          </div>
-                          <div className="stat-desc text-primary-content/90 font-medium">
-                            {quizResult.correct_count} of {quizResult.total_questions} questions correct
-                          </div>
+                    {/* Consensus Points */}
+                    <div className="card bg-base-200 border border-base-300 shadow-xl">
+                      <div className="card-body p-6 md:p-8">
+                        <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-3 border-b border-base-300">
+                          <CheckCircle2 size={24} className="text-success" />
+                          <span>High-Confidence Consensus Points Across Reporting</span>
                         </div>
-                      ) : (
-                        <button
-                          className="btn btn-primary btn-block sm:btn-wide shadow-md font-bold text-base"
-                          onClick={handleGradeQuiz}
-                          disabled={Object.keys(userAnswers).length === 0}
-                        >
-                          Submit & Grade Answers
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ) : null}
-              </div>
-            </div>
-          )}
-
-          {/* TAB 6: PERSPECTIVE DEBATE */}
-          {activeTab === 'debate' && (
-            <div className="card bg-base-200 border border-base-300 shadow-xl">
-              <div className="card-body p-6 md:p-8">
-                <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-2 border-b border-base-300">
-                  <Scale size={24} className="text-warning" />
-                  <span>Dialectical Perspective Debate Simulator (F38)</span>
-                </div>
-
-                {debateLoading ? (
-                  <div className="py-16 text-center text-base-content/70">
-                    <span className="loading loading-spinner loading-lg text-primary mb-3"></span>
-                    <div className="text-base font-semibold">Synthesizing steelmanned opposing viewpoints...</div>
-                  </div>
-                ) : debate ? (
-                  <div className="mt-4">
-                    {/* Resolution Banner */}
-                    <div className="alert alert-warning bg-warning/10 text-warning-content border border-warning/30 shadow-sm rounded-xl mb-6">
-                      <Scale size={22} className="text-warning flex-shrink-0" />
-                      <div>
-                        <div className="font-bold text-xs uppercase tracking-wider text-warning">Resolution Under Debate</div>
-                        <div className="text-base font-semibold mt-0.5">{debate.resolution_under_debate}</div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                          {report.consensus_points?.map((pt, idx) => (
+                            <div key={idx} className="card bg-base-100 border border-success/30 shadow-sm p-4 flex flex-row items-start gap-3">
+                              <CheckCircle2 size={20} className="text-success flex-shrink-0 mt-0.5" />
+                              <div className="text-sm md:text-base text-base-content leading-relaxed">{pt}</div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
 
-                    {/* DaisyUI Chat turns for debate */}
-                    <div className="flex flex-col gap-4 mb-6">
-                      {debate.debate_turns?.map((turn, idx) => {
-                        const isPro = turn.speaker_perspective.includes('PROPONENT');
-
-                        return (
-                          <div
-                            key={idx}
-                            className={`card bg-base-100 border-l-4 ${isPro ? 'border-primary' : 'border-warning'} border-y border-r border-base-300 p-5 shadow-sm`}
-                          >
-                            <div className={`font-bold text-xs uppercase tracking-wider mb-2 ${isPro ? 'text-primary' : 'text-warning'}`}>
-                              {turn.speaker_perspective}
-                            </div>
-                            <div className="text-sm md:text-base text-base-content leading-relaxed">
-                              {turn.core_argument}
-                            </div>
-                            {turn.grounding_citations?.length > 0 && (
-                              <div className="text-xs text-base-content/60 mt-3 pt-2 border-t border-base-200">
-                                <strong className="text-base-content/80">Grounding Evidence:</strong> {turn.grounding_citations.join(' • ')}
-                              </div>
-                            )}
+                    {/* Analyzed Media Articles & Primary Source Filings with DaisyUI Carousel */}
+                    <div className="card bg-base-200 border border-base-300 shadow-xl">
+                      <div className="card-body p-6 md:p-8">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 pb-3 border-b border-base-300">
+                          <div className="card-title text-xl font-black text-base-content flex items-center gap-3">
+                            <Layers size={24} className="text-primary" />
+                            <span>
+                              Analyzed Media Articles & Wire Dispatches ({report.articles_analyzed?.length || report.sources_analyzed?.length || 0})
+                            </span>
                           </div>
-                        );
-                      })}
-                    </div>
+                          <span className="text-xs text-base-content/60">
+                            Scroll horizontally or click to read publication
+                          </span>
+                        </div>
 
-                    {/* Compromise Synthesis */}
-                    <div className="card bg-base-100 border border-info/40 shadow-md p-6 rounded-2xl">
-                      <div className="font-bold text-base md:text-lg text-info mb-2 flex items-center gap-2">
-                        <Sparkles size={18} />
-                        <span>Neutral Compromise Synthesis & Policy Bridge</span>
-                      </div>
-                      <p className="text-sm md:text-base text-base-content/90 leading-relaxed">
-                        {debate.neutral_compromise_synthesis}
-                      </p>
-                    </div>
-                  </div>
-                ) : null}
-              </div>
-            </div>
-          )}
-
-          {/* TAB 7: LIVELY RESEARCH COPILOT (DaisyUI Chat Components) */}
-          {activeTab === 'copilot' && (
-            <div className="card bg-base-200 border border-base-300 shadow-xl h-[700px] flex flex-col">
-              {/* Copilot Header */}
-              <div className="p-4 md:p-6 border-b border-base-300 flex items-center justify-between bg-base-200/50">
-                <div className="flex items-center gap-3">
-                  <div className="btn btn-ghost btn-circle bg-primary text-primary-content shadow">
-                    <Bot size={22} />
-                  </div>
-                  <div>
-                    <div className="font-bold text-base md:text-lg text-base-content flex items-center gap-2">
-                      <span>Research Copilot</span>
-                      <span className="badge badge-primary badge-outline text-xs">Autonomous Mode</span>
-                    </div>
-                    <div className="text-xs text-base-content/60">
-                      Context: {report.topic}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="badge badge-success badge-sm gap-1.5 py-2.5 font-medium shadow-sm">
-                    <span className="w-2 h-2 rounded-full bg-success-content animate-pulse"></span>
-                    <span>Online • Gemini 3.1 Pro</span>
-                  </div>
-                  <button
-                    onClick={handleClearChat}
-                    className="btn btn-sm btn-ghost btn-outline border-base-300 gap-1.5"
-                    title="Clear Chat History"
-                  >
-                    <Trash2 size={14} />
-                    <span className="hidden sm:inline">Clear</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Chat Message History */}
-              <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
-                {chatMessages.map((msg, idx) => (
-                  <div
-                    key={idx}
-                    className={`chat ${msg.sender === 'user' ? 'chat-end' : 'chat-start'}`}
-                  >
-                    <div className="chat-image avatar">
-                      <div className={`w-9 h-9 rounded-full flex items-center justify-center shadow ${
-                        msg.sender === 'user' ? 'bg-neutral text-neutral-content' : 'bg-primary text-primary-content'
-                      }`}>
-                        {msg.sender === 'user' ? <User size={18} /> : <Bot size={18} />}
-                      </div>
-                    </div>
-                    <div className="chat-header text-xs opacity-60 mb-1 font-medium">
-                      {msg.sender === 'user' ? 'You' : 'Research Copilot'}
-                      <time className="text-[11px] ml-1.5 opacity-60">{msg.time}</time>
-                    </div>
-                    <div className={`chat-bubble text-sm md:text-base leading-relaxed ${
-                      msg.sender === 'user' ? 'chat-bubble-primary text-primary-content' : 'chat-bubble-neutral text-neutral-content'
-                    } shadow-md`}>
-                      {msg.text}
-                    </div>
-                  </div>
-                ))}
-
-                {chatLoading && (
-                  <div className="chat chat-start">
-                    <div className="chat-image avatar">
-                      <div className="w-9 h-9 rounded-full bg-primary text-primary-content flex items-center justify-center shadow">
-                        <Bot size={18} />
+                        {/* DaisyUI Carousel for Sources */}
+                        <div className="carousel carousel-start max-w-full p-2 space-x-4 bg-base-300/30 rounded-2xl mt-4">
+                          {report.articles_analyzed && report.articles_analyzed.length > 0 ? (
+                            report.articles_analyzed.map((art, idx) => (
+                              <div key={idx} className="carousel-item w-80 md:w-96">
+                                <div className="card bg-base-100 border border-base-300 shadow-md hover:border-primary transition-all p-5 flex flex-col justify-between w-full">
+                                  <div>
+                                    <div className="flex items-center justify-between gap-2 mb-2">
+                                      <span className="badge badge-primary badge-outline font-bold text-xs">
+                                        {art.outlet}
+                                      </span>
+                                      {art.published_date && (
+                                        <span className="badge badge-ghost badge-sm gap-1 text-[11px] opacity-70">
+                                          <Calendar size={11} />
+                                          <span>{art.published_date}</span>
+                                        </span>
+                                      )}
+                                    </div>
+                                    <a
+                                      href={art.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="font-bold text-sm md:text-base text-base-content hover:text-primary transition-colors line-clamp-3 leading-snug mt-1"
+                                    >
+                                      {art.title}
+                                    </a>
+                                    {art.author && (
+                                      <div className="text-xs text-base-content/60 mt-2">
+                                        By {art.author}
+                                      </div>
+                                    )}
+                                  </div>
+                                  <a
+                                    href={art.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="btn btn-sm btn-outline btn-primary w-full gap-2 mt-4"
+                                  >
+                                    <span>Read Article</span>
+                                    <ExternalLink size={14} />
+                                  </a>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            report.sources_analyzed?.map((src, idx) => (
+                              <div key={idx} className="carousel-item w-72">
+                                <div className="card bg-base-100 border border-base-300 shadow-md p-5 flex flex-col justify-between w-full">
+                                  <div>
+                                    <span className="badge badge-primary badge-outline font-bold text-xs">{src}</span>
+                                    <div className="font-bold text-sm text-base-content mt-2">
+                                      Official Wire Dispatch: {src}
+                                    </div>
+                                  </div>
+                                  <a
+                                    href={`https://news.google.com/search?q=${encodeURIComponent(report.topic + ' ' + src)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="btn btn-sm btn-outline btn-primary w-full gap-2 mt-4"
+                                  >
+                                    <span>Search Dispatches</span>
+                                    <ExternalLink size={14} />
+                                  </a>
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </div>
                       </div>
                     </div>
-                    <div className="chat-bubble chat-bubble-neutral flex items-center gap-2">
-                      <span className="text-sm">Investigating sources...</span>
-                      <span className="loading loading-dots loading-sm text-primary"></span>
+
+                    {/* DaisyUI Collapse for Raw Model Trace Log */}
+                    {report.raw_markdown && (
+                      <div className="collapse collapse-arrow bg-base-200 border border-base-300 shadow-md rounded-2xl">
+                        <input type="checkbox" />
+                        <div className="collapse-title font-medium flex items-center gap-2 text-sm text-base-content/70">
+                          <Sparkles size={16} className="text-primary" />
+                          <span>Inspect Raw Multi-Agent Execution Log & Gemini Output (Technical Trace)</span>
+                        </div>
+                        <div className="collapse-content">
+                          <pre className="bg-base-300/60 p-4 rounded-xl text-xs overflow-x-auto text-base-content/80 font-mono leading-relaxed max-h-96">
+                            {report.raw_markdown}
+                          </pre>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* TAB 2: VERIFICATION & BIAS */}
+                {activeTab === 'verification' && (
+                  <div className="flex flex-col gap-6">
+
+                    {/* Fact Verifications with DaisyUI Radial Progress (F6) */}
+                    <div className="card bg-base-200 border border-base-300 shadow-xl">
+                      <div className="card-body p-6 md:p-8">
+                        <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-3 border-b border-base-300">
+                          <ShieldCheck size={24} className="text-success" />
+                          <span>IFCN Forensic Claim Verification Audit (F6)</span>
+                        </div>
+
+                        <div className="flex flex-col gap-4 mt-4">
+                          {report.verifications?.map((v) => {
+                            const confPercent = Math.round(v.confidence * 100);
+
+                            return (
+                              <div key={v.claim_id} className="card bg-base-100 border border-base-300 shadow-sm p-6 hover:border-primary/50 transition-all">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                                  <div className="flex items-center gap-2">
+                                    <span className="badge badge-neutral font-bold text-xs">
+                                      Claim #{v.claim_id}
+                                    </span>
+                                    <span className={`badge ${
+                                      v.status === 'VERIFIED'
+                                        ? 'badge-success text-success-content'
+                                        : v.status === 'DISPUTED'
+                                        ? 'badge-warning text-warning-content'
+                                        : 'badge-error text-error-content'
+                                    } font-bold text-xs py-2 px-3`}>
+                                      {v.status}
+                                    </span>
+                                  </div>
+
+                                  {/* Radial Progress for Confidence Score */}
+                                  <div className="flex items-center gap-3 self-end sm:self-auto">
+                                    <div className="text-right">
+                                      <div className="text-[10px] uppercase font-bold text-base-content/60">Audit Confidence</div>
+                                      <div className="text-xs font-bold">{confPercent}% Confirmed</div>
+                                    </div>
+                                    <div
+                                      className={`radial-progress ${
+                                        confPercent >= 80 ? 'text-success' : confPercent >= 50 ? 'text-warning' : 'text-error'
+                                      } font-bold text-xs`}
+                                      style={{ '--value': confPercent, '--size': '2.75rem', '--thickness': '3px' } as React.CSSProperties}
+                                      role="progressbar"
+                                    >
+                                      {confPercent}%
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="text-base md:text-lg font-bold text-base-content leading-snug">
+                                  "{v.claim_text}"
+                                </div>
+
+                                <p className="text-sm text-base-content/80 mt-2 leading-relaxed">
+                                  {v.reasoning}
+                                </p>
+
+                                <div className="text-xs text-base-content/60 mt-3 pt-3 border-t border-base-200 flex flex-wrap gap-2">
+                                  <span className="font-bold text-base-content/80">Corroborating:</span>
+                                  <span>{v.corroborating_sources?.join(', ') || 'Primary Records & Court Filings'}</span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Cross-Source Contradictions with DaisyUI Table (F7) */}
+                    <div className="card bg-base-200 border border-base-300 shadow-xl">
+                      <div className="card-body p-6 md:p-8">
+                        <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-3 border-b border-base-300">
+                          <AlertTriangle size={24} className="text-warning" />
+                          <span>Cross-Source Contradictions & Side-by-Side Divergence (F7)</span>
+                        </div>
+
+                        {report.contradictions && report.contradictions.length > 0 && (
+                          <div className="overflow-x-auto rounded-xl border border-base-300 bg-base-100 mt-4 mb-6 shadow-sm">
+                            <table className="table table-zebra table-sm">
+                              <thead>
+                                <tr className="bg-base-200 text-base-content font-bold">
+                                  <th>Topic Aspect</th>
+                                  <th>Divergence Type</th>
+                                  <th>Outlet A</th>
+                                  <th>Outlet B</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {report.contradictions.map((c) => (
+                                  <tr key={c.contradiction_id}>
+                                    <td className="font-bold text-primary">{c.topic_aspect}</td>
+                                    <td><span className="badge badge-warning badge-xs font-semibold">{c.divergence_type}</span></td>
+                                    <td className="text-xs font-medium">{c.outlet_a}</td>
+                                    <td className="text-xs font-medium">{c.outlet_b}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+
+                        <div className="flex flex-col gap-4 mt-2">
+                          {report.contradictions?.map((c) => (
+                            <div key={c.contradiction_id} className="card bg-base-100 border border-warning/30 shadow-md p-6">
+                              <div className="flex items-center gap-2 text-warning font-bold text-sm mb-3">
+                                <AlertTriangle size={16} />
+                                <span>{c.topic_aspect} ({c.divergence_type})</span>
+                              </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div className="card bg-base-200 border-l-4 border-primary p-4 rounded-xl">
+                                  <div className="text-xs font-bold text-primary uppercase">{c.outlet_a}</div>
+                                  <div className="text-sm font-medium text-base-content mt-1">"{c.claim_a}"</div>
+                                </div>
+
+                                <div className="card bg-base-200 border-l-4 border-secondary p-4 rounded-xl">
+                                  <div className="text-xs font-bold text-secondary uppercase">{c.outlet_b}</div>
+                                  <div className="text-sm font-medium text-base-content mt-1">"{c.claim_b}"</div>
+                                </div>
+                              </div>
+
+                              <div className="alert alert-warning bg-warning/10 text-warning-content border border-warning/20 text-xs md:text-sm py-2 px-3 rounded-lg">
+                                <strong>Evidentiary Audit:</strong> {c.analysis}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Media Framing & Political Lean Spectrum (F8) */}
+                    <div className="card bg-base-200 border border-base-300 shadow-xl">
+                      <div className="card-body p-6 md:p-8">
+                        <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-3 border-b border-base-300">
+                          <Scale size={24} className="text-accent" />
+                          <span>Media Framing & Political Lean Spectrum (F8)</span>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                          {report.bias_evaluations?.map((b, idx) => (
+                            <div key={idx} className="card bg-base-100 border border-base-300 shadow-sm p-5 hover:border-accent transition-all">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="font-bold text-base text-base-content">{b.outlet}</span>
+                                <span className="badge badge-accent badge-outline text-xs font-bold">
+                                  {b.assessed_lean}
+                                </span>
+                              </div>
+                              <p className="text-sm text-base-content/80 mt-1 leading-relaxed">
+                                {b.framing_narrative}
+                              </p>
+                              {b.loaded_terms_identified?.length > 0 && (
+                                <div className="text-xs text-base-content/60 mt-3 pt-2 border-t border-base-200">
+                                  <span className="font-bold text-warning">Loaded Terms:</span>{' '}
+                                  {b.loaded_terms_identified.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
-              </div>
 
-              {/* Quick Prompt Suggestions */}
-              <div className="px-4 py-2 bg-base-300/40 border-t border-base-300 flex items-center gap-2 overflow-x-auto no-scrollbar">
-                <span className="text-xs font-bold text-base-content/60 uppercase whitespace-nowrap">
-                  Prompts:
-                </span>
-                {suggestedQuestions.map((qText, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    className="btn btn-xs btn-outline btn-neutral rounded-full whitespace-nowrap hover:btn-primary font-medium"
-                    onClick={() => handleSendMessage(undefined, qText)}
-                    disabled={chatLoading}
-                  >
-                    {qText}
-                  </button>
-                ))}
-              </div>
+                {/* TAB 3: TIMELINE (DaisyUI Timeline Component) */}
+                {activeTab === 'timeline' && (
+                  <div className="card bg-base-200 border border-base-300 shadow-xl">
+                    <div className="card-body p-6 md:p-8">
+                      <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-3 border-b border-base-300">
+                        <Clock size={24} className="text-primary" />
+                        <span>Chronological Event Timeline & Narrative Evolution (F2, F29)</span>
+                      </div>
 
-              {/* Chat Input */}
-              <form onSubmit={handleSendMessage} className="p-4 bg-base-200 border-t border-base-300">
-                <div className="join w-full shadow-md">
-                  <input
-                    type="text"
-                    className="input input-bordered join-item w-full focus:outline-none"
-                    placeholder="Ask a question or request an autonomous investigative deep-dive..."
-                    value={chatInput}
-                    onChange={(e) => setChatInput(e.target.value)}
-                    disabled={chatLoading}
-                  />
-                  <button
-                    type="submit"
-                    className="btn btn-primary join-item gap-2 px-6"
-                    disabled={chatLoading || !chatInput.trim()}
-                  >
-                    <span>Send</span>
-                    <Send size={16} />
-                  </button>
-                </div>
-              </form>
+                      {report.timeline?.narrative_evolution_summary && (
+                        <div className="alert alert-info bg-info/10 text-info-content border border-info/30 rounded-xl my-4">
+                          <Clock size={20} className="text-info flex-shrink-0" />
+                          <div>
+                            <div className="font-bold text-xs uppercase text-info tracking-wider">
+                              Narrative Shift Synthesis
+                            </div>
+                            <div className="text-sm md:text-base text-base-content/90 mt-1">
+                              {report.timeline.narrative_evolution_summary}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* DaisyUI Timeline Component */}
+                      <ul className="timeline timeline-snap-icon max-md:timeline-compact timeline-vertical mt-6">
+                        {report.timeline?.events?.map((ev, idx) => {
+                          const isEven = idx % 2 === 0;
+
+                          return (
+                            <li key={idx}>
+                              {idx > 0 && <hr className="bg-primary/40" />}
+                              <div className={`timeline-${isEven ? 'start md:text-end' : 'end'} mb-8`}>
+                                <div className="badge badge-info badge-outline badge-sm gap-1 font-mono font-bold mb-1">
+                                  <Calendar size={12} />
+                                  <span>{ev.timestamp_or_date}</span>
+                                </div>
+                                <div className="font-bold text-base md:text-lg text-base-content mt-1">
+                                  {ev.headline}
+                                </div>
+                                <div className="text-sm text-base-content/80 mt-1 leading-relaxed">
+                                  {ev.description}
+                                </div>
+                                <div className="flex flex-wrap items-center gap-2 mt-2">
+                                  {ev.source_url ? (
+                                    <a
+                                      href={ev.source_url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="link link-primary text-xs flex items-center gap-1 font-semibold"
+                                    >
+                                      <span>Outlet: {ev.source_outlet}</span>
+                                      <ExternalLink size={12} />
+                                    </a>
+                                  ) : (
+                                    <span className="text-xs text-base-content/60">Outlet: {ev.source_outlet}</span>
+                                  )}
+                                  {ev.narrative_shift && (
+                                    <div className="w-full mt-1.5 p-2 rounded-lg bg-secondary/10 border border-secondary/30 text-xs text-secondary-content leading-relaxed font-medium">
+                                      <span className="font-bold uppercase tracking-wider text-[10px] text-secondary block mb-0.5">Narrative Shift</span>
+                                      {ev.narrative_shift}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="timeline-middle">
+                                <div className="bg-primary text-primary-content p-1.5 rounded-full shadow-md">
+                                  <Clock size={16} />
+                                </div>
+                              </div>
+                              {idx < (report.timeline?.events?.length || 0) - 1 && <hr className="bg-primary/40" />}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+
+                {/* TAB 4: DEEP INSIGHTS & SCENARIOS */}
+                {activeTab === 'insights' && (
+                  <div className="flex flex-col gap-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-base-300">
+                      <div className="text-xl md:text-2xl font-black text-base-content flex items-center gap-3">
+                        <TrendingUp size={24} className="text-primary" />
+                        <span>Causal Diagnostics & Forward Scenarios (F15, F34, F35)</span>
+                      </div>
+                      <button
+                        className="btn btn-sm btn-outline btn-neutral gap-2 self-start sm:self-auto"
+                        onClick={handleLoadScenarios}
+                        disabled={scenariosLoading}
+                      >
+                        <RefreshCw size={14} className={scenariosLoading ? 'animate-spin' : ''} />
+                        <span>{scenariosData ? 'Regenerate Scenarios' : 'Run Scenario Fleet'}</span>
+                      </button>
+                    </div>
+
+                    {scenariosLoading ? (
+                      <div className="card bg-base-200 border border-base-300 shadow-xl p-12 text-center">
+                        <span className="loading loading-spinner loading-lg text-primary mx-auto mb-4"></span>
+                        <h3 className="text-lg font-bold">Simulating Causal Diagnostics & Forward Scenarios</h3>
+                        <p className="text-sm text-base-content/70 mt-1 max-w-md mx-auto mb-6">
+                          Synthesizing 3-tier consequence cascades, root-cause 5-Whys, and forward probabilistic trajectories on demand...
+                        </p>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto w-full">
+                          <div className="skeleton h-24 w-full rounded-xl"></div>
+                          <div className="skeleton h-24 w-full rounded-xl"></div>
+                          <div className="skeleton h-24 w-full rounded-xl"></div>
+                        </div>
+                      </div>
+                    ) : (
+                      (() => {
+                        const rootCause = scenariosData?.root_cause_analysis || report.root_cause_analysis;
+                        const consequences = scenariosData?.consequences_tree || report.consequences_tree;
+                        const scenarios = scenariosData?.future_scenarios || report.future_scenarios;
+
+                        return (
+                          <>
+                            {/* Root Cause & Consequences */}
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                              <div className="card bg-base-200 border border-base-300 shadow-xl">
+                                <div className="card-body p-6">
+                                  <div className="card-title text-xl font-black text-base-content flex items-center gap-2 pb-2 border-b border-base-300">
+                                    <Brain size={22} className="text-error" />
+                                    <span>Root Cause Diagnostics (F34)</span>
+                                  </div>
+
+                                  <div className="mt-4">
+                                    <div className="text-xs font-bold uppercase tracking-wider text-error mb-2">
+                                      Immediate Triggers
+                                    </div>
+                                    <div className="flex flex-col gap-2">
+                                      {rootCause?.immediate_triggers?.map((trig: string, idx: number) => (
+                                        <div key={idx} className="card bg-base-100 border border-base-300 p-3 text-sm text-base-content">
+                                          • {trig}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+
+                                  <div className="mt-4">
+                                    <div className="text-xs font-bold uppercase tracking-wider text-error mb-2">
+                                      Structural Failure Points
+                                    </div>
+                                    <div className="flex flex-col gap-2">
+                                      {rootCause?.structural_failure_points?.map((sf: string, idx: number) => (
+                                        <div key={idx} className="card bg-base-100 border border-base-300 p-3 text-sm text-base-content">
+                                          • {sf}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="card bg-base-200 border border-base-300 shadow-xl">
+                                <div className="card-body p-6">
+                                  <div className="card-title text-xl font-black text-base-content flex items-center gap-2 pb-2 border-b border-base-300">
+                                    <TrendingUp size={22} className="text-info" />
+                                    <span>3-Tier Consequences Tree (F35)</span>
+                                  </div>
+
+                                  <div className="flex flex-col gap-3 mt-4">
+                                    {consequences?.map((cq: any, idx: number) => (
+                                      <div
+                                        key={idx}
+                                        className="card bg-base-100 border-l-4 border-info border-y border-r border-base-300 p-4 shadow-sm"
+                                      >
+                                        <div className="text-xs font-bold text-info uppercase tracking-wider">
+                                          {cq.order?.replace('_', ' ')}: {cq.affected_sector_or_group}
+                                        </div>
+                                        <div className="text-sm font-medium text-base-content mt-1 leading-snug">
+                                          {cq.impact_description}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Forward Scenarios with DaisyUI Rating Component */}
+                            <div className="card bg-base-200 border border-base-300 shadow-xl">
+                              <div className="card-body p-6 md:p-8">
+                                <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-3 border-b border-base-300">
+                                  <Sparkles size={24} className="text-secondary" />
+                                  <span>Forward-Looking Scenarios & Probability Ratings (F15)</span>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-4">
+                                  {scenarios?.map((sc: any, idx: number) => (
+                                    <div key={idx} className="card bg-base-100 border border-base-300 shadow-md p-6 flex flex-col justify-between hover:border-secondary transition-all">
+                                      <div>
+                                        <div className="flex items-center justify-between gap-2 mb-2">
+                                          <span className="badge badge-secondary badge-sm font-bold">{sc.probability_rating}</span>
+                                          {renderProbabilityRating(sc.probability_rating)}
+                                        </div>
+                                        <div className="font-bold text-base md:text-lg text-base-content mt-1 mb-2">
+                                          {sc.scenario_title}
+                                        </div>
+                                        <p className="text-sm text-base-content/80 leading-relaxed mb-4">
+                                          {sc.potential_impact}
+                                        </p>
+                                      </div>
+                                      {sc.signals_to_watch && sc.signals_to_watch.length > 0 && (
+                                        <div className="text-xs text-base-content/70 border-t border-base-200 pt-3">
+                                          <strong className="text-primary block mb-1">Signals to Watch:</strong>
+                                          <ul className="list-disc list-inside space-y-1">
+                                            {sc.signals_to_watch.map((sig: string, sidx: number) => (
+                                              <li key={sidx}>{sig}</li>
+                                            ))}
+                                          </ul>
+                                        </div>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          </>
+                        );
+                      })()
+                    )}
+                  </div>
+                )}
+
+                {/* TAB 5: ACTIVE RECALL TUTOR (DaisyUI Radio, Label, Radial Progress) */}
+                {activeTab === 'quiz' && (
+                  <div className="card bg-base-200 border border-base-300 shadow-xl">
+                    <div className="card-body p-6 md:p-8">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-base-300">
+                        <div className="card-title text-xl font-black text-base-content flex items-center gap-3">
+                          <BookOpen size={24} className="text-success" />
+                          <span>Active Recall & News Literacy Tutor (F20)</span>
+                        </div>
+                        <button
+                          className="btn btn-sm btn-outline btn-neutral gap-2 self-start sm:self-auto"
+                          onClick={handleLoadQuiz}
+                          disabled={quizLoading}
+                        >
+                          <RefreshCw size={14} className={quizLoading ? 'animate-spin' : ''} />
+                          <span>Regenerate Quiz</span>
+                        </button>
+                      </div>
+
+                      {quizLoading ? (
+                        <div className="py-16 text-center text-base-content/70">
+                          <span className="loading loading-spinner loading-lg text-primary mb-3"></span>
+                          <div className="text-base font-semibold">Generating pedagogical comprehension questions...</div>
+                          <div className="flex flex-col gap-3 max-w-lg mx-auto mt-6">
+                            <div className="skeleton h-12 w-full"></div>
+                            <div className="skeleton h-12 w-full"></div>
+                          </div>
+                        </div>
+                      ) : quiz ? (
+                        <div className="mt-6 flex flex-col gap-6">
+                          {quiz.questions?.map((q) => {
+                            const selected = userAnswers[q.question_id];
+                            const graded = quizResult?.feedback?.find((f: any) => f.question_id === q.question_id);
+
+                            return (
+                              <div key={q.question_id} className="card bg-base-100 border border-base-300 shadow-sm p-6">
+                                <div className="font-bold text-base md:text-lg text-base-content mb-4 flex items-center gap-2">
+                                  <span className="badge badge-primary font-bold">#{q.question_id}</span>
+                                  <span>{q.question}</span>
+                                </div>
+
+                                {/* DaisyUI Radio & Label Controls */}
+                                <div className="flex flex-col gap-2.5">
+                                  {q.options.map((opt, optIdx) => {
+                                    const isSelected = selected === optIdx;
+                                    let labelBorder = 'border-base-300 hover:border-primary hover:bg-base-200/50';
+
+                                    if (isSelected) {
+                                      labelBorder = 'border-primary bg-primary/10 shadow-sm';
+                                    }
+
+                                    if (graded) {
+                                      if (optIdx === q.correct_option_index) {
+                                        labelBorder = 'border-success bg-success/15';
+                                      } else if (isSelected && !graded.correct) {
+                                        labelBorder = 'border-error bg-error/15';
+                                      }
+                                    }
+
+                                    return (
+                                      <label
+                                        key={optIdx}
+                                        className={`label cursor-pointer justify-start gap-4 p-4 rounded-xl border transition-all ${labelBorder}`}
+                                        onClick={() => {
+                                          if (!quizResult) {
+                                            setUserAnswers((prev) => ({ ...prev, [q.question_id]: optIdx }));
+                                          }
+                                        }}
+                                      >
+                                        <input
+                                          type="radio"
+                                          name={`quiz-radio-${q.question_id}`}
+                                          className="radio radio-primary radio-md"
+                                          checked={isSelected}
+                                          onChange={() => {
+                                            if (!quizResult) {
+                                              setUserAnswers((prev) => ({ ...prev, [q.question_id]: optIdx }));
+                                            }
+                                          }}
+                                          disabled={!!quizResult}
+                                        />
+                                        <span className="badge badge-neutral font-bold text-xs">
+                                          {String.fromCharCode(65 + optIdx)}
+                                        </span>
+                                        <span className="text-sm md:text-base text-base-content flex-1 font-medium">
+                                          {opt}
+                                        </span>
+                                        {graded && optIdx === q.correct_option_index && (
+                                          <CheckCircle2 size={20} className="text-success flex-shrink-0" />
+                                        )}
+                                        {graded && isSelected && !graded.correct && (
+                                          <AlertTriangle size={20} className="text-error flex-shrink-0" />
+                                        )}
+                                      </label>
+                                    );
+                                  })}
+                                </div>
+
+                                {graded && (
+                                  <div className={`alert ${graded.correct ? 'alert-success' : 'alert-error'} mt-4 rounded-xl text-sm`}>
+                                    {graded.correct ? <CheckCircle2 size={18} /> : <AlertTriangle size={18} />}
+                                    <div>
+                                      <span className="font-bold">{graded.correct ? 'Correct! ' : 'Incorrect. '}</span>
+                                      <span>{graded.explanation}</span>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+
+                          {/* Quiz Grading Result Action with Radial Progress */}
+                          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 pt-4 border-t border-base-300">
+                            {quizResult ? (
+                              <div className="stat bg-primary text-primary-content rounded-2xl p-5 w-full shadow-lg flex items-center justify-between">
+                                <div>
+                                  <div className="stat-title text-primary-content/80 font-bold uppercase text-xs">Comprehension Score</div>
+                                  <div className="stat-value text-2xl md:text-3xl font-black mt-1">
+                                    {quizResult.score_percentage}%
+                                  </div>
+                                  <div className="stat-desc text-primary-content/90 font-medium mt-1">
+                                    {quizResult.correct_count} of {quizResult.total_questions} questions correct
+                                  </div>
+                                </div>
+                                <div
+                                  className="radial-progress text-primary-content font-black text-sm"
+                                  style={{ '--value': quizResult.score_percentage, '--size': '4rem', '--thickness': '4px' } as React.CSSProperties}
+                                  role="progressbar"
+                                >
+                                  {quizResult.score_percentage}%
+                                </div>
+                              </div>
+                            ) : (
+                              <button
+                                className="btn btn-primary btn-block sm:btn-wide shadow-md font-bold text-base"
+                                onClick={handleGradeQuiz}
+                                disabled={Object.keys(userAnswers).length === 0}
+                              >
+                                Submit & Grade Answers
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                )}
+
+                {/* TAB 6: PERSPECTIVE DEBATE (DaisyUI Chat Turns) */}
+                {activeTab === 'debate' && (
+                  <div className="card bg-base-200 border border-base-300 shadow-xl">
+                    <div className="card-body p-6 md:p-8">
+                      <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-3 border-b border-base-300">
+                        <Scale size={24} className="text-warning" />
+                        <span>Dialectical Perspective Debate Simulator (F38)</span>
+                      </div>
+
+                      {debateLoading ? (
+                        <div className="py-16 text-center text-base-content/70">
+                          <span className="loading loading-spinner loading-lg text-primary mb-3"></span>
+                          <div className="text-base font-semibold">Synthesizing steelmanned opposing viewpoints...</div>
+                          <div className="flex flex-col gap-3 max-w-lg mx-auto mt-6">
+                            <div className="skeleton h-20 w-full"></div>
+                            <div className="skeleton h-20 w-full"></div>
+                          </div>
+                        </div>
+                      ) : debate ? (
+                        <div className="mt-4">
+                          {/* Resolution Banner */}
+                          <div className="alert alert-warning bg-warning/10 text-warning-content border border-warning/30 shadow-sm rounded-xl mb-6">
+                            <Scale size={22} className="text-warning flex-shrink-0" />
+                            <div>
+                              <div className="font-bold text-xs uppercase tracking-wider text-warning">Resolution Under Debate</div>
+                              <div className="text-base font-semibold mt-0.5">{debate.resolution_under_debate}</div>
+                            </div>
+                          </div>
+
+                          {/* DaisyUI Chat turns for debate */}
+                          <div className="flex flex-col gap-4 mb-6">
+                            {debate.debate_turns?.map((turn, idx) => {
+                              const isPro = turn.speaker_perspective.includes('PROPONENT');
+
+                              return (
+                                <div
+                                  key={idx}
+                                  className={`chat ${isPro ? 'chat-start' : 'chat-end'}`}
+                                >
+                                  <div className="chat-image avatar">
+                                    <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shadow ${
+                                      isPro ? 'bg-primary text-primary-content' : 'bg-warning text-warning-content'
+                                    }`}>
+                                      {isPro ? 'PRO' : 'CON'}
+                                    </div>
+                                  </div>
+                                  <div className="chat-header text-xs opacity-75 mb-1 font-bold">
+                                    {turn.speaker_perspective}
+                                  </div>
+                                  <div className={`chat-bubble text-sm md:text-base leading-relaxed max-w-2xl ${
+                                    isPro ? 'chat-bubble-primary text-primary-content' : 'chat-bubble-warning text-warning-content'
+                                  } shadow-md`}>
+                                    <div>{turn.core_argument}</div>
+                                    {turn.grounding_citations?.length > 0 && (
+                                      <div className="text-xs opacity-85 mt-2 pt-2 border-t border-current/20">
+                                        <strong>Grounding Evidence:</strong> {turn.grounding_citations.join(' • ')}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+
+                          {/* Compromise Synthesis */}
+                          <div className="card bg-base-100 border border-info/40 shadow-md p-6 rounded-2xl">
+                            <div className="font-bold text-base md:text-lg text-info mb-2 flex items-center gap-2">
+                              <Sparkles size={18} />
+                              <span>Neutral Compromise Synthesis & Policy Bridge</span>
+                            </div>
+                            <p className="text-sm md:text-base text-base-content/90 leading-relaxed">
+                              {debate.neutral_compromise_synthesis}
+                            </p>
+                          </div>
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                )}
+
+                {/* TAB 7: LIVELY RESEARCH COPILOT (DaisyUI Chat Components) */}
+                {activeTab === 'copilot' && (
+                  <div className="card bg-base-200 border border-base-300 shadow-xl h-[700px] flex flex-col">
+                    {/* Copilot Header */}
+                    <div className="p-4 md:p-6 border-b border-base-300 flex items-center justify-between bg-base-200/50">
+                      <div className="flex items-center gap-3">
+                        <div className="btn btn-ghost btn-circle bg-primary text-primary-content shadow">
+                          <Bot size={22} />
+                        </div>
+                        <div>
+                          <div className="font-bold text-base md:text-lg text-base-content flex items-center gap-2">
+                            <span>Research Copilot</span>
+                            <span className="badge badge-primary badge-outline text-xs">Autonomous Mode</span>
+                          </div>
+                          <div className="text-xs text-base-content/60">
+                            Context: {report.topic}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <div className="badge badge-success badge-sm gap-1.5 py-2.5 font-medium shadow-sm">
+                          <span className="w-2 h-2 rounded-full bg-success-content animate-pulse"></span>
+                          <span>Online • Gemini 3.1 Pro</span>
+                        </div>
+                        <button
+                          onClick={handleClearChat}
+                          className="btn btn-sm btn-ghost btn-outline border-base-300 gap-1.5"
+                          title="Clear Chat History"
+                        >
+                          <Trash2 size={14} />
+                          <span className="hidden sm:inline">Clear</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Chat Message History */}
+                    <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
+                      {chatMessages.map((msg, idx) => (
+                        <div
+                          key={idx}
+                          className={`chat ${msg.sender === 'user' ? 'chat-end' : 'chat-start'}`}
+                        >
+                          <div className="chat-image avatar">
+                            <div className={`w-9 h-9 rounded-full flex items-center justify-center shadow ${
+                              msg.sender === 'user' ? 'bg-neutral text-neutral-content' : 'bg-primary text-primary-content'
+                            }`}>
+                              {msg.sender === 'user' ? <User size={18} /> : <Bot size={18} />}
+                            </div>
+                          </div>
+                          <div className="chat-header text-xs opacity-60 mb-1 font-medium">
+                            {msg.sender === 'user' ? 'You' : 'Research Copilot'}
+                            <time className="text-[11px] ml-1.5 opacity-60">{msg.time}</time>
+                          </div>
+                          <div className={`chat-bubble text-sm md:text-base leading-relaxed ${
+                            msg.sender === 'user' ? 'chat-bubble-primary text-primary-content' : 'chat-bubble-neutral text-neutral-content'
+                          } shadow-md`}>
+                            {msg.text}
+                          </div>
+                        </div>
+                      ))}
+
+                      {chatLoading && (
+                        <div className="chat chat-start">
+                          <div className="chat-image avatar">
+                            <div className="w-9 h-9 rounded-full bg-primary text-primary-content flex items-center justify-center shadow">
+                              <Bot size={18} />
+                            </div>
+                          </div>
+                          <div className="chat-bubble chat-bubble-neutral flex items-center gap-2">
+                            <span className="text-sm">Investigating sources...</span>
+                            <span className="loading loading-dots loading-sm text-primary"></span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Quick Prompt Suggestions */}
+                    <div className="px-4 py-2 bg-base-300/40 border-t border-base-300 flex items-center gap-2 overflow-x-auto no-scrollbar">
+                      <span className="text-xs font-bold text-base-content/60 uppercase whitespace-nowrap">
+                        Prompts:
+                      </span>
+                      {suggestedQuestions.map((qText, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          className="btn btn-xs btn-outline btn-neutral rounded-full whitespace-nowrap hover:btn-primary font-medium"
+                          onClick={() => handleSendMessage(undefined, qText)}
+                          disabled={chatLoading}
+                        >
+                          {qText}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Chat Input */}
+                    <form onSubmit={handleSendMessage} className="p-4 bg-base-200 border-t border-base-300">
+                      <div className="join w-full shadow-md">
+                        <input
+                          type="text"
+                          className="input input-bordered join-item w-full focus:outline-none text-sm md:text-base"
+                          placeholder="Ask a question or request an autonomous investigative deep-dive..."
+                          value={chatInput}
+                          onChange={(e) => setChatInput(e.target.value)}
+                          disabled={chatLoading}
+                        />
+                        <button
+                          type="submit"
+                          className="btn btn-primary join-item gap-2 px-6"
+                          disabled={chatLoading || !chatInput.trim()}
+                        >
+                          <span>Send</span>
+                          <Send size={16} />
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                )}
+              </div>
             </div>
-          )}
+          </main>
+        )}
+
+        {/* Placeholder prompt when no report is active */}
+        {currentView === 'investigate' && !loading && !report && (
+          <div className="container mx-auto px-4 max-w-xl text-center py-16">
+            <div className="card bg-base-200 border border-base-300 p-8 shadow-sm">
+              <Brain size={44} className="mx-auto text-primary opacity-60 mb-3" />
+              <h3 className="text-xl font-bold">Ready for Intelligence Mission</h3>
+              <p className="text-xs md:text-sm text-base-content/70 mt-1 mb-5">
+                Enter any headline above to launch 25 ADK agents, or explore archived investigations.
+              </p>
+              <button
+                onClick={() => setCurrentView('archive')}
+                className="btn btn-sm btn-outline btn-primary gap-2 mx-auto"
+              >
+                <History size={16} />
+                <span>Browse Previous Analyses</span>
+              </button>
             </div>
           </div>
-        </main>
-      )}
+        )}
 
-      {/* Placeholder prompt when no report is active */}
-      {currentView === 'investigate' && !loading && !report && (
-        <div className="container mx-auto px-4 max-w-xl text-center py-12">
-          <div className="card bg-base-200 border border-base-300 p-8 shadow-sm">
-            <Brain size={40} className="mx-auto text-primary opacity-60 mb-3" />
-            <h3 className="text-lg font-bold">Ready for Intelligence Mission</h3>
-            <p className="text-xs text-base-content/70 mt-1 mb-4">
-              Enter any headline above to launch 25 ADK agents, or explore archived investigations.
+        {/* DaisyUI Footer Component */}
+        <footer className="footer footer-center p-8 bg-base-200 text-base-content border-t border-base-300 mt-auto">
+          <aside className="gap-2">
+            <div className="flex items-center gap-2 font-bold text-base">
+              <Brain size={20} className="text-primary" />
+              <span>Agentic News Analyser</span>
+            </div>
+            <p className="text-xs text-base-content/70">
+              Built with Google Agent Development Kit (ADK) & Google Gemini • Powered by Cloud Firestore & DaisyUI Themes
             </p>
-            <button
-              onClick={() => setCurrentView('archive')}
-              className="btn btn-sm btn-outline btn-primary gap-2 mx-auto"
-            >
-              <History size={16} />
-              <span>Browse Previous Analyses</span>
-            </button>
-          </div>
-        </div>
-      )}
+          </aside>
+        </footer>
+      </div>
 
-      {/* DaisyUI Footer */}
-      <footer className="footer footer-center p-8 bg-base-200 text-base-content border-t border-base-300 mt-auto">
-        <aside className="gap-2">
-          <div className="flex items-center gap-2 font-bold text-base">
-            <Brain size={20} className="text-primary" />
-            <span>Agentic News Analyser</span>
+      {/* DRAWER SIDEBAR: Mobile Drawer Navigation */}
+      <div className="drawer-side z-50">
+        <label htmlFor="main-drawer" aria-label="close sidebar" className="drawer-overlay"></label>
+        <aside className="p-4 w-72 sm:w-80 min-h-full bg-base-200 text-base-content border-r border-base-300 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-base-300">
+              <div className="flex items-center gap-2 font-black text-lg">
+                <Brain size={20} className="text-primary" />
+                <span>Agentic News</span>
+              </div>
+              <label htmlFor="main-drawer" className="btn btn-ghost btn-circle btn-sm">
+                <X size={18} />
+              </label>
+            </div>
+
+            <div className="text-xs font-bold uppercase tracking-wider text-primary mb-2 px-1">
+              Views
+            </div>
+            <ul className="menu menu-sm p-0 gap-1 mb-4">
+              <li>
+                <button
+                  className={currentView === 'investigate' ? 'active font-bold' : ''}
+                  onClick={() => {
+                    setCurrentView('investigate');
+                    closeDrawer();
+                  }}
+                >
+                  <Brain size={16} />
+                  <span>Live Fleet</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  className={currentView === 'archive' ? 'active font-bold' : ''}
+                  onClick={() => {
+                    setCurrentView('archive');
+                    closeDrawer();
+                  }}
+                >
+                  <History size={16} />
+                  <span>Archive (AG Grid)</span>
+                </button>
+              </li>
+            </ul>
+
+            {report && (
+              <>
+                <div className="text-xs font-bold uppercase tracking-wider text-primary mb-2 px-1">
+                  Report Sections
+                </div>
+                <ul className="menu menu-sm p-0 gap-1">
+                  <li>
+                    <button
+                      className={activeTab === 'brief' ? 'active font-bold' : ''}
+                      onClick={() => {
+                        setActiveTab('brief');
+                        closeDrawer();
+                      }}
+                    >
+                      <FileText size={16} />
+                      <span>Executive Brief</span>
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className={activeTab === 'verification' ? 'active font-bold' : ''}
+                      onClick={() => {
+                        setActiveTab('verification');
+                        closeDrawer();
+                      }}
+                    >
+                      <ShieldCheck size={16} />
+                      <span>Fact Checks & Bias</span>
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className={activeTab === 'timeline' ? 'active font-bold' : ''}
+                      onClick={() => {
+                        setActiveTab('timeline');
+                        closeDrawer();
+                      }}
+                    >
+                      <Clock size={16} />
+                      <span>Timeline</span>
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className={activeTab === 'insights' ? 'active font-bold' : ''}
+                      onClick={() => {
+                        setActiveTab('insights');
+                        closeDrawer();
+                      }}
+                    >
+                      <TrendingUp size={16} />
+                      <span>Causal & Scenarios</span>
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className={activeTab === 'quiz' ? 'active font-bold' : ''}
+                      onClick={() => {
+                        setActiveTab('quiz');
+                        closeDrawer();
+                      }}
+                    >
+                      <BookOpen size={16} />
+                      <span>Active Recall Tutor</span>
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className={activeTab === 'debate' ? 'active font-bold' : ''}
+                      onClick={() => {
+                        setActiveTab('debate');
+                        closeDrawer();
+                      }}
+                    >
+                      <Scale size={16} />
+                      <span>Perspective Debate</span>
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className={activeTab === 'copilot' ? 'active font-bold' : ''}
+                      onClick={() => {
+                        setActiveTab('copilot');
+                        closeDrawer();
+                      }}
+                    >
+                      <MessageSquare size={16} />
+                      <span>Research Copilot</span>
+                    </button>
+                  </li>
+                </ul>
+              </>
+            )}
           </div>
-          <p className="text-xs text-base-content/70">
-            Built with Google Agent Development Kit (ADK) & Google Gemini • Powered by Cloud Firestore & DaisyUI Themes
-          </p>
+
+          {/* Drawer footer theme picker */}
+          <div className="pt-3 border-t border-base-300">
+            <div className="text-xs text-base-content/70">
+              Active Theme: <span className="capitalize font-bold text-primary">{theme}</span>
+            </div>
+          </div>
         </aside>
-      </footer>
+      </div>
     </div>
   );
 }

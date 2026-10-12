@@ -62,7 +62,7 @@
   }
 }
 
-/* Custom scrollbars that adapt to themes */
+/* Subtle scrollbars that adapt dynamically to any DaisyUI theme */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -79,13 +79,4 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--bc) / 0.4);
-}
-
-/* Multi-orbital spinner animation */
-@keyframes spin-reverse {
-  to { transform: rotate(-360deg); }
-}
-
-.spinner-spin-reverse {
-  animation: spin-reverse 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
 }
