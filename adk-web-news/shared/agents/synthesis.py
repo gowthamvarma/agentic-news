@@ -32,6 +32,7 @@ Integrate all data from extraction, context, verification, contradictions, bias 
 - Maintain uncompromising neutrality.
 - Every major assertion must be traceable to the analyzed source outlets.
 - Never omit substantive contradictions.
+- READABILITY & TERMINOLOGY REQUIREMENT: Write the executive summary and intelligence synthesis with clear, active, and accessible sentence structures. PRESERVE exact technical, scientific, legal, and economic terminology (e.g. use "spectrum", NOT "airwaves"). Do not replace technical terms with informal colloquialisms.
 
 # OUTPUT SPECIFICATION
 Conform strictly to the NewsIntelligenceReport schema.

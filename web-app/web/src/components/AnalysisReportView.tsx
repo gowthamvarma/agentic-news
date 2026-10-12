@@ -253,7 +253,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
   // Research Copilot Chat State
   const defaultGreeting: ChatMessage = {
     sender: 'agent',
-    text: 'Hello! I am your Research Copilot powered by Google Gemini 3.8 Flash. Ask any follow-up question or request an autonomous investigative deep-dive over verified reporting.',
+    text: 'Hello! I am your Research Copilot. Ask any question about this news story, and I will find clear, verified answers for you in simple English.',
     time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   };
 
@@ -2081,7 +2081,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 <input
                   type="text"
                   className="input input-bordered join-item w-full focus:outline-none text-sm md:text-base"
-                  placeholder="Ask a question or request an autonomous investigative deep-dive..."
+                  placeholder="Ask any question about this news topic..."
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
                   disabled={chatLoading}

@@ -47,20 +47,20 @@ def generate_news_analyser_response(topic: str) -> str:
 
     return f"""# 🌐 News Intelligence Brief: {clean_topic}
 
-## 1. Executive Summary & Key Metrics Primer
-Recent cross-source investigative intelligence concerning **{clean_topic}** reveals significant structural developments with broad institutional and public consequences. While official spokespersons and government agencies emphasize administrative compliance, regulatory integrity, and national standards, industry leaders and civil advocacy groups warn of severe near-term friction, talent pipeline disruptions, and compliance bottlenecks. 
+## 1. Executive Summary & Quick Takeaways
+Recent reporting on **{clean_topic}** shows significant policy changes with widespread real-world effects. While government officials emphasize better compliance, oversight, and higher standards, business leaders and civil groups warn of short-term friction, staffing delays, and processing backlogs.
 
-A cross-cutting evidentiary examination across major wire dispatches (Reuters, AP), financial desks (Bloomberg, WSJ), and investigative outlets (The Guardian, Politico) isolates broad consensus on the core policy actions, but critical divergences regarding operational timelines, economic fallout, and legal sustainability.
+A careful review across major news outlets (Reuters, AP, Bloomberg, WSJ) shows that all credible outlets agree on the core policy actions taken, but they disagree on the timeline, economic fallout, and legal durability.
 
 ---
 
-## 2. Who / Where / What Primer & Jargon Buster
-- **Primary Subject**: {clean_topic}
-- **Key Institutions Involved**: Executive Regulatory Agencies, Industry Trade Associations, Federal Courts, Corporate Legal Desks.
-- **Historical Backdrop**: Pre-existing procedural backlogs, shifting administrative priorities, and statutory mandates precipitated the current enforcement posture.
-- **Jargon Buster**:
-  - *Statutory Review Period*: The mandatory window for administrative notice-and-comment prior to final rule codification.
-  - *Injunctive Relief*: Court-ordered halt on regulatory implementation pending expedited judicial review.
+## 2. Who / Where / What Primer & Key Terms
+- **Main Subject**: {clean_topic}
+- **Key Organizations Involved**: Regulatory Agencies, Industry Trade Associations, Federal Courts, Corporate Legal Desks.
+- **Background Story**: Earlier procedural backlogs, shifting government priorities, and legal rules led to this current enforcement action.
+- **Key Terms Explained**:
+  - *Public Comment Period*: The required time window for the public to review and submit feedback before an agency rule becomes final.
+  - *Court Injunction*: A temporary order from a judge pausing a policy while lawsuits are reviewed.
 
 ---
 
@@ -358,20 +358,20 @@ def generate_scenario_prediction_response(topic: str) -> str:
 
 
 def generate_research_copilot_response(topic: str) -> str:
-    """Generates a rapid, precise, and neatly formatted investigative response tailored to topic."""
+    """Generates a rapid, precise, and easy-to-read response tailored to the topic."""
     clean_topic = topic.strip().title()
 
     return f"""### ⚡ Quick Takeaway: Autonomous Investigative Research Dossier
-**Direct Finding**: Verified reporting confirms active regulatory and operational updates regarding **{clean_topic}**.
+**Main Finding**: Verified reports confirm that new rules and actions are currently taking effect regarding **{clean_topic}**.
 
-### 🔍 Key Evidentiary Facts
-- **Primary Regulatory Filings**: Directive Ref `AD-2026-ENG-089` entered into public registry confirms discretionary transitional exemptions.
-- **Fact Verification Audit**: Cross-checked with IFCN partner records; initial claims asserting absolute immediate halts are **MISLEADING**.
-- **Market Response**: Impact data shows measured organizational adjustments rather than systemic stoppage.
+### 🔍 Key Facts
+- **Primary Regulatory Filings**: Policy Directive Ref `AD-2026-ENG-089` confirms clear grace periods and protections for existing applications.
+- **Fact-Check Verdict**: Initial claims that there was an immediate, total freeze without any exceptions are **MISLEADING**.
+- **Market Reaction**: Businesses are adapting steadily rather than experiencing a total shutdown.
 
 ### 📌 Open Investigative Leads & Citations
-- **Open Investigative Leads**: Monitoring PACER federal dockets for impending preliminary injunction rulings.
-> 📰 **Source Citation**: Official Administrative Register & Verified Wire Dispatches (Reuters, Associated Press)
+- **Open Investigative Leads**: Court filings are being monitored to track upcoming judge rulings.
+> 📰 **Sources**: Official Administrative Register & Verified Wire Reports (Reuters, Associated Press)
 """
 
 

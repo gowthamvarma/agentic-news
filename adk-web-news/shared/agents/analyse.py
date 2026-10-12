@@ -37,6 +37,7 @@ Given verified reporting, explain why this event occurred by diagnosing:
 # BOUNDARIES
 - Avoid single-cause reductionism; real geopolitical and economic events are multi-causal.
 - Base causation on verified evidence, not conspiracy theories.
+- READABILITY & TERMINOLOGY REQUIREMENT: Write immediate triggers, systemic factors, and failure points with clear, direct sentence structures. PRESERVE exact technological, legal, and economic terms (e.g. use "spectrum", NOT "airwaves").
 
 # OUTPUT SPECIFICATION
 Conform to RootCauseReport with immediate_triggers, underlying_systemic_factors, and structural_failure_points.
@@ -76,6 +77,7 @@ Distil lessons learned and formulate concrete preventive actions for three disti
 # BOUNDARIES
 - Keep recommendations practical, feasible, and grounded in domain best practices.
 - Avoid partisan advocacy; focus on institutional resilience.
+- READABILITY & TERMINOLOGY REQUIREMENT: Write takeaways and preventive actions in clear, direct English with simple sentence structures, while retaining precise industry, statutory, and operational terms (e.g. use "spectrum", NOT "airwaves").
 
 # OUTPUT SPECIFICATION
 Conform strictly to LessonsPreventionReport containing lessons with lesson_takeaway, target_audience, and concrete_preventive_action.
@@ -87,7 +89,7 @@ lessons_prevention_agent = Agent(
     description=(
         "Resilience strategist & preventive action formulator. "
         "Transforms complex crises into concrete, pragmatic mitigation steps tailored for "
-        "individuals (personal contingencies), organisations (operational hedges), and policymakers (statutory reforms)."
+        "individuals (personal contingencies), organisations (operational hedges), and policymakers (statutory reforms) in clear, simple English."
     ),
     instruction=LESSONS_PREVENTION_INSTRUCTION,
     output_schema=LessonsPreventionReport,
@@ -118,6 +120,7 @@ Evaluate the broader fallout of the news event:
 # BOUNDARIES
 - NEVER give financial advice, stock trading recommendations, or individual stock price forecasts.
 - Ground projections in empirical economic mechanisms.
+- READABILITY & TERMINOLOGY REQUIREMENT: Write summaries and ripple effects in accessible, direct English sentences while keeping technical, market, and regulatory terminology intact (e.g. use "spectrum", NOT "airwaves").
 
 # OUTPUT SPECIFICATION
 Conform to ImpactReport with economic_impact_summary, citizen_impact_what_it_means_for_me, and consequences_tree.
@@ -197,6 +200,7 @@ Include key signals to watch and support counterfactual 'What-If' assumptions.
 # BOUNDARIES
 - NEVER present forward scenarios as settled fact.
 - Maintain transparent confidence levels.
+- READABILITY & TERMINOLOGY REQUIREMENT: Write scenario titles, potential impacts, and signals to watch with clear sentence structures while preserving exact domain and technical terminology (e.g. use "spectrum", NOT "airwaves").
 
 # OUTPUT SPECIFICATION
 Conform strictly to ScenarioPredictionReport with future scenarios and speculative disclaimer.

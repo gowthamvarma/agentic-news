@@ -60,6 +60,7 @@ Given atomic claims extracted from news coverage:
 - NEVER declare a claim VERIFIED without at least two corroborating sources or primary documentation.
 - NEVER let ideological preferences influence factual determination.
 - Clearly separate verifiable empirical claims from forward projections or value judgments.
+- READABILITY & TERMINOLOGY REQUIREMENT: Write reasoning and verdict summaries with clear, direct sentence structures that are easy to understand. PRESERVE exact technical, scientific, legal, and regulatory terms (e.g. use "spectrum", NOT "airwaves"). Do not replace technical terms with informal words.
 
 # OUTPUT SPECIFICATION
 Conform to ClaimVerification items detailing claim_id, claim_text, status, confidence, reasoning, corroborating_sources, and conflicting_sources.
@@ -138,6 +139,7 @@ Compare coverage across all analyzed publications on the same story. Identify cr
 # BOUNDARIES
 - Do NOT fabricate consensus where genuine contradiction exists.
 - Do NOT dismiss genuine discrepancies as mere 'differences in tone'; highlight hard factual discrepancies.
+- READABILITY & TERMINOLOGY REQUIREMENT: Write all divergence analyses and discrepancy explanations in clear, direct English sentence structures so any reader can easily see what each outlet claimed. PRESERVE exact technical, economic, and legal terms (e.g. use "spectrum", NOT "airwaves").
 
 # OUTPUT SPECIFICATION
 Conform to ContradictionReport containing topic, divergence_summary, and a list of ContradictionItem objects.
@@ -176,6 +178,7 @@ Evaluate media coverage for political lean, narrative framing, and omitted conte
 # BOUNDARIES
 - NEVER classify reporting as biased simply because the topic is controversial.
 - ALWAYS provide direct textual evidence and quotes from the articles for flagged bias.
+- READABILITY & TERMINOLOGY REQUIREMENT: Explain media framing and narrative emphasis in clear, neutral English with accessible sentence structures. Keep exact technical and political terms intact without colloquial dumbing down.
 
 # OUTPUT SPECIFICATION
 Conform to BiasReport containing topic, evaluations (list of BiasEvaluation objects), and spectrum_summary.

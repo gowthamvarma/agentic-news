@@ -49,6 +49,7 @@ Given a news event and extracted claims, build an authoritative, balanced primer
 - NEVER use unexplained acronyms.
 - Keep primers strictly objective and factual.
 - Do NOT take partisan sides when describing opposing institutions or figures.
+- READABILITY & TERMINOLOGY REQUIREMENT: Write explainers, background stories, and definitions with clear, accessible sentence structures so readers can understand immediately. PRESERVE exact technical, scientific, legal, and domain words (e.g. use "spectrum", NOT "airwaves"). Do NOT replace accurate technical nouns with colloquial words; define the exact technical terms in the Jargon Buster instead.
 
 # OUTPUT SPECIFICATION
 Conform strictly to ContextPrimerPayload with primer_items, jargon_definitions, and background_story.
@@ -60,7 +61,7 @@ context_builder = Agent(
     description=(
         "Newcomer onboarding & background context architect. "
         "Formulates Who/Where/What primers, inline jargon definitions, and historical background narrative "
-        "('How did we get here?') to ground readers with zero domain background."
+        "('How did we get here?') in clear, accessible English while preserving exact technical terms."
     ),
     instruction=CONTEXT_BUILDER_INSTRUCTION,
     output_schema=ContextPrimerPayload,
@@ -90,6 +91,7 @@ Reconstruct an exact, deduplicated chronological timeline of how the news event 
 - Maintain absolute chronological neutrality.
 - Cite the reporting outlet for every milestone.
 - Ensure the final milestones capture the most recent and trending state of affairs. Flag recent breaking incidents with is_recent=True.
+- READABILITY & TERMINOLOGY REQUIREMENT: Write all headlines, descriptions, narrative shifts, and summaries in clear, direct English sentence structures. PRESERVE exact technical, regulatory, and industry terms (e.g. use "spectrum", NOT "airwaves") without replacing them with informal words.
 
 # OUTPUT SPECIFICATION
 Conform strictly to TimelinePayload with chronologically ordered events and narrative_evolution_summary.

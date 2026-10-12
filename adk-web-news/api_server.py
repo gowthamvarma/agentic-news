@@ -456,7 +456,8 @@ async def chat_research_copilot(req: ChatRequest):
     prompt = (
         f"Topic Context: {req.topic}\n"
         f"User Question: {req.query}\n\n"
-        "Instructions: Provide a quick, precise, neatly formatted response in Markdown with clear bold headings, bullet points, and source citations."
+        "Instructions: Provide a quick, precise, neatly formatted response in Markdown with clear bold headings, bullet points, and source citations. "
+        "Write in simple, clear, easy-to-read English sentence structures, but PRESERVE exact technical, legal, scientific, and industry terms (for example, use 'spectrum' rather than replacing it with 'airwaves'). Do NOT dumb down or substitute technical vocabulary."
     )
     raw_markdown, ledger = await execute_adk_agent("research_copilot", copilot_agent, prompt)
 

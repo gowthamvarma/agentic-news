@@ -51,19 +51,24 @@ def generate_live_topic_intelligence(topic: str) -> Optional[Dict[str, Any]]:
 "{clean_topic}"
 
 Provide a thorough, forensically accurate intelligence report adhering to IFCN fact-checking principles.
+
+CRITICAL READABILITY & VOCABULARY REQUIREMENT:
+1. Clear & Simple Sentence Structure: Write with simple, clear, and direct sentence structures that are easy to read and understand. Avoid overly convoluted, academic, or run-on sentences.
+2. PRESERVE TECHNICAL & DOMAIN WORDS: DO NOT replace or dumb down accurate technical, scientific, legal, economic, or industry terms with informal or colloquial words. For example, in telecom/satellite topics use the exact word "spectrum" (DO NOT replace it with "airwaves"); keep terms like "orbital slot", "semiconductor", "antitrust", "injunction", "frequency allocation", etc. Keep technical terms intact and explain them simply in context or in the jargon definitions.
+
 Return a single valid JSON object with the following fields:
-- "executive_summary": string, 3-4 sentences synthesizing the latest verified reporting and strategic context
+- "executive_summary": string, 3-4 clear and easy-to-read sentences synthesizing the latest verified reporting while preserving precise technical terminology
 - "key_metrics_and_numbers": list of 4 specific strings with statistics, timelines, financial figures, or dates
-- "consensus_points": list of 3 strings outlining uncontested facts across all major outlets
+- "consensus_points": list of 3 clear strings outlining uncontested facts across all major outlets
 - "sources_analyzed": list of strings citing major media desks (e.g. Associated Press, Reuters, Bloomberg, WSJ, Nikkei Asia, The Hindu)
 - "articles_analyzed": list of 4-6 objects with 'outlet', 'title', 'url', 'published_date', 'author', 'content', 'country', 'country_code', 'flag', 'editorial_lean', 'reliability_tier'
-- "context_primer": object with 'background_story' (string), 'primer_items' (list of 6-8 objects containing BOTH prominent organizations and key figures: at least 4-5 with 'entity_type': 'ORGANIZATION' and at least 2-3 with 'entity_type': 'PERSON'. Each object MUST have 'entity_name', 'entity_type' ['ORGANIZATION'|'PERSON'|'CONCEPT'|'LOCATION'], 'role_or_title', 'explainer_2_lines', 'historical_context', 'wikipedia_url' [valid en.wikipedia.org link e.g. https://en.wikipedia.org/wiki/Exact_Title], and 'image_url' [direct wikimedia photo/logo URL]), and 'jargon_definitions' (dict of term: definition)
-- "verifications": list of 3-4 objects with 'claim_id' (e.g. C-01), 'claim_text', 'status' ('VERIFIED'|'DISPUTED'|'UNVERIFIED'), 'confidence' (float 0.8-1.0), 'reasoning', 'corroborating_sources' (list of strings), 'conflicting_sources' (list of strings)
-- "contradictions": list of 2 objects with 'contradiction_id' (e.g. CONT-01), 'topic_aspect', 'outlet_a', 'claim_a', 'outlet_b', 'claim_b', 'divergence_type', 'analysis'
+- "context_primer": object with 'background_story' (string with clear sentence structure), 'primer_items' (list of 6-8 objects containing BOTH prominent organizations and key figures: at least 4-5 with 'entity_type': 'ORGANIZATION' and at least 2-3 with 'entity_type': 'PERSON'. Each object MUST have 'entity_name', 'entity_type' ['ORGANIZATION'|'PERSON'|'CONCEPT'|'LOCATION'], 'role_or_title', 'explainer_2_lines' [1-2 clear sentences preserving domain terms], 'historical_context', 'wikipedia_url' [valid en.wikipedia.org link e.g. https://en.wikipedia.org/wiki/Exact_Title], and 'image_url' [direct wikimedia photo/logo URL]), and 'jargon_definitions' (dict of term: clear definition of the exact technical term)
+- "verifications": list of 3-4 objects with 'claim_id' (e.g. C-01), 'claim_text', 'status' ('VERIFIED'|'DISPUTED'|'UNVERIFIED'), 'confidence' (float 0.8-1.0), 'reasoning' (clear explanation with exact technical details), 'corroborating_sources' (list of strings), 'conflicting_sources' (list of strings)
+- "contradictions": list of 2 objects with 'contradiction_id' (e.g. CONT-01), 'topic_aspect', 'outlet_a', 'claim_a', 'outlet_b', 'claim_b', 'divergence_type', 'analysis' (clear breakdown explaining why reports disagree)
 - "bias_evaluations": list of 2-3 objects with 'outlet', 'assessed_lean' ('CENTER'|'CENTER_LEFT'|'CENTER_RIGHT'|'FAR_LEFT'|'FAR_RIGHT'), 'loaded_terms_identified' (list of strings), 'framing_narrative', 'omitted_context'
-- "timeline": object with 'narrative_evolution_summary' (string) and 'events' (list of 5-7 chronologically ordered objects from earliest precursor to the MOST RECENT and trending incidents. Each event must have 'timestamp_or_date', 'headline', 'description', 'source_outlet', 'source_url', 'narrative_shift', 'is_recent' [boolean: true for recent breaking or trending milestones]. CRITICAL: If the issue is trending right now, ensure the timeline includes the latest developments up to the present day).
-- "root_cause_analysis": object with 'immediate_triggers' (list of strings), 'underlying_systemic_factors' (list of strings), 'structural_failure_points' (list of strings)
-- "consequences_tree": list of 3 objects with 'order' ('FIRST_ORDER'|'SECOND_ORDER'|'THIRD_ORDER'), 'impact_description', 'affected_sector_or_group'
+- "timeline": object with 'narrative_evolution_summary' (string with clear sentences) and 'events' (list of 5-7 chronologically ordered objects from earliest precursor to the MOST RECENT and trending incidents. Each event must have 'timestamp_or_date', 'headline', 'description' [clear, direct sentences preserving technical terms], 'source_outlet', 'source_url', 'narrative_shift', 'is_recent' [boolean: true for recent breaking or trending milestones]. CRITICAL: If the issue is trending right now, ensure the timeline includes the latest developments up to the present day).
+- "root_cause_analysis": object with 'immediate_triggers' (list of clear strings), 'underlying_systemic_factors' (list of clear strings), 'structural_failure_points' (list of clear strings)
+- "consequences_tree": list of 3 objects with 'order' ('FIRST_ORDER'|'SECOND_ORDER'|'THIRD_ORDER'), 'impact_description' (clear direct sentence), 'affected_sector_or_group'
 - "future_scenarios": list of 3 objects with 'scenario_title', 'scenario_type' ('MOST_LIKELY'|'BEST_CASE'|'WORST_CASE'), 'probability_rating' ('HIGH'|'MODERATE'|'LOW'), 'time_horizon', 'potential_impact', 'signals_to_watch' (list of strings), 'what_if_assumption' (optional string)
 - "lessons_learned": list of 3 objects with 'lesson_takeaway', 'target_audience' ('INDIVIDUALS'|'ORGANISATIONS'|'POLICYMAKERS'), 'concrete_preventive_action'
 """
@@ -98,9 +103,9 @@ def build_structured_intelligence(topic: str, raw_markdown: str = "") -> Dict[st
 
     # Build High-Confidence Consensus Points
     consensus = [
-        f"Key administrative decisions and formal actions regarding {subject} have been formally acknowledged by primary stakeholders.",
-        f"Implementation directly impacts operational workflows, statutory filings, and multi-lateral cross-border compliance.",
-        f"Affected coalitions and industry bodies have filed or prepared emergency legal challenges seeking judicial review.",
+        f"Officials and primary organizations have formally acknowledged the key events regarding {subject}.",
+        f"The changes directly affect day-to-day operations, official paperwork, and international compliance.",
+        f"Affected groups and industry associations have prepared or filed urgent legal challenges in court.",
     ]
 
     # Build Side-by-Side Contradictions
@@ -109,11 +114,11 @@ def build_structured_intelligence(topic: str, raw_markdown: str = "") -> Dict[st
             contradiction_id="CONT-01",
             topic_aspect="Scope of Enforcement vs. Grandfathering Clauses",
             outlet_a="Wire Services (Reuters / Associated Press)",
-            claim_a="Immediate comprehensive pause across all pending applications without exception.",
+            claim_a="Immediate pause across all pending applications without exception.",
             outlet_b="Financial Press (Bloomberg / Wall Street Journal)",
-            claim_b="Applications certified prior to the cutoff remain active under grandfathering provisions.",
+            claim_b="Applications certified prior to the cutoff remain active under grandfathering rules.",
             divergence_type="Fact Negation",
-            analysis="Initial wire bulletins condensed regulatory nuance, whereas financial desks analyzed administrative fine print and verified exemptions.",
+            analysis="Initial breaking news skipped key details, while financial reporters read the fine print and confirmed exemptions.",
         ),
         ContradictionItem(
             contradiction_id="CONT-02",
@@ -123,7 +128,7 @@ def build_structured_intelligence(topic: str, raw_markdown: str = "") -> Dict[st
             outlet_b="Industry Economic Audits (Chamber of Commerce)",
             claim_b="Estimated 12% to 18% increase in compliance costs with risks of offshore relocation.",
             divergence_type="Numerical Discrepancy",
-            analysis="Discrepancy stems from differing baseline assumptions regarding substitution capacity and administrative review timelines.",
+            analysis="The two sides disagree because they used different estimates for how quickly companies can adapt.",
         ),
     ]
 
@@ -131,10 +136,10 @@ def build_structured_intelligence(topic: str, raw_markdown: str = "") -> Dict[st
     verifications = [
         ClaimVerification(
             claim_id="C-101",
-            claim_text=f"Immediate administrative directive regarding {subject} takes effect without transitional exceptions.",
+            claim_text=f"Immediate directive regarding {subject} takes effect without any exceptions.",
             status=VerificationStatus.DISPUTED,
             confidence=0.92,
-            reasoning="Regulatory dockets reveal discretionary transition windows and explicit grandfathering provisions contrary to initial breaking headlines.",
+            reasoning="Official records show clear grace periods and grandfathering rules, proving initial breaking headlines were too broad.",
             corroborating_sources=["Federal Register", "Department of Labor Guidance"],
             conflicting_sources=["Breaking News Wire Alert"],
         ),
@@ -143,7 +148,7 @@ def build_structured_intelligence(topic: str, raw_markdown: str = "") -> Dict[st
             claim_text="Industry coalitions have filed formal emergency injunction petitions in federal court.",
             status=VerificationStatus.VERIFIED,
             confidence=0.99,
-            reasoning="Direct court docket filings under the Administrative Procedure Act confirm active emergency motions for injunctive relief.",
+            reasoning="Public court records confirm that industry groups have filed emergency motions asking a judge to halt the policy.",
             corroborating_sources=["Federal Court Docket PACER", "Reuters Legal"],
             conflicting_sources=[],
         ),
@@ -152,7 +157,7 @@ def build_structured_intelligence(topic: str, raw_markdown: str = "") -> Dict[st
             claim_text="Corporate compliance overhead is projected to rise 12% to 18% in the near term.",
             status=VerificationStatus.VERIFIED,
             confidence=0.88,
-            reasoning="Corroborated by independent multi-firm economic survey and financial analyst briefs.",
+            reasoning="Confirmed by independent surveys of affected businesses and reports from financial analysts.",
             corroborating_sources=["Bloomberg Intelligence", "Industry Audit Reports"],
             conflicting_sources=["Government Spokesperson Briefing"],
         ),
@@ -641,9 +646,9 @@ def build_structured_intelligence(topic: str, raw_markdown: str = "") -> Dict[st
     report = NewsIntelligenceReport(
         topic=clean_topic,
         executive_summary=(
-            f"Multi-agent investigation regarding {clean_topic} reveals significant administrative and public consequences. "
-            f"While regulatory spokespersons cite compliance integrity, industry coalitions point to severe near-term friction. "
-            f"Evidentiary auditing isolates broad consensus on the core directives, but critical divergences regarding operational timelines and economic costs."
+            f"Verified reporting on {clean_topic} shows major policy changes with widespread real-world impacts. "
+            f"Government officials say the measures will improve oversight and standards, but industry groups warn of sudden business disruptions. "
+            f"All major outlets agree on the main policy actions, though they strongly disagree on the timeline and economic costs."
         ),
         key_metrics_and_numbers=[
             "2.4% initial market reaction dip in exposed industry sectors",
@@ -690,14 +695,18 @@ def build_structured_quiz(topic: str) -> Dict[str, Any]:
             prompt = f"""Generate an active recall news literacy quiz based on verified reporting for:
 "{clean_topic}"
 
+CRITICAL READABILITY & TERMINOLOGY REQUIREMENT:
+1. Write all questions, answer choices, and explanations with clear, straightforward sentence structures so anyone can learn effortlessly.
+2. PRESERVE TECHNICAL TERMS: Do NOT replace or dumb down accurate technical, scientific, legal, or industry terms with informal words (e.g. use "spectrum" rather than "airwaves"; preserve exact terms).
+
 Return a single JSON object with:
 - "topic": "{clean_topic}"
 - "questions": list of 3 questions, each with:
   - "question_id": int (1, 2, 3)
-  - "question": string asking a thoughtful question testing critical comprehension or claim verification
+  - "question": string asking a clear, thoughtful question testing comprehension while keeping proper technical terms
   - "options": list of 4 distinct string choices
   - "correct_option_index": int (0, 1, 2, or 3)
-  - "explanation": string explaining why the choice is correct according to evidence
+  - "explanation": string explaining in clear, accessible English why the choice is correct according to evidence
   - "citation_source": string citing reputable journalism or official record
 """
             res = client.models.generate_content(
@@ -717,41 +726,41 @@ Return a single JSON object with:
         questions=[
             QuizQuestion(
                 question_id=1,
-                question=f"What key nuance did specialized financial press uncover that was missing from breaking wire bulletins on {clean_topic}?",
+                question=f"What important detail did specialized business reporters find that early breaking news missed on {clean_topic}?",
                 options=[
-                    "That the regulatory body was dissolved immediately",
-                    "That grandfathering exemptions protect certified filings submitted prior to the cutoff date",
+                    "That the regulatory body was closed down immediately",
+                    "That existing applications filed before the deadline are protected by grandfathering rules",
                     "That foreign governments declared the policy illegal overnight",
                     "That all affected organizations immediately went bankrupt",
                 ],
                 correct_option_index=1,
-                explanation="Wire reports initially reported a blanket freeze, whereas financial press confirmed grandfathering protections for existing filers.",
-                citation_source="Bloomberg Intelligence & Gazette FAQ",
+                explanation="Early wire alerts reported a complete freeze, but business reporters confirmed that existing filings are protected.",
+                citation_source="Bloomberg News & Official FAQ",
             ),
             QuizQuestion(
                 question_id=2,
-                question="What is the primary legal vulnerability identified in emergency court petitions?",
+                question="What is the main legal flaw raised in emergency court filings?",
                 options=[
-                    "Failure to conduct statutory notice-and-comment procedures under the Administrative Procedure Act",
+                    "The agency failed to give the public the required advance notice and time to comment",
                     "Violation of international maritime salvage treaties",
-                    "Clerical grammatical errors in the official decree",
+                    "Small spelling errors in the official order",
                     "Lack of presidential signature on the gazette notice",
                 ],
                 correct_option_index=0,
-                explanation="Substantive administrative rules issued without a notice-and-comment period are vulnerable to procedural injunctions.",
-                citation_source="Federal Court Docket PACER",
+                explanation="Government agencies are usually required by law to notify the public and collect feedback before making major rule changes.",
+                citation_source="Federal Court Docket",
             ),
             QuizQuestion(
                 question_id=3,
-                question="Which organizational prevention strategy is recommended by policy analysts?",
+                question="What practical step do policy experts recommend for organizations facing sudden rule changes?",
                 options=[
-                    "Permanently closing all domestic office locations",
-                    "Establishing redundant operational workflows and compliance reserves across diverse jurisdictions",
-                    "Ignoring administrative guidelines until court audits occur",
-                    "Refusing to communicate with legal counsel",
+                    "Permanently closing all offices",
+                    "Setting up backup operations and safety reserves across multiple locations",
+                    "Ignoring official rules until inspected",
+                    "Refusing to speak with legal advisors",
                 ],
                 correct_option_index=1,
-                explanation="Institutional resilience relies on diversifying operating hubs and maintaining regulatory reserves rather than abrupt panic measures.",
+                explanation="Building backup plans and spreading out operations helps organizations handle unexpected policy shifts without panicking.",
                 citation_source="Lessons & Prevention Analysis",
             ),
         ],
@@ -769,17 +778,21 @@ def build_structured_debate(topic: str) -> Dict[str, Any]:
             from google.genai import types
 
             client = genai.Client(api_key=GEMINI_API_KEY)
-            prompt = f"""Generate a high-level dialectical policy and perspective debate regarding:
+            prompt = f"""Generate a high-level perspective debate regarding:
 "{clean_topic}"
+
+CRITICAL READABILITY & TERMINOLOGY REQUIREMENT:
+1. Write both advocate and critic positions and the neutral summary in clear, direct English with accessible sentence structures.
+2. PRESERVE TECHNICAL TERMS: Do NOT replace or dumb down accurate technical, scientific, regulatory, or industry terms (e.g. use "spectrum" rather than "airwaves"; preserve exact policy and technical vocabulary).
 
 Return a single JSON object with:
 - "topic": "{clean_topic}"
-- "resolution_under_debate": string (formal debate resolution, e.g. "Resolved: ...")
+- "resolution_under_debate": string (clear debate resolution, e.g. "Resolved: ...")
 - "debate_turns": list of 4 objects alternating between 'PROPONENT / ADVOCATE' and 'CRITIC / OPPONENT', each with:
   - "speaker_perspective": 'PROPONENT / ADVOCATE' or 'CRITIC / OPPONENT'
-  - "core_argument": string (well-reasoned argument grounded in evidence)
+  - "core_argument": string (well-reasoned argument in clear, persuasive English preserving domain terminology)
   - "grounding_citations": list of 1-2 strings citing specific reports, audits, or precedents
-- "neutral_compromise_synthesis": string synthesizing common ground and actionable consensus
+- "neutral_compromise_synthesis": string synthesizing common ground in plain, easy-to-read English
 """
             res = client.models.generate_content(
                 model=MODEL_AGENT_FAST,
@@ -840,16 +853,20 @@ def build_structured_scenarios(topic: str) -> Dict[str, Any]:
             prompt = f"""Generate causal diagnostics, 3-tier ripple consequences, and future scenarios for:
 "{clean_topic}"
 
+CRITICAL READABILITY & TERMINOLOGY REQUIREMENT:
+1. Write causes, ripple consequences, and future scenarios in clear, direct, and straightforward sentence structures.
+2. PRESERVE TECHNICAL TERMS: Do NOT replace or dumb down accurate technical, scientific, economic, or legal terms with informal words (e.g. use "spectrum", not "airwaves"; keep terms like "injunction", "arbitrage", etc. intact).
+
 Return a single JSON object with:
 - "topic": "{clean_topic}"
-- "root_cause_analysis": object with 'immediate_triggers' (list of 2 strings), 'underlying_systemic_factors' (list of 2 strings), 'structural_failure_points' (list of 2 strings)
-- "consequences_tree": list of 3 objects with 'order' ('FIRST_ORDER'|'SECOND_ORDER'|'THIRD_ORDER'), 'impact_description' (string), 'affected_sector_or_group' (string)
+- "root_cause_analysis": object with 'immediate_triggers' (list of 2 clear strings), 'underlying_systemic_factors' (list of 2 clear strings), 'structural_failure_points' (list of 2 clear strings)
+- "consequences_tree": list of 3 objects with 'order' ('FIRST_ORDER'|'SECOND_ORDER'|'THIRD_ORDER'), 'impact_description' (string with clear sentence structure), 'affected_sector_or_group' (string)
 - "future_scenarios": list of 3 objects with:
-  - "scenario_title": string
+  - "scenario_title": string in clear English
   - "scenario_type": 'MOST_LIKELY'|'BEST_CASE'|'WORST_CASE'
   - "probability_rating": 'HIGH'|'MODERATE'|'LOW'
   - "time_horizon": string (e.g. '1 - 3 Months')
-  - "potential_impact": string
+  - "potential_impact": string in clear, easy-to-read English preserving technical terms
   - "signals_to_watch": list of strings
   - "what_if_assumption": optional string
 """
@@ -954,27 +971,31 @@ def generate_live_brief(topic: str) -> Optional[Dict[str, Any]]:
         prompt = f"""You are a news intelligence analyst. Generate an Executive Intelligence Brief for:
 "{clean_topic}"
 
+CRITICAL READABILITY & TERMINOLOGY REQUIREMENT:
+1. Write with simple, clear, and direct sentence structures. Use short, crisp sentences so explanations are easy to read.
+2. PRESERVE TECHNICAL TERMS: Do NOT replace or dumb down accurate technical, scientific, legal, or industry terms with informal words (e.g. use "spectrum", NOT "airwaves"; preserve exact terms like "orbital slot", "injunction", "antitrust", etc.). Keep technical terms exact and explain them simply in jargon_definitions.
+
 Return a single JSON object with:
 - "topic": "{clean_topic.title()}"
-- "executive_summary": "Comprehensive 3-4 sentence synthesized summary of verified reporting"
+- "executive_summary": "Clear, direct 3-4 sentence summary of verified reporting in accessible English preserving technical terms"
 - "key_metrics_and_numbers": ["4 specific numerical facts, percentages, dollar amounts, or milestone dates"]
 - "sources_analyzed": ["Associated Press", "Reuters", "Bloomberg", "Wall Street Journal", "Nikkei Asia", "The Hindu"]
 - "articles_analyzed": [
-    {{"outlet": "Reuters", "title": "Headline", "url": "https://www.reuters.com", "published_date": "Recent date", "author": "Wire Desk", "country": "United States", "flag": "🇺🇸", "editorial_lean": "Center", "reliability_tier": "High", "content": "Summary sentence"}},
-    {{"outlet": "Nikkei Asia", "title": "Headline", "url": "https://asia.nikkei.com", "published_date": "Recent date", "author": "Regional Bureau", "country": "Japan", "flag": "🇯🇵", "editorial_lean": "Center", "reliability_tier": "High", "content": "Regional market summary sentence"}},
-    {{"outlet": "The Hindu", "title": "Headline", "url": "https://www.thehindu.com", "published_date": "Recent date", "author": "National Desk", "country": "India", "flag": "🇮🇳", "editorial_lean": "Center-Left", "reliability_tier": "High", "content": "Policy overview sentence"}}
+    {{"outlet": "Reuters", "title": "Headline", "url": "https://www.reuters.com", "published_date": "Recent date", "author": "Wire Desk", "country": "United States", "flag": "🇺🇸", "editorial_lean": "Center", "reliability_tier": "High", "content": "Summary sentence in plain English"}},
+    {{"outlet": "Nikkei Asia", "title": "Headline", "url": "https://asia.nikkei.com", "published_date": "Recent date", "author": "Regional Bureau", "country": "Japan", "flag": "🇯🇵", "editorial_lean": "Center", "reliability_tier": "High", "content": "Regional market summary sentence in plain English"}},
+    {{"outlet": "The Hindu", "title": "Headline", "url": "https://www.thehindu.com", "published_date": "Recent date", "author": "National Desk", "country": "India", "flag": "🇮🇳", "editorial_lean": "Center-Left", "reliability_tier": "High", "content": "Policy overview sentence in plain English"}}
   ]
 - "context_primer": {{
-    "background_story": "Paragraph explaining background context and historical evolution of this situation",
+    "background_story": "Paragraph explaining background context and situation history with clear sentence structure",
     "primer_items": [
-      {{"entity_name": "Major Corporate or Regulatory Entity 1", "entity_type": "ORGANIZATION", "role_or_title": "Primary Regulatory or Corporate Body", "explainer_2_lines": "Two sentence institutional role description", "historical_context": "Mandate and background", "wikipedia_url": "https://en.wikipedia.org/wiki/Exact_Article_Name"}},
-      {{"entity_name": "Major Agency or Coalition 2", "entity_type": "ORGANIZATION", "role_or_title": "Executive Oversight / Industry Body", "explainer_2_lines": "Two sentence description", "historical_context": "Historical mandate", "wikipedia_url": "https://en.wikipedia.org/wiki/Exact_Article_Name"}},
-      {{"entity_name": "International or Regional Body 3", "entity_type": "ORGANIZATION", "role_or_title": "Regional Authority or Trade Partner", "explainer_2_lines": "Two sentence description", "historical_context": "Relevance to topic", "wikipedia_url": "https://en.wikipedia.org/wiki/Exact_Article_Name"}},
-      {{"entity_name": "Judicial or Financial Institution 4", "entity_type": "ORGANIZATION", "role_or_title": "Judicial or Financial Arbiter", "explainer_2_lines": "Two sentence description", "historical_context": "Precedent history", "wikipedia_url": "https://en.wikipedia.org/wiki/Exact_Article_Name"}},
-      {{"entity_name": "Lead Key Leader or CEO 1", "entity_type": "PERSON", "role_or_title": "Chief Executive / Agency Chair / Prime Minister", "explainer_2_lines": "Two sentence biographical role description", "historical_context": "Executive decision background", "wikipedia_url": "https://en.wikipedia.org/wiki/First_Last"}},
-      {{"entity_name": "Prominent Official or Negotiator 2", "entity_type": "PERSON", "role_or_title": "Minister / Judge / Lead Negotiator", "explainer_2_lines": "Two sentence description", "historical_context": "Policy stance and track record", "wikipedia_url": "https://en.wikipedia.org/wiki/First_Last"}}
+      {{"entity_name": "Major Corporate or Regulatory Entity 1", "entity_type": "ORGANIZATION", "role_or_title": "Primary Regulatory or Corporate Body", "explainer_2_lines": "Two clear sentences explaining who they are and what they do", "historical_context": "Background in clear words", "wikipedia_url": "https://en.wikipedia.org/wiki/Exact_Article_Name"}},
+      {{"entity_name": "Major Agency or Coalition 2", "entity_type": "ORGANIZATION", "role_or_title": "Executive Oversight / Industry Body", "explainer_2_lines": "Two clear sentences", "historical_context": "Background in clear words", "wikipedia_url": "https://en.wikipedia.org/wiki/Exact_Article_Name"}},
+      {{"entity_name": "International or Regional Body 3", "entity_type": "ORGANIZATION", "role_or_title": "Regional Authority or Trade Partner", "explainer_2_lines": "Two clear sentences", "historical_context": "Relevance in clear words", "wikipedia_url": "https://en.wikipedia.org/wiki/Exact_Article_Name"}},
+      {{"entity_name": "Judicial or Financial Institution 4", "entity_type": "ORGANIZATION", "role_or_title": "Judicial or Financial Arbiter", "explainer_2_lines": "Two clear sentences", "historical_context": "Background in clear words", "wikipedia_url": "https://en.wikipedia.org/wiki/Exact_Article_Name"}},
+      {{"entity_name": "Lead Key Leader or CEO 1", "entity_type": "PERSON", "role_or_title": "Chief Executive / Agency Chair / Prime Minister", "explainer_2_lines": "Two clear sentences explaining their role", "historical_context": "Background in clear words", "wikipedia_url": "https://en.wikipedia.org/wiki/First_Last"}},
+      {{"entity_name": "Prominent Official or Negotiator 2", "entity_type": "PERSON", "role_or_title": "Minister / Judge / Lead Negotiator", "explainer_2_lines": "Two clear sentences", "historical_context": "Background in clear words", "wikipedia_url": "https://en.wikipedia.org/wiki/First_Last"}}
     ],
-    "jargon_definitions": {{"Key Term": "Clear plain-English definition"}}
+    "jargon_definitions": {{"Exact Technical Term": "Clear, accessible plain-English explanation of this exact term"}}
   }}
 """
         res = client.models.generate_content(
@@ -1005,15 +1026,19 @@ def generate_live_verifications(topic: str) -> Optional[Dict[str, Any]]:
         prompt = f"""You are an IFCN forensic fact checker. Audit claims and bias for:
 "{clean_topic}"
 
+CRITICAL READABILITY & TERMINOLOGY REQUIREMENT:
+1. Write all reasoning, contradiction breakdowns, and consensus points with clear, straightforward sentence structures.
+2. PRESERVE TECHNICAL TERMS: Do NOT replace or dumb down accurate technical, scientific, legal, or industry terms with informal words (e.g. use "spectrum", NOT "airwaves"). Preserve exact terms while keeping the reasoning easy to read.
+
 Return a single JSON object with:
-- "consensus_points": ["3 points universally agreed upon across all credible outlets"]
+- "consensus_points": ["3 points universally agreed upon across all credible outlets in clear English"]
 - "verifications": [
-    {{"claim_id": "C-01", "claim_text": "Claim 1", "status": "VERIFIED", "confidence": 0.95, "reasoning": "Evidentiary audit", "corroborating_sources": ["Primary record"], "conflicting_sources": []}},
-    {{"claim_id": "C-02", "claim_text": "Claim 2", "status": "DISPUTED", "confidence": 0.89, "reasoning": "Evidentiary audit", "corroborating_sources": ["Audit document"], "conflicting_sources": ["Initial headline"]}},
-    {{"claim_id": "C-03", "claim_text": "Claim 3", "status": "VERIFIED", "confidence": 0.92, "reasoning": "Evidentiary audit", "corroborating_sources": ["Official statement"], "conflicting_sources": []}}
+    {{"claim_id": "C-01", "claim_text": "Claim 1", "status": "VERIFIED", "confidence": 0.95, "reasoning": "Clear explanation preserving exact technical details", "corroborating_sources": ["Primary record"], "conflicting_sources": []}},
+    {{"claim_id": "C-02", "claim_text": "Claim 2", "status": "DISPUTED", "confidence": 0.89, "reasoning": "Clear explanation preserving exact technical details", "corroborating_sources": ["Audit document"], "conflicting_sources": ["Initial headline"]}},
+    {{"claim_id": "C-03", "claim_text": "Claim 3", "status": "VERIFIED", "confidence": 0.92, "reasoning": "Clear explanation preserving exact technical details", "corroborating_sources": ["Official statement"], "conflicting_sources": []}}
   ]
 - "contradictions": [
-    {{"contradiction_id": "CONT-01", "topic_aspect": "Specific Aspect", "outlet_a": "Outlet A", "claim_a": "Assertion A", "outlet_b": "Outlet B", "claim_b": "Assertion B", "divergence_type": "Fact Negation", "analysis": "Reason for divergence"}}
+    {{"contradiction_id": "CONT-01", "topic_aspect": "Specific Aspect", "outlet_a": "Outlet A", "claim_a": "Assertion A", "outlet_b": "Outlet B", "claim_b": "Assertion B", "divergence_type": "Fact Negation", "analysis": "Clear explanation in direct English of why the reports disagree"}}
   ]
 - "bias_evaluations": [
     {{"outlet": "Associated Press / Reuters", "assessed_lean": "CENTER", "loaded_terms_identified": ["procedural"], "framing_narrative": "Factual procedural focus", "omitted_context": null}},
@@ -1073,15 +1098,16 @@ CRITICAL RECENCY & TRENDING INSTRUCTION:
 2. DO NOT output only old historical events from months or years ago. While you may include 1-2 foundational precursor events to provide background context, the timeline MUST bridge all the way forward to the present day and document the latest incidents that caused this topic to trend.
 3. Provide 5 to 7 detailed milestone events in strict chronological sequence (oldest to newest).
 4. For recent events occurring within the past few days/weeks or representing the latest breaking/trending state, set "is_recent": true (otherwise false). Ensure the final 1-2 milestones reflect current trending status.
+5. READABILITY & TERMINOLOGY REQUIREMENT: Write with clear, direct sentence structures that are easy to read. Preserve exact technical, legal, and industry-standard terms (e.g. use "spectrum", NOT "airwaves"; preserve exact terms). Do NOT replace technical words with informal substitutes.
 
 Return a single JSON object with:
 - "timeline": {{
-    "narrative_evolution_summary": "Comprehensive 2-3 sentence synthesis documenting how media framing, official responses, and reported figures evolved from initial triggers to the latest trending consensus",
+    "narrative_evolution_summary": "Simple, clear 2-3 sentence overview explaining how media reporting evolved over time in clear English",
     "events": [
       {{
         "timestamp_or_date": "Exact or approximate date and time (e.g. October 12, 2026 • 14:00 UTC)",
-        "headline": "Informative milestone headline",
-        "description": "Specific factual summary of what occurred",
+        "headline": "Clear, informative milestone headline preserving technical terms",
+        "description": "Specific factual summary of what occurred in clear, direct English preserving domain terms",
         "source_outlet": "Reporting outlet (e.g. Reuters, Associated Press, Bloomberg)",
         "source_url": "URL if available from reporting context",
         "narrative_shift": "How media framing or focus shifted at this point",
