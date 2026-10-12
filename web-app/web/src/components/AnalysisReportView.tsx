@@ -694,21 +694,23 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                   {report.executive_summary}
                 </p>
 
-                {/* DaisyUI Stats Component for Key Numbers (F19) */}
+                {/* Key Numbers & Statistical Baseline (F19) - Vertical Alignment */}
                 {report.key_metrics_and_numbers && report.key_metrics_and_numbers.length > 0 && (
                   <div className="mt-8">
                     <div className="text-xs font-bold uppercase tracking-wider text-primary mb-3 flex items-center gap-2">
                       <BarChart3 size={16} />
                       <span>Key Numbers & Statistical Baseline (F19)</span>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div className="flex flex-col gap-3">
                       {report.key_metrics_and_numbers.map((metric, idx) => (
-                        <div key={idx} className="stat bg-base-100 rounded-xl border border-base-300 shadow-sm p-4">
-                          <div className="stat-figure text-primary">
-                            <BarChart3 size={20} />
+                        <div
+                          key={idx}
+                          className="bg-base-100 rounded-xl border border-base-300 shadow-sm p-4 hover:border-primary/30 transition-colors"
+                        >
+                          <div className="text-[11px] font-bold uppercase tracking-wider text-primary/80 mb-1">
+                            Metric #{idx + 1}
                           </div>
-                          <div className="stat-title text-[11px] font-bold uppercase opacity-70">Metric #{idx + 1}</div>
-                          <div className="stat-value text-sm md:text-base font-bold text-base-content whitespace-normal leading-snug mt-1">
+                          <div className="text-sm md:text-base font-semibold text-base-content leading-relaxed">
                             {metric}
                           </div>
                         </div>
