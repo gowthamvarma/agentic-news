@@ -123,6 +123,15 @@ export interface NewsIntelligenceReport {
   available_sections?: string[];
   quiz?: QuizPayload;
   debate?: PerspectiveDebateReport;
+  chat_history?: ChatMessage[];
+}
+
+export interface ChatMessage {
+  id?: string;
+  sender: 'user' | 'agent';
+  text: string;
+  time?: string;
+  timestamp?: number;
 }
 
 export interface AnalysisArchiveItem {

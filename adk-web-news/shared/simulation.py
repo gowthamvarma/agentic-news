@@ -358,37 +358,20 @@ def generate_scenario_prediction_response(topic: str) -> str:
 
 
 def generate_research_copilot_response(topic: str) -> str:
-    """Generates an autonomous investigative research dossier tailored to topic."""
+    """Generates a rapid, precise, and neatly formatted investigative response tailored to topic."""
     clean_topic = topic.strip().title()
-    words = [w for w in clean_topic.split() if len(w) > 3]
-    subject = " ".join(words[:3]) if words else clean_topic
 
-    return f"""# 🕵️ Autonomous Investigative Research Dossier: {clean_topic}
+    return f"""### ⚡ Quick Takeaway: Autonomous Investigative Research Dossier
+**Direct Finding**: Verified reporting confirms active regulatory and operational updates regarding **{clean_topic}**.
 
-**Target Subject**: {clean_topic}
-**Investigative Scope**: Cross-source evidentiary audit, regulatory dockets, corporate disclosures, and primary government filings.
+### 🔍 Key Evidentiary Facts
+- **Primary Regulatory Filings**: Directive Ref `AD-2026-ENG-089` entered into public registry confirms discretionary transitional exemptions.
+- **Fact Verification Audit**: Cross-checked with IFCN partner records; initial claims asserting absolute immediate halts are **MISLEADING**.
+- **Market Response**: Impact data shows measured organizational adjustments rather than systemic stoppage.
 
----
-
-### Key Investigative Findings
-1. **Primary Regulatory Filings**:
-   - Agency Directive Ref: `AD-2026-ENG-089` formally entered into public registry on Day 0.
-   - Textual inspection reveals Section 4(b) contains discretionary enforcement waivers that were omitted from initial press releases and wire reporting.
-
-2. **Cross-Checked Fact-Check Database Queries**:
-   - Corroborated with International Fact-Checking Network (IFCN) verified partner records: Claims asserting an "absolute ban with zero exceptions" are flagged as **MISLEADING / PARTIALLY FALSE**.
-   - Economic impact figures cited by trade groups ($1.2B to $1.8B) originate from an independent survey of 420 member enterprises conducted under peer review.
-
-3. **Autonomous Deep-Dive Sub-Queries Pursued**:
-   - `Sub-Query 1: Administrative Procedure Act 553 notice-and-comment exceptions in emergency directives` -> Finding: Courts historically reject emergency exceptions unless direct national security threats are documented in contemporaneous records.
-   - `Sub-Query 2: Corporate contingency relocations following policy announcement` -> Finding: Multiple major tech enterprise consortia expanded Canadian and European subsidiary operations within 7 days.
-
----
-
-### Open Investigative Leads & Next Steps
-- 📌 Monitor PACER federal docket for Plaintiff's Reply Brief due this Friday at 17:00 EST.
-- 📌 Freedom of Information (FOIA) requests submitted regarding internal inter-agency communications preceding the directive.
-- 📌 Full evidentiary ledger maintained with primary citation hashes.
+### 📌 Open Investigative Leads & Citations
+- **Open Investigative Leads**: Monitoring PACER federal dockets for impending preliminary injunction rulings.
+> 📰 **Source Citation**: Official Administrative Register & Verified Wire Dispatches (Reuters, Associated Press)
 """
 
 

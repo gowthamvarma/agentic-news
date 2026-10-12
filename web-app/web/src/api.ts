@@ -2,7 +2,8 @@ import type {
   NewsIntelligenceReport,
   QuizPayload,
   PerspectiveDebateReport,
-  PaginatedAnalysesResponse
+  PaginatedAnalysesResponse,
+  ChatMessage
 } from './types';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
@@ -164,12 +165,26 @@ export async function generateScenarios(topic: string, analysisId?: string) {
   return res.json();
 }
 
-export async function chatResearchCopilot(query: string, topic: string) {
+export async function chatResearchCopilot(query: string, topic: string, analysisId?: string) {
   const res = await fetch(`${API_BASE}/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query, topic }),
+    body: JSON.stringify({ query, topic, analysis_id: analysisId }),
   });
   if (!res.ok) throw new Error('Research copilot chat failed');
   return res.json();
+}
+
+export async function fetchChatHistory(analysisId: string): Promise<ChatMessage[]> {
+  const res = await fetch(`${API_BASE}/chat/history/${encodeURIComponent(analysisId)}`);
+  if (!res.ok) throw new Error('Failed to load chat history');
+  const data = await res.json();
+  return data.messages || [];
+}
+
+export async function clearChatHistory(analysisId: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/chat/history/${encodeURIComponent(analysisId)}`, {
+    method: 'DELETE',
+  });
+  if (!res.ok) throw new Error('Failed to clear chat history');
 }

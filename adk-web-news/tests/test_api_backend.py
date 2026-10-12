@@ -45,6 +45,28 @@ class TestApiBackendAndFirestore(unittest.IsolatedAsyncioTestCase):
         recent = await FirestoreService.list_recent_analyses(5)
         self.assertGreater(len(recent), 0)
 
+    async def test_firestore_chat_history_crud(self):
+        analysis_id = "test-chat-analysis-456"
+        msg1 = {"sender": "user", "text": "What about the legal appeals?"}
+        history = await FirestoreService.save_chat_message(analysis_id, msg1)
+        self.assertEqual(len(history), 1)
+        self.assertEqual(history[0]["text"], "What about the legal appeals?")
+        self.assertEqual(history[0]["sender"], "user")
+
+        msg2 = {"sender": "agent", "text": "Preliminary injunction hearing scheduled this Friday."}
+        history = await FirestoreService.save_chat_message(analysis_id, msg2)
+        self.assertEqual(len(history), 2)
+
+        retrieved = await FirestoreService.get_chat_history(analysis_id)
+        self.assertEqual(len(retrieved), 2)
+        self.assertEqual(retrieved[1]["sender"], "agent")
+
+        # Test clear chat history
+        cleared = await FirestoreService.clear_chat_history(analysis_id)
+        self.assertTrue(cleared)
+        after_clear = await FirestoreService.get_chat_history(analysis_id)
+        self.assertEqual(len(after_clear), 0)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -25,6 +25,7 @@ rules_version = '2';
 //   - lessons_learned: list of maps (optional, max 50 items)
 //   - sources_analyzed: list of strings (optional, max 50 items)
 //   - evidence_ledger: list of maps (optional, max 200 items)
+//   - chat_history: list of maps (optional, max 200 items)
 //   - raw_markdown: string (optional, max 100,000 chars)
 //   - created_at: number | timestamp (optional, immutable)
 //   - updated_at: number | timestamp (optional)
@@ -83,6 +84,16 @@ rules_version = '2';
 // Fields:
 //   - id: string (required, 1-128 chars, matches document ID, immutable)
 //   - entries: list of maps (required, max 500 items)
+//   - created_at: number | timestamp (optional, immutable)
+//   - updated_at: number | timestamp (optional)
+//   - uid: string (optional, 1-128 chars, matches author auth.uid, immutable)
+//
+// Collection: chat_history
+// Document ID: {analysisId} (UUID or sanitized string slug, 1-128 chars)
+// Fields:
+//   - id: string (optional, 1-128 chars, matches document ID, immutable)
+//   - analysis_id: string (required, 1-128 chars, matches document ID, immutable)
+//   - messages: list of maps (required, max 200 items)
 //   - created_at: number | timestamp (optional, immutable)
 //   - updated_at: number | timestamp (optional)
 //   - uid: string (optional, 1-128 chars, matches author auth.uid, immutable)
@@ -160,6 +171,7 @@ service cloud.firestore {
           'contradictions', 'verifications', 'bias_evaluations',
           'root_cause_analysis', 'consequences_tree', 'future_scenarios',
           'lessons_learned', 'sources_analyzed', 'evidence_ledger',
+          'chat_history',
           'raw_markdown', 'created_at', 'updated_at', 'uid', 'author', 'status'
         ]) &&
         data.id is string && data.id == analysisId &&
@@ -179,6 +191,7 @@ service cloud.firestore {
         isValidOptionalList(data, 'lessons_learned', 50) &&
         isValidOptionalList(data, 'sources_analyzed', 50) &&
         isValidOptionalList(data, 'evidence_ledger', 200) &&
+        isValidOptionalList(data, 'chat_history', 200) &&
         isValidOptionalString(data, 'raw_markdown', 0, 100000) &&
         isValidOptionalTime(data, 'created_at') &&
         isValidOptionalTime(data, 'updated_at') &&
@@ -264,6 +277,21 @@ service cloud.firestore {
         isValidOptionalString(data, 'uid', 1, 128);
     }
 
+    function isValidChatHistory(data, analysisId) {
+      return data.keys().hasAll(['analysis_id', 'messages']) &&
+        data.keys().hasOnly(['id', 'analysis_id', 'messages', 'created_at', 'updated_at', 'uid']) &&
+        data.analysis_id is string &&
+        data.analysis_id == analysisId &&
+        data.analysis_id.size() >= 1 &&
+        data.analysis_id.size() <= 128 &&
+        (!('id' in data) || (data.id is string && data.id == analysisId && data.id.size() >= 1 && data.id.size() <= 128)) &&
+        data.messages is list &&
+        data.messages.size() <= 200 &&
+        isValidOptionalTime(data, 'created_at') &&
+        isValidOptionalTime(data, 'updated_at') &&
+        isValidOptionalString(data, 'uid', 1, 128);
+    }
+
     // ===============================================================
     // Collection Rules
     // ===============================================================
@@ -336,6 +364,21 @@ service cloud.firestore {
                     uidUnchanged();
       allow update: if false; // Audit logs are immutable
       allow delete: if false; // Audit logs cannot be deleted
+    }
+
+    // 6. Chat History: Research Copilot conversation history per analysis
+    match /chat_history/{analysisId} {
+      allow read: if true;
+      allow create: if isAuthenticated() &&
+                    isValidChatHistory(request.resource.data, analysisId) &&
+                    uidUnchanged();
+      allow update: if isAuthenticated() &&
+                    isValidChatHistory(request.resource.data, analysisId) &&
+                    uidNotModified() &&
+                    areImmutableFieldsUnchanged(['id', 'analysis_id', 'created_at']) &&
+                    (!('uid' in resource.data) || resource.data.uid == request.auth.uid || isAdmin());
+      allow delete: if isAuthenticated() &&
+                    (('uid' in resource.data && resource.data.uid == request.auth.uid) || isAdmin());
     }
 
     // Default Deny: all unmapped collections and wildcard paths

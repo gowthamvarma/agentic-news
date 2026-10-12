@@ -13,27 +13,27 @@ if str(_root_dir) not in sys.path:
 from google.adk.agents import Agent
 from google.genai import types
 
-from shared.config import MODEL_REASONING_PRO, IS_SIMULATION_MODE, logger
+from shared.config import MODEL_AGENT_FAST, IS_SIMULATION_MODE, logger
 from shared.tools import fetch_news_tool, scrape_article_tool, factcheck_db_tool, perspectives_tool
 from shared.simulation import make_simulation_callback, make_model_error_callback
 from shared.agents.engage import RESEARCH_COPILOT_INSTRUCTION
 
 root_agent = Agent(
     name="research_copilot",
-    model=MODEL_REASONING_PRO,
+    model=MODEL_AGENT_FAST,
     description=(
-        "Autonomous Investigative Research Copilot & Ask-the-News Chat Companion (Features F21, F39). "
-        "Answers deep follow-up queries with pinpoint citation traceability, formulates investigative sub-queries, "
-        "scrapes supplementary sources, queries factcheck databases, and compiles comprehensive investigative dossiers."
+        "Autonomous Fast Investigative Research Copilot & Ask-the-News Chat Companion (Features F21, F39). "
+        "Answers follow-up queries with rapid response time, pinpoint citations, and clean structured formatting."
     ),
     instruction=RESEARCH_COPILOT_INSTRUCTION,
     tools=[fetch_news_tool, scrape_article_tool, factcheck_db_tool, perspectives_tool],
     generate_content_config=types.GenerateContentConfig(
         temperature=0.2,
         top_p=0.9,
+        max_output_tokens=1024,
     ),
     before_model_callback=make_simulation_callback("research_copilot") if IS_SIMULATION_MODE else None,
     on_model_error_callback=make_model_error_callback("research_copilot"),
 )
 
-logger.info("research_copilot root_agent loaded (Model: %s)", MODEL_REASONING_PRO)
+logger.info("research_copilot root_agent loaded (Model: %s)", MODEL_AGENT_FAST)

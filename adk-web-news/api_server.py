@@ -86,6 +86,7 @@ class ChatRequest(BaseModel):
     query: str
     topic: Optional[str] = "General News Investigation"
     session_id: Optional[str] = None
+    analysis_id: Optional[str] = Field(default=None, description="Associated analysis ID to persist chat history in Firestore")
 
 
 class UpdateAnalysisRequest(BaseModel):
@@ -434,12 +435,69 @@ async def generate_future_scenarios(req: AnalyzeRequest):
 
 @app.post("/api/chat")
 async def chat_research_copilot(req: ChatRequest):
-    """Interactive follow-up Q&A and investigation mode with Research Copilot."""
-    prompt = f"Topic Context: {req.topic}\nUser Question: {req.query}"
+    """Interactive follow-up Q&A and investigation mode with Research Copilot.
+    
+    Persists user & agent interaction history into Firestore when analysis_id is provided.
+    """
+    analysis_id = (req.analysis_id or "").strip()
+    user_time_str = time.strftime("%H:%M")
+
+    # If associated with an analysis report, persist user question to Firestore
+    if analysis_id:
+        user_msg = {
+            "id": str(uuid.uuid4()),
+            "sender": "user",
+            "text": req.query,
+            "timestamp": time.time(),
+            "time": user_time_str,
+        }
+        await FirestoreService.save_chat_message(analysis_id, user_msg)
+
+    prompt = (
+        f"Topic Context: {req.topic}\n"
+        f"User Question: {req.query}\n\n"
+        "Instructions: Provide a quick, precise, neatly formatted response in Markdown with clear bold headings, bullet points, and source citations."
+    )
     raw_markdown, ledger = await execute_adk_agent("research_copilot", copilot_agent, prompt)
+
+    agent_time_str = time.strftime("%H:%M")
+    history: List[Dict[str, Any]] = []
+
+    # If associated with an analysis report, persist copilot response to Firestore
+    if analysis_id:
+        agent_msg = {
+            "id": str(uuid.uuid4()),
+            "sender": "agent",
+            "text": raw_markdown,
+            "timestamp": time.time(),
+            "time": agent_time_str,
+        }
+        history = await FirestoreService.save_chat_message(analysis_id, agent_msg)
+
     return {
         "response": raw_markdown,
         "evidence_ledger": ledger,
+        "chat_history": history,
+    }
+
+
+@app.get("/api/chat/history/{analysis_id}")
+async def get_copilot_chat_history(analysis_id: str):
+    """Retrieves saved Research Copilot chat history from Firestore."""
+    messages = await FirestoreService.get_chat_history(analysis_id)
+    return {
+        "analysis_id": analysis_id,
+        "messages": messages,
+    }
+
+
+@app.delete("/api/chat/history/{analysis_id}")
+async def clear_copilot_chat_history(analysis_id: str):
+    """Clears saved Research Copilot chat history from Firestore."""
+    success = await FirestoreService.clear_chat_history(analysis_id)
+    return {
+        "status": "cleared" if success else "failed",
+        "analysis_id": analysis_id,
     }
 
 

@@ -54,13 +54,13 @@ except Exception as e:
     FIRESTORE_AVAILABLE = False
 
 
-# In-memory storage fallback
 _MEMORY_STORE: Dict[str, Dict[str, Dict[str, Any]]] = {
     "analyses": {},
     "fact_checks": {},
     "quizzes": {},
     "debates": {},
     "evidence_ledger": {},
+    "chat_history": {},
 }
 
 
@@ -250,3 +250,90 @@ class FirestoreService:
                 logger.warning("Failed saving ledger to Firestore (%s). Saving to memory.", e)
         _MEMORY_STORE["evidence_ledger"][ledger_id] = doc
         return ledger_id
+
+    @staticmethod
+    async def save_chat_message(analysis_id: str, message: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """Appends a chat message to the analysis's chat history in Firestore and memory."""
+        # Ensure message format
+        if "id" not in message:
+            message["id"] = str(uuid.uuid4())
+        if "timestamp" not in message:
+            message["timestamp"] = time.time()
+        if "time" not in message:
+            message["time"] = time.strftime("%H:%M")
+
+        existing_messages = await FirestoreService.get_chat_history(analysis_id)
+        existing_messages.append(message)
+
+        # 1. Update in-memory store
+        _MEMORY_STORE["chat_history"][analysis_id] = existing_messages
+        if analysis_id in _MEMORY_STORE["analyses"]:
+            _MEMORY_STORE["analyses"][analysis_id]["chat_history"] = existing_messages
+
+        # 2. Persist to Firestore if available
+        if FIRESTORE_AVAILABLE and db_client:
+            try:
+                # Save to dedicated chat_history collection
+                chat_doc_ref = db_client.collection("chat_history").document(analysis_id)
+                await chat_doc_ref.set({
+                    "analysis_id": analysis_id,
+                    "messages": existing_messages,
+                    "updated_at": time.time(),
+                })
+
+                # Also sync into analyses document if it exists
+                analysis_doc_ref = db_client.collection("analyses").document(analysis_id)
+                await analysis_doc_ref.set({"chat_history": existing_messages, "updated_at": time.time()}, merge=True)
+            except Exception as e:
+                logger.warning("Failed saving chat history to Firestore (%s). Preserved in memory.", e)
+
+        return existing_messages
+
+    @staticmethod
+    async def get_chat_history(analysis_id: str) -> List[Dict[str, Any]]:
+        """Retrieves full chat message history for an analysis from Firestore or memory."""
+        if FIRESTORE_AVAILABLE and db_client:
+            try:
+                # First check dedicated chat_history collection
+                chat_doc_ref = db_client.collection("chat_history").document(analysis_id)
+                doc = await chat_doc_ref.get()
+                if doc.exists:
+                    data = doc.to_dict()
+                    return data.get("messages", [])
+
+                # Fallback check analyses collection
+                analysis_doc_ref = db_client.collection("analyses").document(analysis_id)
+                adoc = await analysis_doc_ref.get()
+                if adoc.exists:
+                    adata = adoc.to_dict()
+                    if "chat_history" in adata and isinstance(adata["chat_history"], list):
+                        return adata["chat_history"]
+            except Exception as e:
+                logger.warning("Failed reading chat history from Firestore (%s). Checking memory.", e)
+
+        if analysis_id in _MEMORY_STORE["chat_history"]:
+            return list(_MEMORY_STORE["chat_history"][analysis_id])
+
+        if analysis_id in _MEMORY_STORE["analyses"]:
+            return list(_MEMORY_STORE["analyses"][analysis_id].get("chat_history", []))
+
+        return []
+
+    @staticmethod
+    async def clear_chat_history(analysis_id: str) -> bool:
+        """Clears chat history for an analysis in Firestore and memory."""
+        _MEMORY_STORE["chat_history"][analysis_id] = []
+        if analysis_id in _MEMORY_STORE["analyses"]:
+            _MEMORY_STORE["analyses"][analysis_id]["chat_history"] = []
+
+        if FIRESTORE_AVAILABLE and db_client:
+            try:
+                chat_doc_ref = db_client.collection("chat_history").document(analysis_id)
+                await chat_doc_ref.delete()
+
+                analysis_doc_ref = db_client.collection("analyses").document(analysis_id)
+                await analysis_doc_ref.set({"chat_history": [], "updated_at": time.time()}, merge=True)
+            except Exception as e:
+                logger.warning("Failed clearing chat history in Firestore (%s). Cleared in memory.", e)
+
+        return True

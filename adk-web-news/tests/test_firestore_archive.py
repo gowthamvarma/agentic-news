@@ -81,5 +81,38 @@ class TestFirestoreArchive(unittest.IsolatedAsyncioTestCase):
         self.assertIn("event: step_timeline", text)
         self.assertIn("event: complete", text)
 
+    def test_chat_history_api_endpoints(self):
+        client = TestClient(app)
+        doc_id = "test-chat-endpoint-doc-77"
+
+        # 1. Post chat query with analysis_id
+        res_post = client.post("/api/chat", json={
+            "query": "Is there an exception for existing applicants?",
+            "topic": "U.S. PERM Program Regulations",
+            "analysis_id": doc_id,
+        })
+        self.assertEqual(res_post.status_code, 200)
+        data = res_post.json()
+        self.assertIn("response", data)
+        self.assertIn("chat_history", data)
+        self.assertEqual(len(data["chat_history"]), 2)  # User question + Copilot answer
+
+        # 2. Get chat history from Firestore
+        res_get = client.get(f"/api/chat/history/{doc_id}")
+        self.assertEqual(res_get.status_code, 200)
+        hist_data = res_get.json()
+        self.assertEqual(hist_data["analysis_id"], doc_id)
+        self.assertEqual(len(hist_data["messages"]), 2)
+
+        # 3. Clear chat history
+        res_clear = client.delete(f"/api/chat/history/{doc_id}")
+        self.assertEqual(res_clear.status_code, 200)
+        self.assertEqual(res_clear.json()["status"], "cleared")
+
+        # 4. Verify empty after clear
+        res_after = client.get(f"/api/chat/history/{doc_id}")
+        self.assertEqual(len(res_after.json()["messages"]), 0)
+
+
 if __name__ == "__main__":
     unittest.main()

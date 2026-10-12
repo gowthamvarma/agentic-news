@@ -33,22 +33,20 @@ import {
   gradeQuiz,
   generateDebate,
   generateScenarios,
-  chatResearchCopilot
+  chatResearchCopilot,
+  fetchChatHistory,
+  clearChatHistory
 } from '../api';
 import type {
   NewsIntelligenceReport,
   QuizPayload,
-  PerspectiveDebateReport
+  PerspectiveDebateReport,
+  ChatMessage
 } from '../types';
 import { RobotAvatar } from './RobotAvatar';
 import { UserAvatar } from './UserAvatar';
+import { FormattedMarkdown } from './FormattedMarkdown';
 import { useToast } from '../context/ToastContext';
-
-interface ChatMessage {
-  sender: 'user' | 'agent';
-  text: string;
-  time: string;
-}
 
 interface AnalysisReportViewProps {
   report: NewsIntelligenceReport;
@@ -155,15 +153,41 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
       : 'paused';
 
   // Research Copilot Chat State
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    {
-      sender: 'agent',
-      text: 'Hello! I am your Research Copilot powered by Google Gemini 3.1 Pro. Ask any follow-up question or request an autonomous investigative deep-dive over verified reporting.',
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  const defaultGreeting: ChatMessage = {
+    sender: 'agent',
+    text: 'Hello! I am your Research Copilot powered by Google Gemini 3.8 Flash. Ask any follow-up question or request an autonomous investigative deep-dive over verified reporting.',
+    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  };
+
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(() => {
+    if (report.chat_history && report.chat_history.length > 0) {
+      return report.chat_history;
     }
-  ]);
+    return [defaultGreeting];
+  });
   const [chatInput, setChatInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
+
+  // Sync and restore chat history from Firestore
+  useEffect(() => {
+    const targetId = report.id || report.analysis_id;
+    if (report.chat_history && report.chat_history.length > 0) {
+      setChatMessages(report.chat_history);
+      return;
+    }
+
+    if (targetId) {
+      fetchChatHistory(targetId)
+        .then((savedMsgs) => {
+          if (savedMsgs && savedMsgs.length > 0) {
+            setChatMessages(savedMsgs);
+          }
+        })
+        .catch((err) => {
+          console.warn('Could not retrieve Firestore chat history:', err);
+        });
+    }
+  }, [report.id, report.analysis_id, report.chat_history]);
 
   const handleLoadScenarios = async () => {
     const targetId = report.id || report.analysis_id;
@@ -284,15 +308,30 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
     const userText = (customText || chatInput).trim();
     if (!userText || chatLoading) return;
 
+    const targetId = report.id || report.analysis_id;
     const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     setChatMessages((prev) => [...prev, { sender: 'user', text: userText, time: currentTime }]);
     setChatInput('');
     setChatLoading(true);
 
     try {
-      const res = await chatResearchCopilot(userText, report.topic);
+      const res = await chatResearchCopilot(userText, report.topic, targetId);
       const agentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      setChatMessages((prev) => [...prev, { sender: 'agent', text: res.response, time: agentTime }]);
+      if (res.chat_history && res.chat_history.length > 0) {
+        setChatMessages(res.chat_history);
+      } else {
+        setChatMessages((prev) => [...prev, { sender: 'agent', text: res.response, time: agentTime }]);
+      }
+      if (targetId && onUpdateReport) {
+        onUpdateReport({
+          ...report,
+          chat_history: res.chat_history || [
+            ...chatMessages,
+            { sender: 'user', text: userText, time: currentTime },
+            { sender: 'agent', text: res.response, time: agentTime }
+          ]
+        });
+      }
     } catch (err: any) {
       const agentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       setChatMessages((prev) => [
@@ -304,15 +343,28 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
     }
   };
 
-  const handleClearChat = () => {
-    setChatMessages([
-      {
-        sender: 'agent',
-        text: 'Chat history cleared. What topic or claim would you like me to investigate?',
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  const handleClearChat = async () => {
+    const targetId = report.id || report.analysis_id;
+    if (targetId) {
+      try {
+        await clearChatHistory(targetId);
+      } catch (err) {
+        console.warn('Could not clear Firestore chat history:', err);
       }
-    ]);
-    showToast('Copilot chat cleared');
+    }
+    const resetGreeting: ChatMessage = {
+      sender: 'agent',
+      text: 'Chat history cleared. What topic or claim would you like me to investigate?',
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    setChatMessages([resetGreeting]);
+    if (onUpdateReport) {
+      onUpdateReport({
+        ...report,
+        chat_history: []
+      });
+    }
+    showToast('Copilot chat history cleared from Firestore');
   };
 
   const renderProbabilityRating = (ratingStr: string) => {
@@ -1663,7 +1715,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
               <div className="flex items-center gap-3">
                 <div className="badge badge-success badge-sm gap-1.5 py-2.5 font-medium shadow-sm">
                   <span className="w-2 h-2 rounded-full bg-success-content animate-pulse"></span>
-                  <span>Online • Gemini 3.1 Pro</span>
+                  <span>Online • Gemini 3.8 Flash (Fast & Precise)</span>
                 </div>
                 <button
                   onClick={handleClearChat}
@@ -1712,7 +1764,11 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                       ? 'chat-bubble-primary text-primary-content shadow-primary/20'
                       : 'chat-bubble-neutral text-neutral-content border border-base-content/10 shadow-md'
                   } shadow-md`}>
-                    {msg.text}
+                    {msg.sender === 'user' ? (
+                      <span className="whitespace-pre-wrap">{msg.text}</span>
+                    ) : (
+                      <FormattedMarkdown content={msg.text} />
+                    )}
                   </div>
                 </div>
               ))}
