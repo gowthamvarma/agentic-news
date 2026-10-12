@@ -250,7 +250,7 @@ export const HomePage: React.FC = () => {
 
       {/* Loading Progress State during Active Analysis */}
       {loading && (
-        <div ref={progressRef} className="container mx-auto px-4 max-w-7xl my-8 scroll-mt-20">
+        <div ref={progressRef} className="container mx-auto px-4 max-w-4xl my-8 scroll-mt-20">
           <div className="card bg-base-200 border border-base-300 shadow-2xl p-6 md:p-10 text-center">
             {/* Continuously Spinning Circular Progress around Centered Brain Icon */}
             <div className="relative w-24 h-24 mx-auto mb-6 flex items-center justify-center">
@@ -323,62 +323,6 @@ export const HomePage: React.FC = () => {
               <p className="text-xs text-base-content/75 mt-1">
                 {streamStatus || FLEET_STAGES[loadingStage].desc}
               </p>
-            </div>
-
-            {/* Full-Fidelity Dossier Preview Skeleton (Full Width) */}
-            <div className="mt-8 pt-8 border-t border-base-300 w-full text-left space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="space-y-1">
-                  <div className="skeleton h-5 w-48 rounded"></div>
-                  <div className="skeleton h-3 w-80 rounded"></div>
-                </div>
-                <div className="skeleton h-6 w-32 rounded-full"></div>
-              </div>
-
-              {/* 3 Core Intelligence Pillar Previews */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full">
-                {/* Pillar 1: Contradictions */}
-                <div className="card bg-base-100 p-5 border border-base-300 shadow-sm space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="skeleton h-5 w-36 rounded-md"></div>
-                    <div className="skeleton h-4 w-12 rounded-full"></div>
-                  </div>
-                  <div className="skeleton h-4 w-full rounded"></div>
-                  <div className="skeleton h-4 w-4/5 rounded"></div>
-                  <div className="p-3 bg-base-200/60 rounded-xl space-y-2 mt-2">
-                    <div className="skeleton h-3 w-28 rounded"></div>
-                    <div className="skeleton h-3 w-full rounded"></div>
-                  </div>
-                </div>
-
-                {/* Pillar 2: Fact-Checks */}
-                <div className="card bg-base-100 p-5 border border-base-300 shadow-sm space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="skeleton h-5 w-32 rounded-md"></div>
-                    <div className="skeleton h-4 w-14 rounded-full"></div>
-                  </div>
-                  <div className="skeleton h-4 w-full rounded"></div>
-                  <div className="skeleton h-4 w-3/4 rounded"></div>
-                  <div className="p-3 bg-base-200/60 rounded-xl space-y-2 mt-2">
-                    <div className="skeleton h-3 w-24 rounded"></div>
-                    <div className="skeleton h-3 w-full rounded"></div>
-                  </div>
-                </div>
-
-                {/* Pillar 3: Chronological Timeline */}
-                <div className="card bg-base-100 p-5 border border-base-300 shadow-sm space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="skeleton h-5 w-28 rounded-md"></div>
-                    <div className="skeleton h-4 w-16 rounded-full"></div>
-                  </div>
-                  <div className="skeleton h-4 w-full rounded"></div>
-                  <div className="skeleton h-4 w-5/6 rounded"></div>
-                  <div className="p-3 bg-base-200/60 rounded-xl space-y-2 mt-2">
-                    <div className="skeleton h-3 w-20 rounded"></div>
-                    <div className="skeleton h-3 w-full rounded"></div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
