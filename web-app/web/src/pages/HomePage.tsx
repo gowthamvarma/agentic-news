@@ -117,7 +117,7 @@ export const HomePage: React.FC = () => {
           setLoadingStage(4);
           setStreamStatus('Analysis Complete! Finalizing report...');
           finalReport = data;
-          showToast('Intelligence Report successfully generated!');
+          showToast('Intelligence Report successfully generated!', 'success');
           const targetId = data.id || data.analysis_id;
           if (targetId) {
             navigate(`/analysis/${targetId}`, { state: { report: data } });
@@ -139,7 +139,7 @@ export const HomePage: React.FC = () => {
         setStreamStatus('Running comprehensive multi-agent synthesis pipeline...');
         const data = await analyzeNewsTopic(q);
         setLoadingStage(4);
-        showToast('Intelligence Report loaded!');
+        showToast('Intelligence Report loaded!', 'success');
         const targetId = data.id || data.analysis_id;
         if (targetId) {
           navigate(`/analysis/${targetId}`, { state: { report: data } });
@@ -250,24 +250,35 @@ export const HomePage: React.FC = () => {
 
       {/* Loading Progress State during Active Analysis */}
       {loading && (
-        <div ref={progressRef} className="container mx-auto px-4 max-w-4xl my-8 scroll-mt-20">
+        <div ref={progressRef} className="container mx-auto px-4 max-w-7xl my-8 scroll-mt-20">
           <div className="card bg-base-200 border border-base-300 shadow-2xl p-6 md:p-10 text-center">
-            {/* Circular Progress with Brain Icon (No ripple effect) */}
+            {/* Continuously Spinning Circular Progress around Centered Brain Icon */}
             <div className="relative w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+              {/* Subtle track ring */}
               <div
-                className="radial-progress text-primary"
+                className="radial-progress text-primary/15 absolute"
                 style={{
-                  '--value': Math.min(100, (loadingStage + 1) * 20),
+                  '--value': 100,
                   '--size': '5.5rem',
                   '--thickness': '4px'
                 } as React.CSSProperties}
-                role="progressbar"
-                aria-valuenow={Math.min(100, (loadingStage + 1) * 20)}
-                aria-valuemin={0}
-                aria-valuemax={100}
-              >
+                aria-hidden="true"
+              />
+              {/* Continuously spinning progress arc */}
+              <div
+                className="radial-progress text-primary animate-spin"
+                style={{
+                  '--value': 30,
+                  '--size': '5.5rem',
+                  '--thickness': '4px'
+                } as React.CSSProperties}
+                role="status"
+                aria-label="Analyzing..."
+              />
+              {/* Center upright brain icon */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center shadow-inner">
-                  <Brain size={28} className="text-primary" />
+                  <Brain size={28} className="text-primary animate-pulse" />
                 </div>
               </div>
             </div>
@@ -314,22 +325,59 @@ export const HomePage: React.FC = () => {
               </p>
             </div>
 
-            {/* DaisyUI Skeleton Placeholders */}
-            <div className="mt-8 pt-6 border-t border-base-300 grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="card bg-base-100 p-4 border border-base-300 flex flex-col gap-2">
-                <div className="skeleton h-4 w-1/2"></div>
-                <div className="skeleton h-3 w-full"></div>
-                <div className="skeleton h-3 w-3/4"></div>
+            {/* Full-Fidelity Dossier Preview Skeleton (Full Width) */}
+            <div className="mt-8 pt-8 border-t border-base-300 w-full text-left space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="space-y-1">
+                  <div className="skeleton h-5 w-48 rounded"></div>
+                  <div className="skeleton h-3 w-80 rounded"></div>
+                </div>
+                <div className="skeleton h-6 w-32 rounded-full"></div>
               </div>
-              <div className="card bg-base-100 p-4 border border-base-300 flex flex-col gap-2">
-                <div className="skeleton h-4 w-2/3"></div>
-                <div className="skeleton h-3 w-full"></div>
-                <div className="skeleton h-3 w-4/5"></div>
-              </div>
-              <div className="card bg-base-100 p-4 border border-base-300 flex flex-col gap-2">
-                <div className="skeleton h-4 w-1/3"></div>
-                <div className="skeleton h-3 w-full"></div>
-                <div className="skeleton h-3 w-2/3"></div>
+
+              {/* 3 Core Intelligence Pillar Previews */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full">
+                {/* Pillar 1: Contradictions */}
+                <div className="card bg-base-100 p-5 border border-base-300 shadow-sm space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="skeleton h-5 w-36 rounded-md"></div>
+                    <div className="skeleton h-4 w-12 rounded-full"></div>
+                  </div>
+                  <div className="skeleton h-4 w-full rounded"></div>
+                  <div className="skeleton h-4 w-4/5 rounded"></div>
+                  <div className="p-3 bg-base-200/60 rounded-xl space-y-2 mt-2">
+                    <div className="skeleton h-3 w-28 rounded"></div>
+                    <div className="skeleton h-3 w-full rounded"></div>
+                  </div>
+                </div>
+
+                {/* Pillar 2: Fact-Checks */}
+                <div className="card bg-base-100 p-5 border border-base-300 shadow-sm space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="skeleton h-5 w-32 rounded-md"></div>
+                    <div className="skeleton h-4 w-14 rounded-full"></div>
+                  </div>
+                  <div className="skeleton h-4 w-full rounded"></div>
+                  <div className="skeleton h-4 w-3/4 rounded"></div>
+                  <div className="p-3 bg-base-200/60 rounded-xl space-y-2 mt-2">
+                    <div className="skeleton h-3 w-24 rounded"></div>
+                    <div className="skeleton h-3 w-full rounded"></div>
+                  </div>
+                </div>
+
+                {/* Pillar 3: Chronological Timeline */}
+                <div className="card bg-base-100 p-5 border border-base-300 shadow-sm space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="skeleton h-5 w-28 rounded-md"></div>
+                    <div className="skeleton h-4 w-16 rounded-full"></div>
+                  </div>
+                  <div className="skeleton h-4 w-full rounded"></div>
+                  <div className="skeleton h-4 w-5/6 rounded"></div>
+                  <div className="p-3 bg-base-200/60 rounded-xl space-y-2 mt-2">
+                    <div className="skeleton h-3 w-20 rounded"></div>
+                    <div className="skeleton h-3 w-full rounded"></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -365,10 +413,23 @@ export const HomePage: React.FC = () => {
             {recentLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {[1, 2, 3].map((n) => (
-                  <div key={n} className="card bg-base-200 border border-base-300 p-6 flex flex-col gap-3">
-                    <div className="skeleton h-5 w-3/4"></div>
-                    <div className="skeleton h-14 w-full"></div>
-                    <div className="skeleton h-4 w-1/2"></div>
+                  <div key={n} className="card bg-base-200 border border-base-300 p-5 flex flex-col justify-between shadow-sm animate-pulse">
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <div className="skeleton h-4 w-20 rounded-md"></div>
+                        <div className="skeleton h-5 w-16 rounded-full"></div>
+                      </div>
+                      <div className="skeleton h-6 w-5/6 rounded-md"></div>
+                      <div className="space-y-1.5">
+                        <div className="skeleton h-3.5 w-full rounded"></div>
+                        <div className="skeleton h-3.5 w-11/12 rounded"></div>
+                        <div className="skeleton h-3.5 w-3/4 rounded"></div>
+                      </div>
+                    </div>
+                    <div className="pt-4 mt-4 border-t border-base-300/60 flex items-center justify-between">
+                      <div className="skeleton h-5 w-24 rounded-full"></div>
+                      <div className="skeleton h-7 w-20 rounded-lg"></div>
+                    </div>
                   </div>
                 ))}
               </div>

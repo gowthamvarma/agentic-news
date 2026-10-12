@@ -74,11 +74,11 @@ export const AnalysisDetailPage: React.FC = () => {
     navigator.clipboard.writeText(currentUrl)
       .then(() => {
         setCopiedLink(true);
-        showToast('Bookmark URL copied to clipboard!');
+        showToast('Bookmark URL copied to clipboard!', 'info');
         setTimeout(() => setCopiedLink(false), 2500);
       })
       .catch(() => {
-        showToast('Unable to copy automatically. Please copy the URL from your browser address bar.');
+        showToast('Unable to copy automatically. Please copy the URL from your browser address bar.', 'warning');
       });
   };
 
@@ -90,10 +90,12 @@ export const AnalysisDetailPage: React.FC = () => {
       .then((data) => {
         setReport(data);
         setLoading(false);
+        showToast('Intelligence Dossier reloaded successfully!', 'success');
       })
       .catch((err: any) => {
         setError(err?.message || 'Failed to reload analysis report.');
         setLoading(false);
+        showToast('Failed to reload analysis report: ' + (err?.message || err), 'error');
       });
   };
 
@@ -158,7 +160,7 @@ export const AnalysisDetailPage: React.FC = () => {
       </div>
 
       {/* Bookmark Notice Banner */}
-      <div className="alert alert-info bg-info/10 text-info-content border border-info/30 rounded-xl mb-6 py-2.5 px-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm text-xs">
+      <div className="alert alert-info bg-info/10 text-base-content border border-info/30 rounded-xl mb-6 py-2.5 px-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm text-xs">
         <div className="flex items-center gap-2.5">
           <Bookmark size={16} className="text-info flex-shrink-0" />
           <span>
@@ -175,19 +177,64 @@ export const AnalysisDetailPage: React.FC = () => {
       </div>
 
       {/* Loading Skeleton */}
+      {/* Full-Fidelity Loading Skeleton (Full Container Width) */}
       {loading && (
-        <div className="card bg-base-200 border border-base-300 p-8 md:p-12 text-center shadow-xl">
-          <span className="loading loading-spinner loading-lg text-primary mx-auto mb-4"></span>
-          <h2 className="text-xl font-bold text-base-content">
-            Retrieving Intelligence Dossier...
-          </h2>
-          <p className="text-xs md:text-sm text-base-content/70 mt-1 max-w-md mx-auto mb-6">
-            Loading verified claims, chronological narrative timelines, and contradiction records from Firestore...
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto w-full">
-            <div className="skeleton h-28 w-full rounded-xl"></div>
-            <div className="skeleton h-28 w-full rounded-xl"></div>
-            <div className="skeleton h-28 w-full rounded-xl"></div>
+        <div className="space-y-6 w-full animate-pulse">
+          {/* Top Dossier Header Card Skeleton */}
+          <div className="card bg-base-200 border border-base-300 shadow-xl p-6 md:p-8 w-full">
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+              <div className="flex items-center gap-2">
+                <div className="skeleton h-6 w-28 rounded-full"></div>
+                <div className="skeleton h-6 w-20 rounded-full"></div>
+              </div>
+              <div className="skeleton h-8 w-32 rounded-lg"></div>
+            </div>
+
+            <div className="skeleton h-8 md:h-10 w-3/4 mb-3 rounded-lg"></div>
+            <div className="skeleton h-4 w-1/3 mb-6"></div>
+
+            {/* Overview / Brief Paragraph Skeleton */}
+            <div className="p-5 rounded-2xl bg-base-100 border border-base-300 space-y-2.5 mb-6">
+              <div className="skeleton h-4 w-full"></div>
+              <div className="skeleton h-4 w-11/12"></div>
+              <div className="skeleton h-4 w-4/5"></div>
+            </div>
+
+            {/* 4 Stat Tiles Skeleton */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="p-4 rounded-xl bg-base-100 border border-base-300 space-y-2">
+                  <div className="skeleton h-3 w-16"></div>
+                  <div className="skeleton h-7 w-20"></div>
+                  <div className="skeleton h-2.5 w-12"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Nav Tabs Skeleton */}
+          <div className="flex gap-2 overflow-x-auto pb-2 border-b border-base-300 w-full">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="skeleton h-10 w-32 rounded-xl flex-shrink-0"></div>
+            ))}
+          </div>
+
+          {/* Main Content Layout Skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
+            <div className="lg:col-span-2 space-y-4">
+              <div className="card bg-base-200 border border-base-300 p-6 space-y-3">
+                <div className="skeleton h-6 w-48"></div>
+                <div className="skeleton h-4 w-full"></div>
+                <div className="skeleton h-4 w-5/6"></div>
+                <div className="skeleton h-24 w-full rounded-xl mt-4"></div>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="card bg-base-200 border border-base-300 p-6 space-y-3">
+                <div className="skeleton h-6 w-36"></div>
+                <div className="skeleton h-32 w-full rounded-xl"></div>
+              </div>
+            </div>
           </div>
         </div>
       )}

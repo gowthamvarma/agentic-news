@@ -569,10 +569,23 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
             {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[1, 2, 3, 4, 5, 6].map((n) => (
-                  <div key={n} className="card bg-base-100 border border-base-300 p-5 flex flex-col gap-3 animate-pulse">
-                    <div className="skeleton h-4 w-1/3"></div>
-                    <div className="skeleton h-5 w-4/5"></div>
-                    <div className="skeleton h-14 w-full"></div>
+                  <div key={n} className="card bg-base-100 border border-base-300 p-5 flex flex-col justify-between rounded-xl animate-pulse shadow-sm">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="skeleton h-5 w-24 rounded-full"></div>
+                        <div className="skeleton h-5 w-5 rounded"></div>
+                      </div>
+                      <div className="skeleton h-5 w-4/5 rounded"></div>
+                      <div className="space-y-1.5 mt-2">
+                        <div className="skeleton h-3 w-full rounded"></div>
+                        <div className="skeleton h-3 w-11/12 rounded"></div>
+                        <div className="skeleton h-3 w-2/3 rounded"></div>
+                      </div>
+                    </div>
+                    <div className="mt-4 pt-3.5 border-t border-base-300/60 flex items-center justify-between">
+                      <div className="skeleton h-5 w-20 rounded-full"></div>
+                      <div className="skeleton h-6 w-16 rounded-lg"></div>
+                    </div>
                   </div>
                 ))}
               </div>

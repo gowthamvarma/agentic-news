@@ -174,7 +174,7 @@ export const TimelineSection: React.FC<TimelineSectionProps> = ({ timeline }) =>
 
         {/* Narrative Evolution Synthesis Alert */}
         {timeline.narrative_evolution_summary && (
-          <div className="alert alert-info bg-info/10 text-info-content border border-info/30 rounded-xl my-4 p-4">
+          <div className="alert alert-info bg-info/10 text-base-content border border-info/30 rounded-xl my-4 p-4">
             <div className="flex items-start gap-3">
               <Sparkles size={20} className="text-info flex-shrink-0 mt-0.5" />
               <div>
@@ -339,7 +339,7 @@ export const TimelineSection: React.FC<TimelineSectionProps> = ({ timeline }) =>
                         )}
 
                         {ev.narrative_shift && (
-                          <div className="w-full mt-2 p-2.5 rounded-xl bg-secondary/10 border border-secondary/25 text-xs text-secondary-content leading-relaxed font-medium">
+                          <div className="w-full mt-2 p-2.5 rounded-xl bg-secondary/10 border border-secondary/25 text-xs text-base-content leading-relaxed font-medium">
                             <span className="font-bold uppercase tracking-wider text-[10px] text-secondary block mb-0.5">
                               Narrative Shift Tracked
                             </span>

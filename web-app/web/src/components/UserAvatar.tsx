@@ -29,7 +29,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
         className={`${currentSize.container} rounded-2xl flex items-center justify-center font-bold tracking-wider border border-primary/30 bg-gradient-to-tr from-neutral/90 via-neutral/70 to-primary/30 text-neutral-content shadow-md backdrop-blur-md transition-all duration-200 hover:scale-105`}
       >
         {initials ? (
-          <span className={`font-mono font-semibold ${currentSize.text} text-primary-content/90`}>
+          <span className={`font-mono font-bold ${currentSize.text} text-neutral-content`}>
             {initials}
           </span>
         ) : (

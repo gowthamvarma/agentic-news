@@ -324,10 +324,10 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
           lessons_learned: data.lessons_learned,
         });
       }
-      showToast('Forward Scenarios synthesized & saved to Firestore');
+      showToast('Forward Scenarios synthesized & saved to Firestore', 'success');
     } catch (err: any) {
       console.error(err);
-      showToast('Failed to generate scenarios: ' + (err?.message || err));
+      showToast('Failed to generate scenarios: ' + (err?.message || err), 'error');
     } finally {
       setScenariosLoading(false);
     }
@@ -347,10 +347,10 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
       if (onUpdateReport) {
         onUpdateReport({ ...report, quiz: data });
       }
-      showToast('Active Recall Quiz ready & saved to Firestore');
+      showToast('Active Recall Quiz ready & saved to Firestore', 'success');
     } catch (err: any) {
       console.error(err);
-      showToast('Failed to generate quiz: ' + (err?.message || err));
+      showToast('Failed to generate quiz: ' + (err?.message || err), 'error');
     } finally {
       setQuizLoading(false);
     }
@@ -368,10 +368,10 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
       if (onUpdateReport) {
         onUpdateReport({ ...report, debate: data });
       }
-      showToast('Perspective Debate dialectic generated & saved to Firestore');
+      showToast('Perspective Debate dialectic generated & saved to Firestore', 'success');
     } catch (err: any) {
       console.error(err);
-      showToast('Failed to generate debate: ' + (err?.message || err));
+      showToast('Failed to generate debate: ' + (err?.message || err), 'error');
     } finally {
       setDebateLoading(false);
     }
@@ -381,10 +381,10 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
     const url = window.location.href;
     navigator.clipboard.writeText(url).then(() => {
       setCopiedLink(true);
-      showToast('Bookmark link copied to clipboard!');
+      showToast('Bookmark link copied to clipboard!', 'info');
       setTimeout(() => setCopiedLink(false), 2500);
     }).catch(() => {
-      showToast('Could not copy URL automatically');
+      showToast('Could not copy URL automatically', 'error');
     });
   };
 
@@ -397,10 +397,10 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
 
     try {
       await updateAnalysis(targetId, { is_favorite: nextFav });
-      showToast(nextFav ? 'Saved to favorites!' : 'Removed from favorites');
+      showToast(nextFav ? 'Saved to favorites!' : 'Removed from favorites', 'success');
     } catch (e) {
       console.error(e);
-      showToast('Failed to update favorite status');
+      showToast('Failed to update favorite status', 'error');
     }
   };
 
@@ -409,9 +409,10 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
     try {
       const res = await gradeQuiz(quiz.quiz_id, userAnswers);
       setQuizResult(res);
-      showToast(`Quiz Graded: ${res.score_percentage}% Score!`);
-    } catch (err) {
+      showToast(`Quiz Graded: ${res.score_percentage}% Score!`, 'success');
+    } catch (err: any) {
       console.error(err);
+      showToast('Failed to grade quiz: ' + (err?.message || err), 'error');
     }
   };
 
@@ -914,7 +915,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
 
                   {/* Origins & Historical Backdrop */}
                   {report.context_primer.background_story && (
-                    <div className="alert alert-info bg-info/10 text-info-content border border-info/30 rounded-xl mt-4 shadow-sm">
+                    <div className="alert alert-info bg-info/10 text-base-content border border-info/30 rounded-xl mt-4 shadow-sm">
                       <Building2 size={22} className="flex-shrink-0 text-info" />
                       <div>
                         <div className="font-bold text-xs uppercase text-info tracking-wider">
@@ -1278,7 +1279,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                       </div>
                     ))
                   ) : (
-                    <div className="col-span-2 alert alert-info bg-info/10 text-info-content border border-info/30 rounded-xl">
+                    <div className="col-span-2 alert alert-info bg-info/10 text-base-content border border-info/30 rounded-xl">
                       <Globe size={20} className="text-info flex-shrink-0" />
                       <span>No individual source articles were indexed for this specific query run.</span>
                     </div>
@@ -1473,16 +1474,82 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
             )}
 
             {scenariosStatus === 'loading' && (
-              <div className="card bg-base-200 border border-base-300 shadow-xl p-12 text-center">
-                <span className="loading loading-spinner loading-lg text-primary mx-auto mb-4"></span>
-                <h3 className="text-lg font-bold">Simulating Causal Diagnostics & Forward Scenarios</h3>
-                <p className="text-sm text-base-content/70 mt-1 max-w-md mx-auto mb-6">
-                  Synthesizing 3-tier consequence cascades, root-cause 5-Whys, and forward probabilistic trajectories on demand...
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto w-full">
-                  <div className="skeleton h-24 w-full rounded-xl"></div>
-                  <div className="skeleton h-24 w-full rounded-xl"></div>
-                  <div className="skeleton h-24 w-full rounded-xl"></div>
+              <div className="card bg-base-200 border border-base-300 shadow-xl p-6 md:p-10 w-full animate-pulse">
+                {/* Active Simulation Status Banner */}
+                <div className="alert alert-info bg-info/10 text-base-content border border-info/30 rounded-2xl mb-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <span className="loading loading-spinner loading-md text-primary flex-shrink-0"></span>
+                    <div>
+                      <div className="font-bold text-sm text-info uppercase tracking-wider">
+                        Simulating Causal Diagnostics & Forward Scenarios
+                      </div>
+                      <div className="text-xs text-base-content/75 mt-0.5">
+                        Synthesizing 3-tier consequence cascades, root-cause 5-Whys, and forward probabilistic trajectories on demand...
+                      </div>
+                    </div>
+                  </div>
+                  <span className="badge badge-primary badge-sm font-mono animate-pulse">FLEET ACTIVE</span>
+                </div>
+
+                {/* 2-Column Causal Diagnostics & 3-Tier Consequences Skeleton */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full mb-8">
+                  {/* Left: Root Cause Diagnostics Skeleton */}
+                  <div className="card bg-base-100 border border-base-300 shadow-sm p-6 flex flex-col gap-4">
+                    <div className="flex items-center gap-3 pb-3 border-b border-base-300">
+                      <div className="skeleton w-8 h-8 rounded-lg"></div>
+                      <div className="skeleton h-6 w-48"></div>
+                    </div>
+                    <div className="skeleton h-4 w-32"></div>
+                    <div className="space-y-2">
+                      <div className="skeleton h-12 w-full rounded-xl"></div>
+                      <div className="skeleton h-12 w-full rounded-xl"></div>
+                    </div>
+                    <div className="skeleton h-4 w-44 mt-2"></div>
+                    <div className="space-y-2">
+                      <div className="skeleton h-12 w-full rounded-xl"></div>
+                      <div className="skeleton h-12 w-full rounded-xl"></div>
+                    </div>
+                  </div>
+
+                  {/* Right: 3-Tier Consequences Tree Skeleton */}
+                  <div className="card bg-base-100 border border-base-300 shadow-sm p-6 flex flex-col gap-4">
+                    <div className="flex items-center gap-3 pb-3 border-b border-base-300">
+                      <div className="skeleton w-8 h-8 rounded-lg"></div>
+                      <div className="skeleton h-6 w-52"></div>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="skeleton h-16 w-full rounded-xl"></div>
+                      <div className="skeleton h-16 w-full rounded-xl"></div>
+                      <div className="skeleton h-16 w-full rounded-xl"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3-Column Forward Probabilistic Scenarios Skeleton */}
+                <div className="w-full">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="skeleton w-6 h-6 rounded"></div>
+                    <div className="skeleton h-5 w-56"></div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="card bg-base-100 border border-base-300 shadow-sm p-6 flex flex-col justify-between gap-4">
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center">
+                            <div className="skeleton h-5 w-24 rounded-full"></div>
+                            <div className="skeleton h-5 w-16 rounded-full"></div>
+                          </div>
+                          <div className="skeleton h-6 w-3/4"></div>
+                          <div className="skeleton h-4 w-full"></div>
+                          <div className="skeleton h-4 w-5/6"></div>
+                        </div>
+                        <div className="pt-3 border-t border-base-200 space-y-2">
+                          <div className="skeleton h-12 w-full rounded-lg"></div>
+                          <div className="skeleton h-3 w-1/2"></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
@@ -1775,12 +1842,50 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
               )}
 
               {quizStatus === 'loading' && (
-                <div className="py-16 text-center text-base-content/70">
-                  <span className="loading loading-spinner loading-lg text-primary mb-3"></span>
-                  <div className="text-base font-semibold">Generating pedagogical comprehension questions...</div>
-                  <div className="flex flex-col gap-3 max-w-lg mx-auto mt-6">
-                    <div className="skeleton h-12 w-full"></div>
-                    <div className="skeleton h-12 w-full"></div>
+                <div className="card bg-base-200 border border-base-300 shadow-xl p-6 md:p-10 w-full animate-pulse">
+                  {/* Status banner with spinner */}
+                  <div className="alert alert-info bg-info/10 text-base-content border border-info/30 rounded-2xl mb-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <span className="loading loading-spinner loading-md text-primary flex-shrink-0"></span>
+                      <div>
+                        <div className="font-bold text-sm text-info uppercase tracking-wider">
+                          Generating Active Recall Quiz Questions
+                        </div>
+                        <div className="text-xs text-base-content/75 mt-0.5">
+                          Formulating multiple-choice questions grounded strictly in cross-source verified facts...
+                        </div>
+                      </div>
+                    </div>
+                    <span className="badge badge-accent badge-sm font-mono animate-pulse">AI TUTOR ACTIVE</span>
+                  </div>
+
+                  {/* Multiple Full-Width Question Skeletons */}
+                  <div className="flex flex-col gap-6 w-full">
+                    {[1, 2].map((qIdx) => (
+                      <div key={qIdx} className="card bg-base-100 border border-base-300 shadow-sm p-6 w-full">
+                        {/* Question Header */}
+                        <div className="flex items-center gap-3 mb-5">
+                          <div className="skeleton h-6 w-10 rounded-full"></div>
+                          <div className="skeleton h-6 w-3/4 rounded-md"></div>
+                        </div>
+
+                        {/* 4 Options Grid/List */}
+                        <div className="flex flex-col gap-3 w-full">
+                          {[0, 1, 2, 3].map((optIdx) => (
+                            <div key={optIdx} className="p-4 rounded-xl border border-base-300 flex items-center gap-4 w-full bg-base-200/40">
+                              <div className="skeleton w-5 h-5 rounded-full flex-shrink-0"></div>
+                              <div className="skeleton w-6 h-6 rounded flex-shrink-0"></div>
+                              <div className="skeleton h-4 w-full max-w-lg rounded"></div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Submit Action Skeleton */}
+                  <div className="mt-6 flex justify-end">
+                    <div className="skeleton h-12 w-48 rounded-xl"></div>
                   </div>
                 </div>
               )}
@@ -1978,12 +2083,75 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
               )}
 
               {debateStatus === 'loading' && (
-                <div className="py-16 text-center text-base-content/70">
-                  <span className="loading loading-spinner loading-lg text-primary mb-3"></span>
-                  <div className="text-base font-semibold">Synthesizing steelmanned opposing viewpoints...</div>
-                  <div className="flex flex-col gap-3 max-w-lg mx-auto mt-6">
-                    <div className="skeleton h-20 w-full"></div>
-                    <div className="skeleton h-20 w-full"></div>
+                <div className="card bg-base-200 border border-base-300 shadow-xl p-6 md:p-10 w-full animate-pulse">
+                  {/* Status banner with spinner */}
+                  <div className="alert alert-info bg-info/10 text-base-content border border-info/30 rounded-2xl mb-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <span className="loading loading-spinner loading-md text-primary flex-shrink-0"></span>
+                      <div>
+                        <div className="font-bold text-sm text-info uppercase tracking-wider">
+                          Convening Perspectives Debate Dialectic
+                        </div>
+                        <div className="text-xs text-base-content/75 mt-0.5">
+                          Steelmanning opposing viewpoints and formulating objective compromise synthesis...
+                        </div>
+                      </div>
+                    </div>
+                    <span className="badge badge-warning badge-sm font-mono animate-pulse">DIALECTIC ACTIVE</span>
+                  </div>
+
+                  {/* Resolution Banner Skeleton */}
+                  <div className="p-4 rounded-xl border border-warning/30 bg-warning/5 mb-6 flex items-center gap-3 w-full">
+                    <div className="skeleton w-8 h-8 rounded-lg flex-shrink-0"></div>
+                    <div className="space-y-1.5 w-full">
+                      <div className="skeleton h-3 w-32"></div>
+                      <div className="skeleton h-5 w-3/4"></div>
+                    </div>
+                  </div>
+
+                  {/* DaisyUI Chat turns for debate (Pro & Con) */}
+                  <div className="flex flex-col gap-6 mb-8 w-full">
+                    {/* Pro Turn (Start) */}
+                    <div className="chat chat-start w-full">
+                      <div className="chat-image avatar">
+                        <div className="skeleton w-10 h-10 rounded-2xl"></div>
+                      </div>
+                      <div className="chat-header mb-1 flex items-center gap-2">
+                        <div className="skeleton h-3 w-28"></div>
+                        <div className="skeleton h-4 w-12 rounded-full"></div>
+                      </div>
+                      <div className="card bg-base-100 border border-base-300 p-4 rounded-2xl w-full max-w-xl space-y-2">
+                        <div className="skeleton h-4 w-full"></div>
+                        <div className="skeleton h-4 w-5/6"></div>
+                        <div className="skeleton h-3 w-1/2 pt-2 border-t border-base-200"></div>
+                      </div>
+                    </div>
+
+                    {/* Con Turn (End) */}
+                    <div className="chat chat-end w-full">
+                      <div className="chat-image avatar">
+                        <div className="skeleton w-10 h-10 rounded-2xl"></div>
+                      </div>
+                      <div className="chat-header mb-1 flex items-center gap-2 justify-end">
+                        <div className="skeleton h-4 w-12 rounded-full"></div>
+                        <div className="skeleton h-3 w-28"></div>
+                      </div>
+                      <div className="card bg-base-100 border border-base-300 p-4 rounded-2xl w-full max-w-xl space-y-2 ml-auto text-left">
+                        <div className="skeleton h-4 w-full"></div>
+                        <div className="skeleton h-4 w-4/5"></div>
+                        <div className="skeleton h-3 w-1/2 pt-2 border-t border-base-200"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Compromise Synthesis Card Skeleton */}
+                  <div className="card bg-base-100 border border-info/30 p-6 rounded-2xl w-full space-y-3">
+                    <div className="flex items-center gap-2">
+                      <div className="skeleton w-5 h-5 rounded"></div>
+                      <div className="skeleton h-5 w-64"></div>
+                    </div>
+                    <div className="skeleton h-4 w-full"></div>
+                    <div className="skeleton h-4 w-4/5"></div>
                   </div>
                 </div>
               )}
@@ -1991,7 +2159,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
               {debateStatus === 'ready' && debate && (
                 <div className="mt-4">
                   {/* Resolution Banner */}
-                  <div className="alert alert-warning bg-warning/10 text-warning-content border border-warning/30 shadow-sm rounded-xl mb-6">
+                  <div className="alert alert-warning bg-warning/10 text-base-content border border-warning/30 shadow-sm rounded-xl mb-6">
                     <Scale size={22} className="text-warning flex-shrink-0" />
                     <div>
                       <div className="font-bold text-xs uppercase tracking-wider text-warning">Resolution Under Debate</div>

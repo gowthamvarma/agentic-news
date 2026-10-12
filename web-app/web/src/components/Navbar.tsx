@@ -21,7 +21,7 @@ export const Navbar: React.FC = () => {
         {/* Brand Logo with Aura glow */}
         <Link to="/" className="flex items-center gap-2.5 sm:gap-3 group">
           <div className="relative p-0.5 rounded-full bg-gradient-to-r from-primary via-secondary to-accent shadow-md group-hover:scale-105 transition-transform">
-            <div className="btn btn-ghost btn-circle btn-sm md:btn-md bg-base-100 text-primary hover:bg-base-100">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-base-100 flex items-center justify-center text-primary shadow-inner">
               <Brain size={22} className="text-primary" />
             </div>
           </div>
@@ -108,7 +108,7 @@ export const Navbar: React.FC = () => {
                       <span>{th.icon}</span>
                       <span className="capitalize truncate">{th.name}</span>
                     </span>
-                    {theme === th.id && <span className="badge badge-xs badge-ghost ml-1.5 px-2 py-0.5">Active</span>}
+                    {theme === th.id && <span className="badge badge-xs bg-primary-content/20 text-primary-content border-none ml-1.5 px-2 py-0.5">Active</span>}
                   </button>
                 </li>
               ))}
