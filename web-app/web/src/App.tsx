@@ -20,8 +20,6 @@ import {
   Calendar,
   Building2,
   HelpCircle,
-  User,
-  Bot,
   Trash2,
   Palette,
   ChevronDown,
@@ -48,6 +46,8 @@ import type {
   PerspectiveDebateReport
 } from './types';
 import { AnalysisHistoryGrid } from './components/AnalysisHistoryGrid';
+import { RobotAvatar } from './components/RobotAvatar';
+import { UserAvatar } from './components/UserAvatar';
 
 interface ChatMessage {
   sender: 'user' | 'agent';
@@ -1903,14 +1903,17 @@ export default function App() {
                                   className={`chat ${isPro ? 'chat-start' : 'chat-end'}`}
                                 >
                                   <div className="chat-image avatar">
-                                    <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shadow ${
-                                      isPro ? 'bg-primary text-primary-content' : 'bg-warning text-warning-content'
-                                    }`}>
-                                      {isPro ? 'PRO' : 'CON'}
-                                    </div>
+                                    <RobotAvatar
+                                      size="sm"
+                                      variant={isPro ? 'pro' : 'con'}
+                                      showStatusIndicator={false}
+                                    />
                                   </div>
-                                  <div className="chat-header text-xs opacity-75 mb-1 font-bold">
-                                    {turn.speaker_perspective}
+                                  <div className="chat-header text-xs opacity-80 mb-1 font-bold flex items-center gap-1.5">
+                                    <span>{turn.speaker_perspective}</span>
+                                    <span className={`badge badge-xs ${isPro ? 'badge-info' : 'badge-warning'} font-mono`}>
+                                      {isPro ? 'PRO' : 'CON'}
+                                    </span>
                                   </div>
                                   <div className={`chat-bubble text-sm md:text-base leading-relaxed max-w-2xl ${
                                     isPro ? 'chat-bubble-primary text-primary-content' : 'chat-bubble-warning text-warning-content'
@@ -1949,13 +1952,17 @@ export default function App() {
                     {/* Copilot Header */}
                     <div className="p-4 md:p-6 border-b border-base-300 flex items-center justify-between bg-base-200/50">
                       <div className="flex items-center gap-3">
-                        <div className="btn btn-ghost btn-circle bg-primary text-primary-content shadow">
-                          <Bot size={22} />
-                        </div>
+                        <RobotAvatar
+                          size="md"
+                          isThinking={chatLoading}
+                          status={chatLoading ? 'busy' : 'online'}
+                          variant="primary"
+                          glow={true}
+                        />
                         <div>
                           <div className="font-bold text-base md:text-lg text-base-content flex items-center gap-2">
                             <span>Research Copilot</span>
-                            <span className="badge badge-primary badge-outline text-xs">Autonomous Mode</span>
+                            <span className="badge badge-primary badge-outline text-xs">Autonomous Agent</span>
                           </div>
                           <div className="text-xs text-base-content/60">
                             Context: {report.topic}
@@ -1987,18 +1994,33 @@ export default function App() {
                           className={`chat ${msg.sender === 'user' ? 'chat-end' : 'chat-start'}`}
                         >
                           <div className="chat-image avatar">
-                            <div className={`w-9 h-9 rounded-full flex items-center justify-center shadow ${
-                              msg.sender === 'user' ? 'bg-neutral text-neutral-content' : 'bg-primary text-primary-content'
-                            }`}>
-                              {msg.sender === 'user' ? <User size={18} /> : <Bot size={18} />}
-                            </div>
+                            {msg.sender === 'user' ? (
+                              <UserAvatar size="sm" initials="YOU" />
+                            ) : (
+                              <RobotAvatar
+                                size="sm"
+                                variant="primary"
+                                showStatusIndicator={false}
+                              />
+                            )}
                           </div>
-                          <div className="chat-header text-xs opacity-60 mb-1 font-medium">
-                            {msg.sender === 'user' ? 'You' : 'Research Copilot'}
-                            <time className="text-[11px] ml-1.5 opacity-60">{msg.time}</time>
+                          <div className="chat-header text-xs opacity-75 mb-1 font-medium flex items-center gap-1.5">
+                            {msg.sender === 'user' ? (
+                              <span className="font-semibold text-base-content/80">You</span>
+                            ) : (
+                              <>
+                                <span className="font-bold text-primary">Research Copilot</span>
+                                <span className="badge badge-xs badge-primary/20 text-primary border-none text-[10px] px-1 font-mono">
+                                  AI AGENT
+                                </span>
+                              </>
+                            )}
+                            <time className="text-[11px] opacity-60 ml-1">{msg.time}</time>
                           </div>
                           <div className={`chat-bubble text-sm md:text-base leading-relaxed ${
-                            msg.sender === 'user' ? 'chat-bubble-primary text-primary-content' : 'chat-bubble-neutral text-neutral-content'
+                            msg.sender === 'user'
+                              ? 'chat-bubble-primary text-primary-content shadow-primary/20'
+                              : 'chat-bubble-neutral text-neutral-content border border-base-content/10 shadow-md'
                           } shadow-md`}>
                             {msg.text}
                           </div>
@@ -2008,12 +2030,22 @@ export default function App() {
                       {chatLoading && (
                         <div className="chat chat-start">
                           <div className="chat-image avatar">
-                            <div className="w-9 h-9 rounded-full bg-primary text-primary-content flex items-center justify-center shadow">
-                              <Bot size={18} />
-                            </div>
+                            <RobotAvatar
+                              size="sm"
+                              isThinking={true}
+                              variant="primary"
+                              showStatusIndicator={true}
+                              status="busy"
+                            />
                           </div>
-                          <div className="chat-bubble chat-bubble-neutral flex items-center gap-2">
-                            <span className="text-sm">Investigating sources...</span>
+                          <div className="chat-header text-xs opacity-75 mb-1 font-medium flex items-center gap-1.5">
+                            <span className="font-bold text-primary">Research Copilot</span>
+                            <span className="badge badge-xs badge-warning/20 text-warning border-none text-[10px] px-1 font-mono animate-pulse">
+                              INVESTIGATING
+                            </span>
+                          </div>
+                          <div className="chat-bubble chat-bubble-neutral border border-primary/30 flex items-center gap-3 shadow-md">
+                            <span className="text-sm">Synthesizing intelligence & cross-referencing claims...</span>
                             <span className="loading loading-dots loading-sm text-primary"></span>
                           </div>
                         </div>
