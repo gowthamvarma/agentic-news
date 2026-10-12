@@ -130,16 +130,35 @@ export const TimelineSection: React.FC<TimelineSectionProps> = ({ timeline }) =>
 
           {/* Action Toolbar: Sorting and Recent Filter */}
           <div className="flex items-center gap-2 flex-wrap self-start lg:self-center flex-shrink-0">
-            {/* Sort Toggle Button */}
-            <button
-              type="button"
-              onClick={() => setSortOrder(sortOrder === 'chronological' ? 'reverse' : 'chronological')}
-              className="btn btn-sm btn-outline btn-neutral gap-1.5 shadow-xs font-bold"
-              title="Toggle timeline ordering"
-            >
-              <ArrowUpDown size={14} />
-              <span>{sortOrder === 'chronological' ? 'Chronological (Oldest First)' : 'Latest Incidents First'}</span>
-            </button>
+            {/* Chronological / Reverse Toggle Group */}
+            <div className="join shadow-xs border border-base-300 rounded-lg overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setSortOrder('chronological')}
+                className={`btn btn-sm join-item font-bold gap-1.5 ${
+                  sortOrder === 'chronological'
+                    ? 'btn-primary text-primary-content'
+                    : 'btn-ghost text-base-content/75 hover:bg-base-300'
+                }`}
+                title="View in chronological order (oldest first)"
+              >
+                <Clock size={14} />
+                <span>Oldest First</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setSortOrder('reverse')}
+                className={`btn btn-sm join-item font-bold gap-1.5 ${
+                  sortOrder === 'reverse'
+                    ? 'btn-primary text-primary-content'
+                    : 'btn-ghost text-base-content/75 hover:bg-base-300'
+                }`}
+                title="Reverse order (newest incidents first)"
+              >
+                <ArrowUpDown size={14} />
+                <span>Reverse (Newest First)</span>
+              </button>
+            </div>
 
             {/* Filter Recent Only Button */}
             {recentCount > 0 && (
@@ -229,22 +248,35 @@ export const TimelineSection: React.FC<TimelineSectionProps> = ({ timeline }) =>
           </div>
         )}
 
-        {/* DaisyUI Timeline Component */}
+        {/* DaisyUI Timeline Component - All cards aligned to the right for efficient space usage */}
         {displayedEvents.length > 0 && (
-          <ul className="timeline timeline-snap-icon max-md:timeline-compact timeline-vertical mt-6">
+          <ul className="timeline timeline-compact timeline-vertical w-full mt-6">
             {displayedEvents.map((ev, idx) => {
-              const isEven = idx % 2 === 0;
               const isCopied = copiedIdx === idx;
 
               return (
-                <li key={idx}>
+                <li key={idx} className="w-full">
                   {idx > 0 && (
                     <hr className={ev.isRecent ? 'bg-warning/60' : 'bg-primary/40'} />
                   )}
 
-                  <div className={`timeline-${isEven ? 'start md:text-end' : 'end'} mb-8 w-full max-w-xl`}>
+                  {/* Timeline Middle Marker / Icon */}
+                  <div className="timeline-middle">
+                    {ev.isRecent ? (
+                      <div className="bg-warning text-warning-content p-1.5 rounded-full shadow-lg ring-4 ring-warning/20">
+                        <Flame size={16} className="fill-current animate-bounce" />
+                      </div>
+                    ) : (
+                      <div className="bg-primary text-primary-content p-1.5 rounded-full shadow-md">
+                        <Clock size={15} />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Timeline End: Full-width card aligned to the right of the timeline */}
+                  <div className="timeline-end mb-6 w-full">
                     <div
-                      className={`card transition-all p-4 md:p-5 rounded-2xl shadow-sm text-start ${
+                      className={`card transition-all p-4 md:p-6 rounded-2xl shadow-sm text-start w-full ${
                         ev.isRecent
                           ? 'bg-gradient-to-br from-warning/10 via-base-100 to-base-100 border-2 border-warning/60 shadow-md ring-1 ring-warning/30'
                           : 'bg-base-100 border border-base-300 hover:border-primary/50'
@@ -322,19 +354,6 @@ export const TimelineSection: React.FC<TimelineSectionProps> = ({ timeline }) =>
                         )}
                       </div>
                     </div>
-                  </div>
-
-                  {/* Timeline Middle Icon */}
-                  <div className="timeline-middle">
-                    {ev.isRecent ? (
-                      <div className="bg-warning text-warning-content p-1.5 rounded-full shadow-lg ring-4 ring-warning/20">
-                        <Flame size={17} className="fill-current animate-bounce" />
-                      </div>
-                    ) : (
-                      <div className="bg-primary text-primary-content p-1.5 rounded-full shadow-md">
-                        <Clock size={16} />
-                      </div>
-                    )}
                   </div>
 
                   {idx < displayedEvents.length - 1 && (

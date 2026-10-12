@@ -488,13 +488,6 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
     );
   };
 
-  const suggestedQuestions = [
-    '⚖️ What are the legal precedents under the APA?',
-    '👥 Who are the key winners and losers in this policy?',
-    '📉 What is the projected economic compliance cost?',
-    '🔍 Investigate grandfathering exemption clauses'
-  ];
-
   return (
     <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
       {/* Desktop Sticky Side Navigation */}
@@ -2055,24 +2048,6 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                   </div>
                 </div>
               )}
-            </div>
-
-            {/* Quick Prompt Suggestions */}
-            <div className="px-4 py-2 bg-base-300/40 border-t border-base-300 flex items-center gap-2 overflow-x-auto no-scrollbar">
-              <span className="text-xs font-bold text-base-content/60 uppercase whitespace-nowrap">
-                Prompts:
-              </span>
-              {suggestedQuestions.map((qText, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  className="btn btn-xs btn-outline btn-neutral rounded-full whitespace-nowrap hover:btn-primary font-medium"
-                  onClick={() => handleSendMessage(undefined, qText)}
-                  disabled={chatLoading}
-                >
-                  {qText}
-                </button>
-              ))}
             </div>
 
             {/* Chat Input */}

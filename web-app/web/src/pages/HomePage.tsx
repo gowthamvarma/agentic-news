@@ -59,14 +59,14 @@ export const HomePage: React.FC = () => {
     }
   }, [loading]);
 
-  // Stage progress animation timer while loading
+  // Graceful pacing timer fallback if progressive stream is slow or in non-streaming mode
   useEffect(() => {
     let interval: any;
     if (loading) {
-      setLoadingStage(0);
       interval = setInterval(() => {
-        setLoadingStage((prev) => (prev < FLEET_STAGES.length - 1 ? prev + 1 : prev));
-      }, 2400);
+        // Only incrementally advance up to stage 3 if stream has not sent an update yet
+        setLoadingStage((prev) => (prev < FLEET_STAGES.length - 2 ? prev + 1 : prev));
+      }, 7000);
     }
     return () => clearInterval(interval);
   }, [loading]);
@@ -94,6 +94,7 @@ export const HomePage: React.FC = () => {
 
     setErrorMsg(null);
     setLoading(true);
+    setLoadingStage(0);
     setStreamStatus('Deploying 25 Autonomous ADK Agents...');
 
     try {
@@ -101,14 +102,20 @@ export const HomePage: React.FC = () => {
 
       await analyzeNewsTopicProgressive(q, (eventType, data) => {
         if (eventType === 'init') {
+          setLoadingStage(0);
           setStreamStatus('Stage 1: Multi-Outlet Ingestion & Executive Brief compiling...');
         } else if (eventType === 'step_brief') {
+          setLoadingStage(1);
           setStreamStatus('Stage 2: Auditing IFCN forensic fact-checks & bias...');
         } else if (eventType === 'step_verification') {
-          setStreamStatus('Stage 3: Reconstructing chronological timeline...');
+          setLoadingStage(2);
+          setStreamStatus('Stage 3: Cross-Source Contradictions & Bias Audits...');
         } else if (eventType === 'step_timeline') {
-          setStreamStatus('Finalizing intelligence payload in Firestore...');
+          setLoadingStage(3);
+          setStreamStatus('Stage 4: Reconstructing Chronological Timeline & Primers...');
         } else if (eventType === 'complete') {
+          setLoadingStage(4);
+          setStreamStatus('Analysis Complete! Finalizing report...');
           finalReport = data;
           showToast('Intelligence Report successfully generated!');
           const targetId = data.id || data.analysis_id;
@@ -129,7 +136,9 @@ export const HomePage: React.FC = () => {
     } catch (streamErr: any) {
       console.warn('Progressive streaming failed, falling back to standard endpoint:', streamErr);
       try {
+        setStreamStatus('Running comprehensive multi-agent synthesis pipeline...');
         const data = await analyzeNewsTopic(q);
+        setLoadingStage(4);
         showToast('Intelligence Report loaded!');
         const targetId = data.id || data.analysis_id;
         if (targetId) {
@@ -243,11 +252,24 @@ export const HomePage: React.FC = () => {
       {loading && (
         <div ref={progressRef} className="container mx-auto px-4 max-w-4xl my-8 scroll-mt-20">
           <div className="card bg-base-200 border border-base-300 shadow-2xl p-6 md:p-10 text-center">
-            {/* Multi-Ring Spinner Visual */}
+            {/* Circular Progress with Brain Icon (No ripple effect) */}
             <div className="relative w-24 h-24 mx-auto mb-6 flex items-center justify-center">
-              <span className="loading loading-spinner text-primary loading-lg absolute scale-150"></span>
-              <span className="loading loading-ring text-secondary loading-lg absolute scale-125"></span>
-              <Brain size={30} className="text-primary animate-pulse relative z-10" />
+              <div
+                className="radial-progress text-primary"
+                style={{
+                  '--value': Math.min(100, (loadingStage + 1) * 20),
+                  '--size': '5.5rem',
+                  '--thickness': '4px'
+                } as React.CSSProperties}
+                role="progressbar"
+                aria-valuenow={Math.min(100, (loadingStage + 1) * 20)}
+                aria-valuemin={0}
+                aria-valuemax={100}
+              >
+                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center shadow-inner">
+                  <Brain size={28} className="text-primary" />
+                </div>
+              </div>
             </div>
 
             <h2 className="text-2xl md:text-3xl font-black text-base-content mb-2">
@@ -258,15 +280,15 @@ export const HomePage: React.FC = () => {
             </p>
 
             {/* DaisyUI Steps Pipeline */}
-            <div className="w-full my-4">
-              <ul className="steps steps-vertical md:steps-horizontal w-full text-xs font-bold">
+            <div className="w-full my-4 overflow-x-auto py-2">
+              <ul className="steps steps-vertical md:steps-horizontal w-full text-xs font-semibold">
                 {FLEET_STAGES.map((stg, idx) => (
                   <li
                     key={idx}
-                    className={`step ${idx <= loadingStage ? 'step-primary font-bold' : 'step-neutral opacity-60'}`}
+                    className={`step ${idx <= loadingStage ? 'step-primary font-bold' : ''}`}
                     data-content={idx < loadingStage ? '✓' : idx === loadingStage ? '●' : `${idx + 1}`}
                   >
-                    {stg.short}
+                    <span>{stg.short}</span>
                   </li>
                 ))}
               </ul>
