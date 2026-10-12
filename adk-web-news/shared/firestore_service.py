@@ -95,7 +95,7 @@ class FirestoreService:
         if FIRESTORE_AVAILABLE and db_client:
             try:
                 doc_ref = db_client.collection("analyses").document(analysis_id)
-                await doc_ref.update(updates)
+                await doc_ref.set(updates, merge=True)
                 doc = await doc_ref.get()
                 if doc.exists:
                     return doc.to_dict()

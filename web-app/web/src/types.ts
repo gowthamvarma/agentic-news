@@ -121,6 +121,8 @@ export interface NewsIntelligenceReport {
   is_favorite?: boolean;
   status?: 'generating' | 'partial' | 'completed' | 'error';
   available_sections?: string[];
+  quiz?: QuizPayload;
+  debate?: PerspectiveDebateReport;
 }
 
 export interface AnalysisArchiveItem {

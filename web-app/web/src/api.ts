@@ -99,7 +99,7 @@ export async function fetchAnalysesArchive(params: {
 
 export async function updateAnalysis(
   analysisId: string,
-  updates: { is_favorite?: boolean; notes?: string }
+  updates: { is_favorite?: boolean; notes?: string; [key: string]: any }
 ): Promise<any> {
   const res = await fetch(`${API_BASE}/analysis/${analysisId}`, {
     method: 'PATCH',
@@ -124,11 +124,11 @@ export async function fetchAnalysisDetail(analysisId: string): Promise<NewsIntel
   return res.json();
 }
 
-export async function generateQuiz(topic: string): Promise<QuizPayload> {
+export async function generateQuiz(topic: string, analysisId?: string): Promise<QuizPayload> {
   const res = await fetch(`${API_BASE}/tutor/quiz`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ topic }),
+    body: JSON.stringify({ topic, analysis_id: analysisId }),
   });
   if (!res.ok) throw new Error('Failed to generate quiz');
   return res.json();
@@ -144,21 +144,21 @@ export async function gradeQuiz(quizId: string, answers: Record<number, number>)
   return res.json();
 }
 
-export async function generateDebate(topic: string): Promise<PerspectiveDebateReport> {
+export async function generateDebate(topic: string, analysisId?: string): Promise<PerspectiveDebateReport> {
   const res = await fetch(`${API_BASE}/debate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ topic }),
+    body: JSON.stringify({ topic, analysis_id: analysisId }),
   });
   if (!res.ok) throw new Error('Failed to generate perspective debate');
   return res.json();
 }
 
-export async function generateScenarios(topic: string) {
+export async function generateScenarios(topic: string, analysisId?: string) {
   const res = await fetch(`${API_BASE}/scenarios`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ topic }),
+    body: JSON.stringify({ topic, analysis_id: analysisId }),
   });
   if (!res.ok) throw new Error('Failed to generate scenarios');
   return res.json();

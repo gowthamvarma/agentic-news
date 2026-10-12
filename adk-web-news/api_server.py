@@ -23,7 +23,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from fastapi import FastAPI, HTTPException, Query, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
@@ -79,6 +79,7 @@ app.add_middleware(
 class AnalyzeRequest(BaseModel):
     topic: str = Field(..., description="Breaking news topic, claim, or URL")
     run_live: Optional[bool] = Field(default=None, description="Force live Gemini API execution")
+    analysis_id: Optional[str] = Field(default=None, description="Optional associated analysis ID to auto-save results")
 
 
 class ChatRequest(BaseModel):
@@ -88,8 +89,16 @@ class ChatRequest(BaseModel):
 
 
 class UpdateAnalysisRequest(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
     is_favorite: Optional[bool] = Field(default=None, description="Mark or unmark as favorite")
     notes: Optional[str] = Field(default=None, description="Optional researcher notes")
+    root_cause_analysis: Optional[Dict[str, Any]] = None
+    consequences_tree: Optional[List[Dict[str, Any]]] = None
+    future_scenarios: Optional[List[Dict[str, Any]]] = None
+    lessons_learned: Optional[List[Dict[str, Any]]] = None
+    quiz: Optional[Dict[str, Any]] = None
+    debate: Optional[Dict[str, Any]] = None
 
 
 class QuizGradeRequest(BaseModel):
@@ -344,6 +353,11 @@ async def generate_quiz(req: AnalyzeRequest):
     quiz_data = build_structured_quiz(topic)
     quiz_data["quiz_id"] = quiz_id
     await FirestoreService.save_quiz(quiz_id, quiz_data)
+
+    if req.analysis_id:
+        await FirestoreService.update_analysis(req.analysis_id, {
+            "quiz": quiz_data
+        })
     return quiz_data
 
 
@@ -392,6 +406,11 @@ async def generate_perspective_debate(req: AnalyzeRequest):
     debate_data = build_structured_debate(topic)
     debate_data["debate_id"] = debate_id
     await FirestoreService.save_debate(debate_id, debate_data)
+
+    if req.analysis_id:
+        await FirestoreService.update_analysis(req.analysis_id, {
+            "debate": debate_data
+        })
     return debate_data
 
 
@@ -403,6 +422,13 @@ async def generate_future_scenarios(req: AnalyzeRequest):
         raise HTTPException(status_code=400, detail="Topic cannot be empty.")
 
     scenarios_data = build_structured_scenarios(topic)
+    if req.analysis_id:
+        await FirestoreService.update_analysis(req.analysis_id, {
+            "root_cause_analysis": scenarios_data.get("root_cause_analysis"),
+            "consequences_tree": scenarios_data.get("consequences_tree"),
+            "future_scenarios": scenarios_data.get("future_scenarios"),
+            "lessons_learned": scenarios_data.get("lessons_learned"),
+        })
     return scenarios_data
 
 

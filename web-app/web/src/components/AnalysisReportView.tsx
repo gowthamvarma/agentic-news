@@ -23,7 +23,9 @@ import {
   Trash2,
   History,
   Copy,
-  Check
+  Check,
+  CirclePause,
+  Play
 } from 'lucide-react';
 import {
   updateAnalysis,
@@ -76,19 +78,81 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
     return initialTab;
   });
 
+  // Check if sections are already saved in the report
+  const hasSavedScenarios = !!(
+    (report.future_scenarios && report.future_scenarios.length > 0) ||
+    (report.root_cause_analysis && (
+      (report.root_cause_analysis.immediate_triggers && report.root_cause_analysis.immediate_triggers.length > 0) ||
+      (report.root_cause_analysis.structural_failure_points && report.root_cause_analysis.structural_failure_points.length > 0)
+    ))
+  );
+
+  const hasSavedQuiz = !!(report.quiz && report.quiz.questions && report.quiz.questions.length > 0);
+  const hasSavedDebate = !!(report.debate && report.debate.debate_turns && report.debate.debate_turns.length > 0);
+
   // Active Recall Quiz State
-  const [quiz, setQuiz] = useState<QuizPayload | null>(null);
+  const [quiz, setQuiz] = useState<QuizPayload | null>(() => report.quiz || null);
   const [quizLoading, setQuizLoading] = useState(false);
   const [userAnswers, setUserAnswers] = useState<Record<number, number>>({});
   const [quizResult, setQuizResult] = useState<any | null>(null);
 
   // Perspective Debate State
-  const [debate, setDebate] = useState<PerspectiveDebateReport | null>(null);
+  const [debate, setDebate] = useState<PerspectiveDebateReport | null>(() => report.debate || null);
   const [debateLoading, setDebateLoading] = useState(false);
 
   // Causal Diagnostics & Forward Scenarios State
-  const [scenariosData, setScenariosData] = useState<any | null>(null);
+  const [scenariosData, setScenariosData] = useState<any | null>(() => {
+    if (hasSavedScenarios) {
+      return {
+        root_cause_analysis: report.root_cause_analysis,
+        consequences_tree: report.consequences_tree,
+        future_scenarios: report.future_scenarios,
+        lessons_learned: report.lessons_learned,
+      };
+    }
+    return null;
+  });
   const [scenariosLoading, setScenariosLoading] = useState(false);
+
+  // Synchronize state if report changes (e.g. from cache or archive refresh)
+  useEffect(() => {
+    if (report.quiz && !quiz) {
+      setQuiz(report.quiz);
+    }
+    if (report.debate && !debate) {
+      setDebate(report.debate);
+    }
+    if (hasSavedScenarios && !scenariosData) {
+      setScenariosData({
+        root_cause_analysis: report.root_cause_analysis,
+        consequences_tree: report.consequences_tree,
+        future_scenarios: report.future_scenarios,
+        lessons_learned: report.lessons_learned,
+      });
+    }
+  }, [report, hasSavedScenarios]);
+
+  // Derived execution statuses
+  const scenariosStatus: 'ready' | 'loading' | 'paused' =
+    scenariosLoading
+      ? 'loading'
+      : (scenariosData || hasSavedScenarios)
+      ? 'ready'
+      : 'paused';
+
+  const quizStatus: 'ready' | 'loading' | 'paused' =
+    quizLoading
+      ? 'loading'
+      : (quiz || hasSavedQuiz)
+      ? 'ready'
+      : 'paused';
+
+  const debateStatus: 'ready' | 'loading' | 'paused' =
+    debateLoading
+      ? 'loading'
+      : (debate || hasSavedDebate)
+      ? 'ready'
+      : 'paused';
 
   // Research Copilot Chat State
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
@@ -102,55 +166,80 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
   const [chatLoading, setChatLoading] = useState(false);
 
   const handleLoadScenarios = async () => {
+    const targetId = report.id || report.analysis_id;
     setScenariosLoading(true);
     try {
-      const data = await generateScenarios(report.topic);
+      const data = await generateScenarios(report.topic, targetId);
       setScenariosData(data);
-      showToast('Forward Scenarios synthesized');
+      if (targetId) {
+        await updateAnalysis(targetId, {
+          root_cause_analysis: data.root_cause_analysis,
+          consequences_tree: data.consequences_tree,
+          future_scenarios: data.future_scenarios,
+          lessons_learned: data.lessons_learned,
+        });
+      }
+      if (onUpdateReport) {
+        onUpdateReport({
+          ...report,
+          root_cause_analysis: data.root_cause_analysis,
+          consequences_tree: data.consequences_tree,
+          future_scenarios: data.future_scenarios,
+          lessons_learned: data.lessons_learned,
+        });
+      }
+      showToast('Forward Scenarios synthesized & saved to Firestore');
     } catch (err: any) {
       console.error(err);
+      showToast('Failed to generate scenarios: ' + (err?.message || err));
     } finally {
       setScenariosLoading(false);
     }
   };
 
   const handleLoadQuiz = async () => {
+    const targetId = report.id || report.analysis_id;
     setQuizLoading(true);
     try {
-      const data = await generateQuiz(report.topic);
+      const data = await generateQuiz(report.topic, targetId);
       setQuiz(data);
       setQuizResult(null);
       setUserAnswers({});
-      showToast('Active Recall Quiz ready');
+      if (targetId) {
+        await updateAnalysis(targetId, { quiz: data });
+      }
+      if (onUpdateReport) {
+        onUpdateReport({ ...report, quiz: data });
+      }
+      showToast('Active Recall Quiz ready & saved to Firestore');
     } catch (err: any) {
       console.error(err);
+      showToast('Failed to generate quiz: ' + (err?.message || err));
     } finally {
       setQuizLoading(false);
     }
   };
 
   const handleLoadDebate = async () => {
+    const targetId = report.id || report.analysis_id;
     setDebateLoading(true);
     try {
-      const data = await generateDebate(report.topic);
+      const data = await generateDebate(report.topic, targetId);
       setDebate(data);
-      showToast('Perspective Debate dialectic generated');
-    } catch (err) {
+      if (targetId) {
+        await updateAnalysis(targetId, { debate: data });
+      }
+      if (onUpdateReport) {
+        onUpdateReport({ ...report, debate: data });
+      }
+      showToast('Perspective Debate dialectic generated & saved to Firestore');
+    } catch (err: any) {
       console.error(err);
+      showToast('Failed to generate debate: ' + (err?.message || err));
     } finally {
       setDebateLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (activeTab === 'quiz' && !quiz && !quizLoading) {
-      handleLoadQuiz();
-    } else if (activeTab === 'debate' && !debate && !debateLoading) {
-      handleLoadDebate();
-    } else if (activeTab === 'insights' && !scenariosData && !scenariosLoading) {
-      handleLoadScenarios();
-    }
-  }, [activeTab]);
 
   const handleCopyBookmarkLink = () => {
     const url = window.location.href;
@@ -333,21 +422,27 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     ? 'active font-bold shadow-md bg-primary text-primary-content'
                     : 'hover:bg-base-300 text-base-content'
                 }`}
-                onClick={() => {
-                  setActiveTab('insights');
-                  if (!scenariosData && (!report.future_scenarios || report.future_scenarios.length === 0)) {
-                    handleLoadScenarios();
-                  }
-                }}
+                onClick={() => setActiveTab('insights')}
               >
                 <span className="flex items-center gap-2.5">
                   <TrendingUp size={17} className={activeTab === 'insights' ? 'text-primary-content' : 'text-warning'} />
                   <span>Causal & Scenarios</span>
                 </span>
-                {scenariosLoading ? (
-                  <span className="loading loading-spinner loading-xs text-primary"></span>
+                {scenariosStatus === 'loading' ? (
+                  <span className="badge badge-xs badge-info gap-1 font-semibold">
+                    <span className="loading loading-spinner loading-xs"></span>
+                    <span>Running</span>
+                  </span>
+                ) : scenariosStatus === 'ready' ? (
+                  <span className={`badge badge-xs gap-1 font-semibold ${activeTab === 'insights' ? 'badge-neutral' : 'badge-success text-success-content'}`}>
+                    <CheckCircle2 size={11} />
+                    <span>Ready</span>
+                  </span>
                 ) : (
-                  <span className="badge badge-xs badge-outline badge-primary font-semibold">On Demand</span>
+                  <span className={`badge badge-xs gap-1 font-semibold ${activeTab === 'insights' ? 'badge-neutral' : 'badge-warning text-warning-content'}`}>
+                    <CirclePause size={11} />
+                    <span>Paused</span>
+                  </span>
                 )}
               </button>
             </li>
@@ -359,15 +454,28 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     ? 'active font-bold shadow-md bg-primary text-primary-content'
                     : 'hover:bg-base-300 text-base-content'
                 }`}
-                onClick={() => {
-                  setActiveTab('quiz');
-                  if (!quiz) handleLoadQuiz();
-                }}
+                onClick={() => setActiveTab('quiz')}
               >
                 <span className="flex items-center gap-2.5">
                   <BookOpen size={17} className={activeTab === 'quiz' ? 'text-primary-content' : 'text-accent'} />
                   <span>Active Recall Tutor</span>
                 </span>
+                {quizStatus === 'loading' ? (
+                  <span className="badge badge-xs badge-info gap-1 font-semibold">
+                    <span className="loading loading-spinner loading-xs"></span>
+                    <span>Running</span>
+                  </span>
+                ) : quizStatus === 'ready' ? (
+                  <span className={`badge badge-xs gap-1 font-semibold ${activeTab === 'quiz' ? 'badge-neutral' : 'badge-success text-success-content'}`}>
+                    <CheckCircle2 size={11} />
+                    <span>Ready</span>
+                  </span>
+                ) : (
+                  <span className={`badge badge-xs gap-1 font-semibold ${activeTab === 'quiz' ? 'badge-neutral' : 'badge-warning text-warning-content'}`}>
+                    <CirclePause size={11} />
+                    <span>Paused</span>
+                  </span>
+                )}
               </button>
             </li>
 
@@ -378,15 +486,28 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     ? 'active font-bold shadow-md bg-primary text-primary-content'
                     : 'hover:bg-base-300 text-base-content'
                 }`}
-                onClick={() => {
-                  setActiveTab('debate');
-                  if (!debate) handleLoadDebate();
-                }}
+                onClick={() => setActiveTab('debate')}
               >
                 <span className="flex items-center gap-2.5">
                   <Scale size={17} className={activeTab === 'debate' ? 'text-primary-content' : 'text-secondary'} />
                   <span>Perspective Debate</span>
                 </span>
+                {debateStatus === 'loading' ? (
+                  <span className="badge badge-xs badge-info gap-1 font-semibold">
+                    <span className="loading loading-spinner loading-xs"></span>
+                    <span>Running</span>
+                  </span>
+                ) : debateStatus === 'ready' ? (
+                  <span className={`badge badge-xs gap-1 font-semibold ${activeTab === 'debate' ? 'badge-neutral' : 'badge-success text-success-content'}`}>
+                    <CheckCircle2 size={11} />
+                    <span>Ready</span>
+                  </span>
+                ) : (
+                  <span className={`badge badge-xs gap-1 font-semibold ${activeTab === 'debate' ? 'badge-neutral' : 'badge-warning text-warning-content'}`}>
+                    <CirclePause size={11} />
+                    <span>Paused</span>
+                  </span>
+                )}
               </button>
             </li>
 
@@ -444,52 +565,64 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
       <div className="w-full lg:hidden mb-2 overflow-x-auto no-scrollbar">
         <div className="tabs tabs-boxed bg-base-200 p-1 flex-nowrap w-max gap-1">
           <button
-            className={`tab tab-sm font-medium ${activeTab === 'brief' ? 'tab-active' : ''}`}
+            className={`tab tab-sm font-medium ${activeTab === 'brief' ? 'tab-active font-bold' : ''}`}
             onClick={() => setActiveTab('brief')}
           >
             Brief
           </button>
           <button
-            className={`tab tab-sm font-medium ${activeTab === 'verification' ? 'tab-active' : ''}`}
+            className={`tab tab-sm font-medium ${activeTab === 'verification' ? 'tab-active font-bold' : ''}`}
             onClick={() => setActiveTab('verification')}
           >
             Fact Checks ({report.verifications?.length || 0})
           </button>
           <button
-            className={`tab tab-sm font-medium ${activeTab === 'timeline' ? 'tab-active' : ''}`}
+            className={`tab tab-sm font-medium ${activeTab === 'timeline' ? 'tab-active font-bold' : ''}`}
             onClick={() => setActiveTab('timeline')}
           >
             Timeline ({report.timeline?.events?.length || 0})
           </button>
           <button
-            className={`tab tab-sm font-medium ${activeTab === 'insights' ? 'tab-active' : ''}`}
-            onClick={() => {
-              setActiveTab('insights');
-              if (!scenariosData && (!report.future_scenarios || report.future_scenarios.length === 0)) handleLoadScenarios();
-            }}
+            className={`tab tab-sm font-medium gap-1.5 ${activeTab === 'insights' ? 'tab-active font-bold' : ''}`}
+            onClick={() => setActiveTab('insights')}
           >
-            Scenarios
+            <span>Scenarios</span>
+            {scenariosStatus === 'loading' ? (
+              <span className="loading loading-spinner loading-xs text-info"></span>
+            ) : scenariosStatus === 'ready' ? (
+              <CheckCircle2 size={12} className="text-success" />
+            ) : (
+              <CirclePause size={12} className="text-warning" />
+            )}
           </button>
           <button
-            className={`tab tab-sm font-medium ${activeTab === 'quiz' ? 'tab-active' : ''}`}
-            onClick={() => {
-              setActiveTab('quiz');
-              if (!quiz) handleLoadQuiz();
-            }}
+            className={`tab tab-sm font-medium gap-1.5 ${activeTab === 'quiz' ? 'tab-active font-bold' : ''}`}
+            onClick={() => setActiveTab('quiz')}
           >
-            Recall Tutor
+            <span>Recall Tutor</span>
+            {quizStatus === 'loading' ? (
+              <span className="loading loading-spinner loading-xs text-info"></span>
+            ) : quizStatus === 'ready' ? (
+              <CheckCircle2 size={12} className="text-success" />
+            ) : (
+              <CirclePause size={12} className="text-warning" />
+            )}
           </button>
           <button
-            className={`tab tab-sm font-medium ${activeTab === 'debate' ? 'tab-active' : ''}`}
-            onClick={() => {
-              setActiveTab('debate');
-              if (!debate) handleLoadDebate();
-            }}
+            className={`tab tab-sm font-medium gap-1.5 ${activeTab === 'debate' ? 'tab-active font-bold' : ''}`}
+            onClick={() => setActiveTab('debate')}
           >
-            Debate
+            <span>Debate</span>
+            {debateStatus === 'loading' ? (
+              <span className="loading loading-spinner loading-xs text-info"></span>
+            ) : debateStatus === 'ready' ? (
+              <CheckCircle2 size={12} className="text-success" />
+            ) : (
+              <CirclePause size={12} className="text-warning" />
+            )}
           </button>
           <button
-            className={`tab tab-sm font-medium ${activeTab === 'copilot' ? 'tab-active' : ''}`}
+            className={`tab tab-sm font-medium ${activeTab === 'copilot' ? 'tab-active font-bold' : ''}`}
             onClick={() => setActiveTab('copilot')}
           >
             Copilot
@@ -952,21 +1085,74 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
         {activeTab === 'insights' && (
           <div className="flex flex-col gap-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-base-300">
-              <div className="text-xl md:text-2xl font-black text-base-content flex items-center gap-3">
-                <TrendingUp size={24} className="text-primary flex-shrink-0" />
-                <span>Causal Diagnostics & Forward Scenarios (F15, F34, F35)</span>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="text-xl md:text-2xl font-black text-base-content flex items-center gap-3">
+                  <TrendingUp size={24} className="text-primary flex-shrink-0" />
+                  <span>Causal Diagnostics & Forward Scenarios (F15, F34, F35)</span>
+                </div>
+                {scenariosStatus === 'paused' && (
+                  <span className="badge badge-warning gap-1.5 py-2.5 px-3 text-xs font-bold shadow-sm">
+                    <CirclePause size={13} />
+                    <span>Paused (Not Started)</span>
+                  </span>
+                )}
+                {scenariosStatus === 'loading' && (
+                  <span className="badge badge-info gap-1.5 py-2.5 px-3 text-xs font-bold shadow-sm">
+                    <span className="loading loading-spinner loading-xs"></span>
+                    <span>Simulating Fleet...</span>
+                  </span>
+                )}
+                {scenariosStatus === 'ready' && (
+                  <span className="badge badge-success gap-1.5 py-2.5 px-3 text-xs font-bold text-success-content shadow-sm">
+                    <CheckCircle2 size={13} />
+                    <span>Saved in Firestore</span>
+                  </span>
+                )}
               </div>
-              <button
-                className="btn btn-sm btn-outline btn-neutral gap-2 self-start sm:self-auto"
-                onClick={handleLoadScenarios}
-                disabled={scenariosLoading}
-              >
-                <RefreshCw size={14} className={scenariosLoading ? 'animate-spin' : ''} />
-                <span>{scenariosData ? 'Regenerate Scenarios' : 'Run Scenario Fleet'}</span>
-              </button>
+
+              {scenariosStatus === 'ready' && (
+                <button
+                  className="btn btn-sm btn-outline btn-neutral gap-2 self-start sm:self-auto shadow-sm"
+                  onClick={handleLoadScenarios}
+                  disabled={scenariosLoading}
+                >
+                  <RefreshCw size={14} className={scenariosLoading ? 'animate-spin' : ''} />
+                  <span>Regenerate Scenarios</span>
+                </button>
+              )}
             </div>
 
-            {scenariosLoading ? (
+            {/* PAUSED STATE: Centered Action Trigger Card */}
+            {scenariosStatus === 'paused' && (
+              <div className="card bg-base-200 border border-base-300 shadow-xl p-8 md:p-14 text-center max-w-2xl mx-auto my-6 w-full">
+                <div className="relative w-20 h-20 mx-auto mb-4 flex items-center justify-center rounded-2xl bg-warning/15 text-warning border border-warning/30 shadow-inner">
+                  <CirclePause size={42} className="text-warning" />
+                </div>
+                <div className="badge badge-warning badge-sm uppercase tracking-wider font-bold mx-auto mb-3">
+                  On-Demand Simulation • Paused (Not Started)
+                </div>
+                <h3 className="text-2xl font-black text-base-content mb-2">
+                  Launch Causal Diagnostics & Forward Scenarios
+                </h3>
+                <p className="text-sm text-base-content/75 max-w-md mx-auto mb-8 leading-relaxed">
+                  Synthesize 3-tier consequence cascades, root-cause 5-Whys failure points, and forward probabilistic projections. Results will be saved permanently to Firestore for instant viewing from the archive.
+                </p>
+                <button
+                  onClick={handleLoadScenarios}
+                  disabled={scenariosLoading}
+                  className="btn btn-primary btn-md md:btn-lg gap-2.5 mx-auto shadow-xl hover:scale-105 transition-all font-bold px-8"
+                >
+                  <Play size={20} className="fill-current" />
+                  <span>Run Scenario Fleet (On Demand)</span>
+                </button>
+                <div className="text-[11px] text-base-content/50 mt-4 flex items-center justify-center gap-1.5">
+                  <CheckCircle2 size={13} className="text-success" />
+                  <span>Results will be saved to Firestore to prevent re-running in archive</span>
+                </div>
+              </div>
+            )}
+
+            {scenariosStatus === 'loading' && (
               <div className="card bg-base-200 border border-base-300 shadow-xl p-12 text-center">
                 <span className="loading loading-spinner loading-lg text-primary mx-auto mb-4"></span>
                 <h3 className="text-lg font-bold">Simulating Causal Diagnostics & Forward Scenarios</h3>
@@ -979,7 +1165,9 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                   <div className="skeleton h-24 w-full rounded-xl"></div>
                 </div>
               </div>
-            ) : (
+            )}
+
+            {scenariosStatus === 'ready' && (
               (() => {
                 const rootCause = scenariosData?.root_cause_analysis || report.root_cause_analysis;
                 const consequences = scenariosData?.consequences_tree || report.consequences_tree;
@@ -1100,21 +1288,74 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
           <div className="card bg-base-200 border border-base-300 shadow-xl">
             <div className="card-body p-6 md:p-8">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-base-300">
-                <div className="card-title text-xl font-black text-base-content flex items-center gap-3">
-                  <BookOpen size={24} className="text-success flex-shrink-0" />
-                  <span>Active Recall & News Literacy Tutor (F20)</span>
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="card-title text-xl font-black text-base-content flex items-center gap-3">
+                    <BookOpen size={24} className="text-success flex-shrink-0" />
+                    <span>Active Recall & News Literacy Tutor (F20)</span>
+                  </div>
+                  {quizStatus === 'paused' && (
+                    <span className="badge badge-warning gap-1.5 py-2.5 px-3 text-xs font-bold shadow-sm">
+                      <CirclePause size={13} />
+                      <span>Paused (Not Started)</span>
+                    </span>
+                  )}
+                  {quizStatus === 'loading' && (
+                    <span className="badge badge-info gap-1.5 py-2.5 px-3 text-xs font-bold shadow-sm">
+                      <span className="loading loading-spinner loading-xs"></span>
+                      <span>Generating Quiz...</span>
+                    </span>
+                  )}
+                  {quizStatus === 'ready' && (
+                    <span className="badge badge-success gap-1.5 py-2.5 px-3 text-xs font-bold text-success-content shadow-sm">
+                      <CheckCircle2 size={13} />
+                      <span>Saved in Firestore</span>
+                    </span>
+                  )}
                 </div>
-                <button
-                  className="btn btn-sm btn-outline btn-neutral gap-2 self-start sm:self-auto"
-                  onClick={handleLoadQuiz}
-                  disabled={quizLoading}
-                >
-                  <RefreshCw size={14} className={quizLoading ? 'animate-spin' : ''} />
-                  <span>Regenerate Quiz</span>
-                </button>
+
+                {quizStatus === 'ready' && (
+                  <button
+                    className="btn btn-sm btn-outline btn-neutral gap-2 self-start sm:self-auto shadow-sm"
+                    onClick={handleLoadQuiz}
+                    disabled={quizLoading}
+                  >
+                    <RefreshCw size={14} className={quizLoading ? 'animate-spin' : ''} />
+                    <span>Regenerate Quiz</span>
+                  </button>
+                )}
               </div>
 
-              {quizLoading ? (
+              {/* PAUSED STATE: Centered Action Trigger Card */}
+              {quizStatus === 'paused' && (
+                <div className="p-8 md:p-14 text-center max-w-2xl mx-auto my-4 w-full">
+                  <div className="relative w-20 h-20 mx-auto mb-4 flex items-center justify-center rounded-2xl bg-warning/15 text-warning border border-warning/30 shadow-inner">
+                    <CirclePause size={42} className="text-warning" />
+                  </div>
+                  <div className="badge badge-warning badge-sm uppercase tracking-wider font-bold mx-auto mb-3">
+                    On-Demand Tutor • Paused (Not Started)
+                  </div>
+                  <h3 className="text-2xl font-black text-base-content mb-2">
+                    Generate Active Recall Quiz
+                  </h3>
+                  <p className="text-sm text-base-content/75 max-w-md mx-auto mb-8 leading-relaxed">
+                    Test your news literacy with pedagogical multiple-choice questions grounded in audited evidence. Results will be saved permanently to Firestore for this investigation.
+                  </p>
+                  <button
+                    onClick={handleLoadQuiz}
+                    disabled={quizLoading}
+                    className="btn btn-primary btn-md md:btn-lg gap-2.5 mx-auto shadow-xl hover:scale-105 transition-all font-bold px-8"
+                  >
+                    <Play size={20} className="fill-current" />
+                    <span>Launch Active Recall Tutor Quiz</span>
+                  </button>
+                  <div className="text-[11px] text-base-content/50 mt-4 flex items-center justify-center gap-1.5">
+                    <CheckCircle2 size={13} className="text-success" />
+                    <span>Saved in Firestore for replay & archival access</span>
+                  </div>
+                </div>
+              )}
+
+              {quizStatus === 'loading' && (
                 <div className="py-16 text-center text-base-content/70">
                   <span className="loading loading-spinner loading-lg text-primary mb-3"></span>
                   <div className="text-base font-semibold">Generating pedagogical comprehension questions...</div>
@@ -1123,7 +1364,9 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     <div className="skeleton h-12 w-full"></div>
                   </div>
                 </div>
-              ) : quiz ? (
+              )}
+
+              {quizStatus === 'ready' && quiz && (
                 <div className="mt-6 flex flex-col gap-6">
                   {quiz.questions?.map((q) => {
                     const selected = userAnswers[q.question_id];
@@ -1238,7 +1481,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     )}
                   </div>
                 </div>
-              ) : null}
+              )}
             </div>
           </div>
         )}
@@ -1247,12 +1490,75 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
         {activeTab === 'debate' && (
           <div className="card bg-base-200 border border-base-300 shadow-xl">
             <div className="card-body p-6 md:p-8">
-              <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-3 border-b border-base-300">
-                <Scale size={24} className="text-warning flex-shrink-0" />
-                <span>Dialectical Perspective Debate Simulator (F38)</span>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-base-300">
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="card-title text-xl font-black text-base-content flex items-center gap-3">
+                    <Scale size={24} className="text-warning flex-shrink-0" />
+                    <span>Dialectical Perspective Debate Simulator (F38)</span>
+                  </div>
+                  {debateStatus === 'paused' && (
+                    <span className="badge badge-warning gap-1.5 py-2.5 px-3 text-xs font-bold shadow-sm">
+                      <CirclePause size={13} />
+                      <span>Paused (Not Started)</span>
+                    </span>
+                  )}
+                  {debateStatus === 'loading' && (
+                    <span className="badge badge-info gap-1.5 py-2.5 px-3 text-xs font-bold shadow-sm">
+                      <span className="loading loading-spinner loading-xs"></span>
+                      <span>Synthesizing Viewpoints...</span>
+                    </span>
+                  )}
+                  {debateStatus === 'ready' && (
+                    <span className="badge badge-success gap-1.5 py-2.5 px-3 text-xs font-bold text-success-content shadow-sm">
+                      <CheckCircle2 size={13} />
+                      <span>Saved in Firestore</span>
+                    </span>
+                  )}
+                </div>
+
+                {debateStatus === 'ready' && (
+                  <button
+                    className="btn btn-sm btn-outline btn-neutral gap-2 self-start sm:self-auto shadow-sm"
+                    onClick={handleLoadDebate}
+                    disabled={debateLoading}
+                  >
+                    <RefreshCw size={14} className={debateLoading ? 'animate-spin' : ''} />
+                    <span>Regenerate Debate</span>
+                  </button>
+                )}
               </div>
 
-              {debateLoading ? (
+              {/* PAUSED STATE: Centered Action Trigger Card */}
+              {debateStatus === 'paused' && (
+                <div className="p-8 md:p-14 text-center max-w-2xl mx-auto my-4 w-full">
+                  <div className="relative w-20 h-20 mx-auto mb-4 flex items-center justify-center rounded-2xl bg-warning/15 text-warning border border-warning/30 shadow-inner">
+                    <CirclePause size={42} className="text-warning" />
+                  </div>
+                  <div className="badge badge-warning badge-sm uppercase tracking-wider font-bold mx-auto mb-3">
+                    On-Demand Simulation • Paused (Not Started)
+                  </div>
+                  <h3 className="text-2xl font-black text-base-content mb-2">
+                    Simulate Perspective Debate
+                  </h3>
+                  <p className="text-sm text-base-content/75 max-w-md mx-auto mb-8 leading-relaxed">
+                    Generate steelmanned, grounded opposing arguments and a neutral compromise synthesis across stakeholders. Results will be saved permanently to Firestore for this investigation.
+                  </p>
+                  <button
+                    onClick={handleLoadDebate}
+                    disabled={debateLoading}
+                    className="btn btn-warning btn-md md:btn-lg gap-2.5 mx-auto shadow-xl hover:scale-105 transition-all font-bold px-8 text-warning-content"
+                  >
+                    <Play size={20} className="fill-current" />
+                    <span>Simulate Perspective Debate</span>
+                  </button>
+                  <div className="text-[11px] text-base-content/50 mt-4 flex items-center justify-center gap-1.5">
+                    <CheckCircle2 size={13} className="text-success" />
+                    <span>Saved in Firestore for replay & archival access</span>
+                  </div>
+                </div>
+              )}
+
+              {debateStatus === 'loading' && (
                 <div className="py-16 text-center text-base-content/70">
                   <span className="loading loading-spinner loading-lg text-primary mb-3"></span>
                   <div className="text-base font-semibold">Synthesizing steelmanned opposing viewpoints...</div>
@@ -1261,7 +1567,9 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     <div className="skeleton h-20 w-full"></div>
                   </div>
                 </div>
-              ) : debate ? (
+              )}
+
+              {debateStatus === 'ready' && debate && (
                 <div className="mt-4">
                   {/* Resolution Banner */}
                   <div className="alert alert-warning bg-warning/10 text-warning-content border border-warning/30 shadow-sm rounded-xl mb-6">
@@ -1321,7 +1629,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     </p>
                   </div>
                 </div>
-              ) : null}
+              )}
             </div>
           </div>
         )}
