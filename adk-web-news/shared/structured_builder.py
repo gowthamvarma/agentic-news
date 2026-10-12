@@ -869,6 +869,10 @@ Return a single JSON object with:
   - "potential_impact": string in clear, easy-to-read English preserving technical terms
   - "signals_to_watch": list of strings
   - "what_if_assumption": optional string
+- "lessons_learned": list of 3 objects (exactly one per target_audience) with:
+  - "lesson_takeaway": string - what went wrong or right, and why
+  - "target_audience": 'INDIVIDUALS'|'ORGANISATIONS'|'POLICYMAKERS'
+  - "concrete_preventive_action": string - a specific, actionable step to avoid or mitigate a recurrence
 """
             res = client.models.generate_content(
                 model=MODEL_AGENT_FAST,
@@ -950,11 +954,30 @@ Return a single JSON object with:
         ),
     ]
 
+    lessons = [
+        LessonItem(
+            lesson_takeaway="Initial breaking headlines often omit critical legal caveats and grandfathering exemptions.",
+            target_audience="INDIVIDUALS",
+            concrete_preventive_action="Verify assertions against primary gazettes and avoid premature life or career disruption.",
+        ),
+        LessonItem(
+            lesson_takeaway=f"Administrative shifts concerning {subject} can take effect overnight with immediate operational impact.",
+            target_audience="ORGANISATIONS",
+            concrete_preventive_action="Maintain redundant operational hubs and establish compliance contingency reserves.",
+        ),
+        LessonItem(
+            lesson_takeaway="Sudden edicts without notice-and-comment damage regulatory predictability and invite swift injunctions.",
+            target_audience="POLICYMAKERS",
+            concrete_preventive_action="Enact phased transition periods and engage industry stakeholders before codification.",
+        ),
+    ]
+
     return {
         "topic": clean_topic,
         "root_cause_analysis": root_cause.model_dump(),
         "consequences_tree": [cq.model_dump() for cq in consequences],
         "future_scenarios": [sc.model_dump() for sc in scenarios],
+        "lessons_learned": [ls.model_dump() for ls in lessons],
     }
 
 

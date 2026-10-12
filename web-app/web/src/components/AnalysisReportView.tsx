@@ -26,7 +26,9 @@ import {
   CirclePause,
   Play,
   User,
-  Globe
+  Globe,
+  Lightbulb,
+  Landmark
 } from 'lucide-react';
 import {
   updateAnalysis,
@@ -42,7 +44,8 @@ import type {
   NewsIntelligenceReport,
   QuizPayload,
   PerspectiveDebateReport,
-  ChatMessage
+  ChatMessage,
+  LessonItem
 } from '../types';
 import { RobotAvatar } from './RobotAvatar';
 import { UserAvatar } from './UserAvatar';
@@ -50,6 +53,16 @@ import { FormattedMarkdown } from './FormattedMarkdown';
 import { CrossSourceContradictionsSection } from './CrossSourceContradictionsSection';
 import { TimelineSection } from './TimelineSection';
 import { useToast } from '../context/ToastContext';
+
+// Display metadata for Lessons & Prevention target audiences
+const LESSON_AUDIENCE_META: Record<
+  LessonItem['target_audience'],
+  { label: string; icon: React.ElementType; text: string; border: string }
+> = {
+  INDIVIDUALS: { label: 'Individuals', icon: User, text: 'text-info', border: 'border-t-info' },
+  ORGANISATIONS: { label: 'Organisations', icon: Building2, text: 'text-secondary', border: 'border-t-secondary' },
+  POLICYMAKERS: { label: 'Policymakers', icon: Landmark, text: 'text-accent', border: 'border-t-accent' },
+};
 
 // Cache for resolved Wikipedia thumbnails to minimize network requests
 const wikiThumbnailCache: Record<string, string> = {};
@@ -177,6 +190,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
   // Check if sections are already saved in the report
   const hasSavedScenarios = !!(
     (report.future_scenarios && report.future_scenarios.length > 0) ||
+    (report.lessons_learned && report.lessons_learned.length > 0) ||
     (report.root_cause_analysis && (
       (report.root_cause_analysis.immediate_triggers && report.root_cause_analysis.immediate_triggers.length > 0) ||
       (report.root_cause_analysis.structural_failure_points && report.root_cause_analysis.structural_failure_points.length > 0)
@@ -1478,6 +1492,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 const rootCause = scenariosData?.root_cause_analysis || report.root_cause_analysis;
                 const consequences = scenariosData?.consequences_tree || report.consequences_tree;
                 const scenarios = scenariosData?.future_scenarios || report.future_scenarios;
+                const lessons: LessonItem[] = scenariosData?.lessons_learned || report.lessons_learned || [];
 
                 return (
                   <>
@@ -1515,6 +1530,21 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                               ))}
                             </div>
                           </div>
+
+                          {rootCause?.underlying_systemic_factors && rootCause.underlying_systemic_factors.length > 0 && (
+                            <div className="mt-4">
+                              <div className="text-xs font-bold uppercase tracking-wider text-warning mb-2">
+                                Underlying Systemic Factors
+                              </div>
+                              <div className="flex flex-col gap-2">
+                                {rootCause.underlying_systemic_factors.map((usf: string, idx: number) => (
+                                  <div key={idx} className="card bg-base-100 border border-base-300 p-3 text-sm text-base-content">
+                                    • {usf}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -1547,9 +1577,14 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     {/* Forward Scenarios with DaisyUI Rating Component */}
                     <div className="card bg-base-200 border border-base-300 shadow-xl">
                       <div className="card-body p-6 md:p-8">
-                        <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-3 border-b border-base-300">
-                          <Sparkles size={24} className="text-secondary flex-shrink-0" />
-                          <span>Forward-Looking Scenarios & Probability Ratings</span>
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 pb-3 border-b border-base-300">
+                          <div className="card-title text-xl font-black text-base-content flex items-center gap-3">
+                            <Sparkles size={24} className="text-secondary flex-shrink-0" />
+                            <span>Forward-Looking Scenarios &amp; Probability Ratings</span>
+                          </div>
+                          <span className="badge badge-outline badge-warning text-[11px] font-medium py-2 px-2.5">
+                            Autonomous Projections • Speculative
+                          </span>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-4">
@@ -1557,7 +1592,22 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                             <div key={idx} className="card bg-base-100 border border-base-300 shadow-md p-6 flex flex-col justify-between hover:border-secondary transition-all">
                               <div>
                                 <div className="flex items-center justify-between gap-2 mb-2">
-                                  <span className="badge badge-secondary badge-sm font-bold">{sc.probability_rating}</span>
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    <span className={`badge ${
+                                      sc.scenario_type === 'BEST_CASE'
+                                        ? 'badge-success text-success-content'
+                                        : sc.scenario_type === 'WORST_CASE'
+                                        ? 'badge-error text-error-content'
+                                        : 'badge-secondary'
+                                    } badge-xs font-bold`}>
+                                      {sc.scenario_type ? sc.scenario_type.replace('_', ' ') : sc.probability_rating}
+                                    </span>
+                                    {sc.time_horizon && (
+                                      <span className="badge badge-ghost badge-xs text-base-content/70 font-medium">
+                                        {sc.time_horizon}
+                                      </span>
+                                    )}
+                                  </div>
                                   {renderProbabilityRating(sc.probability_rating)}
                                 </div>
                                 <div className="font-bold text-base md:text-lg text-base-content mt-1 mb-2">
@@ -1567,19 +1617,82 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                                   {sc.potential_impact}
                                 </p>
                               </div>
-                              {sc.signals_to_watch && sc.signals_to_watch.length > 0 && (
-                                <div className="text-xs text-base-content/70 border-t border-base-200 pt-3">
-                                  <strong className="text-primary block mb-1">Signals to Watch:</strong>
-                                  <ul className="list-disc list-inside space-y-1">
-                                    {sc.signals_to_watch.map((sig: string, sidx: number) => (
-                                      <li key={sidx}>{sig}</li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              )}
+
+                              <div className="flex flex-col gap-2 border-t border-base-200 pt-3">
+                                {sc.what_if_assumption && (
+                                  <div className="text-xs bg-warning/10 border border-warning/20 rounded-lg p-2.5 text-base-content/85">
+                                    <strong className="text-warning block font-bold mb-0.5">What-If Assumption:</strong>
+                                    <span>{sc.what_if_assumption}</span>
+                                  </div>
+                                )}
+                                {sc.signals_to_watch && sc.signals_to_watch.length > 0 && (
+                                  <div className="text-xs text-base-content/70">
+                                    <strong className="text-primary block mb-1">Signals to Watch:</strong>
+                                    <ul className="list-disc list-inside space-y-1">
+                                      {sc.signals_to_watch.map((sig: string, sidx: number) => (
+                                        <li key={sidx}>{sig}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           ))}
                         </div>
+                      </div>
+                    </div>
+
+                    {/* Lessons Learned & Prevention (F13 / F14) */}
+                    <div className="card bg-base-200 border border-base-300 shadow-xl">
+                      <div className="card-body p-6 md:p-8">
+                        <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-3 border-b border-base-300">
+                          <Lightbulb size={24} className="text-warning flex-shrink-0" />
+                          <span>Lessons Learned &amp; Prevention</span>
+                        </div>
+
+                        {lessons && lessons.length > 0 ? (
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-4">
+                            {lessons.map((ls: LessonItem, idx: number) => {
+                              const meta = LESSON_AUDIENCE_META[ls.target_audience] || LESSON_AUDIENCE_META.INDIVIDUALS;
+                              const Icon = meta.icon;
+                              return (
+                                <div
+                                  key={idx}
+                                  className={`card bg-base-100 border border-base-300 border-t-4 ${meta.border} shadow-md p-6 flex flex-col justify-between`}
+                                >
+                                  <div>
+                                    <div className={`flex items-center gap-2 mb-3 text-xs font-bold uppercase tracking-wider ${meta.text}`}>
+                                      <Icon size={16} />
+                                      <span>For {meta.label}</span>
+                                    </div>
+                                    <div className="text-[11px] font-bold uppercase tracking-wider text-base-content/60 mb-1">
+                                      Lesson
+                                    </div>
+                                    <p className="text-sm md:text-base font-semibold text-base-content leading-snug mb-4">
+                                      {ls.lesson_takeaway}
+                                    </p>
+                                  </div>
+                                  <div className="border-t border-base-200 pt-3">
+                                    <div className="text-[11px] font-bold uppercase tracking-wider text-success mb-1 flex items-center gap-1.5">
+                                      <ShieldCheck size={13} />
+                                      <span>How to Prevent</span>
+                                    </div>
+                                    <p className="text-sm text-base-content/80 leading-relaxed">
+                                      {ls.concrete_preventive_action}
+                                    </p>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <div className="alert bg-base-100 border border-base-300 rounded-xl mt-4">
+                            <Lightbulb size={20} className="text-warning flex-shrink-0" />
+                            <span className="text-sm">
+                              No lessons were saved for this analysis. Click <strong>Regenerate Scenarios</strong> to produce them.
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </>
