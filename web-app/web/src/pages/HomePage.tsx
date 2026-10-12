@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   Search,
@@ -32,6 +32,7 @@ const FLEET_STAGES = [
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const progressRef = useRef<HTMLDivElement>(null);
 
   const [topicInput, setTopicInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -40,6 +41,23 @@ export const HomePage: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [recentAnalyses, setRecentAnalyses] = useState<NewsIntelligenceReport[]>([]);
   const [recentLoading, setRecentLoading] = useState(true);
+
+  // Auto-scroll to loading progress section when fleet run starts
+  useEffect(() => {
+    if (loading) {
+      const timer = setTimeout(() => {
+        if (progressRef.current) {
+          progressRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          window.scrollTo({
+            top: document.documentElement.scrollHeight,
+            behavior: 'smooth'
+          });
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [loading]);
 
   // Stage progress animation timer while loading
   useEffect(() => {
@@ -223,13 +241,12 @@ export const HomePage: React.FC = () => {
 
       {/* Loading Progress State during Active Analysis */}
       {loading && (
-        <div className="container mx-auto px-4 max-w-4xl my-8">
+        <div ref={progressRef} className="container mx-auto px-4 max-w-4xl my-8 scroll-mt-20">
           <div className="card bg-base-200 border border-base-300 shadow-2xl p-6 md:p-10 text-center">
             {/* Multi-Ring Spinner Visual */}
             <div className="relative w-24 h-24 mx-auto mb-6 flex items-center justify-center">
               <span className="loading loading-spinner text-primary loading-lg absolute scale-150"></span>
               <span className="loading loading-ring text-secondary loading-lg absolute scale-125"></span>
-              <span className="loading loading-dots text-accent loading-md absolute"></span>
               <Brain size={30} className="text-primary animate-pulse relative z-10" />
             </div>
 
