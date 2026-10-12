@@ -68,7 +68,7 @@ Execute your multi-agent workflow methodically across the 6 architectural stages
    - Coordinate with `claim_extractor` to decompose reporting into atomic factual propositions, statistics, and quoted attributions.
 
 2. **STAGE 2 - UNDERSTAND & CONTEXT (PARALLEL)**:
-   - Formulate a 'Who / Where / What Primer' and Jargon Glossary for readers with zero prior background (`context_builder`).
+   - Formulate a 'Who / Where / What Primer' and Jargon Glossary for readers (`context_builder`). Ensure a prominent balance of both Key Organizations/Institutions (corporations, regulatory bodies, courts) and Key Figures (Persons like CEOs, chairs, judges, ministers) with roles, Wikipedia URLs, and image links.
    - Reconstruct a chronological timeline of how the event unfolded, noting shifts in narrative framing (`timeline_agent`).
    - Identify key entities, allies, opponents, and dependencies (`knowledge_graph_agent`).
    - Map stakeholder positions, incentives, and who gains or loses (`stakeholder_map_agent`).

@@ -50,6 +50,101 @@ import { UserAvatar } from './UserAvatar';
 import { FormattedMarkdown } from './FormattedMarkdown';
 import { useToast } from '../context/ToastContext';
 
+// Cache for resolved Wikipedia thumbnails to minimize network requests
+const wikiThumbnailCache: Record<string, string> = {};
+
+interface EntityAvatarProps {
+  entityName: string;
+  wikipediaUrl?: string | null;
+  imageUrl?: string | null;
+  entityType: string;
+}
+
+export const EntityAvatar: React.FC<EntityAvatarProps> = ({
+  entityName,
+  wikipediaUrl,
+  imageUrl,
+  entityType,
+}) => {
+  const [imgSrc, setImgSrc] = useState<string | null>(() => {
+    if (imageUrl && !imageUrl.includes('upload.wikimedia.org/wikipedia/commons/thumb/')) {
+      return imageUrl;
+    }
+    if (wikipediaUrl && wikiThumbnailCache[wikipediaUrl]) {
+      return wikiThumbnailCache[wikipediaUrl];
+    }
+    return imageUrl || null;
+  });
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    if (wikipediaUrl) {
+      if (wikiThumbnailCache[wikipediaUrl]) {
+        setImgSrc(wikiThumbnailCache[wikipediaUrl]);
+        setHasError(false);
+        return;
+      }
+      const pageTitle = wikipediaUrl.split('/wiki/')[1];
+      if (pageTitle) {
+        fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(pageTitle)}`)
+          .then((res) => (res.ok ? res.json() : null))
+          .then((data) => {
+            if (isMounted && data?.thumbnail?.source) {
+              wikiThumbnailCache[wikipediaUrl] = data.thumbnail.source;
+              setImgSrc(data.thumbnail.source);
+              setHasError(false);
+            }
+          })
+          .catch(() => {});
+      }
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [wikipediaUrl]);
+
+  if (imgSrc && !hasError) {
+    if (entityType === 'PERSON') {
+      return (
+        <img
+          src={imgSrc}
+          alt={entityName}
+          referrerPolicy="no-referrer"
+          className="w-12 h-12 rounded-full object-cover border-2 border-secondary/40 flex-shrink-0 shadow-sm"
+          loading="lazy"
+          onError={() => setHasError(true)}
+        />
+      );
+    }
+    return (
+      <img
+        src={imgSrc}
+        alt={entityName}
+        referrerPolicy="no-referrer"
+        className="w-11 h-11 rounded-lg object-contain bg-base-200 p-1 border border-base-300 flex-shrink-0 shadow-xs"
+        loading="lazy"
+        onError={() => setHasError(true)}
+      />
+    );
+  }
+
+  // Graceful Fallback Avatars
+  if (entityType === 'PERSON') {
+    return (
+      <div className="w-12 h-12 rounded-full bg-secondary/15 text-secondary flex items-center justify-center font-bold text-lg flex-shrink-0 border border-secondary/30">
+        {entityName.charAt(0)}
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-11 h-11 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-base flex-shrink-0 border border-primary/20">
+      <Building2 size={20} />
+    </div>
+  );
+};
+
 interface AnalysisReportViewProps {
   report: NewsIntelligenceReport;
   onUpdateReport?: (updated: NewsIntelligenceReport) => void;
@@ -824,46 +919,46 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     </div>
                   )}
 
-                  {/* KEY FIGURES & LEADERS (PERSONS) */}
+                  {/* PRIMER ENTITIES: ORGANIZATIONS & PERSONS */}
                   {(() => {
+                    const orgItems = report.context_primer.primer_items?.filter(
+                      (item) => item.entity_type === 'ORGANIZATION'
+                    ) || [];
                     const personItems = report.context_primer.primer_items?.filter(
                       (item) => item.entity_type === 'PERSON'
                     ) || [];
-                    const otherItems = report.context_primer.primer_items?.filter(
-                      (item) => item.entity_type !== 'PERSON'
+                    const conceptAndLocationItems = report.context_primer.primer_items?.filter(
+                      (item) => item.entity_type !== 'ORGANIZATION' && item.entity_type !== 'PERSON'
                     ) || [];
 
                     return (
                       <>
-                        {personItems.length > 0 && (
+                        {/* 1. KEY ORGANIZATIONS & INSTITUTIONS (SHOWN FIRST & PROMINENTLY) */}
+                        {orgItems.length > 0 && (
                           <div className="mt-6">
-                            <div className="text-xs font-bold uppercase tracking-wider text-primary mb-3 flex items-center gap-2">
-                              <User size={16} />
-                              <span>Key Leaders & Decision Makers (Persons)</span>
+                            <div className="text-xs font-bold uppercase tracking-wider text-primary mb-3 flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <Building2 size={16} />
+                                <span>Key Organizations & Institutions ({orgItems.length})</span>
+                              </div>
+                              <span className="badge badge-primary badge-outline badge-xs font-semibold">
+                                Corporate & Regulatory Bodies
+                              </span>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                              {personItems.map((item, idx) => (
+                              {orgItems.map((item, idx) => (
                                 <div
                                   key={idx}
                                   className="card bg-base-100 border border-base-300 shadow-sm p-4 hover:border-primary/40 transition-all flex flex-col justify-between"
                                 >
                                   <div>
                                     <div className="flex items-start gap-3 mb-2">
-                                      {item.image_url ? (
-                                        <img
-                                          src={item.image_url}
-                                          alt={item.entity_name}
-                                          className="w-12 h-12 rounded-full object-cover border-2 border-primary/30 flex-shrink-0"
-                                          loading="lazy"
-                                          onError={(e) => {
-                                            (e.target as HTMLElement).style.display = 'none';
-                                          }}
-                                        />
-                                      ) : (
-                                        <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-lg flex-shrink-0">
-                                          {item.entity_name.charAt(0)}
-                                        </div>
-                                      )}
+                                      <EntityAvatar
+                                        entityName={item.entity_name}
+                                        wikipediaUrl={item.wikipedia_url}
+                                        imageUrl={item.image_url}
+                                        entityType="ORGANIZATION"
+                                      />
                                       <div className="min-w-0">
                                         <div className="font-bold text-base text-base-content leading-snug">
                                           {item.entity_name}
@@ -892,6 +987,71 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                                         rel="noopener noreferrer"
                                         className="link link-primary text-xs flex items-center gap-1 font-semibold hover:underline"
                                       >
+                                        <span>Wikipedia Article</span>
+                                        <ExternalLink size={12} />
+                                      </a>
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* 2. KEY FIGURES & LEADERS (PERSONS) */}
+                        {personItems.length > 0 && (
+                          <div className="mt-6">
+                            <div className="text-xs font-bold uppercase tracking-wider text-secondary mb-3 flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <User size={16} />
+                                <span>Key Figures & Decision Makers (Persons) ({personItems.length})</span>
+                              </div>
+                              <span className="badge badge-secondary badge-outline badge-xs font-semibold">
+                                Leaders & Officials
+                              </span>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                              {personItems.map((item, idx) => (
+                                <div
+                                  key={idx}
+                                  className="card bg-base-100 border border-base-300 shadow-sm p-4 hover:border-secondary/40 transition-all flex flex-col justify-between"
+                                >
+                                  <div>
+                                    <div className="flex items-start gap-3 mb-2">
+                                      <EntityAvatar
+                                        entityName={item.entity_name}
+                                        wikipediaUrl={item.wikipedia_url}
+                                        imageUrl={item.image_url}
+                                        entityType="PERSON"
+                                      />
+                                      <div className="min-w-0">
+                                        <div className="font-bold text-base text-base-content leading-snug">
+                                          {item.entity_name}
+                                        </div>
+                                        {item.role_or_title && (
+                                          <div className="text-xs font-medium text-secondary leading-tight mt-0.5">
+                                            {item.role_or_title}
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <p className="text-xs text-base-content/80 mt-2 leading-relaxed">
+                                      {item.explainer_2_lines}
+                                    </p>
+                                    {item.historical_context && (
+                                      <div className="text-[11px] text-base-content/60 mt-2 pt-2 border-t border-base-200">
+                                        <strong>Context:</strong> {item.historical_context}
+                                      </div>
+                                    )}
+                                  </div>
+                                  {item.wikipedia_url && (
+                                    <div className="mt-3 pt-2 border-t border-base-200 flex justify-end">
+                                      <a
+                                        href={item.wikipedia_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="link link-secondary text-xs flex items-center gap-1 font-semibold hover:underline"
+                                      >
                                         <span>Wikipedia Dossier</span>
                                         <ExternalLink size={12} />
                                       </a>
@@ -903,15 +1063,15 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                           </div>
                         )}
 
-                        {/* KEY ORGANIZATIONS & INSTITUTIONS */}
-                        {otherItems.length > 0 && (
+                        {/* 3. KEY CONCEPTS, DOCTRINES & LOCATIONS */}
+                        {conceptAndLocationItems.length > 0 && (
                           <div className="mt-6">
-                            <div className="text-xs font-bold uppercase tracking-wider text-secondary mb-3 flex items-center gap-2">
-                              <Building2 size={16} />
-                              <span>Key Organizations, Institutions & Doctrines</span>
+                            <div className="text-xs font-bold uppercase tracking-wider text-accent mb-3 flex items-center gap-2">
+                              <HelpCircle size={16} />
+                              <span>Key Doctrines, Legal Frameworks & Locations</span>
                             </div>
                             <div className="flex flex-col gap-2">
-                              {otherItems.map((item, idx) => (
+                              {conceptAndLocationItems.map((item, idx) => (
                                 <div
                                   key={idx}
                                   className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl shadow-sm"
@@ -919,24 +1079,11 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                                   <input type="checkbox" defaultChecked={idx === 0} />
                                   <div className="collapse-title text-base font-bold text-base-content flex items-center justify-between pr-10">
                                     <div className="flex items-center gap-3">
-                                      {item.image_url && (
-                                        <img
-                                          src={item.image_url}
-                                          alt={item.entity_name}
-                                          className="w-6 h-6 rounded object-contain flex-shrink-0"
-                                          loading="lazy"
-                                          onError={(e) => {
-                                            (e.target as HTMLElement).style.display = 'none';
-                                          }}
-                                        />
-                                      )}
                                       <span className={`badge ${
-                                        item.entity_type === 'ORGANIZATION'
-                                          ? 'badge-primary'
-                                          : item.entity_type === 'CONCEPT'
-                                          ? 'badge-secondary'
-                                          : item.entity_type === 'LOCATION'
+                                        item.entity_type === 'CONCEPT'
                                           ? 'badge-accent'
+                                          : item.entity_type === 'LOCATION'
+                                          ? 'badge-info'
                                           : 'badge-neutral'
                                       } badge-sm font-bold uppercase`}>
                                         {item.entity_type}

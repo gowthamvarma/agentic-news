@@ -54,9 +54,9 @@ Return a single valid JSON object with the following fields:
 - "executive_summary": string, 3-4 sentences synthesizing the latest verified reporting and strategic context
 - "key_metrics_and_numbers": list of 4 specific strings with statistics, timelines, financial figures, or dates
 - "consensus_points": list of 3 strings outlining uncontested facts across all major outlets
-- "sources_analyzed": list of strings citing major media desks (e.g. Associated Press, Reuters, Bloomberg, WSJ)
-- "articles_analyzed": list of 2-4 objects with 'outlet', 'title', 'url', 'published_date', 'author', 'content'
-- "context_primer": object with 'background_story' (string), 'primer_items' (list of objects with 'entity_name', 'entity_type', 'explainer_2_lines', 'historical_context'), and 'jargon_definitions' (dict of term: definition)
+- "sources_analyzed": list of strings citing major media desks (e.g. Associated Press, Reuters, Bloomberg, WSJ, Nikkei Asia, The Hindu)
+- "articles_analyzed": list of 4-6 objects with 'outlet', 'title', 'url', 'published_date', 'author', 'content', 'country', 'country_code', 'flag', 'editorial_lean', 'reliability_tier'
+- "context_primer": object with 'background_story' (string), 'primer_items' (list of 6-8 objects containing BOTH prominent organizations and key figures: at least 4-5 with 'entity_type': 'ORGANIZATION' and at least 2-3 with 'entity_type': 'PERSON'. Each object MUST have 'entity_name', 'entity_type' ['ORGANIZATION'|'PERSON'|'CONCEPT'|'LOCATION'], 'role_or_title', 'explainer_2_lines', 'historical_context', 'wikipedia_url' [valid en.wikipedia.org link e.g. https://en.wikipedia.org/wiki/Exact_Title], and 'image_url' [direct wikimedia photo/logo URL]), and 'jargon_definitions' (dict of term: definition)
 - "verifications": list of 3-4 objects with 'claim_id' (e.g. C-01), 'claim_text', 'status' ('VERIFIED'|'DISPUTED'|'UNVERIFIED'), 'confidence' (float 0.8-1.0), 'reasoning', 'corroborating_sources' (list of strings), 'conflicting_sources' (list of strings)
 - "contradictions": list of 2 objects with 'contradiction_id' (e.g. CONT-01), 'topic_aspect', 'outlet_a', 'claim_a', 'outlet_b', 'claim_b', 'divergence_type', 'analysis'
 - "bias_evaluations": list of 2-3 objects with 'outlet', 'assessed_lean' ('CENTER'|'CENTER_LEFT'|'CENTER_RIGHT'|'FAR_LEFT'|'FAR_RIGHT'), 'loaded_terms_identified' (list of strings), 'framing_narrative', 'omitted_context'
@@ -319,35 +319,7 @@ def build_structured_intelligence(topic: str, raw_markdown: str = "") -> Dict[st
             f"and subsequent legal challenges under the Administrative Procedure Act."
         ),
         primer_items=[
-            # Key Figures & Leaders (Persons)
-            EntityPrimer(
-                entity_name="Lina Khan",
-                entity_type="PERSON",
-                role_or_title="Chair of the Federal Trade Commission (FTC)",
-                explainer_2_lines="Prominent antitrust scholar and regulatory head spearheading rigorous market competition and administrative compliance enforcement.",
-                historical_context="Pioneered modern anti-monopoly jurisprudence challenging tech consolidation, market power abuse, and procedural exemptions.",
-                wikipedia_url="https://en.wikipedia.org/wiki/Lina_Khan",
-                image_url="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Lina_Khan_FTC_portrait.jpg/440px-Lina_Khan_FTC_portrait.jpg",
-            ),
-            EntityPrimer(
-                entity_name="Jerome Powell",
-                entity_type="PERSON",
-                role_or_title="Chair of the Federal Reserve System",
-                explainer_2_lines="Chief central banker navigating macroeconomic stability, inflation metrics, interest rate trajectories, and global currency liquidity.",
-                historical_context="Serving as 16th Chair of the Federal Reserve since 2018, presiding over historic monetary policy shifts and post-pandemic inflation containment.",
-                wikipedia_url="https://en.wikipedia.org/wiki/Jerome_Powell",
-                image_url="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Jerome_Powell_official_portrait.jpg/440px-Jerome_Powell_official_portrait.jpg",
-            ),
-            EntityPrimer(
-                entity_name="Ursula von der Leyen",
-                entity_type="PERSON",
-                role_or_title="President of the European Commission",
-                explainer_2_lines="European executive leader directing EU regulatory harmonisation, transatlantic trade alliances, critical tech sovereignty, and green transition directives.",
-                historical_context="Re-elected President of the European Commission in 2024, architect of the EU AI Act, Critical Raw Materials Act, and European Green Deal.",
-                wikipedia_url="https://en.wikipedia.org/wiki/Ursula_von_der_Leyen",
-                image_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Ursula_von_der_Leyen_in_2023.jpg/440px-Ursula_von_der_Leyen_in_2023.jpg",
-            ),
-            # Key Organizations & Institutions
+            # Key Organizations & Institutions (Prominently 5 Organizations)
             EntityPrimer(
                 entity_name="Federal Trade Commission (FTC)",
                 entity_type="ORGANIZATION",
@@ -355,7 +327,7 @@ def build_structured_intelligence(topic: str, raw_markdown: str = "") -> Dict[st
                 explainer_2_lines="Bipartisan regulatory commission enforcing civil antitrust law, consumer protections, and fair administrative trade practices across enterprise sectors.",
                 historical_context="Established under the FTC Act of 1914 to investigate unfair competition, false advertising, and deceptive corporate practices.",
                 wikipedia_url="https://en.wikipedia.org/wiki/Federal_Trade_Commission",
-                image_url="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Seal_of_the_United_States_Federal_Trade_Commission.svg/440px-Seal_of_the_United_States_Federal_Trade_Commission.svg.png",
+                image_url="https://thumb.wikimedia.org/wikipedia/commons/thumb/6/69/Seal_of_the_United_States_Federal_Trade_Commission.svg/330px-Seal_of_the_United_States_Federal_Trade_Commission.svg.png",
             ),
             EntityPrimer(
                 entity_name="European Commission (EC)",
@@ -364,17 +336,64 @@ def build_structured_intelligence(topic: str, raw_markdown: str = "") -> Dict[st
                 explainer_2_lines="Supranational executive body proposing legislation, enforcing EU treaties, managing common trade policies, and supervising single market directives.",
                 historical_context="Drafted the landmark EU AI Act and Digital Markets Act setting global regulatory benchmarks often dubbed the 'Brussels Effect'.",
                 wikipedia_url="https://en.wikipedia.org/wiki/European_Commission",
-                image_url="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Flag_of_Europe.svg/440px-Flag_of_Europe.svg.png",
+                image_url="https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b7/Flag_of_Europe.svg/330px-Flag_of_Europe.svg.png",
+            ),
+            EntityPrimer(
+                entity_name="United States Department of Justice (DOJ)",
+                entity_type="ORGANIZATION",
+                role_or_title="Federal Executive Department for Law Enforcement & Civil Litigation",
+                explainer_2_lines="Federal executive department coordinating civil antitrust enforcement, constitutional defense, and statutory administrative review.",
+                historical_context="Key litigator in landmark administrative challenges and cross-agency regulatory defense since 1870.",
+                wikipedia_url="https://en.wikipedia.org/wiki/United_States_Department_of_Justice",
+                image_url="https://thumb.wikimedia.org/wikipedia/commons/thumb/5/54/Seal_of_the_United_States_Department_of_Justice.svg/330px-Seal_of_the_United_States_Department_of_Justice.svg.png",
+            ),
+            EntityPrimer(
+                entity_name="Ministry of Economy, Trade and Industry (METI)",
+                entity_type="ORGANIZATION",
+                role_or_title="Cabinet-Level Ministry of the Government of Japan",
+                explainer_2_lines="Central Japanese ministry directing industrial policy, multilateral semiconductor corridors, and high-tech supply chain resilience.",
+                historical_context="Formulates East Asian trade frameworks and technology manufacturing pacts across Tokyo, Seoul, and Washington.",
+                wikipedia_url="https://en.wikipedia.org/wiki/Ministry_of_Economy,_Trade_and_Industry",
+                image_url="https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3b/Emblem_of_the_Government_of_Japan.svg/330px-Emblem_of_the_Government_of_Japan.svg.png",
             ),
             EntityPrimer(
                 entity_name="Nikkei Inc. & Asian Supply Chain Forum",
                 entity_type="ORGANIZATION",
-                role_or_title="Premier East Asian Financial & Industrial Intelligence Consortium",
+                role_or_title="East Asian Financial & Industrial Intelligence Consortium",
                 explainer_2_lines="Leading APAC industrial and economic tracking body assessing semiconductor foundries, supply corridor disruptions, and bilateral tariff frictions.",
                 historical_context="Key regional tracker of semiconductor pacts, critical mineral agreements, and multilateral trade initiatives across Tokyo, Seoul, and Taipei.",
                 wikipedia_url="https://en.wikipedia.org/wiki/Nikkei,_Inc.",
-                image_url="https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Nikkei_Inc._logo.svg/440px-Nikkei_Inc._logo.svg.png",
+                image_url="https://thumb.wikimedia.org/wikipedia/commons/thumb/8/87/Nikkei_Inc._logo.svg/330px-Nikkei_Inc._logo.svg.png",
             ),
+            # Key Figures & Leaders (Persons)
+            EntityPrimer(
+                entity_name="Lina Khan",
+                entity_type="PERSON",
+                role_or_title="Chair of the Federal Trade Commission (FTC)",
+                explainer_2_lines="Prominent antitrust scholar and regulatory head spearheading rigorous market competition and administrative compliance enforcement.",
+                historical_context="Pioneered modern anti-monopoly jurisprudence challenging tech consolidation, market power abuse, and procedural exemptions.",
+                wikipedia_url="https://en.wikipedia.org/wiki/Lina_Khan",
+                image_url="https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a6/Lina_Khan_portrait.jpg/330px-Lina_Khan_portrait.jpg",
+            ),
+            EntityPrimer(
+                entity_name="Jerome Powell",
+                entity_type="PERSON",
+                role_or_title="Chair of the Federal Reserve System",
+                explainer_2_lines="Chief central banker navigating macroeconomic stability, inflation metrics, interest rate trajectories, and global currency liquidity.",
+                historical_context="Serving as 16th Chair of the Federal Reserve since 2018, presiding over historic monetary policy shifts and post-pandemic inflation containment.",
+                wikipedia_url="https://en.wikipedia.org/wiki/Jerome_Powell",
+                image_url="https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f0/Jerome_H._Powell%2C_Federal_Reserve_Chair_%28cropped%29.jpg/330px-Jerome_H._Powell%2C_Federal_Reserve_Chair_%28cropped%29.jpg",
+            ),
+            EntityPrimer(
+                entity_name="Ursula von der Leyen",
+                entity_type="PERSON",
+                role_or_title="President of the European Commission",
+                explainer_2_lines="European executive leader directing EU regulatory harmonisation, transatlantic trade alliances, critical tech sovereignty, and green transition directives.",
+                historical_context="Re-elected President of the European Commission in 2024, architect of the EU AI Act, Critical Raw Materials Act, and European Green Deal.",
+                wikipedia_url="https://en.wikipedia.org/wiki/Ursula_von_der_Leyen",
+                image_url="https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e0/Ursula_von_der_Leyen_2024.jpg/330px-Ursula_von_der_Leyen_2024.jpg",
+            ),
+            # Doctrines & Locations
             EntityPrimer(
                 entity_name="Federal District Court System",
                 entity_type="LOCATION",
@@ -382,7 +401,7 @@ def build_structured_intelligence(topic: str, raw_markdown: str = "") -> Dict[st
                 explainer_2_lines="Constitutional trial courts evaluating emergency petitions for temporary restraining orders (TROs) and expedited administrative stays.",
                 historical_context="Serves as the constitutional arbiter determining whether executive administrative changes exceed statutory boundaries.",
                 wikipedia_url="https://en.wikipedia.org/wiki/United_States_district_court",
-                image_url="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Seal_of_the_United_States_Supreme_Court.svg/440px-Seal_of_the_United_States_Supreme_Court.svg.png",
+                image_url="https://thumb.wikimedia.org/wikipedia/commons/thumb/3/36/Seal_of_the_United_States_Supreme_Court.svg/330px-Seal_of_the_United_States_Supreme_Court.svg.png",
             ),
             EntityPrimer(
                 entity_name="Grandfathering Doctrine",
@@ -918,15 +937,21 @@ Return a single JSON object with:
 - "topic": "{clean_topic.title()}"
 - "executive_summary": "Comprehensive 3-4 sentence synthesized summary of verified reporting"
 - "key_metrics_and_numbers": ["4 specific numerical facts, percentages, dollar amounts, or milestone dates"]
-- "sources_analyzed": ["Associated Press", "Reuters", "Bloomberg", "Wall Street Journal"]
+- "sources_analyzed": ["Associated Press", "Reuters", "Bloomberg", "Wall Street Journal", "Nikkei Asia", "The Hindu"]
 - "articles_analyzed": [
-    {{"outlet": "Reuters", "title": "Headline", "url": "https://www.reuters.com", "published_date": "Recent date", "author": "Wire Desk", "content": "Summary sentence"}},
-    {{"outlet": "Associated Press", "title": "Headline", "url": "https://apnews.com", "published_date": "Recent date", "author": "National Desk", "content": "Summary sentence"}}
+    {{"outlet": "Reuters", "title": "Headline", "url": "https://www.reuters.com", "published_date": "Recent date", "author": "Wire Desk", "country": "United States", "flag": "🇺🇸", "editorial_lean": "Center", "reliability_tier": "High", "content": "Summary sentence"}},
+    {{"outlet": "Nikkei Asia", "title": "Headline", "url": "https://asia.nikkei.com", "published_date": "Recent date", "author": "Regional Bureau", "country": "Japan", "flag": "🇯🇵", "editorial_lean": "Center", "reliability_tier": "High", "content": "Regional market summary sentence"}},
+    {{"outlet": "The Hindu", "title": "Headline", "url": "https://www.thehindu.com", "published_date": "Recent date", "author": "National Desk", "country": "India", "flag": "🇮🇳", "editorial_lean": "Center-Left", "reliability_tier": "High", "content": "Policy overview sentence"}}
   ]
 - "context_primer": {{
-    "background_story": "Paragraph explaining background context",
+    "background_story": "Paragraph explaining background context and historical evolution of this situation",
     "primer_items": [
-      {{"entity_name": "Key Organization or Actor", "entity_type": "ORGANIZATION", "explainer_2_lines": "Two sentence role description", "historical_context": "Background context"}}
+      {{"entity_name": "Major Corporate or Regulatory Entity 1", "entity_type": "ORGANIZATION", "role_or_title": "Primary Regulatory or Corporate Body", "explainer_2_lines": "Two sentence institutional role description", "historical_context": "Mandate and background", "wikipedia_url": "https://en.wikipedia.org/wiki/Exact_Article_Name"}},
+      {{"entity_name": "Major Agency or Coalition 2", "entity_type": "ORGANIZATION", "role_or_title": "Executive Oversight / Industry Body", "explainer_2_lines": "Two sentence description", "historical_context": "Historical mandate", "wikipedia_url": "https://en.wikipedia.org/wiki/Exact_Article_Name"}},
+      {{"entity_name": "International or Regional Body 3", "entity_type": "ORGANIZATION", "role_or_title": "Regional Authority or Trade Partner", "explainer_2_lines": "Two sentence description", "historical_context": "Relevance to topic", "wikipedia_url": "https://en.wikipedia.org/wiki/Exact_Article_Name"}},
+      {{"entity_name": "Judicial or Financial Institution 4", "entity_type": "ORGANIZATION", "role_or_title": "Judicial or Financial Arbiter", "explainer_2_lines": "Two sentence description", "historical_context": "Precedent history", "wikipedia_url": "https://en.wikipedia.org/wiki/Exact_Article_Name"}},
+      {{"entity_name": "Lead Key Leader or CEO 1", "entity_type": "PERSON", "role_or_title": "Chief Executive / Agency Chair / Prime Minister", "explainer_2_lines": "Two sentence biographical role description", "historical_context": "Executive decision background", "wikipedia_url": "https://en.wikipedia.org/wiki/First_Last"}},
+      {{"entity_name": "Prominent Official or Negotiator 2", "entity_type": "PERSON", "role_or_title": "Minister / Judge / Lead Negotiator", "explainer_2_lines": "Two sentence description", "historical_context": "Policy stance and track record", "wikipedia_url": "https://en.wikipedia.org/wiki/First_Last"}}
     ],
     "jargon_definitions": {{"Key Term": "Clear plain-English definition"}}
   }}
