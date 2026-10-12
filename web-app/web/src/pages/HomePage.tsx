@@ -318,7 +318,7 @@ export const HomePage: React.FC = () => {
                 className="btn btn-sm btn-outline border-base-300 hover:border-primary gap-2 shadow-sm font-semibold"
               >
                 <History size={15} />
-                <span>Browse Full Archive (AG-Grid)</span>
+                <span>Browse Full Archive</span>
                 <ArrowRight size={14} />
               </Link>
             </div>

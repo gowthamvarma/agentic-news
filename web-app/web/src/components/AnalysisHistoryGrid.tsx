@@ -1,7 +1,4 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { AgGridReact } from 'ag-grid-react';
-import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community';
-import type { ColDef, ICellRendererParams } from 'ag-grid-community';
 import {
   Search,
   Star,
@@ -13,33 +10,24 @@ import {
   Database,
   Table,
   LayoutGrid,
-  TableProperties,
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
-  FileText,
   CheckCircle2,
   X,
 } from 'lucide-react';
 import type { AnalysisArchiveItem } from '../types';
 import { fetchAnalysesArchive, updateAnalysis, deleteAnalysis } from '../api';
-import { useTheme, isDarkTheme } from '../context/ThemeContext';
-
-// Register AG Grid Community modules
-ModuleRegistry.registerModules([AllCommunityModule]);
 
 interface AnalysisHistoryGridProps {
   onSelectAnalysis: (analysisId: string) => void;
 }
 
-type ViewMode = 'table' | 'cards' | 'aggrid';
+type ViewMode = 'table' | 'cards';
 type SortField = 'created_at' | 'topic' | 'sources';
 type SortDirection = 'asc' | 'desc';
 
 export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSelectAnalysis }) => {
-  const { theme } = useTheme();
-  const isDark = isDarkTheme(theme);
-
   const [items, setItems] = useState<AnalysisArchiveItem[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
@@ -51,12 +39,13 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
   const [pageSize, setPageSize] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
-  // View mode: 'table' (Modern DaisyUI Table) | 'cards' (Cards Grid) | 'aggrid' (AG Grid)
+  // View mode: 'table' (Modern DaisyUI Table) | 'cards' (Cards Grid)
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
-    return (localStorage.getItem('agentic_news_history_view') as ViewMode) || 'table';
+    const saved = localStorage.getItem('agentic_news_history_view');
+    return saved === 'cards' ? 'cards' : 'table';
   });
 
-  // Client sort state for Table view
+  // Client sort state
   const [sortField, setSortField] = useState<SortField>('created_at');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
@@ -169,133 +158,6 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
       return acc + cnt;
     }, 0);
   }, [items]);
-
-  // AG Grid column definitions
-  const columnDefs = useMemo<ColDef<AnalysisArchiveItem>[]>(() => {
-    return [
-      {
-        headerName: '★',
-        field: 'is_favorite',
-        width: 65,
-        minWidth: 65,
-        maxWidth: 75,
-        sortable: true,
-        pinned: 'left',
-        cellRenderer: (params: ICellRendererParams<AnalysisArchiveItem>) => {
-          if (!params.data) return null;
-          const isFav = params.data.is_favorite;
-          return (
-            <button
-              onClick={(e) => handleToggleFavorite(params.data!, e)}
-              className="btn btn-ghost btn-xs text-base p-1 hover:bg-base-200"
-              title={isFav ? 'Remove from favorites' : 'Mark as favorite'}
-            >
-              {isFav ? (
-                <span className="text-warning drop-shadow-sm font-bold">★</span>
-              ) : (
-                <span className="text-base-content/30 hover:text-warning transition-colors">☆</span>
-              )}
-            </button>
-          );
-        },
-      },
-      {
-        headerName: 'Topic & Headline',
-        field: 'topic',
-        flex: 2,
-        minWidth: 260,
-        cellRenderer: (params: ICellRendererParams<AnalysisArchiveItem>) => {
-          if (!params.data) return null;
-          return (
-            <div className="py-1 flex items-center gap-2">
-              <FileText size={15} className="text-primary flex-shrink-0" />
-              <span className="font-bold text-base-content hover:text-primary transition-colors cursor-pointer truncate">
-                {params.data.topic}
-              </span>
-            </div>
-          );
-        },
-      },
-      {
-        headerName: 'Executive Summary',
-        field: 'executive_summary',
-        flex: 3,
-        minWidth: 320,
-        cellRenderer: (params: ICellRendererParams<AnalysisArchiveItem>) => {
-          if (!params.data?.executive_summary) {
-            return <span className="text-base-content/40 italic text-xs">No summary recorded</span>;
-          }
-          return (
-            <div className="truncate text-xs text-base-content/80 py-1" title={params.data.executive_summary}>
-              {params.data.executive_summary}
-            </div>
-          );
-        },
-      },
-      {
-        headerName: 'Sources',
-        width: 120,
-        valueGetter: (params) => {
-          const sources = params.data?.sources_analyzed || [];
-          const articles = params.data?.articles_analyzed || [];
-          return Math.max(sources.length, articles.length);
-        },
-        cellRenderer: (params: ICellRendererParams<AnalysisArchiveItem>) => {
-          const count = params.value || 0;
-          return (
-            <div className="flex items-center h-full">
-              <span className="badge badge-sm badge-outline badge-primary font-mono gap-1.5 px-2.5 py-1">
-                <Globe size={12} />
-                <span>{count} sources</span>
-              </span>
-            </div>
-          );
-        },
-      },
-      {
-        headerName: 'Created Date',
-        field: 'created_at',
-        width: 170,
-        valueFormatter: (params) => {
-          if (!params.value) return 'Unknown';
-          const d = new Date(params.value * 1000);
-          return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        },
-        cellClass: 'text-xs text-base-content/70 font-mono',
-      },
-      {
-        headerName: 'Actions',
-        width: 160,
-        pinned: 'right',
-        cellRenderer: (params: ICellRendererParams<AnalysisArchiveItem>) => {
-          if (!params.data) return null;
-          const item = params.data;
-          return (
-            <div className="flex items-center gap-1.5 h-full">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelectAnalysis(item.id);
-                }}
-                className="btn btn-primary btn-xs gap-1 shadow-sm"
-                title="Open and view intelligence report"
-              >
-                <span>Open</span>
-                <ArrowRight size={11} />
-              </button>
-              <button
-                onClick={(e) => handleDelete(item, e)}
-                className="btn btn-ghost btn-xs text-error/70 hover:text-error hover:bg-error/10"
-                title="Delete this analysis"
-              >
-                <Trash2 size={13} />
-              </button>
-            </div>
-          );
-        },
-      },
-    ];
-  }, [favoritesOnly]);
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
@@ -446,7 +308,7 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
                 className={`join-item btn btn-xs md:btn-sm rounded-lg gap-1.5 transition-all ${
                   viewMode === 'table' ? 'btn-primary shadow-sm' : 'btn-ghost text-base-content/60'
                 }`}
-                title="Modern DaisyUI Table View"
+                title="Table View"
               >
                 <Table size={14} />
                 <span className="hidden sm:inline text-xs">Table</span>
@@ -460,16 +322,6 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
               >
                 <LayoutGrid size={14} />
                 <span className="hidden sm:inline text-xs">Cards</span>
-              </button>
-              <button
-                onClick={() => handleSetViewMode('aggrid')}
-                className={`join-item btn btn-xs md:btn-sm rounded-lg gap-1.5 transition-all ${
-                  viewMode === 'aggrid' ? 'btn-primary shadow-sm' : 'btn-ghost text-base-content/60'
-                }`}
-                title="Spreadsheet AG-Grid Community Mode"
-              >
-                <TableProperties size={14} />
-                <span className="hidden sm:inline text-xs">AG-Grid</span>
               </button>
             </div>
 
@@ -801,33 +653,6 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
                 <p className="text-xs text-base-content/60 mt-1">Try resetting search filters.</p>
               </div>
             )}
-          </div>
-        )}
-
-        {/* VIEW 3: AG Grid Community Spreadsheet View */}
-        {viewMode === 'aggrid' && (
-          <div className="p-4">
-            <div
-              className={`w-full ${isDark ? 'ag-theme-quartz-dark' : 'ag-theme-quartz'} rounded-xl overflow-hidden shadow-inner border border-base-300`}
-              style={{ height: '520px', width: '100%' }}
-            >
-              <AgGridReact<AnalysisArchiveItem>
-                rowData={items}
-                columnDefs={columnDefs}
-                loading={loading}
-                onRowClicked={(event) => {
-                  if (event.data) {
-                    onSelectAnalysis(event.data.id);
-                  }
-                }}
-                rowClass="cursor-pointer transition-colors"
-                rowHeight={48}
-                headerHeight={42}
-                overlayNoRowsTemplate={
-                  '<span class="text-xs text-base-content/60 py-4 font-semibold">No analysis records found matching your filters.</span>'
-                }
-              />
-            </div>
           </div>
         )}
 

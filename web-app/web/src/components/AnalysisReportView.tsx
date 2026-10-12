@@ -536,7 +536,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                   <History size={16} className="text-secondary" />
                   <span className="text-xs">Browse All Archives</span>
                 </span>
-                <span className="badge badge-xs badge-neutral font-mono">AG-Grid</span>
+                <span className="badge badge-sm badge-neutral font-mono px-2 py-0.5">Archive</span>
               </Link>
             </li>
           </ul>

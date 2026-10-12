@@ -2,20 +2,20 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build a dedicated Previous News Analyses page featuring an AG Grid paginated table with search and favorites stored in the Firebase Local Firestore Emulator, and transform report generation into a real-time progressive stream so UI sections appear immediately as they become available.
+**Goal:** Build a dedicated Previous News Analyses page featuring a responsive DaisyUI paginated table and cards with search and favorites stored in the Firebase Local Firestore Emulator, and transform report generation into a real-time progressive stream so UI sections appear immediately as they become available.
 
 **Architecture:** 
 1. **Firestore Local Emulator Layer**: Store analyses with pagination, search metadata, and `is_favorite` boolean flags in the `analyses` collection connected to `127.0.0.1:8085`.
 2. **Server-Sent Events (SSE) Streaming Engine**: Expose `GET /api/analyze/stream` emitting typed event frames (`brief`, `verifications`, `timeline`, `completed`) to avoid blocking the user.
-3. **Frontend AG Grid Archive**: Dedicated view in the dashboard using `ag-grid-react` with custom cell renderers (interactive star toggle, date formatter, actions) and quick search.
+3. **Frontend Archive Table & Feed**: Dedicated view in the dashboard using a modern DaisyUI table and card views with custom actions (interactive star toggle, date formatter, actions) and quick search.
 4. **Progressive UI State Machine**: Update the React dashboard section-by-section as events arrive, giving the user immediate reading access within 2-3 seconds.
 
-**Tech Stack:** FastAPI, Python 3.12, Google Cloud Firestore AsyncClient, React 19, TypeScript, AG Grid Community, DaisyUI 4, Tailwind CSS, Vite.
+**Tech Stack:** FastAPI, Python 3.12, Google Cloud Firestore AsyncClient, React 19, TypeScript, DaisyUI 4, Tailwind CSS, Vite.
 
 ## Global Constraints
 - Target workspace: `C:\tools\github\agentic-news`
 - Firestore emulator host: `127.0.0.1:8085` (Project: `agentic-news-dev`)
-- Maintain existing 32 DaisyUI themes compatibility across all new UI elements, including AG Grid
+- Maintain existing 32 DaisyUI themes compatibility across all new UI elements
 - Implement step-by-step; do not break existing single-turn fallback or tests
 
 ---
@@ -147,16 +147,10 @@ Implement `fetchAnalysesArchive`, `toggleAnalysisFavorite`, `deleteAnalysisRepor
 - Modify: `web-app/web/src/index.css`
 
 **Interfaces:**
-- Consumes: `ag-grid-react`, `ag-grid-community`
-- Produces: DaisyUI/Tailwind theme-compatible AG Grid styles
+**Interfaces:**
+- Produces: DaisyUI/Tailwind theme-compatible table styles
 
-- [ ] **Step 1: Install `ag-grid-react` and `ag-grid-community`**
-Run: `npm install ag-grid-react ag-grid-community` in `web-app/web`.
-
-- [ ] **Step 2: Configure AG Grid CSS in `index.css`**
-Import AG Grid quartz or alpine CSS and map DaisyUI CSS variables (`--b1`, `--b2`, `--bc`, `--p`) to AG Grid theme CSS properties so AG Grid automatically matches all 32 themes (Dark, Night, Synthwave, Cyberpunk, Light, etc.).
-
-- [ ] **Step 3: Run `npm run build`**
+- [ ] **Step 1: Run `npm run build`**
 Verify zero TypeScript and bundle errors.
 
 ---
@@ -169,10 +163,10 @@ Verify zero TypeScript and bundle errors.
 **Interfaces:**
 - Consumes: `fetchAnalysesArchive`, `toggleAnalysisFavorite`, `deleteAnalysisReport`
 - Produces: Full-featured archive page with:
-  - AG Grid with pagination (10, 20, 50 rows per page)
-  - Search input with real-time debounce filtering
+  - Responsive DaisyUI Table & Card views with pagination (10, 20, 50 rows per page)
+  - Search input with real-time filtering
   - "Favorites Only" toggle pill
-  - Star cell renderer for one-click favorite toggling
+  - Star toggle for one-click favorite toggling
   - "Open Report" action that loads the selected report in the main dashboard
   - Delete row action with confirmation
 
