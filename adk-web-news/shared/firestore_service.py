@@ -19,23 +19,24 @@ import uuid
 from typing import Any, Dict, List, Optional
 from shared.config import logger
 
-# Try initializing Google Cloud Firestore
-FIRESTORE_AVAILABLE = False
-db_client = None
+# Sanitize GOOGLE_APPLICATION_CREDENTIALS if it is not an actual file on disk
+cred_env = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
+if cred_env and not os.path.isfile(cred_env):
+    logger.info("GOOGLE_APPLICATION_CREDENTIALS ('%s') is not a valid file path. Clearing from environment.", cred_env)
+    del os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
 
 try:
     from google.cloud import firestore
-    
-    emulator_host = os.environ.get("FIRESTORE_EMULATOR_HOST")
-    if emulator_host and "127.0.0.1" in emulator_host:
-        emulator_host = emulator_host.replace("127.0.0.1", "localhost")
-        os.environ["FIRESTORE_EMULATOR_HOST"] = emulator_host
+    from google.auth.credentials import AnonymousCredentials
 
-    project_id = os.environ.get("FIREBASE_PROJECT_ID") or os.environ.get("GOOGLE_CLOUD_PROJECT") or "agentic-news-dev"
+    emulator_host = (os.environ.get("FIRESTORE_EMULATOR_HOST") or "").strip()
+    if emulator_host:
+        os.environ["FIRESTORE_EMULATOR_HOST"] = emulator_host
+    project_id = (os.environ.get("FIREBASE_PROJECT_ID") or os.environ.get("GOOGLE_CLOUD_PROJECT") or "agentic-news-dev").strip()
 
     if emulator_host:
-        logger.info("Connecting to local Firestore emulator at %s for project %s", emulator_host, project_id)
-        db_client = firestore.AsyncClient(project=project_id)
+        logger.info("Connecting to local Firestore emulator at '%s' for project '%s'", emulator_host, project_id)
+        db_client = firestore.AsyncClient(project=project_id, credentials=AnonymousCredentials())
         FIRESTORE_AVAILABLE = True
     elif os.environ.get("GOOGLE_APPLICATION_CREDENTIALS") or project_id:
         db_client = firestore.AsyncClient(project=project_id)
@@ -71,6 +72,8 @@ class FirestoreService:
         data["updated_at"] = time.time()
         if "created_at" not in data:
             data["created_at"] = time.time()
+        if "is_favorite" not in data:
+            data["is_favorite"] = False
         data["id"] = analysis_id
 
         if FIRESTORE_AVAILABLE and db_client:
@@ -83,6 +86,43 @@ class FirestoreService:
 
         _MEMORY_STORE["analyses"][analysis_id] = data
         return analysis_id
+
+    @staticmethod
+    async def update_analysis(analysis_id: str, updates: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Updates specific fields (such as is_favorite) in Firestore or memory."""
+        updates["updated_at"] = time.time()
+
+        if FIRESTORE_AVAILABLE and db_client:
+            try:
+                doc_ref = db_client.collection("analyses").document(analysis_id)
+                await doc_ref.update(updates)
+                doc = await doc_ref.get()
+                if doc.exists:
+                    return doc.to_dict()
+            except Exception as e:
+                logger.warning("Failed updating analysis in Firestore (%s). Updating in memory.", e)
+
+        if analysis_id in _MEMORY_STORE["analyses"]:
+            _MEMORY_STORE["analyses"][analysis_id].update(updates)
+            return _MEMORY_STORE["analyses"][analysis_id]
+        return None
+
+    @staticmethod
+    async def delete_analysis(analysis_id: str) -> bool:
+        """Deletes an analysis document from Firestore and memory."""
+        deleted = False
+        if FIRESTORE_AVAILABLE and db_client:
+            try:
+                doc_ref = db_client.collection("analyses").document(analysis_id)
+                await doc_ref.delete()
+                deleted = True
+            except Exception as e:
+                logger.warning("Failed deleting analysis in Firestore (%s). Removing from memory.", e)
+
+        if analysis_id in _MEMORY_STORE["analyses"]:
+            del _MEMORY_STORE["analyses"][analysis_id]
+            deleted = True
+        return deleted
 
     @staticmethod
     async def get_analysis(analysis_id: str) -> Optional[Dict[str, Any]]:
@@ -99,19 +139,50 @@ class FirestoreService:
 
     @staticmethod
     async def list_recent_analyses(limit: int = 20) -> List[Dict[str, Any]]:
+        res = await FirestoreService.list_analyses_filtered(limit=limit)
+        return res.get("items", [])
+
+    @staticmethod
+    async def list_analyses_filtered(
+        limit: int = 50,
+        offset: int = 0,
+        search: Optional[str] = None,
+        favorites_only: bool = False,
+    ) -> Dict[str, Any]:
+        """Lists analyses with search, favorites filter, and pagination."""
+        items: List[Dict[str, Any]] = []
+
         if FIRESTORE_AVAILABLE and db_client:
             try:
-                col_ref = db_client.collection("analyses").order_by(
-                    "created_at", direction=firestore.Query.DESCENDING
-                ).limit(limit)
+                col_ref = db_client.collection("analyses")
                 docs = await col_ref.get()
-                return [d.to_dict() for d in docs]
+                items = [d.to_dict() for d in docs]
             except Exception as e:
-                logger.warning("Failed listing analyses from Firestore (%s). Checking memory.", e)
+                logger.warning("Failed listing filtered analyses from Firestore (%s). Checking memory.", e)
+                items = list(_MEMORY_STORE["analyses"].values())
+        else:
+            items = list(_MEMORY_STORE["analyses"].values())
 
-        items = list(_MEMORY_STORE["analyses"].values())
+        if favorites_only:
+            items = [item for item in items if item.get("is_favorite") is True]
+
+        if search and search.strip():
+            q = search.strip().lower()
+            items = [
+                item for item in items
+                if q in str(item.get("topic", "")).lower() or q in str(item.get("executive_summary", "")).lower()
+            ]
+
         items.sort(key=lambda x: x.get("created_at", 0), reverse=True)
-        return items[:limit]
+        total = len(items)
+        paginated_items = items[offset : offset + limit]
+
+        return {
+            "items": paginated_items,
+            "total": total,
+            "limit": limit,
+            "offset": offset,
+        }
 
     @staticmethod
     async def save_fact_check(check_id: str, data: Dict[str, Any]) -> str:

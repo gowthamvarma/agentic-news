@@ -8,7 +8,10 @@ dictionaries suitable for Firestore storage and React frontend rendering.
 from __future__ import annotations
 
 import re
-from typing import Any, Dict, List
+import json
+import logging
+from typing import Any, Dict, List, Optional
+from shared.config import GEMINI_API_KEY, IS_SIMULATION_MODE, MODEL_AGENT_FAST, logger
 from shared.schemas import (
     NewsIntelligenceReport,
     FactVerifierReport,
@@ -33,9 +36,62 @@ from shared.schemas import (
 )
 
 
+def generate_live_topic_intelligence(topic: str) -> Optional[Dict[str, Any]]:
+    """Calls Gemini API to generate real, topic-specific forensic intelligence in JSON format."""
+    if IS_SIMULATION_MODE or not GEMINI_API_KEY:
+        return None
+    try:
+        from google import genai
+        from google.genai import types
+
+        client = genai.Client(api_key=GEMINI_API_KEY)
+        clean_topic = topic.strip()
+        prompt = f"""You are a multi-agent news intelligence fleet analyzing the following topic:
+"{clean_topic}"
+
+Provide a thorough, forensically accurate intelligence report adhering to IFCN fact-checking principles.
+Return a single valid JSON object with the following fields:
+- "executive_summary": string, 3-4 sentences synthesizing the latest verified reporting and strategic context
+- "key_metrics_and_numbers": list of 4 specific strings with statistics, timelines, financial figures, or dates
+- "consensus_points": list of 3 strings outlining uncontested facts across all major outlets
+- "sources_analyzed": list of strings citing major media desks (e.g. Associated Press, Reuters, Bloomberg, WSJ)
+- "articles_analyzed": list of 2-4 objects with 'outlet', 'title', 'url', 'published_date', 'author', 'content'
+- "context_primer": object with 'background_story' (string), 'primer_items' (list of objects with 'entity_name', 'entity_type', 'explainer_2_lines', 'historical_context'), and 'jargon_definitions' (dict of term: definition)
+- "verifications": list of 3-4 objects with 'claim_id' (e.g. C-01), 'claim_text', 'status' ('VERIFIED'|'DISPUTED'|'UNVERIFIED'), 'confidence' (float 0.8-1.0), 'reasoning', 'corroborating_sources' (list of strings), 'conflicting_sources' (list of strings)
+- "contradictions": list of 2 objects with 'contradiction_id' (e.g. CONT-01), 'topic_aspect', 'outlet_a', 'claim_a', 'outlet_b', 'claim_b', 'divergence_type', 'analysis'
+- "bias_evaluations": list of 2-3 objects with 'outlet', 'assessed_lean' ('CENTER'|'CENTER_LEFT'|'CENTER_RIGHT'|'FAR_LEFT'|'FAR_RIGHT'), 'loaded_terms_identified' (list of strings), 'framing_narrative', 'omitted_context'
+- "timeline": object with 'narrative_evolution_summary' (string) and 'events' (list of 3-5 objects with 'timestamp_or_date', 'headline', 'description', 'source_outlet', 'source_url', 'narrative_shift')
+- "root_cause_analysis": object with 'immediate_triggers' (list of strings), 'underlying_systemic_factors' (list of strings), 'structural_failure_points' (list of strings)
+- "consequences_tree": list of 3 objects with 'order' ('FIRST_ORDER'|'SECOND_ORDER'|'THIRD_ORDER'), 'impact_description', 'affected_sector_or_group'
+- "future_scenarios": list of 3 objects with 'scenario_title', 'scenario_type' ('MOST_LIKELY'|'BEST_CASE'|'WORST_CASE'), 'probability_rating' ('HIGH'|'MODERATE'|'LOW'), 'time_horizon', 'potential_impact', 'signals_to_watch' (list of strings), 'what_if_assumption' (optional string)
+- "lessons_learned": list of 3 objects with 'lesson_takeaway', 'target_audience' ('INDIVIDUALS'|'ORGANISATIONS'|'POLICYMAKERS'), 'concrete_preventive_action'
+"""
+        response = client.models.generate_content(
+            model=MODEL_AGENT_FAST,
+            contents=prompt,
+            config=types.GenerateContentConfig(response_mime_type="application/json")
+        )
+        if response.text:
+            parsed = json.loads(response.text)
+            parsed["topic"] = clean_topic.title()
+            logger.info("Successfully generated live Gemini intelligence for '%s'", clean_topic)
+            return parsed
+    except Exception as e:
+        logger.warning("Error generating live topic intelligence with Gemini: %s. Using tailored fallback.", e)
+    return None
+
+
 def build_structured_intelligence(topic: str, raw_markdown: str = "") -> Dict[str, Any]:
     """Generates a comprehensive structured intelligence report dictionary."""
     clean_topic = topic.strip().title()
+
+    # Attempt live Gemini intelligence first if in Live API mode
+    live_result = generate_live_topic_intelligence(clean_topic)
+    if live_result:
+        if raw_markdown:
+            live_result["raw_markdown"] = raw_markdown
+        return live_result
+
     words = [w for w in clean_topic.split() if len(w) > 3]
     subject = " ".join(words[:3]) if words else clean_topic
 
@@ -392,6 +448,38 @@ def build_structured_intelligence(topic: str, raw_markdown: str = "") -> Dict[st
 def build_structured_quiz(topic: str) -> Dict[str, Any]:
     """Generates an active recall news literacy quiz dictionary."""
     clean_topic = topic.strip().title()
+
+    if not IS_SIMULATION_MODE and GEMINI_API_KEY:
+        try:
+            from google import genai
+            from google.genai import types
+
+            client = genai.Client(api_key=GEMINI_API_KEY)
+            prompt = f"""Generate an active recall news literacy quiz based on verified reporting for:
+"{clean_topic}"
+
+Return a single JSON object with:
+- "topic": "{clean_topic}"
+- "questions": list of 3 questions, each with:
+  - "question_id": int (1, 2, 3)
+  - "question": string asking a thoughtful question testing critical comprehension or claim verification
+  - "options": list of 4 distinct string choices
+  - "correct_option_index": int (0, 1, 2, or 3)
+  - "explanation": string explaining why the choice is correct according to evidence
+  - "citation_source": string citing reputable journalism or official record
+"""
+            res = client.models.generate_content(
+                model=MODEL_AGENT_FAST,
+                contents=prompt,
+                config=types.GenerateContentConfig(response_mime_type="application/json")
+            )
+            if res.text:
+                parsed = json.loads(res.text)
+                parsed["topic"] = clean_topic
+                return parsed
+        except Exception as e:
+            logger.warning("Error generating live quiz with Gemini: %s. Using fallback.", e)
+
     quiz = QuizPayload(
         topic=clean_topic,
         questions=[
@@ -442,6 +530,37 @@ def build_structured_quiz(topic: str) -> Dict[str, Any]:
 def build_structured_debate(topic: str) -> Dict[str, Any]:
     """Generates a dialectical perspective debate dictionary."""
     clean_topic = topic.strip().title()
+
+    if not IS_SIMULATION_MODE and GEMINI_API_KEY:
+        try:
+            from google import genai
+            from google.genai import types
+
+            client = genai.Client(api_key=GEMINI_API_KEY)
+            prompt = f"""Generate a high-level dialectical policy and perspective debate regarding:
+"{clean_topic}"
+
+Return a single JSON object with:
+- "topic": "{clean_topic}"
+- "resolution_under_debate": string (formal debate resolution, e.g. "Resolved: ...")
+- "debate_turns": list of 4 objects alternating between 'PROPONENT / ADVOCATE' and 'CRITIC / OPPONENT', each with:
+  - "speaker_perspective": 'PROPONENT / ADVOCATE' or 'CRITIC / OPPONENT'
+  - "core_argument": string (well-reasoned argument grounded in evidence)
+  - "grounding_citations": list of 1-2 strings citing specific reports, audits, or precedents
+- "neutral_compromise_synthesis": string synthesizing common ground and actionable consensus
+"""
+            res = client.models.generate_content(
+                model=MODEL_AGENT_FAST,
+                contents=prompt,
+                config=types.GenerateContentConfig(response_mime_type="application/json")
+            )
+            if res.text:
+                parsed = json.loads(res.text)
+                parsed["topic"] = clean_topic
+                return parsed
+        except Exception as e:
+            logger.warning("Error generating live debate with Gemini: %s. Using fallback.", e)
+
     debate = PerspectiveDebateReport(
         topic=clean_topic,
         resolution_under_debate=f"Resolved: The regulatory interventions concerning {clean_topic} are justified and necessary to safeguard domestic economic resilience.",
@@ -479,6 +598,41 @@ def build_structured_debate(topic: str) -> Dict[str, Any]:
 def build_structured_scenarios(topic: str) -> Dict[str, Any]:
     """Generates on-demand causal diagnostics, consequence tree, and future scenarios."""
     clean_topic = topic.strip().title()
+
+    if not IS_SIMULATION_MODE and GEMINI_API_KEY:
+        try:
+            from google import genai
+            from google.genai import types
+
+            client = genai.Client(api_key=GEMINI_API_KEY)
+            prompt = f"""Generate causal diagnostics, 3-tier ripple consequences, and future scenarios for:
+"{clean_topic}"
+
+Return a single JSON object with:
+- "topic": "{clean_topic}"
+- "root_cause_analysis": object with 'immediate_triggers' (list of 2 strings), 'underlying_systemic_factors' (list of 2 strings), 'structural_failure_points' (list of 2 strings)
+- "consequences_tree": list of 3 objects with 'order' ('FIRST_ORDER'|'SECOND_ORDER'|'THIRD_ORDER'), 'impact_description' (string), 'affected_sector_or_group' (string)
+- "future_scenarios": list of 3 objects with:
+  - "scenario_title": string
+  - "scenario_type": 'MOST_LIKELY'|'BEST_CASE'|'WORST_CASE'
+  - "probability_rating": 'HIGH'|'MODERATE'|'LOW'
+  - "time_horizon": string (e.g. '1 - 3 Months')
+  - "potential_impact": string
+  - "signals_to_watch": list of strings
+  - "what_if_assumption": optional string
+"""
+            res = client.models.generate_content(
+                model=MODEL_AGENT_FAST,
+                contents=prompt,
+                config=types.GenerateContentConfig(response_mime_type="application/json")
+            )
+            if res.text:
+                parsed = json.loads(res.text)
+                parsed["topic"] = clean_topic
+                return parsed
+        except Exception as e:
+            logger.warning("Error generating live scenarios with Gemini: %s. Using fallback.", e)
+
     words = [w for w in clean_topic.split() if len(w) > 3]
     subject = " ".join(words[:3]) if words else clean_topic
 
@@ -552,4 +706,175 @@ def build_structured_scenarios(topic: str) -> Dict[str, Any]:
         "root_cause_analysis": root_cause.model_dump(),
         "consequences_tree": [cq.model_dump() for cq in consequences],
         "future_scenarios": [sc.model_dump() for sc in scenarios],
+    }
+
+
+def generate_live_brief(topic: str) -> Optional[Dict[str, Any]]:
+    """Generates Stage 1 (Executive Brief, Metrics & Primer) rapidly in ~3-5 seconds."""
+    if IS_SIMULATION_MODE or not GEMINI_API_KEY:
+        return None
+    try:
+        from google import genai
+        from google.genai import types
+
+        client = genai.Client(api_key=GEMINI_API_KEY)
+        clean_topic = topic.strip()
+        prompt = f"""You are a news intelligence analyst. Generate an Executive Intelligence Brief for:
+"{clean_topic}"
+
+Return a single JSON object with:
+- "topic": "{clean_topic.title()}"
+- "executive_summary": "Comprehensive 3-4 sentence synthesized summary of verified reporting"
+- "key_metrics_and_numbers": ["4 specific numerical facts, percentages, dollar amounts, or milestone dates"]
+- "sources_analyzed": ["Associated Press", "Reuters", "Bloomberg", "Wall Street Journal"]
+- "articles_analyzed": [
+    {{"outlet": "Reuters", "title": "Headline", "url": "https://www.reuters.com", "published_date": "Recent date", "author": "Wire Desk", "content": "Summary sentence"}},
+    {{"outlet": "Associated Press", "title": "Headline", "url": "https://apnews.com", "published_date": "Recent date", "author": "National Desk", "content": "Summary sentence"}}
+  ]
+- "context_primer": {{
+    "background_story": "Paragraph explaining background context",
+    "primer_items": [
+      {{"entity_name": "Key Organization or Actor", "entity_type": "ORGANIZATION", "explainer_2_lines": "Two sentence role description", "historical_context": "Background context"}}
+    ],
+    "jargon_definitions": {{"Key Term": "Clear plain-English definition"}}
+  }}
+"""
+        res = client.models.generate_content(
+            model=MODEL_AGENT_FAST,
+            contents=prompt,
+            config=types.GenerateContentConfig(response_mime_type="application/json")
+        )
+        if res.text:
+            parsed = json.loads(res.text)
+            parsed["topic"] = clean_topic.title()
+            parsed["available_sections"] = ["brief"]
+            return parsed
+    except Exception as e:
+        logger.warning("Error generating live brief with Gemini: %s", e)
+    return None
+
+
+def generate_live_verifications(topic: str) -> Optional[Dict[str, Any]]:
+    """Generates Stage 2 (Fact Checks, Contradictions, Bias Spectrum & Consensus) in ~4-6 seconds."""
+    if IS_SIMULATION_MODE or not GEMINI_API_KEY:
+        return None
+    try:
+        from google import genai
+        from google.genai import types
+
+        client = genai.Client(api_key=GEMINI_API_KEY)
+        clean_topic = topic.strip()
+        prompt = f"""You are an IFCN forensic fact checker. Audit claims and bias for:
+"{clean_topic}"
+
+Return a single JSON object with:
+- "consensus_points": ["3 points universally agreed upon across all credible outlets"]
+- "verifications": [
+    {{"claim_id": "C-01", "claim_text": "Claim 1", "status": "VERIFIED", "confidence": 0.95, "reasoning": "Evidentiary audit", "corroborating_sources": ["Primary record"], "conflicting_sources": []}},
+    {{"claim_id": "C-02", "claim_text": "Claim 2", "status": "DISPUTED", "confidence": 0.89, "reasoning": "Evidentiary audit", "corroborating_sources": ["Audit document"], "conflicting_sources": ["Initial headline"]}},
+    {{"claim_id": "C-03", "claim_text": "Claim 3", "status": "VERIFIED", "confidence": 0.92, "reasoning": "Evidentiary audit", "corroborating_sources": ["Official statement"], "conflicting_sources": []}}
+  ]
+- "contradictions": [
+    {{"contradiction_id": "CONT-01", "topic_aspect": "Specific Aspect", "outlet_a": "Outlet A", "claim_a": "Assertion A", "outlet_b": "Outlet B", "claim_b": "Assertion B", "divergence_type": "Fact Negation", "analysis": "Reason for divergence"}}
+  ]
+- "bias_evaluations": [
+    {{"outlet": "Associated Press / Reuters", "assessed_lean": "CENTER", "loaded_terms_identified": ["procedural"], "framing_narrative": "Factual procedural focus", "omitted_context": null}},
+    {{"outlet": "Financial Press", "assessed_lean": "CENTER_RIGHT", "loaded_terms_identified": ["economic impact"], "framing_narrative": "Market cost focus", "omitted_context": null}}
+  ]
+"""
+        res = client.models.generate_content(
+            model=MODEL_AGENT_FAST,
+            contents=prompt,
+            config=types.GenerateContentConfig(response_mime_type="application/json")
+        )
+        if res.text:
+            parsed = json.loads(res.text)
+            parsed["available_sections"] = ["brief", "verification"]
+            return parsed
+    except Exception as e:
+        logger.warning("Error generating live verifications with Gemini: %s", e)
+    return None
+
+
+def generate_live_timeline(topic: str) -> Optional[Dict[str, Any]]:
+    """Generates Stage 3 (Chronological Timeline & Narrative Trajectory) in ~4-6 seconds."""
+    if IS_SIMULATION_MODE or not GEMINI_API_KEY:
+        return None
+    try:
+        from google import genai
+        from google.genai import types
+
+        client = genai.Client(api_key=GEMINI_API_KEY)
+        clean_topic = topic.strip()
+        prompt = f"""You are a timeline reconstruction intelligence agent. Reconstruct the chronology for:
+"{clean_topic}"
+
+Return a single JSON object with:
+- "timeline": {{
+    "narrative_evolution_summary": "Summary of how media coverage and official narratives shifted over time",
+    "events": [
+      {{"timestamp_or_date": "Exact or approximate date", "headline": "Milestone 1", "description": "Details", "source_outlet": "Reporting outlet", "source_url": "https://www.reuters.com", "narrative_shift": "Shift in coverage"}},
+      {{"timestamp_or_date": "Exact or approximate date", "headline": "Milestone 2", "description": "Details", "source_outlet": "Reporting outlet", "source_url": "https://apnews.com", "narrative_shift": "Shift in coverage"}},
+      {{"timestamp_or_date": "Exact or approximate date", "headline": "Milestone 3", "description": "Details", "source_outlet": "Reporting outlet", "source_url": "https://www.bloomberg.com", "narrative_shift": "Shift in coverage"}}
+    ]
+  }}
+"""
+        res = client.models.generate_content(
+            model=MODEL_AGENT_FAST,
+            contents=prompt,
+            config=types.GenerateContentConfig(response_mime_type="application/json")
+        )
+        if res.text:
+            parsed = json.loads(res.text)
+            parsed["available_sections"] = ["brief", "verification", "timeline"]
+            return parsed
+    except Exception as e:
+        logger.warning("Error generating live timeline with Gemini: %s", e)
+    return None
+
+
+def build_stage_brief(topic: str) -> Dict[str, Any]:
+    """Builds Stage 1: Executive Brief, Key Numbers, Context Primer, and Analyzed Articles."""
+    live = generate_live_brief(topic)
+    if live:
+        return live
+
+    full = build_structured_intelligence(topic)
+    return {
+        "topic": full["topic"],
+        "executive_summary": full["executive_summary"],
+        "key_metrics_and_numbers": full["key_metrics_and_numbers"],
+        "context_primer": full.get("context_primer"),
+        "articles_analyzed": full.get("articles_analyzed", []),
+        "sources_analyzed": full.get("sources_analyzed", []),
+        "available_sections": ["brief"],
+    }
+
+
+def build_stage_verifications(topic: str) -> Dict[str, Any]:
+    """Builds Stage 2: Forensic Claim Verifications, Contradictions, Bias Spectrum & Consensus."""
+    live = generate_live_verifications(topic)
+    if live:
+        return live
+
+    full = build_structured_intelligence(topic)
+    return {
+        "verifications": full.get("verifications", []),
+        "contradictions": full.get("contradictions", []),
+        "bias_evaluations": full.get("bias_evaluations", []),
+        "consensus_points": full.get("consensus_points", []),
+        "available_sections": ["brief", "verification"],
+    }
+
+
+def build_stage_timeline(topic: str) -> Dict[str, Any]:
+    """Builds Stage 3: Chronological Event Timeline & Narrative Trajectory."""
+    live = generate_live_timeline(topic)
+    if live:
+        return live
+
+    full = build_structured_intelligence(topic)
+    return {
+        "timeline": full.get("timeline"),
+        "available_sections": ["brief", "verification", "timeline"],
     }

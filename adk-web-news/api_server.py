@@ -6,6 +6,8 @@ Exposes REST APIs connecting the frontend and external clients to the
 
 from __future__ import annotations
 
+import asyncio
+import json
 import os
 import sys
 import time
@@ -20,6 +22,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from fastapi import FastAPI, HTTPException, Query, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 from google.adk.runners import Runner
@@ -38,6 +41,9 @@ from shared.structured_builder import (
     build_structured_quiz,
     build_structured_debate,
     build_structured_scenarios,
+    build_stage_brief,
+    build_stage_verifications,
+    build_stage_timeline,
 )
 from shared.simulation import _route_simulation_response
 from shared.plugins.evidence_ledger import EvidenceLedgerPlugin
@@ -79,6 +85,11 @@ class ChatRequest(BaseModel):
     query: str
     topic: Optional[str] = "General News Investigation"
     session_id: Optional[str] = None
+
+
+class UpdateAnalysisRequest(BaseModel):
+    is_favorite: Optional[bool] = Field(default=None, description="Mark or unmark as favorite")
+    notes: Optional[str] = Field(default=None, description="Optional researcher notes")
 
 
 class QuizGradeRequest(BaseModel):
@@ -176,6 +187,7 @@ async def analyze_topic(req: AnalyzeRequest):
 
     # Build structured report
     report_data = build_structured_intelligence(topic, raw_markdown)
+    report_data["id"] = analysis_id
     report_data["analysis_id"] = analysis_id
     report_data["topic"] = topic
     report_data["evidence_ledger"] = ledger
@@ -189,10 +201,88 @@ async def analyze_topic(req: AnalyzeRequest):
     return report_data
 
 
+@app.get("/api/analyze/stream")
+async def stream_analysis(topic: str = Query(..., description="Breaking news topic to analyze")):
+    """Streams the analysis progressively section-by-section via Server-Sent Events (SSE)."""
+    clean_topic = topic.strip()
+    if not clean_topic:
+        raise HTTPException(status_code=400, detail="Topic cannot be empty.")
+
+    analysis_id = str(uuid.uuid4())
+
+    async def event_generator():
+        # Step 0: Initial metadata
+        initial_doc = {
+            "id": analysis_id,
+            "analysis_id": analysis_id,
+            "topic": clean_topic,
+            "status": "generating",
+            "available_sections": [],
+            "created_at": time.time(),
+        }
+        await FirestoreService.save_analysis(analysis_id, initial_doc)
+        yield f"event: init\ndata: {json.dumps(initial_doc)}\n\n"
+
+        # Step 1: Executive Brief & Primer (~yields first)
+        brief_data = await asyncio.to_thread(build_stage_brief, clean_topic)
+        brief_data["id"] = analysis_id
+        brief_data["analysis_id"] = analysis_id
+        brief_data["status"] = "partial"
+        brief_data["created_at"] = initial_doc["created_at"]
+        await FirestoreService.update_analysis(analysis_id, brief_data)
+        yield f"event: step_brief\ndata: {json.dumps(brief_data)}\n\n"
+
+        # Step 2: Fact Verifications, Contradictions & Bias Spectrum
+        verif_data = await asyncio.to_thread(build_stage_verifications, clean_topic)
+        verif_data["id"] = analysis_id
+        verif_data["analysis_id"] = analysis_id
+        await FirestoreService.update_analysis(analysis_id, verif_data)
+        yield f"event: step_verification\ndata: {json.dumps(verif_data)}\n\n"
+
+        # Step 3: Chronological Timeline & Narrative Trajectory
+        timeline_data = await asyncio.to_thread(build_stage_timeline, clean_topic)
+        timeline_data["id"] = analysis_id
+        timeline_data["analysis_id"] = analysis_id
+        timeline_data["status"] = "completed"
+        await FirestoreService.update_analysis(analysis_id, timeline_data)
+        yield f"event: step_timeline\ndata: {json.dumps(timeline_data)}\n\n"
+
+        # Final complete frame from persisted document
+        full_doc = await FirestoreService.get_analysis(analysis_id)
+        if not full_doc:
+            full_doc = {**brief_data, **verif_data, **timeline_data}
+        full_doc["id"] = analysis_id
+        full_doc["analysis_id"] = analysis_id
+        full_doc["status"] = "completed"
+        full_doc["available_sections"] = ["brief", "verification", "timeline"]
+        await FirestoreService.save_analysis(analysis_id, full_doc)
+        yield f"event: complete\ndata: {json.dumps(full_doc)}\n\n"
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
 @app.get("/api/analyses")
-async def list_analyses(limit: int = Query(default=20, ge=1, le=100)):
-    """Retrieves recent news analyses from Firestore."""
-    return await FirestoreService.list_recent_analyses(limit=limit)
+async def list_analyses(
+    limit: int = Query(default=20, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
+    search: Optional[str] = Query(default=None),
+    favorites_only: bool = Query(default=False),
+):
+    """Retrieves paginated and filtered news analyses from Firestore."""
+    return await FirestoreService.list_analyses_filtered(
+        limit=limit,
+        offset=offset,
+        search=search,
+        favorites_only=favorites_only,
+    )
 
 
 @app.get("/api/analysis/{analysis_id}")
@@ -202,6 +292,28 @@ async def get_analysis_detail(analysis_id: str):
     if not doc:
         raise HTTPException(status_code=404, detail="Analysis report not found.")
     return doc
+
+
+@app.patch("/api/analysis/{analysis_id}")
+async def update_analysis(analysis_id: str, req: UpdateAnalysisRequest):
+    """Updates an analysis document (such as toggling favorite status)."""
+    updates = req.model_dump(exclude_unset=True)
+    if not updates:
+        raise HTTPException(status_code=400, detail="No fields provided for update.")
+
+    updated_doc = await FirestoreService.update_analysis(analysis_id, updates)
+    if not updated_doc:
+        raise HTTPException(status_code=404, detail="Analysis report not found.")
+    return updated_doc
+
+
+@app.delete("/api/analysis/{analysis_id}")
+async def delete_analysis(analysis_id: str):
+    """Deletes an analysis document from Firestore."""
+    success = await FirestoreService.delete_analysis(analysis_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Analysis report not found.")
+    return {"status": "deleted", "id": analysis_id}
 
 
 @app.post("/api/fact-check")

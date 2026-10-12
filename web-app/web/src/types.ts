@@ -88,6 +88,7 @@ export interface LessonItem {
 }
 
 export interface NewsIntelligenceReport {
+  id?: string;
   analysis_id?: string;
   topic: string;
   executive_summary: string;
@@ -97,6 +98,7 @@ export interface NewsIntelligenceReport {
   contradictions: ContradictionItem[];
   verifications: ClaimVerification[];
   bias_evaluations: BiasEvaluation[];
+  bias_landscape?: any;
   root_cause_analysis?: {
     immediate_triggers: string[];
     underlying_systemic_factors: string[];
@@ -116,6 +118,29 @@ export interface NewsIntelligenceReport {
   }>;
   created_at?: number;
   raw_markdown?: string;
+  is_favorite?: boolean;
+  status?: 'generating' | 'partial' | 'completed' | 'error';
+  available_sections?: string[];
+}
+
+export interface AnalysisArchiveItem {
+  id: string;
+  topic: string;
+  executive_summary?: string;
+  created_at: number;
+  updated_at?: number;
+  is_favorite: boolean;
+  status?: string;
+  articles_analyzed?: any[];
+  sources_analyzed?: string[];
+  verifications?: any[];
+}
+
+export interface PaginatedAnalysesResponse {
+  items: AnalysisArchiveItem[];
+  total: number;
+  limit: number;
+  offset: number;
 }
 
 export interface QuizQuestion {

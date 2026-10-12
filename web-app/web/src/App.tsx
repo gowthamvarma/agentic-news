@@ -24,11 +24,15 @@ import {
   Bot,
   Trash2,
   Palette,
-  ChevronDown
+  ChevronDown,
+  History
 } from 'lucide-react';
 import {
   analyzeNewsTopic,
+  analyzeNewsTopicProgressive,
   fetchRecentAnalyses,
+  fetchAnalysisDetail,
+  updateAnalysis,
   generateQuiz,
   gradeQuiz,
   generateDebate,
@@ -41,6 +45,7 @@ import type {
   QuizPayload,
   PerspectiveDebateReport
 } from './types';
+import { AnalysisHistoryGrid } from './components/AnalysisHistoryGrid';
 
 interface ChatMessage {
   sender: 'user' | 'agent';
@@ -88,12 +93,58 @@ export default function App() {
     return localStorage.getItem('agentic_news_theme') || 'dark';
   });
 
+  // Main View Router: 'investigate' (fleet run / report) or 'archive' (history AG Grid)
+  const [currentView, setCurrentView] = useState<'investigate' | 'archive'>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('view') === 'archive' || window.location.hash === '#archive') {
+        return 'archive';
+      }
+    }
+    return 'investigate';
+  });
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      if (window.location.hash === '#archive') {
+        setCurrentView('archive');
+      } else if (window.location.hash === '#fleet' || window.location.hash === '#investigate') {
+        setCurrentView('investigate');
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
   const [topicInput, setTopicInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [loadingStage, setLoadingStage] = useState(0);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [streamStatus, setStreamStatus] = useState<string>('');
   const [report, setReport] = useState<NewsIntelligenceReport | null>(null);
   const [, setRecentRuns] = useState<NewsIntelligenceReport[]>([]);
-  const [activeTab, setActiveTab] = useState<'brief' | 'verification' | 'timeline' | 'insights' | 'quiz' | 'debate' | 'copilot'>('brief');
+  const [activeTab, setActiveTab] = useState<'brief' | 'verification' | 'timeline' | 'insights' | 'quiz' | 'debate' | 'copilot'>(() => {
+    if (typeof window !== 'undefined' && window.location.hash) {
+      const h = window.location.hash.replace('#', '');
+      if (['brief', 'verification', 'timeline', 'insights', 'quiz', 'debate', 'copilot'].includes(h)) {
+        return h as any;
+      }
+    }
+    return 'brief';
+  });
+
+  useEffect(() => {
+    const handleTabHash = () => {
+      if (typeof window !== 'undefined' && window.location.hash) {
+        const h = window.location.hash.replace('#', '');
+        if (['brief', 'verification', 'timeline', 'insights', 'quiz', 'debate', 'copilot'].includes(h)) {
+          setActiveTab(h as any);
+        }
+      }
+    };
+    window.addEventListener('hashchange', handleTabHash);
+    return () => window.removeEventListener('hashchange', handleTabHash);
+  }, []);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // Active Recall Quiz State
@@ -109,6 +160,17 @@ export default function App() {
   // Causal Diagnostics & Forward Scenarios State (On-Demand Option 4)
   const [scenariosData, setScenariosData] = useState<any | null>(null);
   const [scenariosLoading, setScenariosLoading] = useState(false);
+
+  useEffect(() => {
+    if (!report) return;
+    if (activeTab === 'quiz' && !quiz && !quizLoading) {
+      handleLoadQuiz();
+    } else if (activeTab === 'debate' && !debate && !debateLoading) {
+      handleLoadDebate();
+    } else if (activeTab === 'insights' && !scenariosData && !scenariosLoading) {
+      handleLoadScenarios();
+    }
+  }, [activeTab, report]);
 
   // Research Copilot Chat State
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
@@ -174,15 +236,92 @@ export default function App() {
     setUserAnswers({});
     setErrorMsg(null);
     setLoading(true);
+    setIsStreaming(true);
+    setStreamStatus('Deploying 25 Autonomous ADK Agents...');
+    setCurrentView('investigate');
 
     try {
-      const data = await analyzeNewsTopic(q);
-      setReport(data);
-      setTopicInput(q);
+      let partialReport: Partial<NewsIntelligenceReport> = {
+        topic: q,
+        status: 'generating',
+        available_sections: []
+      };
+
+      await analyzeNewsTopicProgressive(q, (eventType, data) => {
+        if (eventType === 'init') {
+          setStreamStatus('Stage 1: Multi-Outlet Ingestion & Executive Brief compiling...');
+        } else if (eventType === 'step_brief') {
+          partialReport = {
+            ...partialReport,
+            ...data,
+            status: 'partial',
+            available_sections: ['brief']
+          };
+          setReport({ ...partialReport } as NewsIntelligenceReport);
+          setTopicInput(q);
+          setActiveTab('brief');
+          // Once brief is available, stop blocking the UI so user can start reading immediately!
+          setLoading(false);
+          setStreamStatus('Stage 2: Auditing IFCN forensic fact-checks & bias...');
+        } else if (eventType === 'step_verification') {
+          partialReport = {
+            ...partialReport,
+            verifications: data.verifications,
+            bias_landscape: data.bias_landscape || partialReport.bias_landscape,
+            available_sections: ['brief', 'verification']
+          };
+          setReport({ ...partialReport } as NewsIntelligenceReport);
+          setStreamStatus('Stage 3: Reconstructing chronological timeline...');
+        } else if (eventType === 'step_timeline') {
+          partialReport = {
+            ...partialReport,
+            timeline: data.timeline,
+            available_sections: ['brief', 'verification', 'timeline']
+          };
+          setReport({ ...partialReport } as NewsIntelligenceReport);
+          setStreamStatus('Finalizing intelligence payload in Firestore...');
+        } else if (eventType === 'complete') {
+          setReport(data);
+          setIsStreaming(false);
+          setStreamStatus('');
+          setLoading(false);
+          fetchRecentAnalyses().then(setRecentRuns).catch(() => {});
+        }
+      });
+    } catch (streamErr: any) {
+      console.warn('Progressive streaming failed, falling back to standard endpoint:', streamErr);
+      try {
+        const data = await analyzeNewsTopic(q);
+        setReport(data);
+        setTopicInput(q);
+        setActiveTab('brief');
+        fetchRecentAnalyses().then(setRecentRuns).catch(() => {});
+      } catch (err: any) {
+        setErrorMsg(err.message || 'An unexpected error occurred while analyzing this news topic.');
+      } finally {
+        setLoading(false);
+        setIsStreaming(false);
+        setStreamStatus('');
+      }
+    }
+  };
+
+  const handleSelectArchiveItem = async (analysisId: string) => {
+    try {
+      setLoading(true);
+      setErrorMsg(null);
+      const detail = await fetchAnalysisDetail(analysisId);
+      setReport(detail);
+      setTopicInput(detail.topic);
+      setQuiz(null);
+      setDebate(null);
+      setScenariosData(null);
+      setCurrentView('investigate');
       setActiveTab('brief');
-      fetchRecentAnalyses().then(setRecentRuns).catch(() => {});
+      window.scrollTo({ top: 320, behavior: 'smooth' });
     } catch (err: any) {
-      setErrorMsg(err.message || 'An unexpected error occurred while analyzing this news topic.');
+      console.error('Failed to load analysis details:', err);
+      setErrorMsg(`Failed to load analysis brief: ${err?.message || err}`);
     } finally {
       setLoading(false);
     }
@@ -307,10 +446,30 @@ export default function App() {
           </div>
         </div>
 
-        <div className="navbar-center hidden lg:flex">
-          <div className="badge badge-success badge-outline gap-2 py-3 px-4 text-xs font-semibold shadow-sm">
+        <div className="navbar-center hidden md:flex items-center gap-2">
+          <div className="join bg-base-300/60 p-0.5 rounded-xl border border-base-300">
+            <button
+              className={`join-item btn btn-xs md:btn-sm rounded-lg gap-1.5 transition-all ${
+                currentView === 'investigate' ? 'btn-primary font-bold shadow-sm' : 'btn-ghost'
+              }`}
+              onClick={() => setCurrentView('investigate')}
+            >
+              <Brain size={15} />
+              <span>Live Fleet</span>
+            </button>
+            <button
+              className={`join-item btn btn-xs md:btn-sm rounded-lg gap-1.5 transition-all ${
+                currentView === 'archive' ? 'btn-primary font-bold shadow-sm' : 'btn-ghost'
+              }`}
+              onClick={() => setCurrentView('archive')}
+            >
+              <History size={15} />
+              <span>Analyses Archive</span>
+            </button>
+          </div>
+          <div className="badge badge-success badge-outline gap-1.5 py-2.5 px-3 text-[11px] font-semibold hidden xl:inline-flex">
             <span className="w-2 h-2 rounded-full bg-success animate-pulse"></span>
-            <span>Firestore Live Sync Active</span>
+            <span>Firestore Sync Active</span>
           </div>
         </div>
 
@@ -504,8 +663,23 @@ export default function App() {
         </div>
       )}
 
+      {/* Analyses Archive View (AG Grid) */}
+      {currentView === 'archive' && (
+        <main className="container mx-auto px-4 lg:px-8 pb-16 flex-1 max-w-7xl">
+          <div className="mb-4">
+            <button
+              onClick={() => setCurrentView('investigate')}
+              className="btn btn-sm btn-ghost gap-2 text-base-content/80 hover:text-primary"
+            >
+              ← Back to Live Fleet Investigation
+            </button>
+          </div>
+          <AnalysisHistoryGrid onSelectAnalysis={handleSelectArchiveItem} />
+        </main>
+      )}
+
       {/* Main Content Dashboard */}
-      {!loading && report && (
+      {currentView === 'investigate' && !loading && report && (
         <main className="container mx-auto px-4 lg:px-8 pb-16 flex-1 max-w-7xl">
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
             {/* Vertical Side Navigation */}
@@ -655,6 +829,20 @@ export default function App() {
                       </span>
                     </button>
                   </li>
+
+                  {/* Archive Link in Side Navigation */}
+                  <li className="mt-1 pt-1 border-t border-base-300">
+                    <button
+                      className="flex items-center justify-between py-2 px-3 rounded-xl font-medium transition-all hover:bg-base-300 text-base-content/90"
+                      onClick={() => setCurrentView('archive')}
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <History size={16} className="text-secondary" />
+                        <span className="text-xs">Browse All Archives</span>
+                      </span>
+                      <span className="badge badge-xs badge-neutral font-mono">AG-Grid</span>
+                    </button>
+                  </li>
                 </ul>
 
                 {/* Topic Metadata Box inside Side Nav */}
@@ -675,6 +863,22 @@ export default function App() {
             {/* Main Content Area */}
             <div className="flex-1 min-w-0 w-full">
 
+            {/* Live Fleet Pipeline Streaming Notification */}
+            {isStreaming && (
+              <div className="alert alert-info shadow-md rounded-2xl mb-6 flex items-center justify-between py-3 px-5 border border-info/30">
+                <div className="flex items-center gap-3">
+                  <span className="loading loading-spinner loading-sm text-info-content"></span>
+                  <div>
+                    <div className="font-bold text-xs">Live Fleet Pipeline Streaming</div>
+                    <div className="text-[11px] opacity-90">{streamStatus || 'Progressive sections arriving in real time...'}</div>
+                  </div>
+                </div>
+                <span className="badge badge-sm badge-ghost font-mono uppercase text-[10px] tracking-wider">
+                  SSE Progressive Stream
+                </span>
+              </div>
+            )}
+
           {/* TAB 1: EXECUTIVE BRIEF & PRIMER */}
           {activeTab === 'brief' && (
             <div className="flex flex-col gap-6">
@@ -686,8 +890,32 @@ export default function App() {
                       <FileText size={24} className="text-primary" />
                       <span>Executive Intelligence Brief: {report.topic}</span>
                     </div>
-                    <div className="badge badge-outline badge-primary font-medium py-3 px-3 self-start md:self-auto">
-                      Audited across {report.articles_analyzed?.length || report.sources_analyzed?.length || 6} major outlets
+                    <div className="flex flex-wrap items-center gap-2 self-start md:self-auto flex-shrink-0">
+                      {(report.id || report.analysis_id) && (
+                        <button
+                          onClick={async () => {
+                            const targetId = report.id || report.analysis_id;
+                            if (!targetId) return;
+                            const nextFav = !report.is_favorite;
+                            setReport({ ...report, is_favorite: nextFav });
+                            try {
+                              await updateAnalysis(targetId, { is_favorite: nextFav });
+                            } catch (e) {
+                              console.error(e);
+                            }
+                          }}
+                          className={`btn btn-sm ${
+                            report.is_favorite ? 'btn-warning text-warning-content' : 'btn-outline border-base-300'
+                          } gap-1.5`}
+                          title={report.is_favorite ? 'Remove from favorites' : 'Mark as favorite'}
+                        >
+                          <span>{report.is_favorite ? '★' : '☆'}</span>
+                          <span className="text-xs">{report.is_favorite ? 'Favorited' : 'Favorite'}</span>
+                        </button>
+                      )}
+                      <div className="badge badge-outline badge-primary font-medium py-3 px-3 whitespace-nowrap">
+                        Audited across {report.articles_analyzed?.length || report.sources_analyzed?.length || 6} major outlets
+                      </div>
                     </div>
                   </div>
 
@@ -1107,9 +1335,10 @@ export default function App() {
                               <span className="text-xs text-base-content/60">Outlet: {ev.source_outlet}</span>
                             )}
                             {ev.narrative_shift && (
-                              <span className="badge badge-secondary badge-outline text-xs">
-                                Shift: {ev.narrative_shift}
-                              </span>
+                              <div className="w-full mt-1.5 p-2 rounded-lg bg-secondary/10 border border-secondary/30 text-xs text-secondary-content leading-relaxed font-medium">
+                                <span className="font-bold uppercase tracking-wider text-[10px] text-secondary block mb-0.5">Narrative Shift</span>
+                                {ev.narrative_shift}
+                              </div>
                             )}
                           </div>
                         </div>
@@ -1592,6 +1821,26 @@ export default function App() {
             </div>
           </div>
         </main>
+      )}
+
+      {/* Placeholder prompt when no report is active */}
+      {currentView === 'investigate' && !loading && !report && (
+        <div className="container mx-auto px-4 max-w-xl text-center py-12">
+          <div className="card bg-base-200 border border-base-300 p-8 shadow-sm">
+            <Brain size={40} className="mx-auto text-primary opacity-60 mb-3" />
+            <h3 className="text-lg font-bold">Ready for Intelligence Mission</h3>
+            <p className="text-xs text-base-content/70 mt-1 mb-4">
+              Enter any headline above to launch 25 ADK agents, or explore archived investigations.
+            </p>
+            <button
+              onClick={() => setCurrentView('archive')}
+              className="btn btn-sm btn-outline btn-primary gap-2 mx-auto"
+            >
+              <History size={16} />
+              <span>Browse Previous Analyses</span>
+            </button>
+          </div>
+        </div>
       )}
 
       {/* DaisyUI Footer */}

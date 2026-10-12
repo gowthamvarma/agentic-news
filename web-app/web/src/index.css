@@ -1,6 +1,59 @@
+@import 'ag-grid-community/styles/ag-grid.css';
+@import 'ag-grid-community/styles/ag-theme-quartz.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* AG Grid dynamic DaisyUI theming */
+.ag-theme-quartz,
+.ag-theme-quartz-dark {
+  --ag-background-color: hsl(var(--b1));
+  --ag-foreground-color: hsl(var(--bc));
+  --ag-header-background-color: hsl(var(--b2));
+  --ag-header-foreground-color: hsl(var(--bc));
+  --ag-border-color: hsl(var(--bc) / 0.15);
+  --ag-row-border-color: hsl(var(--bc) / 0.08);
+  --ag-odd-row-background-color: hsl(var(--b2) / 0.35);
+  --ag-row-hover-color: hsl(var(--b3) / 0.5);
+  --ag-selected-row-background-color: hsl(var(--p) / 0.15);
+  --ag-active-color: hsl(var(--p));
+  --ag-font-family: inherit;
+  --ag-font-size: 13px;
+  --ag-border-radius: 8px;
+}
+
+.ag-theme-quartz .ag-root-wrapper,
+.ag-theme-quartz .ag-body-viewport,
+.ag-theme-quartz .ag-row {
+  background-color: hsl(var(--b1)) !important;
+  color: hsl(var(--bc)) !important;
+}
+
+.ag-theme-quartz .ag-header {
+  background-color: hsl(var(--b2)) !important;
+  color: hsl(var(--bc)) !important;
+  border-bottom: 1px solid hsl(var(--bc) / 0.1) !important;
+}
+
+.ag-theme-quartz .ag-header-cell-text {
+  color: hsl(var(--bc)) !important;
+  font-weight: 700 !important;
+}
+
+.ag-theme-quartz .ag-cell {
+  color: hsl(var(--bc)) !important;
+  border-bottom-color: hsl(var(--bc) / 0.08) !important;
+}
+
+.ag-theme-quartz .ag-row:hover {
+  background-color: hsl(var(--b2) / 0.6) !important;
+}
+
+.ag-theme-quartz .ag-overlay-panel {
+  background-color: hsl(var(--b1)) !important;
+  color: hsl(var(--bc)) !important;
+}
 
 @layer base {
   body {
