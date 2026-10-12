@@ -2,8 +2,28 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community';
 import type { ColDef, ICellRendererParams } from 'ag-grid-community';
+import {
+  Search,
+  Star,
+  Trash2,
+  RefreshCw,
+  ArrowRight,
+  Calendar,
+  Globe,
+  Database,
+  Table,
+  LayoutGrid,
+  TableProperties,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  FileText,
+  CheckCircle2,
+  X,
+} from 'lucide-react';
 import type { AnalysisArchiveItem } from '../types';
 import { fetchAnalysesArchive, updateAnalysis, deleteAnalysis } from '../api';
+import { useTheme, isDarkTheme } from '../context/ThemeContext';
 
 // Register AG Grid Community modules
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -12,7 +32,14 @@ interface AnalysisHistoryGridProps {
   onSelectAnalysis: (analysisId: string) => void;
 }
 
+type ViewMode = 'table' | 'cards' | 'aggrid';
+type SortField = 'created_at' | 'topic' | 'sources';
+type SortDirection = 'asc' | 'desc';
+
 export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSelectAnalysis }) => {
+  const { theme } = useTheme();
+  const isDark = isDarkTheme(theme);
+
   const [items, setItems] = useState<AnalysisArchiveItem[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
@@ -21,8 +48,22 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [favoritesOnly, setFavoritesOnly] = useState<boolean>(false);
-  const [pageSize, setPageSize] = useState<number>(20);
+  const [pageSize, setPageSize] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(1);
+
+  // View mode: 'table' (Modern DaisyUI Table) | 'cards' (Cards Grid) | 'aggrid' (AG Grid)
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    return (localStorage.getItem('agentic_news_history_view') as ViewMode) || 'table';
+  });
+
+  // Client sort state for Table view
+  const [sortField, setSortField] = useState<SortField>('created_at');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+
+  const handleSetViewMode = (mode: ViewMode) => {
+    setViewMode(mode);
+    localStorage.setItem('agentic_news_history_view', mode);
+  };
 
   const loadData = useCallback(async () => {
     try {
@@ -39,7 +80,7 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
       setTotal(res.total || 0);
     } catch (err: any) {
       console.error('Failed to load analyses:', err);
-      setError(err?.message || 'Error fetching analysis archives');
+      setError(err?.message || 'Error fetching analysis archives from server');
     } finally {
       setLoading(false);
     }
@@ -60,7 +101,6 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
 
     try {
       await updateAnalysis(item.id, { is_favorite: newStatus });
-      // If we are currently in favoritesOnly mode and just un-favorited, reload to maintain filter consistency
       if (favoritesOnly && !newStatus) {
         loadData();
       }
@@ -75,7 +115,7 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
 
   const handleDelete = async (item: AnalysisArchiveItem, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    if (!window.confirm(`Delete analysis record "${item.topic}"?`)) return;
+    if (!window.confirm(`Permanently delete investigation archive:\n"${item.topic}"?`)) return;
 
     try {
       await deleteAnalysis(item.id);
@@ -85,15 +125,60 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
     }
   };
 
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortField(field);
+      setSortDirection('desc');
+    }
+  };
+
+  // Sorted items for Table/Card view
+  const sortedItems = useMemo(() => {
+    const list = [...items];
+    list.sort((a, b) => {
+      if (sortField === 'created_at') {
+        const valA = a.created_at || 0;
+        const valB = b.created_at || 0;
+        return sortDirection === 'asc' ? valA - valB : valB - valA;
+      }
+      if (sortField === 'topic') {
+        const valA = (a.topic || '').toLowerCase();
+        const valB = (b.topic || '').toLowerCase();
+        return sortDirection === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+      }
+      if (sortField === 'sources') {
+        const countA = Math.max(a.sources_analyzed?.length || 0, a.articles_analyzed?.length || 0);
+        const countB = Math.max(b.sources_analyzed?.length || 0, b.articles_analyzed?.length || 0);
+        return sortDirection === 'asc' ? countA - countB : countB - countA;
+      }
+      return 0;
+    });
+    return list;
+  }, [items, sortField, sortDirection]);
+
+  // Aggregate stats
+  const totalFavorites = useMemo(() => {
+    return items.filter((i) => i.is_favorite).length;
+  }, [items]);
+
+  const totalSourcesCount = useMemo(() => {
+    return items.reduce((acc, curr) => {
+      const cnt = Math.max(curr.sources_analyzed?.length || 0, curr.articles_analyzed?.length || 0);
+      return acc + cnt;
+    }, 0);
+  }, [items]);
+
   // AG Grid column definitions
   const columnDefs = useMemo<ColDef<AnalysisArchiveItem>[]>(() => {
     return [
       {
         headerName: '★',
         field: 'is_favorite',
-        width: 60,
-        minWidth: 60,
-        maxWidth: 70,
+        width: 65,
+        minWidth: 65,
+        maxWidth: 75,
         sortable: true,
         pinned: 'left',
         cellRenderer: (params: ICellRendererParams<AnalysisArchiveItem>) => {
@@ -102,11 +187,11 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
           return (
             <button
               onClick={(e) => handleToggleFavorite(params.data!, e)}
-              className="btn btn-ghost btn-xs text-lg p-0 hover:bg-transparent"
+              className="btn btn-ghost btn-xs text-base p-1 hover:bg-base-200"
               title={isFav ? 'Remove from favorites' : 'Mark as favorite'}
             >
               {isFav ? (
-                <span className="text-warning drop-shadow-sm">★</span>
+                <span className="text-warning drop-shadow-sm font-bold">★</span>
               ) : (
                 <span className="text-base-content/30 hover:text-warning transition-colors">☆</span>
               )}
@@ -118,12 +203,13 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
         headerName: 'Topic & Headline',
         field: 'topic',
         flex: 2,
-        minWidth: 240,
+        minWidth: 260,
         cellRenderer: (params: ICellRendererParams<AnalysisArchiveItem>) => {
           if (!params.data) return null;
           return (
-            <div className="py-1">
-              <span className="font-semibold text-base-content hover:text-primary transition-colors cursor-pointer">
+            <div className="py-1 flex items-center gap-2">
+              <FileText size={15} className="text-primary flex-shrink-0" />
+              <span className="font-bold text-base-content hover:text-primary transition-colors cursor-pointer truncate">
                 {params.data.topic}
               </span>
             </div>
@@ -137,7 +223,7 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
         minWidth: 320,
         cellRenderer: (params: ICellRendererParams<AnalysisArchiveItem>) => {
           if (!params.data?.executive_summary) {
-            return <span className="text-base-content/40 italic text-xs">No summary available</span>;
+            return <span className="text-base-content/40 italic text-xs">No summary recorded</span>;
           }
           return (
             <div className="truncate text-xs text-base-content/80 py-1" title={params.data.executive_summary}>
@@ -148,7 +234,7 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
       },
       {
         headerName: 'Sources',
-        width: 100,
+        width: 120,
         valueGetter: (params) => {
           const sources = params.data?.sources_analyzed || [];
           const articles = params.data?.articles_analyzed || [];
@@ -158,7 +244,10 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
           const count = params.value || 0;
           return (
             <div className="flex items-center h-full">
-              <span className="badge badge-sm badge-ghost font-mono">{count} sources</span>
+              <span className="badge badge-sm badge-outline badge-primary font-mono gap-1">
+                <Globe size={11} />
+                <span>{count} sources</span>
+              </span>
             </div>
           );
         },
@@ -166,7 +255,7 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
       {
         headerName: 'Created Date',
         field: 'created_at',
-        width: 160,
+        width: 170,
         valueFormatter: (params) => {
           if (!params.value) return 'Unknown';
           const d = new Date(params.value * 1000);
@@ -176,7 +265,7 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
       },
       {
         headerName: 'Actions',
-        width: 170,
+        width: 160,
         pinned: 'right',
         cellRenderer: (params: ICellRendererParams<AnalysisArchiveItem>) => {
           if (!params.data) return null;
@@ -188,17 +277,18 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
                   e.stopPropagation();
                   onSelectAnalysis(item.id);
                 }}
-                className="btn btn-primary btn-xs"
+                className="btn btn-primary btn-xs gap-1 shadow-sm"
                 title="Open and view intelligence report"
               >
-                Open Brief
+                <span>Open</span>
+                <ArrowRight size={11} />
               </button>
               <button
                 onClick={(e) => handleDelete(item, e)}
-                className="btn btn-ghost btn-xs text-error hover:bg-error/10"
+                className="btn btn-ghost btn-xs text-error/70 hover:text-error hover:bg-error/10"
                 title="Delete this analysis"
               >
-                ✕
+                <Trash2 size={13} />
               </button>
             </div>
           );
@@ -209,91 +299,195 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
+  const formatTimestamp = (timestamp?: number) => {
+    if (!timestamp) return 'Recent';
+    const d = new Date(timestamp * 1000);
+    return d.toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }) + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
   return (
-    <div className="card bg-base-100 shadow-xl border border-base-200">
-      <div className="card-body p-5">
-        {/* Header & Controls Bar */}
-        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 pb-3 border-b border-base-200">
-          <div>
-            <h2 className="text-xl font-bold flex items-center gap-2">
-              <span>Previous News Intelligence Analyses</span>
-              <span className="badge badge-primary badge-sm font-normal">
-                {total} total records
-              </span>
-            </h2>
-            <p className="text-xs text-base-content/60 mt-0.5">
-              Archived in Local Firebase Emulator. Search, filter favorites, or inspect past fleet debriefs.
-            </p>
+    <div className="flex flex-col gap-6">
+      {/* Top Overview Metric Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+        <div className="card bg-base-200/80 border border-base-300 shadow-sm p-4 flex flex-row items-center gap-3.5">
+          <div className="p-3 rounded-xl bg-primary/10 text-primary">
+            <Database size={22} />
           </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            {/* Search Input */}
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search topic or headline..."
-                className="input input-sm input-bordered w-52 md:w-64 pr-8 text-xs"
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setCurrentPage(1);
-                }}
-              />
-              {searchTerm && (
-                <button
-                  onClick={() => {
-                    setSearchTerm('');
-                    setCurrentPage(1);
-                  }}
-                  className="absolute right-2 top-2 text-base-content/40 hover:text-base-content text-xs"
-                >
-                  ✕
-                </button>
-              )}
+          <div>
+            <div className="text-xs text-base-content/60 font-semibold uppercase tracking-wider">
+              Total Archives
             </div>
+            <div className="text-xl md:text-2xl font-black text-base-content mt-0.5">
+              {total}
+            </div>
+          </div>
+        </div>
 
-            {/* Favorites Filter Toggle */}
-            <button
-              onClick={() => {
-                setFavoritesOnly(!favoritesOnly);
+        <div className="card bg-base-200/80 border border-base-300 shadow-sm p-4 flex flex-row items-center gap-3.5">
+          <div className="p-3 rounded-xl bg-warning/10 text-warning">
+            <Star size={22} className="fill-warning/40" />
+          </div>
+          <div>
+            <div className="text-xs text-base-content/60 font-semibold uppercase tracking-wider">
+              Starred
+            </div>
+            <div className="text-xl md:text-2xl font-black text-base-content mt-0.5">
+              {favoritesOnly ? total : totalFavorites}
+            </div>
+          </div>
+        </div>
+
+        <div className="card bg-base-200/80 border border-base-300 shadow-sm p-4 flex flex-row items-center gap-3.5">
+          <div className="p-3 rounded-xl bg-secondary/10 text-secondary">
+            <Globe size={22} />
+          </div>
+          <div>
+            <div className="text-xs text-base-content/60 font-semibold uppercase tracking-wider">
+              Sources Audited
+            </div>
+            <div className="text-xl md:text-2xl font-black text-base-content mt-0.5">
+              {totalSourcesCount}+
+            </div>
+          </div>
+        </div>
+
+        <div className="card bg-base-200/80 border border-base-300 shadow-sm p-4 flex flex-row items-center gap-3.5">
+          <div className="p-3 rounded-xl bg-success/10 text-success">
+            <CheckCircle2 size={22} />
+          </div>
+          <div>
+            <div className="text-xs text-base-content/60 font-semibold uppercase tracking-wider">
+              Persistence
+            </div>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className="w-2 h-2 rounded-full bg-success animate-pulse"></span>
+              <span className="text-xs md:text-sm font-bold text-base-content">
+                Firestore Sync
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Card Container */}
+      <div className="card bg-base-200/60 border border-base-300 shadow-xl rounded-2xl overflow-hidden backdrop-blur-sm">
+        {/* Controls and Filter Bar */}
+        <div className="p-4 md:p-5 border-b border-base-300/80 bg-base-200/90 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+          {/* Search Box */}
+          <div className="flex-1 max-w-md relative">
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-base-content/40">
+              <Search size={16} />
+            </div>
+            <input
+              type="text"
+              placeholder="Search headline, topic, or keyword..."
+              className="input input-sm md:input-md input-bordered w-full pl-9 pr-8 text-xs md:text-sm rounded-xl bg-base-100 border-base-300 focus:border-primary focus:outline-none transition-all shadow-sm"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              className={`btn btn-sm gap-1.5 ${
-                favoritesOnly ? 'btn-warning text-warning-content' : 'btn-outline border-base-300'
-              }`}
-            >
-              <span>{favoritesOnly ? '★' : '☆'}</span>
-              <span className="text-xs">Favorites Only</span>
-            </button>
+            />
+            {searchTerm && (
+              <button
+                onClick={() => {
+                  setSearchTerm('');
+                  setCurrentPage(1);
+                }}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-base-content/40 hover:text-base-content"
+                title="Clear search"
+              >
+                <X size={15} />
+              </button>
+            )}
+          </div>
+
+          {/* Right Toolbar Controls */}
+          <div className="flex flex-wrap items-center gap-2.5">
+            {/* Filter Toggle: All vs Starred */}
+            <div className="join bg-base-100 p-1 rounded-xl border border-base-300 shadow-sm">
+              <button
+                onClick={() => {
+                  setFavoritesOnly(false);
+                  setCurrentPage(1);
+                }}
+                className={`join-item btn btn-xs md:btn-sm rounded-lg font-semibold transition-all ${
+                  !favoritesOnly
+                    ? 'btn-primary shadow-sm'
+                    : 'btn-ghost text-base-content/70 hover:text-base-content'
+                }`}
+              >
+                All Records
+              </button>
+              <button
+                onClick={() => {
+                  setFavoritesOnly(true);
+                  setCurrentPage(1);
+                }}
+                className={`join-item btn btn-xs md:btn-sm rounded-lg font-semibold gap-1.5 transition-all ${
+                  favoritesOnly
+                    ? 'btn-warning text-warning-content shadow-sm'
+                    : 'btn-ghost text-base-content/70 hover:text-warning'
+                }`}
+              >
+                <Star size={13} className={favoritesOnly ? 'fill-current' : ''} />
+                <span>Starred Only</span>
+              </button>
+            </div>
+
+            {/* View Mode Toggle Switcher */}
+            <div className="join bg-base-100 p-1 rounded-xl border border-base-300 shadow-sm">
+              <button
+                onClick={() => handleSetViewMode('table')}
+                className={`join-item btn btn-xs md:btn-sm rounded-lg gap-1.5 transition-all ${
+                  viewMode === 'table' ? 'btn-primary shadow-sm' : 'btn-ghost text-base-content/60'
+                }`}
+                title="Modern DaisyUI Table View"
+              >
+                <Table size={14} />
+                <span className="hidden sm:inline text-xs">Table</span>
+              </button>
+              <button
+                onClick={() => handleSetViewMode('cards')}
+                className={`join-item btn btn-xs md:btn-sm rounded-lg gap-1.5 transition-all ${
+                  viewMode === 'cards' ? 'btn-primary shadow-sm' : 'btn-ghost text-base-content/60'
+                }`}
+                title="Card Grid View"
+              >
+                <LayoutGrid size={14} />
+                <span className="hidden sm:inline text-xs">Cards</span>
+              </button>
+              <button
+                onClick={() => handleSetViewMode('aggrid')}
+                className={`join-item btn btn-xs md:btn-sm rounded-lg gap-1.5 transition-all ${
+                  viewMode === 'aggrid' ? 'btn-primary shadow-sm' : 'btn-ghost text-base-content/60'
+                }`}
+                title="Spreadsheet AG-Grid Community Mode"
+              >
+                <TableProperties size={14} />
+                <span className="hidden sm:inline text-xs">AG-Grid</span>
+              </button>
+            </div>
 
             {/* Refresh Button */}
             <button
               onClick={() => loadData()}
-              className="btn btn-sm btn-ghost btn-square"
-              title="Refresh analyses archive"
+              className="btn btn-sm btn-outline border-base-300 hover:border-primary btn-square rounded-xl shadow-sm bg-base-100"
+              title="Refresh analyses from Firestore"
               disabled={loading}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                />
-              </svg>
+              <RefreshCw size={15} className={loading ? 'animate-spin text-primary' : 'text-base-content/70'} />
             </button>
           </div>
         </div>
 
-        {/* Error Alert */}
+        {/* Error Notification */}
         {error && (
-          <div className="alert alert-error text-xs p-3 my-2">
+          <div className="alert alert-error text-xs p-3 m-4 rounded-xl shadow-md">
             <span>{error}</span>
             <button onClick={() => loadData()} className="btn btn-xs btn-outline">
               Retry
@@ -301,61 +495,380 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
           </div>
         )}
 
-        {/* AG Grid Container */}
-        <div className="w-full ag-theme-quartz mt-3" style={{ height: '520px', width: '100%' }}>
-          <AgGridReact<AnalysisArchiveItem>
-            rowData={items}
-            columnDefs={columnDefs}
-            loading={loading}
-            onRowClicked={(event) => {
-              if (event.data) {
-                onSelectAnalysis(event.data.id);
-              }
-            }}
-            rowClass="cursor-pointer transition-colors"
-            rowHeight={48}
-            headerHeight={40}
-            overlayNoRowsTemplate={
-              '<span class="text-xs text-base-content/50 py-4">No analysis records found matching your filters.</span>'
-            }
-          />
-        </div>
+        {/* VIEW 1: Modern Interactive DaisyUI Table View (Default) */}
+        {viewMode === 'table' && (
+          <div className="overflow-x-auto w-full">
+            <table className="table table-zebra w-full text-left">
+              {/* Header */}
+              <thead>
+                <tr className="bg-base-300/50 text-base-content/70 border-b border-base-300 text-[11px] uppercase tracking-wider font-bold">
+                  <th className="w-12 text-center py-3.5 pl-4">★</th>
+                  <th
+                    className="cursor-pointer hover:text-primary transition-colors py-3.5"
+                    onClick={() => handleSort('topic')}
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <span>Topic & Investigation</span>
+                      {sortField === 'topic' ? (
+                        sortDirection === 'asc' ? <ArrowUp size={13} /> : <ArrowDown size={13} />
+                      ) : (
+                        <ArrowUpDown size={12} className="opacity-40" />
+                      )}
+                    </div>
+                  </th>
+                  <th className="py-3.5 max-w-md hidden md:table-cell">Executive Summary</th>
+                  <th
+                    className="cursor-pointer hover:text-primary transition-colors py-3.5 w-32"
+                    onClick={() => handleSort('sources')}
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <span>Sources</span>
+                      {sortField === 'sources' ? (
+                        sortDirection === 'asc' ? <ArrowUp size={13} /> : <ArrowDown size={13} />
+                      ) : (
+                        <ArrowUpDown size={12} className="opacity-40" />
+                      )}
+                    </div>
+                  </th>
+                  <th
+                    className="cursor-pointer hover:text-primary transition-colors py-3.5 w-44"
+                    onClick={() => handleSort('created_at')}
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <span>Date Analyzed</span>
+                      {sortField === 'created_at' ? (
+                        sortDirection === 'asc' ? <ArrowUp size={13} /> : <ArrowDown size={13} />
+                      ) : (
+                        <ArrowUpDown size={12} className="opacity-40" />
+                      )}
+                    </div>
+                  </th>
+                  <th className="text-right py-3.5 pr-5 w-28">Action</th>
+                </tr>
+              </thead>
 
-        {/* Pagination Bar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-base-200 text-xs text-base-content/70">
-          <div className="flex items-center gap-2">
-            <span>Rows per page:</span>
-            <select
-              className="select select-xs select-bordered"
-              value={pageSize}
-              onChange={(e) => {
-                setPageSize(Number(e.target.value));
-                setCurrentPage(1);
-              }}
+              {/* Body */}
+              <tbody className="divide-y divide-base-300/40">
+                {loading ? (
+                  // Skeleton rows during loading
+                  [1, 2, 3, 4, 5].map((n) => (
+                    <tr key={n} className="animate-pulse">
+                      <td className="text-center pl-4">
+                        <div className="skeleton w-4 h-4 rounded mx-auto"></div>
+                      </td>
+                      <td className="py-4">
+                        <div className="skeleton h-4 w-3/4 mb-1.5"></div>
+                        <div className="skeleton h-3 w-1/3"></div>
+                      </td>
+                      <td className="hidden md:table-cell py-4">
+                        <div className="skeleton h-3.5 w-full mb-1"></div>
+                        <div className="skeleton h-3.5 w-4/5"></div>
+                      </td>
+                      <td className="py-4">
+                        <div className="skeleton h-5 w-20 rounded-full"></div>
+                      </td>
+                      <td className="py-4">
+                        <div className="skeleton h-4 w-28"></div>
+                      </td>
+                      <td className="text-right pr-5 py-4">
+                        <div className="skeleton h-7 w-16 rounded-lg ml-auto"></div>
+                      </td>
+                    </tr>
+                  ))
+                ) : sortedItems.length > 0 ? (
+                  sortedItems.map((item) => {
+                    const sourcesCount = Math.max(
+                      item.sources_analyzed?.length || 0,
+                      item.articles_analyzed?.length || 0
+                    );
+                    const verificationsCount = item.verifications?.length || 0;
+
+                    return (
+                      <tr
+                        key={item.id}
+                        onClick={() => onSelectAnalysis(item.id)}
+                        className="hover:bg-primary/5 transition-colors cursor-pointer group"
+                      >
+                        {/* Star / Favorite */}
+                        <td className="text-center pl-4 py-3.5">
+                          <button
+                            onClick={(e) => handleToggleFavorite(item, e)}
+                            className="btn btn-ghost btn-xs btn-square hover:bg-transparent transition-transform hover:scale-110"
+                            title={item.is_favorite ? 'Starred' : 'Star this investigation'}
+                          >
+                            {item.is_favorite ? (
+                              <Star size={16} className="text-warning fill-warning drop-shadow-sm" />
+                            ) : (
+                              <Star size={16} className="text-base-content/25 hover:text-warning" />
+                            )}
+                          </button>
+                        </td>
+
+                        {/* Topic & Headline */}
+                        <td className="py-3.5">
+                          <div className="flex flex-col gap-1 pr-2">
+                            <span className="font-bold text-sm text-base-content group-hover:text-primary transition-colors line-clamp-1">
+                              {item.topic}
+                            </span>
+                            <div className="flex items-center gap-2 text-[11px] text-base-content/60">
+                              <span className="badge badge-xs badge-neutral font-mono font-normal">
+                                {item.id.slice(0, 12)}...
+                              </span>
+                              {verificationsCount > 0 && (
+                                <span className="text-[11px] text-base-content/60">
+                                  {verificationsCount} Fact-Audits
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* Executive Summary */}
+                        <td className="py-3.5 max-w-md hidden md:table-cell">
+                          <p className="text-xs text-base-content/75 line-clamp-2 leading-relaxed">
+                            {item.executive_summary || (
+                              <span className="italic text-base-content/40">
+                                Autonomous 25-agent intelligence dispatch recorded.
+                              </span>
+                            )}
+                          </p>
+                        </td>
+
+                        {/* Sources */}
+                        <td className="py-3.5">
+                          <span className="badge badge-sm badge-outline badge-primary font-mono gap-1 font-semibold">
+                            <Globe size={11} />
+                            <span>{sourcesCount} Outlets</span>
+                          </span>
+                        </td>
+
+                        {/* Date Created */}
+                        <td className="py-3.5 text-xs text-base-content/70 font-mono">
+                          <div className="flex items-center gap-1.5">
+                            <Calendar size={13} className="text-base-content/40" />
+                            <span>{formatTimestamp(item.created_at)}</span>
+                          </div>
+                        </td>
+
+                        {/* Actions */}
+                        <td className="py-3.5 text-right pr-5">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onSelectAnalysis(item.id);
+                              }}
+                              className="btn btn-primary btn-xs gap-1 shadow-sm group-hover:scale-105 transition-transform font-semibold"
+                            >
+                              <span>Open</span>
+                              <ArrowRight size={11} />
+                            </button>
+                            <button
+                              onClick={(e) => handleDelete(item, e)}
+                              className="btn btn-ghost btn-xs btn-square text-error/60 hover:text-error hover:bg-error/10"
+                              title="Delete record"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  // Empty state
+                  <tr>
+                    <td colSpan={6} className="py-14 text-center">
+                      <div className="max-w-md mx-auto flex flex-col items-center gap-2.5">
+                        <div className="p-3.5 rounded-full bg-base-300/60 text-base-content/50 mb-1">
+                          <Search size={28} />
+                        </div>
+                        <h4 className="font-bold text-base text-base-content">
+                          No analysis records found
+                        </h4>
+                        <p className="text-xs text-base-content/60 max-w-sm">
+                          {searchTerm || favoritesOnly
+                            ? 'No archived investigations match your active filter criteria. Try clearing search or removing the star filter.'
+                            : 'No intelligence reports have been archived in the database yet.'}
+                        </p>
+                        {(searchTerm || favoritesOnly) && (
+                          <button
+                            onClick={() => {
+                              setSearchTerm('');
+                              setFavoritesOnly(false);
+                            }}
+                            className="btn btn-sm btn-outline btn-primary rounded-xl mt-2 font-semibold"
+                          >
+                            Clear All Filters
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* VIEW 2: Visual Card Grid View */}
+        {viewMode === 'cards' && (
+          <div className="p-5">
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[1, 2, 3, 4, 5, 6].map((n) => (
+                  <div key={n} className="card bg-base-100 border border-base-300 p-5 flex flex-col gap-3 animate-pulse">
+                    <div className="skeleton h-4 w-1/3"></div>
+                    <div className="skeleton h-5 w-4/5"></div>
+                    <div className="skeleton h-14 w-full"></div>
+                  </div>
+                ))}
+              </div>
+            ) : sortedItems.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {sortedItems.map((item) => {
+                  const sourcesCount = Math.max(
+                    item.sources_analyzed?.length || 0,
+                    item.articles_analyzed?.length || 0
+                  );
+
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => onSelectAnalysis(item.id)}
+                      className="card bg-base-100 border border-base-300 hover:border-primary/50 shadow-sm hover:shadow-xl transition-all p-5 flex flex-col justify-between group cursor-pointer rounded-xl"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-2 mb-2.5">
+                          <span className="badge badge-primary badge-outline badge-xs font-mono font-bold">
+                            {formatTimestamp(item.created_at)}
+                          </span>
+                          <button
+                            onClick={(e) => handleToggleFavorite(item, e)}
+                            className="btn btn-ghost btn-xs btn-square"
+                          >
+                            {item.is_favorite ? (
+                              <Star size={16} className="text-warning fill-warning" />
+                            ) : (
+                              <Star size={16} className="text-base-content/25 hover:text-warning" />
+                            )}
+                          </button>
+                        </div>
+
+                        <h3 className="font-bold text-base text-base-content group-hover:text-primary transition-colors line-clamp-2">
+                          {item.topic}
+                        </h3>
+
+                        <p className="text-xs text-base-content/75 line-clamp-3 mt-2.5 leading-relaxed">
+                          {item.executive_summary || 'Autonomous multi-outlet intelligence dispatch.'}
+                        </p>
+                      </div>
+
+                      <div className="mt-4 pt-3.5 border-t border-base-300/60 flex items-center justify-between">
+                        <span className="badge badge-sm badge-ghost font-mono gap-1 text-[11px]">
+                          <Globe size={11} />
+                          <span>{sourcesCount} Outlets</span>
+                        </span>
+
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onSelectAnalysis(item.id);
+                            }}
+                            className="btn btn-primary btn-xs gap-1 shadow-sm font-semibold"
+                          >
+                            <span>Open</span>
+                            <ArrowRight size={11} />
+                          </button>
+                          <button
+                            onClick={(e) => handleDelete(item, e)}
+                            className="btn btn-ghost btn-xs btn-square text-error/60 hover:text-error"
+                            title="Delete"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="py-12 text-center">
+                <Search size={32} className="mx-auto text-base-content/40 mb-2" />
+                <h4 className="font-bold text-base">No matching investigations found</h4>
+                <p className="text-xs text-base-content/60 mt-1">Try resetting search filters.</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* VIEW 3: AG Grid Community Spreadsheet View */}
+        {viewMode === 'aggrid' && (
+          <div className="p-4">
+            <div
+              className={`w-full ${isDark ? 'ag-theme-quartz-dark' : 'ag-theme-quartz'} rounded-xl overflow-hidden shadow-inner border border-base-300`}
+              style={{ height: '520px', width: '100%' }}
             >
-              <option value={10}>10</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-            </select>
-            <span>
+              <AgGridReact<AnalysisArchiveItem>
+                rowData={items}
+                columnDefs={columnDefs}
+                loading={loading}
+                onRowClicked={(event) => {
+                  if (event.data) {
+                    onSelectAnalysis(event.data.id);
+                  }
+                }}
+                rowClass="cursor-pointer transition-colors"
+                rowHeight={48}
+                headerHeight={42}
+                overlayNoRowsTemplate={
+                  '<span class="text-xs text-base-content/60 py-4 font-semibold">No analysis records found matching your filters.</span>'
+                }
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Pagination & Status Footer Bar */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 border-t border-base-300/80 bg-base-200/90 text-xs text-base-content/70">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5">
+              <span>Rows per page:</span>
+              <select
+                className="select select-xs select-bordered rounded-lg bg-base-100"
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+              >
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+            </div>
+            <span className="text-base-content/60 hidden sm:inline">|</span>
+            <span className="font-mono text-base-content/80">
               Showing {items.length > 0 ? (currentPage - 1) * pageSize + 1 : 0} to{' '}
-              {Math.min(currentPage * pageSize, total)} of {total}
+              {Math.min(currentPage * pageSize, total)} of {total} records
             </span>
           </div>
 
-          <div className="join">
+          <div className="join shadow-sm border border-base-300 rounded-xl overflow-hidden bg-base-100">
             <button
-              className="join-item btn btn-xs"
+              className="join-item btn btn-xs font-semibold"
               disabled={currentPage <= 1 || loading}
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             >
               « Prev
             </button>
-            <span className="join-item btn btn-xs btn-disabled font-mono">
+            <span className="join-item btn btn-xs btn-disabled font-mono text-base-content/80 bg-base-200/60">
               Page {currentPage} of {totalPages}
             </span>
             <button
-              className="join-item btn btn-xs"
+              className="join-item btn btn-xs font-semibold"
               disabled={currentPage >= totalPages || loading}
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             >

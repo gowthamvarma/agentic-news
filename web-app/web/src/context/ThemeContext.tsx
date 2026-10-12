@@ -69,3 +69,23 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 };
 
 export const useTheme = () => useContext(ThemeContext);
+
+export const isDarkTheme = (theme: string): boolean => {
+  const darkThemes = [
+    'dark',
+    'night',
+    'dim',
+    'sunset',
+    'synthwave',
+    'cyberpunk',
+    'dracula',
+    'luxury',
+    'black',
+    'coffee',
+    'forest',
+    'halloween',
+    'business',
+    'aqua',
+  ];
+  return darkThemes.includes(theme);
+};

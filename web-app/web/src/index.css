@@ -8,51 +8,104 @@
 /* AG Grid dynamic DaisyUI theming */
 .ag-theme-quartz,
 .ag-theme-quartz-dark {
-  --ag-background-color: hsl(var(--b1));
-  --ag-foreground-color: hsl(var(--bc));
-  --ag-header-background-color: hsl(var(--b2));
-  --ag-header-foreground-color: hsl(var(--bc));
-  --ag-border-color: hsl(var(--bc) / 0.15);
-  --ag-row-border-color: hsl(var(--bc) / 0.08);
-  --ag-odd-row-background-color: hsl(var(--b2) / 0.35);
-  --ag-row-hover-color: hsl(var(--b3) / 0.5);
-  --ag-selected-row-background-color: hsl(var(--p) / 0.15);
-  --ag-active-color: hsl(var(--p));
-  --ag-font-family: inherit;
-  --ag-font-size: 13px;
-  --ag-border-radius: 8px;
+  --ag-background-color: hsl(var(--b1)) !important;
+  --ag-foreground-color: hsl(var(--bc)) !important;
+  --ag-header-background-color: hsl(var(--b2)) !important;
+  --ag-header-foreground-color: hsl(var(--bc)) !important;
+  --ag-border-color: hsl(var(--bc) / 0.12) !important;
+  --ag-secondary-border-color: hsl(var(--bc) / 0.08) !important;
+  --ag-row-border-color: hsl(var(--bc) / 0.08) !important;
+  --ag-odd-row-background-color: hsl(var(--b2) / 0.3) !important;
+  --ag-row-hover-color: hsl(var(--p) / 0.08) !important;
+  --ag-selected-row-background-color: hsl(var(--p) / 0.18) !important;
+  --ag-active-color: hsl(var(--p)) !important;
+  --ag-card-background-color: hsl(var(--b1)) !important;
+  --ag-control-panel-background-color: hsl(var(--b2)) !important;
+  --ag-tooltip-background-color: hsl(var(--b2)) !important;
+  --ag-font-family: inherit !important;
+  --ag-font-size: 13px !important;
+  --ag-border-radius: 12px !important;
+  --ag-wrapper-border-radius: 12px !important;
 }
 
 .ag-theme-quartz .ag-root-wrapper,
+.ag-theme-quartz-dark .ag-root-wrapper {
+  background-color: hsl(var(--b1)) !important;
+  color: hsl(var(--bc)) !important;
+  border-radius: 12px !important;
+  border: 1px solid hsl(var(--bc) / 0.12) !important;
+}
+
+.ag-theme-quartz .ag-root,
+.ag-theme-quartz-dark .ag-root,
 .ag-theme-quartz .ag-body-viewport,
-.ag-theme-quartz .ag-row {
+.ag-theme-quartz-dark .ag-body-viewport,
+.ag-theme-quartz .ag-center-cols-container,
+.ag-theme-quartz-dark .ag-center-cols-container,
+.ag-theme-quartz .ag-pinned-left-cols-container,
+.ag-theme-quartz-dark .ag-pinned-left-cols-container,
+.ag-theme-quartz .ag-pinned-right-cols-container,
+.ag-theme-quartz-dark .ag-pinned-right-cols-container {
   background-color: hsl(var(--b1)) !important;
   color: hsl(var(--bc)) !important;
 }
 
-.ag-theme-quartz .ag-header {
+.ag-theme-quartz .ag-header,
+.ag-theme-quartz-dark .ag-header {
   background-color: hsl(var(--b2)) !important;
   color: hsl(var(--bc)) !important;
-  border-bottom: 1px solid hsl(var(--bc) / 0.1) !important;
+  border-bottom: 1px solid hsl(var(--bc) / 0.12) !important;
 }
 
-.ag-theme-quartz .ag-header-cell-text {
+.ag-theme-quartz .ag-header-row,
+.ag-theme-quartz-dark .ag-header-row {
+  background-color: hsl(var(--b2)) !important;
+}
+
+.ag-theme-quartz .ag-header-cell-text,
+.ag-theme-quartz-dark .ag-header-cell-text {
   color: hsl(var(--bc)) !important;
   font-weight: 700 !important;
+  font-size: 11px !important;
+  letter-spacing: 0.04em !important;
 }
 
-.ag-theme-quartz .ag-cell {
-  color: hsl(var(--bc)) !important;
-  border-bottom-color: hsl(var(--bc) / 0.08) !important;
-}
-
-.ag-theme-quartz .ag-row:hover {
-  background-color: hsl(var(--b2) / 0.6) !important;
-}
-
-.ag-theme-quartz .ag-overlay-panel {
+.ag-theme-quartz .ag-row,
+.ag-theme-quartz-dark .ag-row {
   background-color: hsl(var(--b1)) !important;
   color: hsl(var(--bc)) !important;
+  border-bottom: 1px solid hsl(var(--bc) / 0.08) !important;
+}
+
+.ag-theme-quartz .ag-row-odd,
+.ag-theme-quartz-dark .ag-row-odd {
+  background-color: hsl(var(--b2) / 0.35) !important;
+}
+
+.ag-theme-quartz .ag-row:hover,
+.ag-theme-quartz-dark .ag-row:hover {
+  background-color: hsl(var(--p) / 0.08) !important;
+}
+
+.ag-theme-quartz .ag-cell,
+.ag-theme-quartz-dark .ag-cell {
+  color: hsl(var(--bc)) !important;
+  border-right-color: hsl(var(--bc) / 0.06) !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.ag-theme-quartz .ag-overlay-panel,
+.ag-theme-quartz-dark .ag-overlay-panel {
+  background-color: hsl(var(--b1)) !important;
+  color: hsl(var(--bc)) !important;
+}
+
+.ag-theme-quartz .ag-paging-panel,
+.ag-theme-quartz-dark .ag-paging-panel {
+  background-color: hsl(var(--b2)) !important;
+  color: hsl(var(--bc)) !important;
+  border-top: 1px solid hsl(var(--bc) / 0.12) !important;
 }
 
 @layer base {
