@@ -48,6 +48,7 @@ import type {
 import { RobotAvatar } from './RobotAvatar';
 import { UserAvatar } from './UserAvatar';
 import { FormattedMarkdown } from './FormattedMarkdown';
+import { CrossSourceContradictionsSection } from './CrossSourceContradictionsSection';
 import { useToast } from '../context/ToastContext';
 
 // Cache for resolved Wikipedia thumbnails to minimize network requests
@@ -1351,67 +1352,8 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
               </div>
             </div>
 
-            {/* Cross-Source Contradictions with DaisyUI Table */}
-            <div className="card bg-base-200 border border-base-300 shadow-xl">
-              <div className="card-body p-6 md:p-8">
-                <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-3 border-b border-base-300">
-                  <AlertTriangle size={24} className="text-warning flex-shrink-0" />
-                  <span>Cross-Source Contradictions & Side-by-Side Divergence</span>
-                </div>
-
-                {report.contradictions && report.contradictions.length > 0 && (
-                  <div className="overflow-x-auto rounded-xl border border-base-300 bg-base-100 mt-4 mb-6 shadow-sm">
-                    <table className="table table-zebra table-sm">
-                      <thead>
-                        <tr className="bg-base-200 text-base-content font-bold">
-                          <th>Topic Aspect</th>
-                          <th>Divergence Type</th>
-                          <th>Outlet A</th>
-                          <th>Outlet B</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {report.contradictions.map((c) => (
-                          <tr key={c.contradiction_id}>
-                            <td className="font-bold text-primary">{c.topic_aspect}</td>
-                            <td><span className="badge badge-warning badge-xs font-semibold">{c.divergence_type}</span></td>
-                            <td className="text-xs font-medium">{c.outlet_a}</td>
-                            <td className="text-xs font-medium">{c.outlet_b}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-
-                <div className="flex flex-col gap-4 mt-2">
-                  {report.contradictions?.map((c) => (
-                    <div key={c.contradiction_id} className="card bg-base-100 border border-warning/30 shadow-md p-6">
-                      <div className="flex items-center gap-2 text-warning font-bold text-sm mb-3">
-                        <AlertTriangle size={16} />
-                        <span>{c.topic_aspect} ({c.divergence_type})</span>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div className="card bg-base-200 border-l-4 border-primary p-4 rounded-xl">
-                          <div className="text-xs font-bold text-primary uppercase">{c.outlet_a}</div>
-                          <div className="text-sm font-medium text-base-content mt-1">"{c.claim_a}"</div>
-                        </div>
-
-                        <div className="card bg-base-200 border-l-4 border-secondary p-4 rounded-xl">
-                          <div className="text-xs font-bold text-secondary uppercase">{c.outlet_b}</div>
-                          <div className="text-sm font-medium text-base-content mt-1">"{c.claim_b}"</div>
-                        </div>
-                      </div>
-
-                      <div className="alert alert-warning bg-warning/10 text-warning-content border border-warning/20 text-xs md:text-sm py-2 px-3 rounded-lg">
-                        <strong>Evidentiary Audit:</strong> {c.analysis}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+            {/* Cross-Source Contradictions & Side-by-Side Divergence */}
+            <CrossSourceContradictionsSection contradictions={report.contradictions} />
 
             {/* Media Framing & Political Lean Spectrum */}
             <div className="card bg-base-200 border border-base-300 shadow-xl">
