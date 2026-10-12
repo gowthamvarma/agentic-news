@@ -124,7 +124,7 @@ export const AnalysisDetailPage: React.FC = () => {
 
           <div className="flex flex-wrap items-center gap-2 mt-1">
             <span className="text-xs font-bold uppercase tracking-wider text-primary">Permanent Investigation:</span>
-            <span className="badge badge-neutral badge-sm font-mono text-[11px] truncate max-w-xs">{id}</span>
+            <span className="badge badge-neutral badge-sm font-mono text-[11px] truncate max-w-xs px-2.5 py-1">{id}</span>
           </div>
         </div>
 

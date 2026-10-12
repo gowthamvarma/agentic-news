@@ -429,18 +429,18 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                   <span>Causal & Scenarios</span>
                 </span>
                 {scenariosStatus === 'loading' ? (
-                  <span className="badge badge-xs badge-info gap-1 font-semibold">
+                  <span className="badge badge-sm badge-info gap-1.5 py-1 px-2.5 font-semibold shadow-xs">
                     <span className="loading loading-spinner loading-xs"></span>
                     <span>Running</span>
                   </span>
                 ) : scenariosStatus === 'ready' ? (
-                  <span className={`badge badge-xs gap-1 font-semibold ${activeTab === 'insights' ? 'badge-neutral' : 'badge-success text-success-content'}`}>
-                    <CheckCircle2 size={11} />
+                  <span className={`badge badge-sm gap-1.5 py-1 px-2.5 font-semibold ${activeTab === 'insights' ? 'badge-neutral' : 'badge-success text-success-content'}`}>
+                    <CheckCircle2 size={12} />
                     <span>Ready</span>
                   </span>
                 ) : (
-                  <span className={`badge badge-xs gap-1 font-semibold ${activeTab === 'insights' ? 'badge-neutral' : 'badge-warning text-warning-content'}`}>
-                    <CirclePause size={11} />
+                  <span className={`badge badge-sm gap-1.5 py-1 px-2.5 font-semibold ${activeTab === 'insights' ? 'badge-neutral' : 'badge-warning text-warning-content'}`}>
+                    <CirclePause size={12} />
                     <span>Paused</span>
                   </span>
                 )}
@@ -461,18 +461,18 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                   <span>Active Recall Tutor</span>
                 </span>
                 {quizStatus === 'loading' ? (
-                  <span className="badge badge-xs badge-info gap-1 font-semibold">
+                  <span className="badge badge-sm badge-info gap-1.5 py-1 px-2.5 font-semibold shadow-xs">
                     <span className="loading loading-spinner loading-xs"></span>
                     <span>Running</span>
                   </span>
                 ) : quizStatus === 'ready' ? (
-                  <span className={`badge badge-xs gap-1 font-semibold ${activeTab === 'quiz' ? 'badge-neutral' : 'badge-success text-success-content'}`}>
-                    <CheckCircle2 size={11} />
+                  <span className={`badge badge-sm gap-1.5 py-1 px-2.5 font-semibold ${activeTab === 'quiz' ? 'badge-neutral' : 'badge-success text-success-content'}`}>
+                    <CheckCircle2 size={12} />
                     <span>Ready</span>
                   </span>
                 ) : (
-                  <span className={`badge badge-xs gap-1 font-semibold ${activeTab === 'quiz' ? 'badge-neutral' : 'badge-warning text-warning-content'}`}>
-                    <CirclePause size={11} />
+                  <span className={`badge badge-sm gap-1.5 py-1 px-2.5 font-semibold ${activeTab === 'quiz' ? 'badge-neutral' : 'badge-warning text-warning-content'}`}>
+                    <CirclePause size={12} />
                     <span>Paused</span>
                   </span>
                 )}
@@ -493,18 +493,18 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                   <span>Perspective Debate</span>
                 </span>
                 {debateStatus === 'loading' ? (
-                  <span className="badge badge-xs badge-info gap-1 font-semibold">
+                  <span className="badge badge-sm badge-info gap-1.5 py-1 px-2.5 font-semibold shadow-xs">
                     <span className="loading loading-spinner loading-xs"></span>
                     <span>Running</span>
                   </span>
                 ) : debateStatus === 'ready' ? (
-                  <span className={`badge badge-xs gap-1 font-semibold ${activeTab === 'debate' ? 'badge-neutral' : 'badge-success text-success-content'}`}>
-                    <CheckCircle2 size={11} />
+                  <span className={`badge badge-sm gap-1.5 py-1 px-2.5 font-semibold ${activeTab === 'debate' ? 'badge-neutral' : 'badge-success text-success-content'}`}>
+                    <CheckCircle2 size={12} />
                     <span>Ready</span>
                   </span>
                 ) : (
-                  <span className={`badge badge-xs gap-1 font-semibold ${activeTab === 'debate' ? 'badge-neutral' : 'badge-warning text-warning-content'}`}>
-                    <CirclePause size={11} />
+                  <span className={`badge badge-sm gap-1.5 py-1 px-2.5 font-semibold ${activeTab === 'debate' ? 'badge-neutral' : 'badge-warning text-warning-content'}`}>
+                    <CirclePause size={12} />
                     <span>Paused</span>
                   </span>
                 )}
@@ -1091,20 +1091,20 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                   <span>Causal Diagnostics & Forward Scenarios (F15, F34, F35)</span>
                 </div>
                 {scenariosStatus === 'paused' && (
-                  <span className="badge badge-warning gap-1.5 py-2.5 px-3 text-xs font-bold shadow-sm">
-                    <CirclePause size={13} />
+                  <span className="badge badge-warning gap-2 py-2.5 px-3.5 text-xs font-bold shadow-sm my-0.5">
+                    <CirclePause size={14} />
                     <span>Paused (Not Started)</span>
                   </span>
                 )}
                 {scenariosStatus === 'loading' && (
-                  <span className="badge badge-info gap-1.5 py-2.5 px-3 text-xs font-bold shadow-sm">
-                    <span className="loading loading-spinner loading-xs"></span>
+                  <span className="badge badge-info gap-2 py-2.5 px-3.5 text-xs font-bold shadow-sm my-0.5">
+                    <span className="loading loading-spinner loading-xs mr-1"></span>
                     <span>Simulating Fleet...</span>
                   </span>
                 )}
                 {scenariosStatus === 'ready' && (
-                  <span className="badge badge-success gap-1.5 py-2.5 px-3 text-xs font-bold text-success-content shadow-sm">
-                    <CheckCircle2 size={13} />
+                  <span className="badge badge-success gap-2 py-2.5 px-3.5 text-xs font-bold text-success-content shadow-sm my-0.5">
+                    <CheckCircle2 size={14} />
                     <span>Saved in Firestore</span>
                   </span>
                 )}
@@ -1294,20 +1294,20 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     <span>Active Recall & News Literacy Tutor (F20)</span>
                   </div>
                   {quizStatus === 'paused' && (
-                    <span className="badge badge-warning gap-1.5 py-2.5 px-3 text-xs font-bold shadow-sm">
-                      <CirclePause size={13} />
+                    <span className="badge badge-warning gap-2 py-2.5 px-3.5 text-xs font-bold shadow-sm my-0.5">
+                      <CirclePause size={14} />
                       <span>Paused (Not Started)</span>
                     </span>
                   )}
                   {quizStatus === 'loading' && (
-                    <span className="badge badge-info gap-1.5 py-2.5 px-3 text-xs font-bold shadow-sm">
-                      <span className="loading loading-spinner loading-xs"></span>
+                    <span className="badge badge-info gap-2 py-2.5 px-3.5 text-xs font-bold shadow-sm my-0.5">
+                      <span className="loading loading-spinner loading-xs mr-1"></span>
                       <span>Generating Quiz...</span>
                     </span>
                   )}
                   {quizStatus === 'ready' && (
-                    <span className="badge badge-success gap-1.5 py-2.5 px-3 text-xs font-bold text-success-content shadow-sm">
-                      <CheckCircle2 size={13} />
+                    <span className="badge badge-success gap-2 py-2.5 px-3.5 text-xs font-bold text-success-content shadow-sm my-0.5">
+                      <CheckCircle2 size={14} />
                       <span>Saved in Firestore</span>
                     </span>
                   )}
@@ -1497,20 +1497,20 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     <span>Dialectical Perspective Debate Simulator (F38)</span>
                   </div>
                   {debateStatus === 'paused' && (
-                    <span className="badge badge-warning gap-1.5 py-2.5 px-3 text-xs font-bold shadow-sm">
-                      <CirclePause size={13} />
+                    <span className="badge badge-warning gap-2 py-2.5 px-3.5 text-xs font-bold shadow-sm my-0.5">
+                      <CirclePause size={14} />
                       <span>Paused (Not Started)</span>
                     </span>
                   )}
                   {debateStatus === 'loading' && (
-                    <span className="badge badge-info gap-1.5 py-2.5 px-3 text-xs font-bold shadow-sm">
-                      <span className="loading loading-spinner loading-xs"></span>
+                    <span className="badge badge-info gap-2 py-2.5 px-3.5 text-xs font-bold shadow-sm my-0.5">
+                      <span className="loading loading-spinner loading-xs mr-1"></span>
                       <span>Synthesizing Viewpoints...</span>
                     </span>
                   )}
                   {debateStatus === 'ready' && (
-                    <span className="badge badge-success gap-1.5 py-2.5 px-3 text-xs font-bold text-success-content shadow-sm">
-                      <CheckCircle2 size={13} />
+                    <span className="badge badge-success gap-2 py-2.5 px-3.5 text-xs font-bold text-success-content shadow-sm my-0.5">
+                      <CheckCircle2 size={14} />
                       <span>Saved in Firestore</span>
                     </span>
                   )}

@@ -29,7 +29,7 @@ export const Navbar: React.FC = () => {
           <div>
             <div className="font-black text-base sm:text-lg md:text-xl tracking-tight flex items-center gap-1.5 sm:gap-2">
               <span>Agentic News</span>
-              <span className="badge badge-primary badge-outline badge-xs sm:badge-sm font-bold">ADK 2.0</span>
+              <span className="badge badge-primary badge-outline badge-xs sm:badge-sm font-bold px-2 py-0.5">ADK 2.0</span>
             </div>
             <div className="text-[11px] text-base-content/60 font-medium hidden md:block">
               25-Agent Autonomous Media Intelligence • Google Gemini
@@ -108,7 +108,7 @@ export const Navbar: React.FC = () => {
                       <span>{th.icon}</span>
                       <span className="capitalize truncate">{th.name}</span>
                     </span>
-                    {theme === th.id && <span className="badge badge-xs badge-ghost ml-1">Active</span>}
+                    {theme === th.id && <span className="badge badge-xs badge-ghost ml-1.5 px-2 py-0.5">Active</span>}
                   </button>
                 </li>
               ))}

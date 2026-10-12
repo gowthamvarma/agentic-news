@@ -348,7 +348,7 @@ export const HomePage: React.FC = () => {
                     >
                       <div className="card-body p-5">
                         <div className="flex items-center justify-between gap-2 mb-2">
-                          <span className="badge badge-primary badge-outline badge-xs font-bold font-mono">
+                          <span className="badge badge-primary badge-outline badge-xs font-bold font-mono px-2.5 py-1 shadow-xs">
                             {dateStr}
                           </span>
                           {item.is_favorite && (

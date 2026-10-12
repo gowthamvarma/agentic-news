@@ -27,8 +27,8 @@ export const HistoryPage: React.FC = () => {
             </ul>
           </div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="badge badge-primary badge-outline badge-xs font-semibold gap-1 py-2 px-2.5">
-              <Sparkles size={11} />
+            <span className="badge badge-primary badge-outline badge-sm font-semibold gap-1.5 py-2.5 px-3">
+              <Sparkles size={13} />
               <span>Multi-Agent Dispatch Ledger</span>
             </span>
           </div>

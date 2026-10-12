@@ -244,8 +244,8 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
           const count = params.value || 0;
           return (
             <div className="flex items-center h-full">
-              <span className="badge badge-sm badge-outline badge-primary font-mono gap-1">
-                <Globe size={11} />
+              <span className="badge badge-sm badge-outline badge-primary font-mono gap-1.5 px-2.5 py-1">
+                <Globe size={12} />
                 <span>{count} sources</span>
               </span>
             </div>
@@ -611,7 +611,7 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
                               {item.topic}
                             </span>
                             <div className="flex items-center gap-2 text-[11px] text-base-content/60">
-                              <span className="badge badge-xs badge-neutral font-mono font-normal">
+                              <span className="badge badge-xs badge-neutral font-mono font-normal px-2 py-0.5 my-0.5">
                                 {item.id.slice(0, 12)}...
                               </span>
                               {verificationsCount > 0 && (
@@ -636,8 +636,8 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
 
                         {/* Sources */}
                         <td className="py-3.5">
-                          <span className="badge badge-sm badge-outline badge-primary font-mono gap-1 font-semibold">
-                            <Globe size={11} />
+                          <span className="badge badge-sm badge-outline badge-primary font-mono gap-1.5 px-2.5 py-1 font-semibold">
+                            <Globe size={12} />
                             <span>{sourcesCount} Outlets</span>
                           </span>
                         </td>
@@ -740,7 +740,7 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
                     >
                       <div>
                         <div className="flex items-center justify-between gap-2 mb-2.5">
-                          <span className="badge badge-primary badge-outline badge-xs font-mono font-bold">
+                          <span className="badge badge-primary badge-outline badge-xs font-mono font-bold px-2.5 py-1">
                             {formatTimestamp(item.created_at)}
                           </span>
                           <button
@@ -765,8 +765,8 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
                       </div>
 
                       <div className="mt-4 pt-3.5 border-t border-base-300/60 flex items-center justify-between">
-                        <span className="badge badge-sm badge-ghost font-mono gap-1 text-[11px]">
-                          <Globe size={11} />
+                        <span className="badge badge-sm badge-ghost font-mono gap-1.5 px-2.5 py-1 text-[11px]">
+                          <Globe size={12} />
                           <span>{sourcesCount} Outlets</span>
                         </span>
 
