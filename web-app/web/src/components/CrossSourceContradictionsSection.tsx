@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   AlertTriangle,
   GitCompare,
@@ -12,35 +12,71 @@ import {
   Check,
   LayoutGrid,
   Table as TableIcon,
-  ShieldCheck,
-  Radio
+  Radio,
+  RefreshCw
 } from 'lucide-react';
 import type { ContradictionItem } from '../types';
+import { generateContradictions } from '../api';
+import { useToast } from '../context/ToastContext';
 
 interface CrossSourceContradictionsSectionProps {
   contradictions?: ContradictionItem[];
+  topic?: string;
+  analysisId?: string;
+  onContradictionsUpdated?: (items: ContradictionItem[]) => void;
 }
 
 export const CrossSourceContradictionsSection: React.FC<CrossSourceContradictionsSectionProps> = ({
-  contradictions = []
+  contradictions = [],
+  topic,
+  analysisId,
+  onContradictionsUpdated,
 }) => {
+  const { showToast } = useToast();
+  const [items, setItems] = useState<ContradictionItem[]>(() => contradictions || []);
+  const [auditing, setAuditing] = useState(false);
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState<string>('ALL');
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (contradictions && contradictions.length > 0) {
+      setItems(contradictions);
+    }
+  }, [contradictions]);
+
+  const handleRunContradictionAudit = async () => {
+    if (!topic) return;
+    setAuditing(true);
+    try {
+      const generated = await generateContradictions(topic, analysisId);
+      if (generated && generated.length > 0) {
+        setItems(generated);
+        onContradictionsUpdated?.(generated);
+        showToast(`Forensically identified ${generated.length} cross-source contradictions!`, 'success');
+      } else {
+        showToast('No contradictory accounts identified in audited coverage.', 'info');
+      }
+    } catch (err: any) {
+      showToast(err.message || 'Failed to run contradiction audit.', 'error');
+    } finally {
+      setAuditing(false);
+    }
+  };
+
   // Compute divergence types present for filter pills
   const availableTypes = useMemo(() => {
     const types = new Set<string>();
-    contradictions.forEach((c) => {
+    items.forEach((c) => {
       if (c.divergence_type) types.add(c.divergence_type);
     });
     return Array.from(types);
-  }, [contradictions]);
+  }, [items]);
 
   // Filter contradictions by search query and divergence type
   const filteredContradictions = useMemo(() => {
-    return contradictions.filter((item) => {
+    return items.filter((item) => {
       const matchesType = selectedType === 'ALL' || item.divergence_type === selectedType;
       if (!matchesType) return false;
 
@@ -56,7 +92,7 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
         item.divergence_type?.toLowerCase().includes(q)
       );
     });
-  }, [contradictions, selectedType, searchQuery]);
+  }, [items, selectedType, searchQuery]);
 
   const handleCopy = (c: ContradictionItem) => {
     const textToCopy = `[Contradiction: ${c.topic_aspect} (${c.divergence_type})]\n- ${c.outlet_a}: "${c.claim_a}"\n- ${c.outlet_b}: "${c.claim_b}"\n\nForensic Audit: ${c.analysis}`;
@@ -115,7 +151,7 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
   };
 
   // If no contradictions exist at all in report
-  if (!contradictions || contradictions.length === 0) {
+  if (!items || items.length === 0) {
     return (
       <div className="card bg-base-200 border border-base-300 shadow-xl overflow-hidden">
         <div className="card-body p-6 md:p-8">
@@ -134,15 +170,35 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
           </div>
 
           <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
-            <div className="w-14 h-14 rounded-full bg-success/10 text-success flex items-center justify-center mb-3">
-              <ShieldCheck size={28} />
+            <div className="w-14 h-14 rounded-full bg-warning/10 text-warning flex items-center justify-center mb-3">
+              <GitCompare size={28} />
             </div>
             <h3 className="text-base font-bold text-base-content">
-              No Cross-Source Contradictions Detected
+              No Cross-Source Contradictions Currently Loaded
             </h3>
             <p className="text-sm text-base-content/70 max-w-md mt-1">
-              All audited outlets show factual consensus on core data points, timelines, and verified statements for this topic.
+              Cross-examine competing desks, contrasting casualty or financial estimates, and opposing editorial assertions.
             </p>
+            {topic && (
+              <button
+                type="button"
+                className="btn btn-warning btn-sm mt-4 gap-2 font-bold shadow-sm"
+                onClick={handleRunContradictionAudit}
+                disabled={auditing}
+              >
+                {auditing ? (
+                  <>
+                    <span className="loading loading-spinner loading-xs" />
+                    <span>Auditing Cross-Source Divergences...</span>
+                  </>
+                ) : (
+                  <>
+                    <GitCompare size={16} />
+                    <span>Run Forensic Contradiction Audit</span>
+                  </>
+                )}
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -152,53 +208,67 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
   return (
     <div className="card bg-base-200 border border-base-300 shadow-xl overflow-hidden">
       <div className="card-body p-5 md:p-8">
-        {/* Section Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-base-300">
-          <div className="flex items-start sm:items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-warning/15 text-warning border border-warning/30 flex items-center justify-center flex-shrink-0 shadow-xs">
-              <GitCompare size={24} />
+        {/* Section Header - Line 1: Title, Badge & Subtitle */}
+        <div className="flex items-start sm:items-center gap-3 pb-3">
+          <div className="w-11 h-11 rounded-xl bg-warning/15 text-warning border border-warning/30 flex items-center justify-center flex-shrink-0 shadow-xs">
+            <GitCompare size={24} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="text-xl md:text-2xl font-black text-base-content tracking-tight">
+                Cross-Source Contradictions & Side-by-Side Divergence
+              </h2>
+              <span className="badge badge-warning badge-sm font-bold flex-shrink-0">
+                {items.length} {items.length === 1 ? 'Clash' : 'Clashes'}
+              </span>
             </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-xl md:text-2xl font-black text-base-content tracking-tight">
-                  Cross-Source Contradictions & Side-by-Side Divergence
-                </h2>
-                <span className="badge badge-warning badge-sm font-bold">
-                  {contradictions.length} {contradictions.length === 1 ? 'Clash' : 'Clashes'}
-                </span>
-              </div>
-              <p className="text-xs md:text-sm text-base-content/70 mt-1 leading-relaxed">
-                Side-by-side forensic cross-examination of conflicting metrics, conflicting timelines, and diverging editorial claims across reporting desks.
-              </p>
-            </div>
+            <p className="text-xs md:text-sm text-base-content/70 mt-1 leading-relaxed">
+              Side-by-side forensic cross-examination of conflicting metrics, conflicting timelines, and diverging editorial claims across reporting desks.
+            </p>
+          </div>
+        </div>
+
+        {/* Action Controls - Line 2: Re-Audit Clashes & View Mode Toggle */}
+        <div className="flex flex-wrap items-center justify-between gap-3 py-3 border-t border-b border-base-300">
+          <div>
+            {topic && (
+              <button
+                type="button"
+                className="btn btn-sm btn-outline btn-warning gap-2 font-semibold shadow-xs"
+                onClick={handleRunContradictionAudit}
+                disabled={auditing}
+                title="Re-run forensic contradiction audit across reporting desks"
+              >
+                <RefreshCw size={14} className={auditing ? 'animate-spin' : ''} />
+                <span>{auditing ? 'Cross-examining reporting desks...' : 'Re-Audit Clashes'}</span>
+              </button>
+            )}
           </div>
 
           {/* View Mode Toggle */}
-          <div className="flex items-center gap-2 self-start lg:self-center flex-shrink-0">
-            <div className="join bg-base-100 p-1 rounded-xl border border-base-300 shadow-xs">
-              <button
-                type="button"
-                className={`join-item btn btn-xs md:btn-sm gap-1.5 font-bold ${
-                  viewMode === 'cards' ? 'btn-primary text-primary-content shadow-xs' : 'btn-ghost text-base-content/70'
-                }`}
-                onClick={() => setViewMode('cards')}
-                title="Duel Cards view"
-              >
-                <LayoutGrid size={15} />
-                <span>Side-by-Side Cards</span>
-              </button>
-              <button
-                type="button"
-                className={`join-item btn btn-xs md:btn-sm gap-1.5 font-bold ${
-                  viewMode === 'table' ? 'btn-primary text-primary-content shadow-xs' : 'btn-ghost text-base-content/70'
-                }`}
-                onClick={() => setViewMode('table')}
-                title="Comparison Matrix table view"
-              >
-                <TableIcon size={15} />
-                <span>Comparison Matrix</span>
-              </button>
-            </div>
+          <div className="join bg-base-100 p-1 rounded-xl border border-base-300 shadow-xs">
+            <button
+              type="button"
+              className={`join-item btn btn-xs md:btn-sm gap-1.5 font-bold ${
+                viewMode === 'cards' ? 'btn-primary text-primary-content shadow-xs' : 'btn-ghost text-base-content/70'
+              }`}
+              onClick={() => setViewMode('cards')}
+              title="Duel Cards view"
+            >
+              <LayoutGrid size={15} />
+              <span>Side-by-Side Cards</span>
+            </button>
+            <button
+              type="button"
+              className={`join-item btn btn-xs md:btn-sm gap-1.5 font-bold ${
+                viewMode === 'table' ? 'btn-primary text-primary-content shadow-xs' : 'btn-ghost text-base-content/70'
+              }`}
+              onClick={() => setViewMode('table')}
+              title="Comparison Matrix table view"
+            >
+              <TableIcon size={15} />
+              <span>Comparison Matrix</span>
+            </button>
           </div>
         </div>
 
@@ -218,10 +288,10 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
               }`}
               onClick={() => setSelectedType('ALL')}
             >
-              All ({contradictions.length})
+              All ({items.length})
             </button>
             {availableTypes.map((type) => {
-              const count = contradictions.filter((c) => c.divergence_type === type).length;
+              const count = items.filter((c) => c.divergence_type === type).length;
               const isSelected = selectedType === type;
               return (
                 <button

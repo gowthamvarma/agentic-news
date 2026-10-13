@@ -4,7 +4,8 @@ import type {
   PerspectiveDebateReport,
   PaginatedAnalysesResponse,
   ChatMessage,
-  TopicSuggestionsPayload
+  TopicSuggestionsPayload,
+  ContradictionItem
 } from './types';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
@@ -164,6 +165,20 @@ export async function generateScenarios(topic: string, analysisId?: string) {
   });
   if (!res.ok) throw new Error('Failed to generate scenarios');
   return res.json();
+}
+
+export async function generateContradictions(
+  topic: string,
+  analysisId?: string
+): Promise<ContradictionItem[]> {
+  const res = await fetch(`${API_BASE}/contradictions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ topic, analysis_id: analysisId }),
+  });
+  if (!res.ok) throw new Error('Failed to audit contradictions');
+  const data = await res.json();
+  return data.contradictions || [];
 }
 
 export async function chatResearchCopilot(query: string, topic: string, analysisId?: string) {

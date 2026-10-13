@@ -45,6 +45,7 @@ from shared.structured_builder import (
     build_stage_brief,
     build_stage_verifications,
     build_stage_timeline,
+    generate_live_contradictions,
 )
 from shared.simulation import _route_simulation_response
 from shared.plugins.evidence_ledger import EvidenceLedgerPlugin
@@ -432,6 +433,21 @@ async def generate_future_scenarios(req: AnalyzeRequest):
             "lessons_learned": scenarios_data.get("lessons_learned"),
         })
     return scenarios_data
+
+
+@app.post("/api/contradictions")
+async def generate_topic_contradictions(req: AnalyzeRequest):
+    """Generates on-demand cross-source contradictions and divergences for a topic."""
+    topic = req.topic.strip()
+    if not topic:
+        raise HTTPException(status_code=400, detail="Topic cannot be empty.")
+
+    contradictions = generate_live_contradictions(topic)
+    if req.analysis_id:
+        await FirestoreService.update_analysis(req.analysis_id, {
+            "contradictions": contradictions
+        })
+    return {"contradictions": contradictions}
 
 
 @app.post("/api/chat")

@@ -565,10 +565,10 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
               >
                 <span className="flex items-center gap-2.5">
                   <ShieldCheck size={17} className={activeTab === 'verification' ? 'text-primary-content' : 'text-success'} />
-                  <span>Fact Checks & Bias</span>
+                  <span>Fact Checks & Contradictions</span>
                 </span>
                 <span className={`badge badge-xs font-bold ${activeTab === 'verification' ? 'badge-neutral' : 'badge-ghost'}`}>
-                  {report.verifications?.length || 0}
+                  {(report.verifications?.length || 0) + (report.contradictions?.length || 0)}
                 </span>
               </button>
             </li>
@@ -769,7 +769,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
             }`}
             onClick={() => setActiveTab('verification')}
           >
-            Fact Checks ({report.verifications?.length || 0})
+            Fact Checks & Contradictions ({(report.verifications?.length || 0) + (report.contradictions?.length || 0)})
           </button>
           <button
             className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
@@ -1407,7 +1407,14 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
             </div>
 
             {/* Cross-Source Contradictions & Side-by-Side Divergence */}
-            <CrossSourceContradictionsSection contradictions={report.contradictions} />
+            <CrossSourceContradictionsSection
+              contradictions={report.contradictions}
+              topic={report.topic}
+              analysisId={report.id || report.analysis_id}
+              onContradictionsUpdated={(newItems) => {
+                report.contradictions = newItems;
+              }}
+            />
 
             {/* Media Framing & Political Lean Spectrum */}
             <div className="card bg-base-200 border border-base-300 shadow-xl">
