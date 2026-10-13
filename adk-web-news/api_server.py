@@ -36,6 +36,7 @@ from shared.config import (
     logger,
 )
 from shared.firestore_service import FirestoreService
+from shared.topic_suggester import generate_country_topic_suggestions
 from shared.structured_builder import (
     build_structured_intelligence,
     build_structured_quiz,
@@ -500,6 +501,49 @@ async def clear_copilot_chat_history(analysis_id: str):
         "status": "cleared" if success else "failed",
         "analysis_id": analysis_id,
     }
+
+
+@app.get("/api/topics/suggestions")
+async def get_topic_suggestions():
+    """Retrieves country-grouped topic suggestions from Firestore cache.
+    
+    If cache does not exist, generates fresh suggestions, saves to Firestore,
+    and returns them. If cache exists, calculates age; marks is_stale=True
+    if older than 4 hours (14,400 seconds).
+    """
+    cached = await FirestoreService.get_topic_suggestions()
+    now = time.time()
+
+    if not cached:
+        logger.info("No topic suggestions found in Firestore. Generating fresh suggestions...")
+        fresh_data = await asyncio.to_thread(generate_country_topic_suggestions)
+        saved = await FirestoreService.save_topic_suggestions(fresh_data)
+        saved["is_stale"] = False
+        saved["age_seconds"] = 0
+        return saved
+
+    created_at = cached.get("created_at") or cached.get("updated_at") or 0
+    age_seconds = max(0.0, now - created_at)
+    is_stale = age_seconds > (4 * 3600)  # 4 hours
+
+    response = dict(cached)
+    response["is_stale"] = is_stale
+    response["age_seconds"] = age_seconds
+    return response
+
+
+@app.post("/api/topics/suggestions/refresh")
+async def refresh_topic_suggestions():
+    """Generates fresh country-grouped topic suggestions using live RSS + Gemini,
+    persists them to Firestore with created_at timestamp, and returns the refreshed data.
+    """
+    logger.info("Triggered refresh of country-grouped topic suggestions...")
+    fresh_data = await asyncio.to_thread(generate_country_topic_suggestions)
+    saved = await FirestoreService.save_topic_suggestions(fresh_data)
+    saved["is_stale"] = False
+    saved["age_seconds"] = 0
+    saved["refreshed"] = True
+    return saved
 
 
 if __name__ == "__main__":

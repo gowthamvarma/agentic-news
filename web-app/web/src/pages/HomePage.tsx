@@ -10,15 +10,21 @@ import {
   Clock,
   TrendingUp,
   AlertTriangle,
-  ArrowRight
+  ArrowRight,
+  RotateCw,
+  Globe,
+  Flame,
+  CheckCircle2
 } from 'lucide-react';
 import {
   analyzeNewsTopic,
   analyzeNewsTopicProgressive,
   fetchRecentAnalyses,
-  checkApiHealth
+  checkApiHealth,
+  fetchTopicSuggestions,
+  refreshTopicSuggestions
 } from '../api';
-import type { NewsIntelligenceReport } from '../types';
+import type { NewsIntelligenceReport, TopicSuggestionsPayload } from '../types';
 import { useToast } from '../context/ToastContext';
 
 const FLEET_STAGES = [
@@ -41,6 +47,12 @@ export const HomePage: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [recentAnalyses, setRecentAnalyses] = useState<NewsIntelligenceReport[]>([]);
   const [recentLoading, setRecentLoading] = useState(true);
+
+  // Dynamic Country Topic Suggestions State
+  const [topicSuggestions, setTopicSuggestions] = useState<TopicSuggestionsPayload | null>(null);
+  const [selectedCountry, setSelectedCountry] = useState<string>('GLOBAL');
+  const [suggestionsLoading, setSuggestionsLoading] = useState(true);
+  const [suggestionsRefreshing, setSuggestionsRefreshing] = useState(false);
 
   // Auto-scroll to loading progress section when fleet run starts
   useEffect(() => {
@@ -71,7 +83,7 @@ export const HomePage: React.FC = () => {
     return () => clearInterval(interval);
   }, [loading]);
 
-  // Load initial health & recent analyses
+  // Load initial health, recent analyses & cached topic suggestions from Firestore
   useEffect(() => {
     checkApiHealth().catch(() => {});
     fetchRecentAnalyses()
@@ -86,7 +98,66 @@ export const HomePage: React.FC = () => {
       .finally(() => {
         setRecentLoading(false);
       });
+
+    // 1. Instantly load cached topic suggestions from Firestore
+    fetchTopicSuggestions()
+      .then((data) => {
+        if (data && data.countries && data.countries.length > 0) {
+          setTopicSuggestions(data);
+          // 2. 4-Hour staleness check: trigger background refresh only if stale (> 4 hours)
+          if (data.is_stale) {
+            setSuggestionsRefreshing(true);
+            refreshTopicSuggestions()
+              .then((freshData) => {
+                setTopicSuggestions(freshData);
+                showToast('Topic suggestions updated from live Google News RSS & Gemini!', 'info');
+              })
+              .catch((err) => {
+                console.warn('Background refresh of topic suggestions failed:', err);
+              })
+              .finally(() => {
+                setSuggestionsRefreshing(false);
+              });
+          }
+        }
+      })
+      .catch((err) => {
+        console.warn('Could not load topic suggestions:', err);
+      })
+      .finally(() => {
+        setSuggestionsLoading(false);
+      });
   }, []);
+
+  const handleRefreshSuggestions = async () => {
+    if (suggestionsRefreshing) return;
+    setSuggestionsRefreshing(true);
+    try {
+      const freshData = await refreshTopicSuggestions();
+      setTopicSuggestions(freshData);
+      showToast('Live country topic suggestions refreshed & saved to Firestore!', 'success');
+    } catch (err: any) {
+      showToast('Failed to refresh suggestions: ' + (err.message || 'Error'), 'error');
+    } finally {
+      setSuggestionsRefreshing(false);
+    }
+  };
+
+  const formatSuggestionTime = (timestamp?: number) => {
+    if (!timestamp) return 'Just now';
+    const date = new Date(timestamp * 1000);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ', ' + date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+  };
+
+  const getCacheAgeText = (timestamp?: number) => {
+    if (!timestamp) return '';
+    const elapsedSeconds = Math.max(0, Math.floor(Date.now() / 1000 - timestamp));
+    const hours = Math.floor(elapsedSeconds / 3600);
+    const mins = Math.floor((elapsedSeconds % 3600) / 60);
+    if (hours > 0) return `${hours}h ${mins}m ago`;
+    if (mins > 0) return `${mins}m ago`;
+    return 'Just now';
+  };
 
   const handleSearch = async (queryToRun?: string) => {
     const q = (queryToRun || topicInput).trim();
@@ -155,12 +226,9 @@ export const HomePage: React.FC = () => {
     }
   };
 
-  const quickTopics = [
-    'U.S. Administration Halting PERM Program for Tech Companies H-1B',
-    'NASA Artemis Moon Mission Schedule Revisions',
-    'Global Clean Energy Subsidies & Tariff Accords',
-    'Central Bank Interest Rate Outlook & Liquidity Risks'
-  ];
+  const activeCountryGroup = topicSuggestions?.countries.find(
+    (c) => c.code === selectedCountry
+  ) || topicSuggestions?.countries[0];
 
   return (
     <div className="flex flex-col min-h-[calc(100vh-140px)]">
@@ -218,24 +286,134 @@ export const HomePage: React.FC = () => {
               </button>
             </div>
 
-            {/* Suggested Topic Chips */}
-            <div className="flex flex-wrap items-center justify-center gap-2 mt-5">
-              <span className="text-xs font-bold text-base-content/60 uppercase tracking-wider mr-1">
-                Suggested Topics:
-              </span>
-              {quickTopics.map((qt, idx) => (
-                <button
-                  key={idx}
-                  className="btn btn-xs btn-outline btn-neutral rounded-full hover:btn-primary transition-all shadow-sm font-medium"
-                  onClick={() => {
-                    setTopicInput(qt);
-                    handleSearch(qt);
-                  }}
-                  disabled={loading}
-                >
-                  {qt}
-                </button>
-              ))}
+            {/* Dynamic Country-Grouped Topic Suggestions Section */}
+            <div className="w-full mt-6">
+              {suggestionsLoading && !topicSuggestions ? (
+                <div className="w-full">
+                  <div className="skeleton h-11 w-full rounded-2xl mb-4"></div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div key={i} className="skeleton h-32 w-full rounded-2xl"></div>
+                    ))}
+                  </div>
+                </div>
+              ) : topicSuggestions && topicSuggestions.countries ? (
+                <div>
+                  {/* DaisyUI Country Tabs */}
+                  <div className="flex flex-col items-center">
+                    <span className="text-xs font-bold text-base-content/60 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                      <Globe size={14} className="text-primary" />
+                      Select Region / Country for Live Breaking Topics:
+                    </span>
+                    <div className="tabs tabs-boxed bg-base-200/70 p-1 rounded-2xl flex-wrap justify-center gap-1 shadow-inner border border-base-300/40 max-w-full">
+                      {topicSuggestions.countries.map((c) => (
+                        <button
+                          key={c.code}
+                          className={`tab tab-sm sm:tab-md rounded-xl font-semibold transition-all flex items-center gap-1.5 ${
+                            selectedCountry === c.code
+                              ? 'tab-active bg-primary text-primary-content shadow-sm'
+                              : 'text-base-content/75 hover:text-base-content'
+                          }`}
+                          onClick={() => setSelectedCountry(c.code)}
+                        >
+                          <span className="text-base leading-none">{c.flag}</span>
+                          <span>{c.name}</span>
+                          <span
+                            className={`badge badge-xs ${
+                              selectedCountry === c.code
+                                ? 'badge-neutral text-primary-content font-bold'
+                                : 'badge-ghost text-base-content/60'
+                            }`}
+                          >
+                            {c.topics.length}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Cache Timestamp & Refresh Control Bar */}
+                  <div className="flex flex-wrap items-center justify-between gap-2 mt-4 px-1 text-xs text-base-content/65">
+                    <div className="flex items-center gap-2">
+                      <span className="flex items-center gap-1 font-semibold text-base-content/85">
+                        <Flame size={14} className="text-secondary" />
+                        {activeCountryGroup ? `${activeCountryGroup.flag} ${activeCountryGroup.name} Breaking Topics` : 'Live Topics'}
+                      </span>
+                      <span className="hidden sm:inline">•</span>
+                      <span className="hidden sm:flex items-center gap-1">
+                        <Clock size={13} />
+                        Updated {getCacheAgeText(topicSuggestions?.created_at)} ({formatSuggestionTime(topicSuggestions?.created_at)})
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2 ml-auto">
+                      <span className="badge badge-sm badge-outline gap-1 font-mono text-[11px]">
+                        <CheckCircle2 size={12} className="text-success" />
+                        4h Firestore Cache
+                      </span>
+                      <button
+                        className={`btn btn-ghost btn-xs gap-1 rounded-lg hover:bg-base-300/60 font-medium ${suggestionsRefreshing ? 'loading text-primary' : ''}`}
+                        onClick={handleRefreshSuggestions}
+                        disabled={suggestionsRefreshing || loading}
+                        title="Fetch latest Google News RSS & synthesize new topics with Gemini"
+                      >
+                        <RotateCw size={12} className={suggestionsRefreshing ? 'animate-spin' : ''} />
+                        <span className="hidden xs:inline">{suggestionsRefreshing ? 'Updating...' : 'Refresh Feed'}</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Topic Cards Grid for Selected Country */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 mt-3 text-left">
+                    {activeCountryGroup?.topics.map((item) => (
+                      <div
+                        key={item.id}
+                        onClick={() => {
+                          setTopicInput(item.topic);
+                          handleSearch(item.topic);
+                        }}
+                        className="group card bg-base-100/90 hover:bg-base-100 border border-base-300/70 hover:border-primary/60 shadow-sm hover:shadow-lg transition-all duration-200 cursor-pointer p-4 rounded-2xl flex flex-col justify-between"
+                      >
+                        <div>
+                          <div className="flex items-center justify-between gap-2 mb-2">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className={`badge badge-xs sm:badge-sm font-semibold shadow-xs ${item.badge_color || 'badge-primary'}`}>
+                                {item.badge}
+                              </span>
+                              <span className="badge badge-outline badge-xs sm:badge-sm text-base-content/75 font-medium">
+                                {item.category}
+                              </span>
+                            </div>
+                            {item.source_outlet && (
+                              <span className="text-[11px] text-base-content/50 font-medium truncate max-w-[130px]">
+                                via {item.source_outlet}
+                              </span>
+                            )}
+                          </div>
+
+                          <h4 className="font-bold text-sm sm:text-base text-base-content group-hover:text-primary transition-colors leading-snug mb-1.5">
+                            {item.topic}
+                          </h4>
+
+                          <p className="text-xs text-base-content/70 leading-relaxed line-clamp-2">
+                            {item.summary}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-base-300/50 text-xs">
+                          <span className="text-primary font-semibold flex items-center gap-1.5 opacity-90 group-hover:opacity-100 transition-opacity">
+                            <Sparkles size={13} className="text-primary" />
+                            <span>Analyze with 25 Agents</span>
+                          </span>
+                          <span className="text-base-content/40 group-hover:text-primary transition-colors text-[11px] font-medium flex items-center gap-1">
+                            Deploy Fleet <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </div>
           </div>
 

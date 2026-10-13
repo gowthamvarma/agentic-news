@@ -98,6 +98,20 @@ rules_version = '2';
 //   - updated_at: number | timestamp (optional)
 //   - uid: string (optional, 1-128 chars, matches author auth.uid, immutable)
 //
+// Collection: topic_suggestions
+// Document ID: {suggestionId} (e.g. 'latest' or sanitized string slug, 1-128 chars)
+// Fields:
+//   - id: string (optional, 1-128 chars, matches document ID, immutable)
+//   - countries: list of maps (required, max 50 items)
+//   - created_at: number | timestamp (optional, immutable)
+//   - created_at_iso: string (optional, max 100 chars)
+//   - updated_at: number | timestamp (optional)
+//   - expires_at: number | timestamp (optional)
+//   - cache_duration_seconds: number (optional, >= 0)
+//   - is_stale: bool (optional)
+//   - age_seconds: number (optional, >= 0)
+//   - uid: string (optional, 1-128 chars, matches author auth.uid, immutable)
+//
 // ===============================================================
 
 service cloud.firestore {
@@ -292,6 +306,26 @@ service cloud.firestore {
         isValidOptionalString(data, 'uid', 1, 128);
     }
 
+    function isValidTopicSuggestions(data, suggestionId) {
+      return data.keys().hasAll(['countries']) &&
+        (('updated_at' in data) || ('created_at' in data)) &&
+        data.keys().hasOnly([
+          'id', 'countries', 'created_at', 'created_at_iso', 'updated_at',
+          'expires_at', 'cache_duration_seconds', 'is_stale', 'age_seconds', 'uid'
+        ]) &&
+        (!('id' in data) || (data.id is string && data.id == suggestionId && data.id.size() >= 1 && data.id.size() <= 128)) &&
+        data.countries is list &&
+        data.countries.size() <= 50 &&
+        isValidOptionalTime(data, 'created_at') &&
+        isValidOptionalString(data, 'created_at_iso', 0, 100) &&
+        isValidOptionalTime(data, 'updated_at') &&
+        isValidOptionalTime(data, 'expires_at') &&
+        (!('cache_duration_seconds' in data) || (data.cache_duration_seconds is number && data.cache_duration_seconds >= 0)) &&
+        (!('is_stale' in data) || data.is_stale is bool) &&
+        (!('age_seconds' in data) || (data.age_seconds is number && data.age_seconds >= 0)) &&
+        isValidOptionalString(data, 'uid', 1, 128);
+    }
+
     // ===============================================================
     // Collection Rules
     // ===============================================================
@@ -379,6 +413,20 @@ service cloud.firestore {
                     (!('uid' in resource.data) || resource.data.uid == request.auth.uid || isAdmin());
       allow delete: if isAuthenticated() &&
                     (('uid' in resource.data && resource.data.uid == request.auth.uid) || isAdmin());
+    }
+
+    // 7. Topic Suggestions: Dynamic country-grouped headline suggestions (cached for fast loading)
+    match /topic_suggestions/{suggestionId} {
+      allow read: if true;
+      allow create: if (isAuthenticated() || isAdmin()) &&
+                    isValidTopicSuggestions(request.resource.data, suggestionId) &&
+                    uidUnchanged();
+      allow update: if (isAuthenticated() || isAdmin()) &&
+                    isValidTopicSuggestions(request.resource.data, suggestionId) &&
+                    uidNotModified() &&
+                    areImmutableFieldsUnchanged(['id', 'created_at']) &&
+                    (!('uid' in resource.data) || resource.data.uid == request.auth.uid || isAdmin());
+      allow delete: if false;
     }
 
     // Default Deny: all unmapped collections and wildcard paths

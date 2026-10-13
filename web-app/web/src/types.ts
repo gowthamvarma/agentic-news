@@ -191,3 +191,35 @@ export interface PerspectiveDebateReport {
   debate_turns: PerspectiveDebateTurn[];
   neutral_compromise_synthesis: string;
 }
+
+export interface TopicSuggestionItem {
+  id: string;
+  topic: string;
+  summary: string;
+  category: string;
+  badge: string;
+  badge_color?: string;
+  source_headline?: string;
+  source_outlet?: string;
+  url?: string;
+}
+
+export interface CountryTopicGroup {
+  code: string;
+  name: string;
+  flag: string;
+  topics: TopicSuggestionItem[];
+}
+
+export interface TopicSuggestionsPayload {
+  id: string;
+  created_at: number;
+  created_at_iso?: string;
+  updated_at: number;
+  expires_at?: number;
+  cache_duration_seconds?: number;
+  is_stale?: boolean;
+  age_seconds?: number;
+  countries: CountryTopicGroup[];
+}
+

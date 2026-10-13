@@ -3,7 +3,8 @@ import type {
   QuizPayload,
   PerspectiveDebateReport,
   PaginatedAnalysesResponse,
-  ChatMessage
+  ChatMessage,
+  TopicSuggestionsPayload
 } from './types';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
@@ -188,3 +189,18 @@ export async function clearChatHistory(analysisId: string): Promise<void> {
   });
   if (!res.ok) throw new Error('Failed to clear chat history');
 }
+
+export async function fetchTopicSuggestions(): Promise<TopicSuggestionsPayload> {
+  const res = await fetch(`${API_BASE}/topics/suggestions`);
+  if (!res.ok) throw new Error('Failed to load topic suggestions');
+  return res.json();
+}
+
+export async function refreshTopicSuggestions(): Promise<TopicSuggestionsPayload> {
+  const res = await fetch(`${API_BASE}/topics/suggestions/refresh`, {
+    method: 'POST',
+  });
+  if (!res.ok) throw new Error('Failed to refresh topic suggestions');
+  return res.json();
+}
+

@@ -61,6 +61,7 @@ _MEMORY_STORE: Dict[str, Dict[str, Dict[str, Any]]] = {
     "debates": {},
     "evidence_ledger": {},
     "chat_history": {},
+    "topic_suggestions": {},
 }
 
 
@@ -337,3 +338,36 @@ class FirestoreService:
                 logger.warning("Failed clearing chat history in Firestore (%s). Cleared in memory.", e)
 
         return True
+
+    @staticmethod
+    async def get_topic_suggestions() -> Optional[Dict[str, Any]]:
+        """Retrieves country-grouped topic suggestions from Firestore or memory."""
+        if FIRESTORE_AVAILABLE and db_client:
+            try:
+                doc_ref = db_client.collection("topic_suggestions").document("latest")
+                doc = await doc_ref.get()
+                if doc.exists:
+                    return doc.to_dict()
+            except Exception as e:
+                logger.warning("Failed retrieving topic suggestions from Firestore (%s). Checking memory.", e)
+
+        return _MEMORY_STORE["topic_suggestions"].get("latest")
+
+    @staticmethod
+    async def save_topic_suggestions(data: Dict[str, Any]) -> Dict[str, Any]:
+        """Saves country-grouped topic suggestions with timestamp to Firestore and memory."""
+        now = time.time()
+        data["updated_at"] = now
+        if "created_at" not in data:
+            data["created_at"] = now
+        data["id"] = "latest"
+
+        if FIRESTORE_AVAILABLE and db_client:
+            try:
+                doc_ref = db_client.collection("topic_suggestions").document("latest")
+                await doc_ref.set(data)
+            except Exception as e:
+                logger.warning("Failed saving topic suggestions to Firestore (%s). Saved in memory.", e)
+
+        _MEMORY_STORE["topic_suggestions"]["latest"] = data
+        return data
