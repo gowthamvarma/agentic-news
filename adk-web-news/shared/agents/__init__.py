@@ -3,7 +3,7 @@
 Exports all 25 agents across the 6 architecture layers specified in docs/news-analyser.md.
 """
 
-from shared.agents.ingestion import source_collector, claim_extractor
+from shared.agents.ingestion import source_collector, claim_extractor, topic_curator
 from shared.agents.understand import (
     context_builder,
     timeline_agent,
@@ -40,6 +40,7 @@ __all__ = [
     # Layer 1: Ingestion
     "source_collector",
     "claim_extractor",
+    "topic_curator",
     # Layer 2: Understand
     "context_builder",
     "timeline_agent",

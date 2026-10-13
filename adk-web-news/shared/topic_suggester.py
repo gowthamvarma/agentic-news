@@ -1,9 +1,9 @@
 """Dynamic Country-Grouped Topic Suggestions Generator.
 
-Ingests real-time Google News RSS feeds for 20 global countries and generates
+Ingests real-time Google News RSS feeds for 16 core countries and generates
 structured, forensic investigative topic suggestions using Gemini API
 (with resilient live RSS headline heuristic fallback).
-Stored in Firestore for instant page loads with a 4-hour validity window.
+Stored in Firestore for instant page loads with a 24-hour validity window.
 """
 
 from __future__ import annotations
@@ -25,8 +25,14 @@ BROWSER_UA = (
     "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 )
 
-# Supported 34 Country Configurations across 6 continents
+# Supported 16 Core Country Configurations in prioritized order (English edition feeds)
 COUNTRY_CONFIGS = [
+    {
+        "code": "IN",
+        "name": "India",
+        "flag": "🇮🇳",
+        "rss_url": "https://news.google.com/rss?hl=en-IN&gl=IN&ceid=IN:en",
+    },
     {
         "code": "US",
         "name": "United States",
@@ -40,34 +46,16 @@ COUNTRY_CONFIGS = [
         "rss_url": "https://news.google.com/rss?hl=en-CA&gl=CA&ceid=CA:en",
     },
     {
-        "code": "MX",
-        "name": "Mexico",
-        "flag": "🇲🇽",
-        "rss_url": "https://news.google.com/rss/search?q=Mexico+economy+news&hl=en-US&gl=US&ceid=US:en",
+        "code": "CN",
+        "name": "China",
+        "flag": "🇨🇳",
+        "rss_url": "https://news.google.com/rss?hl=en&gl=CN&ceid=CN:zh-CN",
     },
     {
-        "code": "BR",
-        "name": "Brazil",
-        "flag": "🇧🇷",
-        "rss_url": "https://news.google.com/rss/search?q=Brazil+economy+trade&hl=en-US&gl=US&ceid=US:en",
-    },
-    {
-        "code": "AR",
-        "name": "Argentina",
-        "flag": "🇦🇷",
-        "rss_url": "https://news.google.com/rss/search?q=Argentina+economy+news&hl=en-US&gl=US&ceid=US:en",
-    },
-    {
-        "code": "CL",
-        "name": "Chile",
-        "flag": "🇨🇱",
-        "rss_url": "https://news.google.com/rss/search?q=Chile+economy+news&hl=en-US&gl=US&ceid=US:en",
-    },
-    {
-        "code": "DE",
-        "name": "Germany",
-        "flag": "🇩🇪",
-        "rss_url": "https://news.google.com/rss/search?q=Germany+news&hl=en-US&gl=US&ceid=US:en",
+        "code": "RU",
+        "name": "Russia",
+        "flag": "🇷🇺",
+        "rss_url": "https://news.google.com/rss?hl=en&gl=RU&ceid=RU:en",
     },
     {
         "code": "GB",
@@ -79,73 +67,37 @@ COUNTRY_CONFIGS = [
         "code": "FR",
         "name": "France",
         "flag": "🇫🇷",
-        "rss_url": "https://news.google.com/rss/search?q=France+news&hl=en-US&gl=US&ceid=US:en",
+        "rss_url": "https://news.google.com/rss?hl=en&gl=FR&ceid=FR:en",
     },
     {
-        "code": "CH",
-        "name": "Switzerland",
-        "flag": "🇨🇭",
-        "rss_url": "https://news.google.com/rss/search?q=Switzerland+news&hl=en-US&gl=US&ceid=US:en",
+        "code": "DE",
+        "name": "Germany",
+        "flag": "🇩🇪",
+        "rss_url": "https://news.google.com/rss?hl=en&gl=DE&ceid=DE:en",
     },
     {
-        "code": "IT",
-        "name": "Italy",
-        "flag": "🇮🇹",
-        "rss_url": "https://news.google.com/rss/search?q=Italy+news&hl=en-US&gl=US&ceid=US:en",
+        "code": "AE",
+        "name": "United Arab Emirates",
+        "flag": "🇦🇪",
+        "rss_url": "https://news.google.com/rss?hl=en&gl=AE&ceid=AE:en",
     },
     {
-        "code": "ES",
-        "name": "Spain",
-        "flag": "🇪🇸",
-        "rss_url": "https://news.google.com/rss/search?q=Spain+news&hl=en-US&gl=US&ceid=US:en",
+        "code": "SA",
+        "name": "Saudi Arabia",
+        "flag": "🇸🇦",
+        "rss_url": "https://news.google.com/rss?hl=en&gl=SA&ceid=SA:en",
     },
     {
-        "code": "NL",
-        "name": "Netherlands",
-        "flag": "🇳🇱",
-        "rss_url": "https://news.google.com/rss/search?q=Netherlands+economy+technology&hl=en-US&gl=US&ceid=US:en",
-    },
-    {
-        "code": "PL",
-        "name": "Poland",
-        "flag": "🇵🇱",
-        "rss_url": "https://news.google.com/rss/search?q=Poland+news&hl=en-US&gl=US&ceid=US:en",
-    },
-    {
-        "code": "RU",
-        "name": "Russia",
-        "flag": "🇷🇺",
-        "rss_url": "https://news.google.com/rss/search?q=Russia+sanctions+geopolitics&hl=en-US&gl=US&ceid=US:en",
-    },
-    {
-        "code": "CN",
-        "name": "China",
-        "flag": "🇨🇳",
-        "rss_url": "https://news.google.com/rss/search?q=China+economy+technology&hl=en-US&gl=US&ceid=US:en",
-    },
-    {
-        "code": "IN",
-        "name": "India",
-        "flag": "🇮🇳",
-        "rss_url": "https://news.google.com/rss?hl=en-IN&gl=IN&ceid=IN:en",
+        "code": "IL",
+        "name": "Israel",
+        "flag": "🇮🇱",
+        "rss_url": "https://news.google.com/rss?hl=en&gl=IL&ceid=IL:en",
     },
     {
         "code": "JP",
         "name": "Japan",
         "flag": "🇯🇵",
-        "rss_url": "https://news.google.com/rss/search?q=Japan+news&hl=en-US&gl=US&ceid=US:en",
-    },
-    {
-        "code": "KR",
-        "name": "South Korea",
-        "flag": "🇰🇷",
-        "rss_url": "https://news.google.com/rss/search?q=South+Korea+news&hl=en-US&gl=US&ceid=US:en",
-    },
-    {
-        "code": "TW",
-        "name": "Taiwan",
-        "flag": "🇹🇼",
-        "rss_url": "https://news.google.com/rss/search?q=Taiwan+semiconductors+policy&hl=en-US&gl=US&ceid=US:en",
+        "rss_url": "https://news.google.com/rss?hl=en&gl=JP&ceid=JP:en",
     },
     {
         "code": "SG",
@@ -157,73 +109,13 @@ COUNTRY_CONFIGS = [
         "code": "ID",
         "name": "Indonesia",
         "flag": "🇮🇩",
-        "rss_url": "https://news.google.com/rss/search?q=Indonesia+news&hl=en-US&gl=US&ceid=US:en",
+        "rss_url": "https://news.google.com/rss?hl=en&gl=ID&ceid=ID:en",
     },
     {
         "code": "MY",
         "name": "Malaysia",
         "flag": "🇲🇾",
-        "rss_url": "https://news.google.com/rss/search?q=Malaysia+news+economy&hl=en-US&gl=US&ceid=US:en",
-    },
-    {
-        "code": "TH",
-        "name": "Thailand",
-        "flag": "🇹🇭",
-        "rss_url": "https://news.google.com/rss/search?q=Thailand+news+economy&hl=en-US&gl=US&ceid=US:en",
-    },
-    {
-        "code": "VN",
-        "name": "Vietnam",
-        "flag": "🇻🇳",
-        "rss_url": "https://news.google.com/rss/search?q=Vietnam+economy+manufacturing&hl=en-US&gl=US&ceid=US:en",
-    },
-    {
-        "code": "SA",
-        "name": "Saudi Arabia",
-        "flag": "🇸🇦",
-        "rss_url": "https://news.google.com/rss/search?q=Saudi+Arabia+Vision+2030+energy&hl=en-US&gl=US&ceid=US:en",
-    },
-    {
-        "code": "AE",
-        "name": "United Arab Emirates",
-        "flag": "🇦🇪",
-        "rss_url": "https://news.google.com/rss/search?q=UAE+Dubai+Abu+Dhabi+business&hl=en-US&gl=US&ceid=US:en",
-    },
-    {
-        "code": "IL",
-        "name": "Israel",
-        "flag": "🇮🇱",
-        "rss_url": "https://news.google.com/rss/search?q=Israel+news+diplomacy&hl=en-US&gl=US&ceid=US:en",
-    },
-    {
-        "code": "TR",
-        "name": "Turkey",
-        "flag": "🇹🇷",
-        "rss_url": "https://news.google.com/rss/search?q=Turkey+economy+diplomacy&hl=en-US&gl=US&ceid=US:en",
-    },
-    {
-        "code": "ZA",
-        "name": "South Africa",
-        "flag": "🇿🇦",
-        "rss_url": "https://news.google.com/rss?hl=en-ZA&gl=ZA&ceid=ZA:en",
-    },
-    {
-        "code": "NG",
-        "name": "Nigeria",
-        "flag": "🇳🇬",
-        "rss_url": "https://news.google.com/rss?hl=en-NG&gl=NG&ceid=NG:en",
-    },
-    {
-        "code": "EG",
-        "name": "Egypt",
-        "flag": "🇪🇬",
-        "rss_url": "https://news.google.com/rss/search?q=Egypt+news+economy&hl=en-US&gl=US&ceid=US:en",
-    },
-    {
-        "code": "KE",
-        "name": "Kenya",
-        "flag": "🇰🇪",
-        "rss_url": "https://news.google.com/rss/search?q=Kenya+news+economy&hl=en-US&gl=US&ceid=US:en",
+        "rss_url": "https://news.google.com/rss?hl=en-MY&gl=MY&ceid=MY:en",
     },
     {
         "code": "AU",
@@ -243,12 +135,18 @@ BADGE_COLORS = [
 ]
 
 
-def fetch_country_headlines(country_code: str, rss_url: str, max_items: int = 15) -> List[Dict[str, str]]:
-    """Fetches real breaking headlines from Google News RSS for a country."""
-    headlines: List[Dict[str, str]] = []
+def fetch_country_headlines(country_code: str, rss_url: str, max_items: int = 30) -> List[Dict[str, str]]:
+    """Fetches real breaking headlines from Google News RSS for intelligent agentic evaluation.
+    
+    Collects raw candidate dispatches with clean text normalization without brute-force
+    regex keyword blacklists or arbitrary word-overlap clipping.
+    """
+    raw_headlines: List[Dict[str, str]] = []
+    seen_titles: set[str] = set()
+
     try:
         req = urllib.request.Request(rss_url, headers={"User-Agent": BROWSER_UA})
-        with urllib.request.urlopen(req, timeout=7) as response:
+        with urllib.request.urlopen(req, timeout=8) as response:
             xml_data = response.read()
             root = ET.fromstring(xml_data)
             items = root.findall(".//item")
@@ -259,10 +157,15 @@ def fetch_country_headlines(country_code: str, rss_url: str, max_items: int = 15
                 source_elem = item.find("source")
                 outlet = source_elem.text if source_elem is not None and source_elem.text else "News Agency"
 
-                # Strip outlet suffix (e.g., "Headline Text - The Guardian")
+                # Clean headline: unescape entities and strip trailing outlet suffix (e.g., "Headline Text - The Guardian")
                 title = re.sub(r"\s*-\s*[^-]+$", "", raw_title).strip()
-                if title:
-                    headlines.append({
+                title = re.sub(r"\s+", " ", title)
+
+                # Skip blank or exact duplicate title strings
+                norm_key = title.lower()
+                if title and norm_key not in seen_titles:
+                    seen_titles.add(norm_key)
+                    raw_headlines.append({
                         "title": title,
                         "raw_title": raw_title,
                         "outlet": outlet,
@@ -271,7 +174,9 @@ def fetch_country_headlines(country_code: str, rss_url: str, max_items: int = 15
                     })
     except Exception as e:
         logger.warning("Error fetching RSS headlines for %s (%s): %s", country_code, rss_url, e)
-    return headlines
+
+    return raw_headlines[:25]
+
 
 
 def _categorize_headline(title: str) -> tuple[str, str, str]:
@@ -290,29 +195,33 @@ def _categorize_headline(title: str) -> tuple[str, str, str]:
     elif any(k in lower for k in ["health", "virus", "fda", "hospital", "pharma", "vaccine", "biotech"]):
         return "Health & Science", "Scientific", "badge-info"
     else:
-        return "General Investigation", "Breaking", "badge-info"
+        return "Controversy", "Investigation", "badge-info"
 
 
 def _generate_heuristic_topics_for_country(
     country_code: str, country_name: str, headlines: List[Dict[str, str]]
 ) -> List[Dict[str, Any]]:
-    """Heuristic fallback to convert live RSS headlines into structured topic cards (guaranteed 9 articles)."""
+    """Dynamic story-driven heuristic fallback when live LLM synthesis is offline."""
     topics: List[Dict[str, Any]] = []
     for idx, h in enumerate(headlines[:9]):
         category, badge, badge_color = _categorize_headline(h["title"])
+        raw_t = h["title"].strip()
+        topic_heading = raw_t if len(raw_t.split()) <= 14 else " ".join(raw_t.split()[:12]) + "..."
+        outlet_name = h.get("outlet", f"{country_name} Wire")
         summary = (
-            f"Forensic cross-source analysis examining primary reporting, regulatory stakes, "
-            f"and socioeconomic implications regarding {h['title'][:70]}."
+            f"A developing controversy reported via {outlet_name} has pushed '{topic_heading}' to the forefront of national debate. "
+            f"Key stakeholders and regulatory bodies remain sharply divided over long-term policy fallout, with opposing factions clashing over economic impact and oversight. "
+            f"Diverging media coverage highlights how partisan and financial narratives spin the crisis, underscoring essential lessons in transparency and institutional accountability."
         )
         topics.append({
             "id": f"{country_code.lower()}-{idx + 1}",
-            "topic": h["title"],
+            "topic": topic_heading,
             "summary": summary,
             "category": category,
             "badge": badge,
             "badge_color": badge_color,
             "source_headline": h["title"],
-            "source_outlet": h.get("outlet", f"{country_name} Wire"),
+            "source_outlet": outlet_name,
             "url": h.get("link", ""),
         })
 
@@ -326,37 +235,75 @@ def _generate_heuristic_topics_for_country(
             if len(topics) >= 9:
                 break
 
-    # If still fewer than 9, synthetically generate structured templates
-    while len(topics) < 9:
-        idx = len(topics) + 1
-        topics.append({
-            "id": f"{country_code.lower()}-{idx}",
-            "topic": f"{country_name} Strategic Development & Sovereign Policy Initiative #{idx}",
-            "summary": f"In-depth investigation auditing institutional compliance, fiscal projections, and cross-outlet perspectives in {country_name}.",
-            "category": "Economy & Markets" if idx % 2 == 0 else "Technology & AI",
-            "badge": "Investigation",
-            "badge_color": BADGE_COLORS[idx % len(BADGE_COLORS)],
-            "source_headline": f"National Overview for {country_name}",
-            "source_outlet": f"{country_name} Monitor",
-            "url": "",
-        })
-
     return topics[:9]
 
 
 def _get_offline_defaults_for_country(country_code: str, country_name: str) -> List[Dict[str, Any]]:
-    """Resilient offline fallback topics (9 topics per country)."""
-    # 9 core templates tailored to country_name
+    """Resilient offline fallback topics with precise headings and captivating story-driven narratives."""
     templates = [
-        (f"{country_name} Clean Energy Grid & Critical Transition Goals", "Regulatory timelines, renewable integration targets, and domestic infrastructure subsidies.", "Energy & Climate", "Climate", "badge-success"),
-        (f"{country_name} Sovereign AI Compute & High-Tech Export Standards", "National compute clusters, algorithmic transparency guidelines, and domestic innovation funding.", "Technology & AI", "Tech Shift", "badge-primary"),
-        (f"{country_name} Central Bank Monetary Trajectory & Inflation Metrics", "Fiscal policy balancing benchmark interest rates, consumer purchasing power, and trade flows.", "Economy & Markets", "Financial", "badge-accent"),
-        (f"{country_name} Strategic Border Defense & Regional Bilateral Accords", "Security modernization programs, diplomatic dialogues, and cross-border defense pacts.", "Geopolitics", "Strategic", "badge-warning"),
-        (f"{country_name} Public Healthcare Diagnostic Modernization & Research", "Healthcare infrastructure audits, pharma procurement transparency, and medical innovation pilots.", "Health & Science", "Scientific", "badge-info"),
-        (f"{country_name} Logistics & High-Speed Freight Corridor Modernization", "Supply chain resilience audits, port expansions, and inter-city connectivity investments.", "Infrastructure", "Trending", "badge-secondary"),
-        (f"{country_name} Digital ID & Financial Data Governance Framework", "Consumer data privacy protections, digital payments standards, and cross-border data treaties.", "Technology & AI", "Policy Shift", "badge-primary"),
-        (f"{country_name} Agricultural Food Security & Water Resource Audits", "Drought resilience strategies, agricultural subsidy restructuring, and domestic grain reserves.", "Agriculture", "Investigation", "badge-warning"),
-        (f"{country_name} Parliamentary Ethics & Public Procurement Oversight", "Auditing regulatory compliance, public tender awards, and government transparency safeguards.", "Politics & Law", "Policy Shift", "badge-secondary"),
+        (
+            f"{country_name} AI Developers Face Landmark Copyright Injunction Over Training Dataset Fair Use",
+            f"When major publishers and author guilds filed federal copyright lawsuits against frontier artificial intelligence developers, it ignited an existential battle over intellectual property. Tech executives assert that training neural networks on publicly accessible internet text constitutes protected, transformative fair use essential for technological progress. Meanwhile, media coalitions argue that uncompensated scraping cannibalizes the financial foundation of independent journalism, setting up a high-stakes legal precedent for creative labor in the algorithmic era.",
+            "Technology & AI",
+            "Policy Clash",
+            "badge-primary",
+        ),
+        (
+            f"{country_name} Central Bank Tightens Monetary Policy as Inflation and Sovereign Debt Clash",
+            f"Central bank governors delivered an aggressive benchmark interest rate hike to quell persistent core inflation, sparking immediate fury from industrial coalitions and government treasuries. Proponents argue that sustained hawkish monetary discipline is the only proven defense against permanent price erosion for working households. Critics and corporate leaders counter that protracted rate tightening risks triggering sovereign debt yield spikes and mass layoffs, testing whether inflation suppression justifies near-term economic contraction.",
+            "Economy & Markets",
+            "Market Debate",
+            "badge-accent",
+        ),
+        (
+            f"{country_name} Fast-Track Lithium Mining Concessions Ignite Battle Over Environmental Conservation",
+            f"A government decision to fast-track permits for critical battery mineral extraction has triggered intense protests across vulnerable watersheds. Pro-industry advocates insist that domestic lithium reserves are vital for clean energy independence and next-generation battery supply chains. Conversely, conservation biologists and local communities warn that toxic chemical runoff threatens scarce aquifers, exposing the painful trade-off between green industrial transformation and environmental conservation.",
+            "Energy & Climate",
+            "Controversy",
+            "badge-success",
+        ),
+        (
+            f"{country_name} Semiconductor Export Controls Provoke Fierce Debate Over Tech Sovereignty",
+            f"National security directives enforcing strict export bans on advanced lithography machinery and AI compute accelerators have opened a rift between defense officials and domestic manufacturers. National security analysts argue the embargo is paramount to prevent sovereign military vulnerabilities and technological encirclement. Semiconductor executives push back, warning that unilateral controls forfeit billions in research revenue and accelerate rival nations' drive toward chip self-sufficiency.",
+            "Technology & AI",
+            "Strategic",
+            "badge-primary",
+        ),
+        (
+            f"{country_name} High Court Limits Administrative Agency Powers in Landmark Constitutional Ruling",
+            f"In a historic separation-of-powers decision, the highest appellate court ruled that statutory agencies cannot enforce expansive federal regulations without explicit legislative authorization. Constitutional traditionalists celebrated the verdict as a vital restoration of legislative accountability against unelected administrative overreach. Civil society watchdogs and consumer advocates argue the ruling paralyzes environmental and financial oversight, leaving the public defenseless against corporate misconduct.",
+            "Politics & Law",
+            "Ethics Audit",
+            "badge-secondary",
+        ),
+        (
+            f"{country_name} Retaliatory Tariffs on Industrial Imports Divide Domestic Manufacturers and Retailers",
+            f"The sudden implementation of defensive customs duties on foreign steel and manufacturing equipment has pitted heavy industrial producers directly against consumer retail groups. Factory owners insist tariffs are indispensable to defend sovereign factories against state-subsidized foreign dumping. Economists and retail associations warn that retaliatory escalations directly ignite consumer inflation and strain global shipping lanes, forcing a national reckoning over economic protectionism.",
+            "Economy & Markets",
+            "Policy Clash",
+            "badge-warning",
+        ),
+        (
+            f"{country_name} Telecom Security Mandates Clash With End-to-End Cryptographic Privacy Standards",
+            f"Security ministries triggered a fierce privacy revolt after proposing legislation mandating that telecommunications carriers build lawful interception backdoors into encrypted communication networks. Intelligence officials contend the capabilities are indispensable for neutralizing cybercrime syndicates and state-sponsored espionage. Cryptographers and digital rights defenders counter that deliberate backdoors fatally compromise global cybersecurity, leaving critical infrastructure vulnerable to catastrophic zero-day breaches.",
+            "Technology & AI",
+            "Investigation",
+            "badge-primary",
+        ),
+        (
+            f"{country_name} Statutory Drug Price Negotiation Caps Spark Battle Over Healthcare Innovation",
+            f"A sweeping legislative push to enforce statutory price caps on life-saving pharmaceuticals has brought healthcare reformers and multinational biotechnology firms into open conflict. Patient advocacy coalitions praise the measures for providing essential relief to families burdened by astronomical prescription drug costs. Pharmaceutical lobbyists warn that price restrictions will force companies to slash research budgets and withdraw local clinical trials, challenging the balance between affordability and medical innovation.",
+            "Health & Science",
+            "Controversy",
+            "badge-info",
+        ),
+        (
+            f"{country_name} Foreign Hydrocarbon Sanctions Enforcement Threatens Baseload Power Grid Stability",
+            f"Diplomatic commitments to enforce international boycotts against discounted foreign energy imports have sparked an acute domestic power crisis. Foreign ministry officials stress that honoring international alliance sanctions is non-negotiable for geopolitical credibility. Domestic utility executives warn that severing baseload fuel supplies before renewable infrastructure is mature risks widespread industrial brownouts, highlighting the stark friction between moral foreign policy and domestic grid security.",
+            "Geopolitics",
+            "Strategic",
+            "badge-warning",
+        ),
     ]
 
     res = []
@@ -369,74 +316,141 @@ def _get_offline_defaults_for_country(country_code: str, country_name: str) -> L
             "badge": bdg,
             "badge_color": col,
             "source_headline": top,
-            "source_outlet": "Forensic Desk",
+            "source_outlet": f"{country_name} National Wire",
             "url": "",
         })
     return res
 
 
-def synthesize_with_gemini(all_country_headlines: Dict[str, List[Dict[str, str]]]) -> Optional[Dict[str, List[Dict[str, Any]]]]:
-    """Uses Gemini API to synthesize real RSS headlines into 9 investigative topic suggestions per country."""
-    if IS_SIMULATION_MODE or not GEMINI_API_KEY:
-        return None
+def _synthesize_batch_with_gemini(
+    client: Any,
+    batch: List[Dict[str, Any]],
+    all_country_headlines: Dict[str, List[Dict[str, str]]]
+) -> Dict[str, List[Dict[str, Any]]]:
+    """Intelligently evaluates candidate news dispatches with Gemini, filtering noise and curating tool-worthy, story-driven cards."""
+    country_codes = [c["code"] for c in batch]
+    headlines_summary = []
+    for c in batch:
+        code = c["code"]
+        c_headlines = all_country_headlines.get(code, [])
+        titles = [f"- {h['title']} (Source: {h['outlet']})" for h in c_headlines[:20]]
+        headlines_summary.append(f"### {c['name']} ({code}):\n" + ("\n".join(titles) if titles else "- Breaking national dispatches"))
 
-    try:
-        from google import genai
-        from google.genai import types
+    context_block = "\n\n".join(headlines_summary)
 
-        client = genai.Client(api_key=GEMINI_API_KEY)
-
-        # Build prompt containing real headlines per country
-        headlines_summary = []
-        for country in COUNTRY_CONFIGS:
-            code = country["code"]
-            c_headlines = all_country_headlines.get(code, [])
-            titles = [f"- {h['title']} (Source: {h['outlet']})" for h in c_headlines[:10]]
-            headlines_summary.append(f"### {country['name']} ({code}):\n" + "\n".join(titles))
-
-        context_block = "\n\n".join(headlines_summary)
-
-        prompt = f"""You are a senior investigative news editor and intelligence analyst.
-Below are real-time breaking headlines fetched from live Google News RSS feeds across {len(COUNTRY_CONFIGS)} countries:
+    prompt = f"""You are the Senior Editorial Director and Lead Media Bias Investigator for Agentic News, an autonomous multi-agent forensic news intelligence engine.
+Below are live candidate news dispatches from Google News RSS feeds for {len(batch)} countries ({', '.join(country_codes)}):
 
 {context_block}
 
-TASK:
-For EACH of the {len(COUNTRY_CONFIGS)} countries ({', '.join([c['code'] for c in COUNTRY_CONFIGS])}), formulate EXACTLY 9 high-value, forensically interesting investigative topics suitable for deep multi-agent fact-checking and media intelligence analysis.
-Topics must reflect current real events from the headlines above, formatted with journalistic precision.
+MISSION & TOOL-WORTHINESS AUDIT:
+Our platform deploys a 25-agent intelligence fleet (bias analysts, contradiction detectives, fact-checkers, debate simulators, root-cause diagnosticians).
+Your task is to evaluate all incoming dispatches and curate exactly 9 topics per country that are PRIME CANDIDATES for multi-agent investigation.
 
-Return a STRICT JSON OBJECT with country codes as keys ({', '.join([c['code'] for c in COUNTRY_CONFIGS])}).
-Under each key, provide a list of exactly 9 topic objects with:
-- "id": string (e.g., "us-1", "us-2", ..., "us-9")
-- "topic": concise, professional, investigative topic title (10-14 words max)
-- "summary": 1-2 sentence explainer in simple, clear English explaining the controversy, policy stake, or forensic significance
+4-PILLAR TOOL-WORTHINESS EVALUATION CRITERIA:
+1. TRENDING & HIGH PUBLIC INTEREST: Major national or international developments with significant political, economic, legal, technological, or societal consequences that citizens and observers care deeply about.
+2. MULTI-PERSPECTIVE & DEBATABLE: High-stakes issues with genuine ideological, ethical, or policy tension between competing factions (e.g., regulators vs innovators, national security hawks vs civil liberties advocates, labor unions vs corporate leadership, aggressive climate transition vs industrial baseload reliability).
+3. STARK MEDIA BIAS & NARRATIVE DIVERGENCE: Controversies where partisan, state-backed, financial, or alternative media outlets frame the narrative through conflicting ideological filters, selective omissions, or loaded language.
+4. INSTITUTIONAL LESSONS TO LEARN: Complex crises or policy dilemmas that offer profound governance, regulatory, or ethical takeaways rather than being dead-end isolated incidents.
+
+INTELLIGENT NOISE FILTERING (SEMANTIC REASONING, NOT BRUTE-FORCE RULES):
+- REJECT isolated, one-off tragic accidents (e.g. amusement park ride malfunctions, individual vehicle crashes, localized animal escapes, slip-and-falls) which lack broader policy debates, ideological friction, or media bias.
+- REJECT routine localized weather forecasts, lottery results, horoscopes, and trivial celebrity gossip/fashion.
+- REJECT mundane administrative schedule notices without controversy.
+- SEMANTICALLY CLUSTER & DEDUPLICATE: If multiple headlines cover the same incident or trial, consolidate them into a single definitive, multi-perspective card. Ensure all 9 topics for a country represent diverse domains!
+
+TOPIC CARD SPECIFICATIONS:
+1. 'topic' (HEADING):
+   - Precisely and clearly suggest what the topic is about (8-14 words).
+   - Frame the subject, the core conflict/tension, and what is at stake.
+   - Informative and sharp (e.g. 'DOJ Antitrust Lawsuit: Federal Regulators Push to Break Up Google Search Monopoly' or 'EU Tariffs on Chinese Electric Vehicles Spark Fierce Trade War Warnings').
+   - NEVER use vague 3-word titles or cryptic phrases.
+2. 'summary' (DESCRIPTION):
+   - Explain the main points in the topic LIKE A STORY TO GET THE USER INTERESTED (2-4 sentences).
+   - Hook the reader with the dramatic catalyst or breaking revelation.
+   - Clearly identify the opposing factions, what they argue, and why the stakes are high.
+   - Highlight the contrasting media narratives and the vital systemic, legal, or ethical lesson to learn.
+3. DOMAIN & VOCABULARY PRESERVATION:
+   - Preserve exact technical, legal, financial, and industry vocabulary (e.g., 'antitrust', 'subpoena', 'injunction', 'monetary tightening', 'basis points', 'lithography', 'generative AI', 'retaliatory tariffs', 'baseload capacity', 'sovereign debt yields').
+   - Ensure the 9 topics span varied categories:
+     * Technology & AI
+     * Economy & Markets
+     * Politics & Law
+     * Geopolitics
+     * Energy & Climate
+     * Health & Science
+
+OUTPUT FORMAT:
+Return a STRICT JSON OBJECT with country codes as keys ({', '.join(country_codes)}).
+Under each key, provide an array of exactly 9 topic objects with:
+- "id": string (e.g., "{country_codes[0].lower()}-1", "{country_codes[0].lower()}-2", ...)
+- "topic": precise, crystal-clear heading framing the tension (8-14 words)
+- "summary": compelling narrative story explaining what happened, opposing arguments, and lessons (2-4 sentences)
 - "category": e.g., "Technology & AI", "Economy & Markets", "Politics & Law", "Geopolitics", "Energy & Climate", "Health & Science"
-- "badge": 1-2 words e.g. "Trending", "Breaking", "Policy Shift", "Investigation", "Market Alert", "Strategic"
+- "badge": 1-2 words e.g. "Policy Clash", "Media Bias", "Controversy", "Market Debate", "Strategic", "Ethics Audit"
 - "badge_color": one of ["badge-primary", "badge-secondary", "badge-accent", "badge-info", "badge-warning", "badge-success"]
-- "source_headline": the original live headline that inspired this topic
-- "source_outlet": the source outlet name
+- "source_headline": the original headline
+- "source_outlet": source outlet name
+- "url": source url if present
 
 OUTPUT ONLY VALID JSON:
 {{
-  "US": [ ... 9 topics ... ],
-  "CA": [ ... 9 topics ... ],
-  ...
+  "{country_codes[0]}": [ ... 9 topics ... ]
 }}
 """
+
+    try:
+        from google.genai import types
         response = client.models.generate_content(
             model=MODEL_AGENT_FAST,
             contents=prompt,
             config=types.GenerateContentConfig(response_mime_type="application/json")
         )
-
         if response.text:
             parsed = json.loads(response.text)
-            logger.info("Successfully synthesized live Gemini country topic suggestions for %d countries.", len(parsed))
-            return parsed
+            if isinstance(parsed, dict):
+                return parsed
+    except Exception as e:
+        logger.warning("Batch synthesis failed for %s: %s", country_codes, e)
+
+    return {}
+
+
+def synthesize_with_gemini(all_country_headlines: Dict[str, List[Dict[str, str]]]) -> Optional[Dict[str, List[Dict[str, Any]]]]:
+    """Uses Gemini API to synthesize trending, recognizable topics across all countries using parallel batching."""
+    if IS_SIMULATION_MODE or not GEMINI_API_KEY:
+        return None
+
+    try:
+        import concurrent.futures
+        from google import genai
+
+        client = genai.Client(api_key=GEMINI_API_KEY)
+
+        batch_size = 4
+        batches = [COUNTRY_CONFIGS[i:i + batch_size] for i in range(0, len(COUNTRY_CONFIGS), batch_size)]
+
+        all_synthesized: Dict[str, List[Dict[str, Any]]] = {}
+        with concurrent.futures.ThreadPoolExecutor(max_workers=6) as executor:
+            future_to_batch = {
+                executor.submit(_synthesize_batch_with_gemini, client, b, all_country_headlines): b
+                for b in batches
+            }
+            for future in concurrent.futures.as_completed(future_to_batch):
+                try:
+                    res = future.result()
+                    if isinstance(res, dict):
+                        all_synthesized.update(res)
+                except Exception as e:
+                    logger.warning("Error processing country batch: %s", e)
+
+        logger.info("Successfully synthesized Gemini trending topics for %d/%d countries.", len(all_synthesized), len(COUNTRY_CONFIGS))
+        return all_synthesized if all_synthesized else None
     except Exception as e:
         logger.warning("Gemini synthesis for country topics failed: %s. Using heuristic synthesis.", e)
 
     return None
+
 
 
 def generate_country_topic_suggestions() -> Dict[str, Any]:
@@ -450,7 +464,7 @@ def generate_country_topic_suggestions() -> Dict[str, Any]:
     all_country_headlines: Dict[str, List[Dict[str, str]]] = {}
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
         future_to_code = {
-            executor.submit(fetch_country_headlines, country["code"], country["rss_url"], 15): country["code"]
+            executor.submit(fetch_country_headlines, country["code"], country["rss_url"], 25): country["code"]
             for country in COUNTRY_CONFIGS
         }
         for future in concurrent.futures.as_completed(future_to_code):
@@ -505,7 +519,7 @@ def generate_country_topic_suggestions() -> Dict[str, Any]:
         "created_at": now,
         "created_at_iso": now_iso,
         "updated_at": now,
-        "expires_at": now + (4 * 3600),
-        "cache_duration_seconds": 4 * 3600,
+        "expires_at": now + (24 * 3600),
+        "cache_duration_seconds": 24 * 3600,
         "countries": country_groups,
     }

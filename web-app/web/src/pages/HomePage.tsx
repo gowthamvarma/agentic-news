@@ -36,39 +36,21 @@ const FLEET_STAGES = [
 ];
 
 export const TARGET_COUNTRIES = [
+  { code: 'IN', name: 'India', flag: '🇮🇳' },
   { code: 'US', name: 'United States', flag: '🇺🇸' },
   { code: 'CA', name: 'Canada', flag: '🇨🇦' },
-  { code: 'MX', name: 'Mexico', flag: '🇲🇽' },
-  { code: 'BR', name: 'Brazil', flag: '🇧🇷' },
-  { code: 'AR', name: 'Argentina', flag: '🇦🇷' },
-  { code: 'CL', name: 'Chile', flag: '🇨🇱' },
-  { code: 'DE', name: 'Germany', flag: '🇩🇪' },
+  { code: 'CN', name: 'China', flag: '🇨🇳' },
+  { code: 'RU', name: 'Russia', flag: '🇷🇺' },
   { code: 'GB', name: 'United Kingdom', flag: '🇬🇧' },
   { code: 'FR', name: 'France', flag: '🇫🇷' },
-  { code: 'CH', name: 'Switzerland', flag: '🇨🇭' },
-  { code: 'IT', name: 'Italy', flag: '🇮🇹' },
-  { code: 'ES', name: 'Spain', flag: '🇪🇸' },
-  { code: 'NL', name: 'Netherlands', flag: '🇳🇱' },
-  { code: 'PL', name: 'Poland', flag: '🇵🇱' },
-  { code: 'RU', name: 'Russia', flag: '🇷🇺' },
-  { code: 'CN', name: 'China', flag: '🇨🇳' },
-  { code: 'IN', name: 'India', flag: '🇮🇳' },
+  { code: 'DE', name: 'Germany', flag: '🇩🇪' },
+  { code: 'AE', name: 'United Arab Emirates', flag: '🇦🇪' },
+  { code: 'SA', name: 'Saudi Arabia', flag: '🇸🇦' },
+  { code: 'IL', name: 'Israel', flag: '🇮🇱' },
   { code: 'JP', name: 'Japan', flag: '🇯🇵' },
-  { code: 'KR', name: 'South Korea', flag: '🇰🇷' },
-  { code: 'TW', name: 'Taiwan', flag: '🇹🇼' },
   { code: 'SG', name: 'Singapore', flag: '🇸🇬' },
   { code: 'ID', name: 'Indonesia', flag: '🇮🇩' },
   { code: 'MY', name: 'Malaysia', flag: '🇲🇾' },
-  { code: 'TH', name: 'Thailand', flag: '🇹🇭' },
-  { code: 'VN', name: 'Vietnam', flag: '🇻🇳' },
-  { code: 'SA', name: 'Saudi Arabia', flag: '🇸🇦' },
-  { code: 'AE', name: 'United Arab Emirates', flag: '🇦🇪' },
-  { code: 'IL', name: 'Israel', flag: '🇮🇱' },
-  { code: 'TR', name: 'Turkey', flag: '🇹🇷' },
-  { code: 'ZA', name: 'South Africa', flag: '🇿🇦' },
-  { code: 'NG', name: 'Nigeria', flag: '🇳🇬' },
-  { code: 'EG', name: 'Egypt', flag: '🇪🇬' },
-  { code: 'KE', name: 'Kenya', flag: '🇰🇪' },
   { code: 'AU', name: 'Australia', flag: '🇦🇺' },
 ];
 
@@ -87,7 +69,7 @@ export const HomePage: React.FC = () => {
 
   // Dynamic Country Topic Suggestions State
   const [topicSuggestions, setTopicSuggestions] = useState<TopicSuggestionsPayload | null>(null);
-  const [selectedCountry, setSelectedCountry] = useState<string>('US');
+  const [selectedCountry, setSelectedCountry] = useState<string>('IN');
   const [suggestionsLoading, setSuggestionsLoading] = useState(true);
   const [suggestionsRefreshing, setSuggestionsRefreshing] = useState(false);
 
@@ -141,7 +123,7 @@ export const HomePage: React.FC = () => {
       .then((data) => {
         if (data && data.countries && data.countries.length > 0) {
           setTopicSuggestions(data);
-          // 2. 4-Hour staleness check: trigger background refresh only if stale (> 4 hours)
+          // 2. 24-Hour staleness check: trigger background refresh only if stale (> 24 hours)
           if (data.is_stale) {
             setSuggestionsRefreshing(true);
             refreshTopicSuggestions()
@@ -347,7 +329,7 @@ export const HomePage: React.FC = () => {
               Select Country for Live Breaking Topics:
             </span>
 
-            {/* Responsive Country Chip Bar: 20 Countries, ONLY Flag + Country Code, no country name, no count badge */}
+            {/* Responsive Country Chip Bar: 16 Countries in Priority Order, ONLY Flag + Country Code, no country name, no count badge */}
             <div className="w-full flex flex-wrap justify-center items-center gap-1.5 sm:gap-2 p-2 sm:p-2.5 bg-base-200/80 rounded-2xl border border-base-300/60 shadow-inner">
               {TARGET_COUNTRIES.map((c) => {
                 const isSelected = selectedCountry === c.code;
@@ -403,7 +385,7 @@ export const HomePage: React.FC = () => {
             <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
               <span className="badge badge-sm badge-outline gap-1 font-mono text-[11px] bg-base-100/60 shrink-0">
                 <CheckCircle2 size={12} className="text-success shrink-0" />
-                <span>4h Cache</span>
+                <span>24h Cache</span>
               </span>
               <button
                 className={`btn btn-ghost btn-xs gap-1.5 rounded-lg border border-base-300/40 hover:bg-base-200 font-medium shrink-0 ${suggestionsRefreshing ? 'loading text-primary' : ''}`}
@@ -468,11 +450,11 @@ export const HomePage: React.FC = () => {
                       )}
                     </div>
 
-                    <h4 className="font-bold text-sm sm:text-base text-base-content group-hover:text-primary transition-colors leading-snug mb-2">
+                    <h4 className="font-bold text-sm sm:text-base text-base-content group-hover:text-primary transition-colors leading-snug mb-2.5">
                       {item.topic}
                     </h4>
 
-                    <p className="text-xs text-base-content/70 leading-relaxed line-clamp-3">
+                    <p className="text-xs text-base-content/75 leading-relaxed">
                       {item.summary}
                     </p>
                   </div>

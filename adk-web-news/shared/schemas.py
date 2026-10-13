@@ -505,3 +505,42 @@ class InvestigationReport(BaseModel):
     investigative_hypothesis: str
     investigation_steps: List[InvestigationStep] = Field(default_factory=list)
     deep_dive_verdict: str
+
+
+# ==============================================================================
+# Topic Suggestion & Editorial Curation Schemas
+# ==============================================================================
+
+class CuratedTopicItem(BaseModel):
+    """Intelligently curated topic card worthy of multi-agent deep dive."""
+    id: str = Field(description="Unique identifier for card, e.g. us-1")
+    topic: str = Field(description="Precise, crystal-clear heading framing the tension or core debate")
+    summary: str = Field(description="Narrative storytelling summary explaining the main points to hook the user")
+    category: str = Field(description="Domain category, e.g. Technology & AI, Politics & Law, Economy & Markets, Geopolitics, Energy & Climate, Health & Science")
+    badge: str = Field(description="Focus badge e.g. Policy Clash, Media Bias, Market Debate, Strategic, Ethics Audit, Controversy")
+    badge_color: Optional[str] = Field(default="badge-primary", description="DaisyUI badge color class")
+    source_headline: Optional[str] = Field(default=None, description="Original raw headline")
+    source_outlet: Optional[str] = Field(default=None, description="Source news organization")
+    url: Optional[str] = Field(default="", description="Source article URL if available")
+
+
+class CountryTopicGroupPayload(BaseModel):
+    """Country grouping of curated topic cards."""
+    code: str = Field(description="ISO 2-letter country code")
+    name: str = Field(description="Country display name")
+    flag: str = Field(description="Country emoji flag")
+    topics: List[CuratedTopicItem] = Field(default_factory=list)
+
+
+class TopicSuggestionsPayload(BaseModel):
+    """Full cache payload for country-grouped curated topics."""
+    id: str = "latest"
+    created_at: float
+    created_at_iso: Optional[str] = None
+    updated_at: float
+    expires_at: Optional[float] = None
+    cache_duration_seconds: Optional[int] = 86400  # 24 hours (24 * 3600)
+    is_stale: Optional[bool] = False
+    age_seconds: Optional[float] = 0.0
+    countries: List[CountryTopicGroupPayload] = Field(default_factory=list)
+

@@ -509,7 +509,7 @@ async def get_topic_suggestions():
     
     If cache does not exist, generates fresh suggestions, saves to Firestore,
     and returns them. If cache exists, calculates age; marks is_stale=True
-    if older than 4 hours (14,400 seconds).
+    if older than 24 hours (86,400 seconds).
     """
     cached = await FirestoreService.get_topic_suggestions()
     now = time.time()
@@ -524,7 +524,7 @@ async def get_topic_suggestions():
 
     created_at = cached.get("created_at") or cached.get("updated_at") or 0
     age_seconds = max(0.0, now - created_at)
-    is_stale = age_seconds > (4 * 3600)  # 4 hours
+    is_stale = age_seconds > (24 * 3600)  # 24 hours
 
     response = dict(cached)
     response["is_stale"] = is_stale
