@@ -126,15 +126,15 @@ export const AnalysisDetailPage: React.FC = () => {
 
           <div className="flex flex-wrap items-center gap-2 mt-1">
             <span className="text-xs font-bold uppercase tracking-wider text-primary">Permanent Investigation:</span>
-            <span className="badge badge-neutral badge-sm font-mono text-[11px] truncate max-w-xs px-2.5 py-1">{id}</span>
+            <span className="badge badge-neutral badge-sm font-mono text-[11px] truncate max-w-[200px] sm:max-w-xs px-2.5 py-1">{id}</span>
           </div>
         </div>
 
         {/* Action Buttons: Copy Bookmark Link & Navigation */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           <button
             onClick={handleCopyBookmarkLink}
-            className="btn btn-sm btn-outline border-base-300 hover:border-primary gap-1.5 shadow-sm font-semibold"
+            className="btn btn-sm btn-outline border-base-300 hover:border-primary gap-1.5 shadow-sm font-semibold text-xs sm:text-sm"
             title="Copy bookmark URL to clipboard"
           >
             {copiedLink ? <Check size={15} className="text-success" /> : <Copy size={15} className="text-primary" />}
@@ -143,7 +143,7 @@ export const AnalysisDetailPage: React.FC = () => {
 
           <Link
             to="/history"
-            className="btn btn-sm btn-ghost gap-1.5 text-base-content/75 hover:text-primary"
+            className="btn btn-sm btn-ghost gap-1.5 text-base-content/75 hover:text-primary text-xs sm:text-sm"
           >
             <History size={15} />
             <span>Archive</span>
@@ -151,7 +151,7 @@ export const AnalysisDetailPage: React.FC = () => {
 
           <Link
             to="/"
-            className="btn btn-sm btn-primary gap-1.5 shadow-sm"
+            className="btn btn-sm btn-primary gap-1.5 shadow-sm text-xs sm:text-sm"
           >
             <Search size={15} />
             <span>New Search</span>
@@ -160,16 +160,16 @@ export const AnalysisDetailPage: React.FC = () => {
       </div>
 
       {/* Bookmark Notice Banner */}
-      <div className="alert alert-info bg-info/10 text-base-content border border-info/30 rounded-xl mb-6 py-2.5 px-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm text-xs">
-        <div className="flex items-center gap-2.5">
-          <Bookmark size={16} className="text-info flex-shrink-0" />
-          <span>
-            <strong>Bookmarkable Page:</strong> You can bookmark this exact URL (<span className="font-mono text-[11px]">{`/analysis/${id}`}</span>) in your browser (Ctrl+D / Cmd+D) to return to this forensic debrief at any time.
+      <div className="alert alert-info bg-info/10 text-base-content border border-info/30 rounded-xl mb-6 py-2.5 px-3 sm:px-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm text-xs">
+        <div className="flex items-start sm:items-center gap-2.5 min-w-0">
+          <Bookmark size={16} className="text-info shrink-0 mt-0.5 sm:mt-0" />
+          <span className="break-words min-w-0">
+            <strong>Bookmarkable Page:</strong> You can bookmark this exact URL (<span className="font-mono text-[11px] break-all">{`/analysis/${id}`}</span>) in your browser (Ctrl+D / Cmd+D) to return to this forensic debrief at any time.
           </span>
         </div>
         <button
           onClick={handleCopyBookmarkLink}
-          className="btn btn-xs btn-outline btn-info gap-1 self-end sm:self-auto flex-shrink-0"
+          className="btn btn-xs btn-outline btn-info gap-1 self-end sm:self-auto shrink-0"
         >
           {copiedLink ? <Check size={12} /> : <Share2 size={12} />}
           <span>{copiedLink ? 'Copied' : 'Share URL'}</span>

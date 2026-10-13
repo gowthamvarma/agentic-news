@@ -739,73 +739,105 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
       </aside>
 
       {/* Mobile Horizontal Tabs Switcher */}
-      <div className="w-full lg:hidden mb-2 overflow-x-auto no-scrollbar">
-        <div className="tabs tabs-boxed bg-base-200 p-1 flex-nowrap w-max gap-1">
+      <div className="w-full lg:hidden mb-4 overflow-x-auto no-scrollbar py-1">
+        <div className="flex items-center gap-1.5 p-1 bg-base-200/90 rounded-2xl border border-base-300 w-max shadow-inner">
           <button
-            className={`tab tab-sm font-medium ${activeTab === 'brief' ? 'tab-active font-bold' : ''}`}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+              activeTab === 'brief'
+                ? 'bg-primary text-primary-content shadow-sm'
+                : 'text-base-content/75 hover:bg-base-300/60 hover:text-base-content'
+            }`}
             onClick={() => setActiveTab('brief')}
           >
             Brief
           </button>
           <button
-            className={`tab tab-sm font-medium ${activeTab === 'sources' ? 'tab-active font-bold' : ''}`}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+              activeTab === 'sources'
+                ? 'bg-primary text-primary-content shadow-sm'
+                : 'text-base-content/75 hover:bg-base-300/60 hover:text-base-content'
+            }`}
             onClick={() => setActiveTab('sources')}
           >
             Sources ({report.articles_analyzed?.length || report.sources_analyzed?.length || 0})
           </button>
           <button
-            className={`tab tab-sm font-medium ${activeTab === 'verification' ? 'tab-active font-bold' : ''}`}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+              activeTab === 'verification'
+                ? 'bg-primary text-primary-content shadow-sm'
+                : 'text-base-content/75 hover:bg-base-300/60 hover:text-base-content'
+            }`}
             onClick={() => setActiveTab('verification')}
           >
             Fact Checks ({report.verifications?.length || 0})
           </button>
           <button
-            className={`tab tab-sm font-medium ${activeTab === 'timeline' ? 'tab-active font-bold' : ''}`}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+              activeTab === 'timeline'
+                ? 'bg-primary text-primary-content shadow-sm'
+                : 'text-base-content/75 hover:bg-base-300/60 hover:text-base-content'
+            }`}
             onClick={() => setActiveTab('timeline')}
           >
             Timeline ({report.timeline?.events?.length || 0})
           </button>
           <button
-            className={`tab tab-sm font-medium gap-1.5 ${activeTab === 'insights' ? 'tab-active font-bold' : ''}`}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all inline-flex items-center gap-1.5 ${
+              activeTab === 'insights'
+                ? 'bg-primary text-primary-content shadow-sm'
+                : 'text-base-content/75 hover:bg-base-300/60 hover:text-base-content'
+            }`}
             onClick={() => setActiveTab('insights')}
           >
             <span>Scenarios</span>
             {scenariosStatus === 'loading' ? (
               <span className="loading loading-spinner loading-xs text-info"></span>
             ) : scenariosStatus === 'ready' ? (
-              <CheckCircle2 size={12} className="text-success" />
+              <CheckCircle2 size={12} className={activeTab === 'insights' ? 'text-primary-content' : 'text-success'} />
             ) : (
-              <CirclePause size={12} className="text-warning" />
+              <CirclePause size={12} className={activeTab === 'insights' ? 'text-primary-content' : 'text-warning'} />
             )}
           </button>
           <button
-            className={`tab tab-sm font-medium gap-1.5 ${activeTab === 'quiz' ? 'tab-active font-bold' : ''}`}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all inline-flex items-center gap-1.5 ${
+              activeTab === 'quiz'
+                ? 'bg-primary text-primary-content shadow-sm'
+                : 'text-base-content/75 hover:bg-base-300/60 hover:text-base-content'
+            }`}
             onClick={() => setActiveTab('quiz')}
           >
             <span>Recall Tutor</span>
             {quizStatus === 'loading' ? (
               <span className="loading loading-spinner loading-xs text-info"></span>
             ) : quizStatus === 'ready' ? (
-              <CheckCircle2 size={12} className="text-success" />
+              <CheckCircle2 size={12} className={activeTab === 'quiz' ? 'text-primary-content' : 'text-success'} />
             ) : (
-              <CirclePause size={12} className="text-warning" />
+              <CirclePause size={12} className={activeTab === 'quiz' ? 'text-primary-content' : 'text-warning'} />
             )}
           </button>
           <button
-            className={`tab tab-sm font-medium gap-1.5 ${activeTab === 'debate' ? 'tab-active font-bold' : ''}`}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all inline-flex items-center gap-1.5 ${
+              activeTab === 'debate'
+                ? 'bg-primary text-primary-content shadow-sm'
+                : 'text-base-content/75 hover:bg-base-300/60 hover:text-base-content'
+            }`}
             onClick={() => setActiveTab('debate')}
           >
             <span>Debate</span>
             {debateStatus === 'loading' ? (
               <span className="loading loading-spinner loading-xs text-info"></span>
             ) : debateStatus === 'ready' ? (
-              <CheckCircle2 size={12} className="text-success" />
+              <CheckCircle2 size={12} className={activeTab === 'debate' ? 'text-primary-content' : 'text-success'} />
             ) : (
-              <CirclePause size={12} className="text-warning" />
+              <CirclePause size={12} className={activeTab === 'debate' ? 'text-primary-content' : 'text-warning'} />
             )}
           </button>
           <button
-            className={`tab tab-sm font-medium ${activeTab === 'copilot' ? 'tab-active font-bold' : ''}`}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+              activeTab === 'copilot'
+                ? 'bg-primary text-primary-content shadow-sm'
+                : 'text-base-content/75 hover:bg-base-300/60 hover:text-base-content'
+            }`}
             onClick={() => setActiveTab('copilot')}
           >
             Copilot

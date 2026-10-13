@@ -8,28 +8,28 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="navbar bg-base-200/90 backdrop-blur-md border-b border-base-300 sticky top-0 z-40 px-3 md:px-6 lg:px-8">
-      <div className="navbar-start gap-2 sm:gap-3">
+      <div className="navbar-start gap-2 sm:gap-3 w-auto flex-1 min-w-0">
         {/* Mobile Drawer Toggle */}
         <label
           htmlFor="main-drawer"
-          className="btn btn-ghost btn-circle btn-sm md:btn-md lg:hidden"
+          className="btn btn-ghost btn-circle btn-sm md:btn-md lg:hidden shrink-0"
           aria-label="open sidebar"
         >
           <MenuIcon size={20} />
         </label>
 
         {/* Brand Logo with Aura glow */}
-        <Link to="/" className="flex items-center gap-2.5 sm:gap-3 group">
-          <div className="relative p-0.5 rounded-full bg-gradient-to-r from-primary via-secondary to-accent shadow-md group-hover:scale-105 transition-transform">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-base-100 flex items-center justify-center text-primary shadow-inner">
-              <Brain size={22} className="text-primary" />
+        <Link to="/" className="flex items-center gap-2 sm:gap-3 group min-w-0">
+          <div className="relative p-0.5 rounded-full bg-gradient-to-r from-primary via-secondary to-accent shadow-md group-hover:scale-105 transition-transform shrink-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-base-100 flex items-center justify-center text-primary shadow-inner">
+              <Brain size={20} className="text-primary" />
             </div>
           </div>
 
-          <div>
-            <div className="font-black text-base sm:text-lg md:text-xl tracking-tight flex items-center gap-1.5 sm:gap-2">
-              <span>Agentic News</span>
-              <span className="badge badge-primary badge-outline badge-xs sm:badge-sm font-bold px-2 py-0.5">ADK 2.0</span>
+          <div className="min-w-0">
+            <div className="font-black text-sm sm:text-lg md:text-xl tracking-tight flex items-center gap-1.5 sm:gap-2">
+              <span className="truncate">Agentic News</span>
+              <span className="badge badge-primary badge-outline badge-xs sm:badge-sm font-bold px-1.5 sm:px-2 py-0.5 shrink-0">ADK 2.0</span>
             </div>
             <div className="text-[11px] text-base-content/60 font-medium hidden md:block">
               25-Agent Autonomous Media Intelligence • Google Gemini
@@ -71,7 +71,7 @@ export const Navbar: React.FC = () => {
         </div>
       </div>
 
-      <div className="navbar-end gap-2">
+      <div className="navbar-end gap-2 w-auto flex-none">
         {/* DaisyUI Theme Selector Dropdown */}
         <div className="dropdown dropdown-end">
           <div

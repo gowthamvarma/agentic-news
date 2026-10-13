@@ -233,33 +233,34 @@ export const HomePage: React.FC = () => {
   return (
     <div className="flex flex-col min-h-[calc(100vh-140px)]">
       {/* DaisyUI Hero Section with Search Bar */}
-      <section className="hero py-10 md:py-16 px-4 bg-gradient-to-b from-base-200/70 via-base-200/40 to-base-100 border-b border-base-300/40">
-        <div className="hero-content text-center max-w-4xl flex-col p-0">
-          <div className="badge badge-primary badge-outline gap-2 py-3 px-4 font-semibold shadow-sm mb-4">
-            <Sparkles size={16} />
-            <span>Google Cloud AI Builder Cup 2026 Submission</span>
+      <section className="hero py-8 sm:py-12 md:py-16 px-3 sm:px-6 bg-gradient-to-b from-base-200/70 via-base-200/40 to-base-100 border-b border-base-300/40">
+        <div className="hero-content text-center max-w-4xl flex-col p-0 w-full">
+          <div className="badge badge-primary badge-outline gap-2 py-2.5 px-3 sm:py-3 sm:px-4 text-xs font-semibold shadow-sm mb-4">
+            <Sparkles size={15} />
+            <span className="hidden sm:inline">Google Cloud AI Builder Cup 2026 Submission</span>
+            <span className="sm:hidden">AI Builder Cup 2026</span>
           </div>
 
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
+          <h1 className="text-xl sm:text-3xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight px-2 break-words">
             Autonomous Multi-Agent <br />
             <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
               Media Intelligence & Verification
             </span>
           </h1>
 
-          <p className="py-4 text-base-content/75 text-sm sm:text-base md:text-lg max-w-2xl leading-relaxed">
+          <p className="py-2.5 sm:py-4 text-base-content/75 text-xs sm:text-base md:text-lg max-w-2xl leading-relaxed px-2">
             Forensic cross-source auditing under IFCN principles, contradiction detection, chronological narrative evolution, and causal consequence modeling.
           </p>
 
-          {/* Search Box with DaisyUI Join */}
-          <div className="w-full max-w-3xl mt-2">
-            <div className="join w-full shadow-2xl border border-base-300 rounded-2xl bg-base-100 p-1.5 focus-within:border-primary transition-all">
-              <div className="join-item flex items-center pl-4 text-base-content/50">
+          {/* Search Box */}
+          <div className="w-full max-w-3xl mt-2 px-1">
+            <div className="flex items-center w-full shadow-2xl border border-base-300 rounded-2xl bg-base-100 p-1.5 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+              <div className="flex items-center pl-3 sm:pl-4 text-base-content/50 shrink-0">
                 <Search size={20} />
               </div>
               <input
                 type="text"
-                className="input input-ghost join-item w-full focus:outline-none text-sm md:text-base px-3"
+                className="input input-ghost w-full min-w-0 flex-1 focus:outline-none text-sm md:text-base px-2.5 sm:px-3 bg-transparent border-none"
                 placeholder="Enter breaking event, headline, or policy topic..."
                 value={topicInput}
                 onChange={(e) => setTopicInput(e.target.value)}
@@ -267,18 +268,18 @@ export const HomePage: React.FC = () => {
                 disabled={loading}
               />
               <button
-                className="btn btn-primary join-item rounded-xl gap-2 px-5 md:px-7 shadow-md"
+                className="btn btn-primary rounded-xl gap-2 px-4 sm:px-6 shadow-md shrink-0 text-xs sm:text-sm"
                 onClick={() => handleSearch()}
                 disabled={loading || !topicInput.trim()}
               >
                 {loading ? (
                   <>
-                    <span className="loading loading-spinner loading-sm"></span>
+                    <span className="loading loading-spinner loading-xs sm:loading-sm"></span>
                     <span>Analyzing...</span>
                   </>
                 ) : (
                   <>
-                    <Sparkles size={18} />
+                    <Sparkles size={16} />
                     <span className="hidden sm:inline">Run Fleet (25 Agents)</span>
                     <span className="sm:hidden">Run</span>
                   </>
@@ -287,84 +288,99 @@ export const HomePage: React.FC = () => {
             </div>
 
             {/* Dynamic Country-Grouped Topic Suggestions Section */}
-            <div className="w-full mt-6">
+            <div className="w-full mt-7">
               {suggestionsLoading && !topicSuggestions ? (
-                <div className="w-full">
-                  <div className="skeleton h-11 w-full rounded-2xl mb-4"></div>
+                <div className="w-full space-y-4">
+                  <div className="skeleton h-12 w-full rounded-2xl"></div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                     {[1, 2, 3, 4].map((i) => (
-                      <div key={i} className="skeleton h-32 w-full rounded-2xl"></div>
+                      <div key={i} className="skeleton h-36 w-full rounded-2xl"></div>
                     ))}
                   </div>
                 </div>
               ) : topicSuggestions && topicSuggestions.countries ? (
-                <div>
-                  {/* DaisyUI Country Tabs */}
-                  <div className="flex flex-col items-center">
-                    <span className="text-xs font-bold text-base-content/60 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <div className="w-full">
+                  {/* Country Selector Header & Pills */}
+                  <div className="flex flex-col items-center w-full">
+                    <span className="text-xs font-bold text-base-content/60 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
                       <Globe size={14} className="text-primary" />
                       Select Region / Country for Live Breaking Topics:
                     </span>
-                    <div className="tabs tabs-boxed bg-base-200/70 p-1 rounded-2xl flex-wrap justify-center gap-1 shadow-inner border border-base-300/40 max-w-full">
-                      {topicSuggestions.countries.map((c) => (
-                        <button
-                          key={c.code}
-                          className={`tab tab-sm sm:tab-md rounded-xl font-semibold transition-all flex items-center gap-1.5 ${
-                            selectedCountry === c.code
-                              ? 'tab-active bg-primary text-primary-content shadow-sm'
-                              : 'text-base-content/75 hover:text-base-content'
-                          }`}
-                          onClick={() => setSelectedCountry(c.code)}
-                        >
-                          <span className="text-base leading-none">{c.flag}</span>
-                          <span>{c.name}</span>
-                          <span
-                            className={`badge badge-xs ${
-                              selectedCountry === c.code
-                                ? 'badge-neutral text-primary-content font-bold'
-                                : 'badge-ghost text-base-content/60'
-                            }`}
-                          >
-                            {c.topics.length}
-                          </span>
-                        </button>
-                      ))}
+
+                    {/* Responsive Segmented Chip Bar */}
+                    <div className="w-full max-w-full overflow-x-auto no-scrollbar py-1">
+                      <div className="inline-flex sm:flex sm:flex-wrap items-center sm:justify-center gap-1.5 sm:gap-2 p-1.5 sm:p-2 bg-base-200/80 rounded-2xl border border-base-300/60 shadow-inner">
+                        {topicSuggestions.countries.map((c) => {
+                          const isSelected = selectedCountry === c.code;
+                          const shortName =
+                            c.code === 'US' ? 'US' :
+                            c.code === 'GB' ? 'UK' :
+                            c.code === 'SG' ? 'Singapore' :
+                            c.code === 'EU' ? 'EU' :
+                            c.name;
+
+                          return (
+                            <button
+                              key={c.code}
+                              onClick={() => setSelectedCountry(c.code)}
+                              className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl font-semibold text-xs sm:text-sm transition-all whitespace-nowrap ${
+                                isSelected
+                                  ? 'bg-primary text-primary-content shadow-md scale-[1.02]'
+                                  : 'bg-base-100/60 hover:bg-base-100 text-base-content/75 hover:text-base-content border border-base-300/40 hover:border-primary/40'
+                              }`}
+                            >
+                              <span className="text-sm sm:text-base leading-none">{c.flag}</span>
+                              <span className="sm:hidden">{shortName}</span>
+                              <span className="hidden sm:inline">{c.name}</span>
+                              <span
+                                className={`inline-flex items-center justify-center min-w-[1.25rem] h-4.5 px-1.5 rounded-full text-[10px] font-bold leading-none ${
+                                  isSelected
+                                    ? 'bg-primary-content/20 text-primary-content'
+                                    : 'bg-base-300/80 text-base-content/60'
+                                }`}
+                              >
+                                {c.topics.length}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
 
-                  {/* Cache Timestamp & Refresh Control Bar */}
-                  <div className="flex flex-wrap items-center justify-between gap-2 mt-4 px-1 text-xs text-base-content/65">
-                    <div className="flex items-center gap-2">
-                      <span className="flex items-center gap-1 font-semibold text-base-content/85">
-                        <Flame size={14} className="text-secondary" />
+                  {/* Cache Timestamp & Feed Status Bar */}
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 mt-5 mb-3 px-1.5 pb-2.5 border-b border-base-300/50 text-xs text-base-content/65">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="flex items-center gap-1.5 font-bold text-base-content/90">
+                        <Flame size={15} className="text-secondary" />
                         {activeCountryGroup ? `${activeCountryGroup.flag} ${activeCountryGroup.name} Breaking Topics` : 'Live Topics'}
                       </span>
-                      <span className="hidden sm:inline">•</span>
-                      <span className="hidden sm:flex items-center gap-1">
+                      <span className="hidden sm:inline text-base-content/30">•</span>
+                      <span className="flex items-center gap-1 text-[11px] sm:text-xs">
                         <Clock size={13} />
                         Updated {getCacheAgeText(topicSuggestions?.created_at)} ({formatSuggestionTime(topicSuggestions?.created_at)})
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2 ml-auto">
-                      <span className="badge badge-sm badge-outline gap-1 font-mono text-[11px]">
+                    <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+                      <span className="badge badge-sm badge-outline gap-1 font-mono text-[11px] bg-base-100/60">
                         <CheckCircle2 size={12} className="text-success" />
                         4h Firestore Cache
                       </span>
                       <button
-                        className={`btn btn-ghost btn-xs gap-1 rounded-lg hover:bg-base-300/60 font-medium ${suggestionsRefreshing ? 'loading text-primary' : ''}`}
+                        className={`btn btn-ghost btn-xs gap-1.5 rounded-lg border border-base-300/40 hover:bg-base-200 font-medium ${suggestionsRefreshing ? 'loading text-primary' : ''}`}
                         onClick={handleRefreshSuggestions}
                         disabled={suggestionsRefreshing || loading}
                         title="Fetch latest Google News RSS & synthesize new topics with Gemini"
                       >
                         <RotateCw size={12} className={suggestionsRefreshing ? 'animate-spin' : ''} />
-                        <span className="hidden xs:inline">{suggestionsRefreshing ? 'Updating...' : 'Refresh Feed'}</span>
+                        <span>{suggestionsRefreshing ? 'Updating...' : 'Refresh Feed'}</span>
                       </button>
                     </div>
                   </div>
 
                   {/* Topic Cards Grid for Selected Country */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 mt-3 text-left">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4 mt-2 text-left">
                     {activeCountryGroup?.topics.map((item) => (
                       <div
                         key={item.id}
@@ -372,10 +388,10 @@ export const HomePage: React.FC = () => {
                           setTopicInput(item.topic);
                           handleSearch(item.topic);
                         }}
-                        className="group card bg-base-100/90 hover:bg-base-100 border border-base-300/70 hover:border-primary/60 shadow-sm hover:shadow-lg transition-all duration-200 cursor-pointer p-4 rounded-2xl flex flex-col justify-between"
+                        className="group relative bg-base-100/90 hover:bg-base-100 border border-base-300/80 hover:border-primary/60 shadow-sm hover:shadow-xl transition-all duration-200 cursor-pointer p-4 sm:p-5 rounded-2xl flex flex-col justify-between"
                       >
                         <div>
-                          <div className="flex items-center justify-between gap-2 mb-2">
+                          <div className="flex items-center justify-between gap-2 mb-2.5">
                             <div className="flex items-center gap-1.5 flex-wrap">
                               <span className={`badge badge-xs sm:badge-sm font-semibold shadow-xs ${item.badge_color || 'badge-primary'}`}>
                                 {item.badge}
@@ -385,13 +401,13 @@ export const HomePage: React.FC = () => {
                               </span>
                             </div>
                             {item.source_outlet && (
-                              <span className="text-[11px] text-base-content/50 font-medium truncate max-w-[130px]">
+                              <span className="text-[11px] text-base-content/50 font-medium truncate max-w-[140px]">
                                 via {item.source_outlet}
                               </span>
                             )}
                           </div>
 
-                          <h4 className="font-bold text-sm sm:text-base text-base-content group-hover:text-primary transition-colors leading-snug mb-1.5">
+                          <h4 className="font-bold text-sm sm:text-base text-base-content group-hover:text-primary transition-colors leading-snug mb-2">
                             {item.topic}
                           </h4>
 
@@ -400,7 +416,7 @@ export const HomePage: React.FC = () => {
                           </p>
                         </div>
 
-                        <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-base-300/50 text-xs">
+                        <div className="flex items-center justify-between mt-3.5 pt-2.5 border-t border-base-300/50 text-xs">
                           <span className="text-primary font-semibold flex items-center gap-1.5 opacity-90 group-hover:opacity-100 transition-opacity">
                             <Sparkles size={13} className="text-primary" />
                             <span>Analyze with 25 Agents</span>

@@ -174,60 +174,60 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
   return (
     <div className="flex flex-col gap-6">
       {/* Top Overview Metric Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-        <div className="card bg-base-200/80 border border-base-300 shadow-sm p-4 flex flex-row items-center gap-3.5">
-          <div className="p-3 rounded-xl bg-primary/10 text-primary">
-            <Database size={22} />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
+        <div className="card bg-base-200/80 border border-base-300 shadow-sm p-3 sm:p-4 flex flex-row items-center gap-2.5 sm:gap-3.5 min-w-0">
+          <div className="p-2 sm:p-3 rounded-xl bg-primary/10 text-primary shrink-0">
+            <Database size={20} className="sm:w-[22px] sm:h-[22px]" />
           </div>
-          <div>
-            <div className="text-xs text-base-content/60 font-semibold uppercase tracking-wider">
+          <div className="min-w-0">
+            <div className="text-[10px] sm:text-xs text-base-content/60 font-semibold uppercase tracking-wider truncate">
               Total Archives
             </div>
-            <div className="text-xl md:text-2xl font-black text-base-content mt-0.5">
+            <div className="text-lg sm:text-2xl font-black text-base-content mt-0.5">
               {total}
             </div>
           </div>
         </div>
 
-        <div className="card bg-base-200/80 border border-base-300 shadow-sm p-4 flex flex-row items-center gap-3.5">
-          <div className="p-3 rounded-xl bg-warning/10 text-warning">
-            <Star size={22} className="fill-warning/40" />
+        <div className="card bg-base-200/80 border border-base-300 shadow-sm p-3 sm:p-4 flex flex-row items-center gap-2.5 sm:gap-3.5 min-w-0">
+          <div className="p-2 sm:p-3 rounded-xl bg-warning/10 text-warning shrink-0">
+            <Star size={20} className="sm:w-[22px] sm:h-[22px] fill-warning/40" />
           </div>
-          <div>
-            <div className="text-xs text-base-content/60 font-semibold uppercase tracking-wider">
+          <div className="min-w-0">
+            <div className="text-[10px] sm:text-xs text-base-content/60 font-semibold uppercase tracking-wider truncate">
               Starred
             </div>
-            <div className="text-xl md:text-2xl font-black text-base-content mt-0.5">
+            <div className="text-lg sm:text-2xl font-black text-base-content mt-0.5">
               {favoritesOnly ? total : totalFavorites}
             </div>
           </div>
         </div>
 
-        <div className="card bg-base-200/80 border border-base-300 shadow-sm p-4 flex flex-row items-center gap-3.5">
-          <div className="p-3 rounded-xl bg-secondary/10 text-secondary">
-            <Globe size={22} />
+        <div className="card bg-base-200/80 border border-base-300 shadow-sm p-3 sm:p-4 flex flex-row items-center gap-2.5 sm:gap-3.5 min-w-0">
+          <div className="p-2 sm:p-3 rounded-xl bg-secondary/10 text-secondary shrink-0">
+            <Globe size={20} className="sm:w-[22px] sm:h-[22px]" />
           </div>
-          <div>
-            <div className="text-xs text-base-content/60 font-semibold uppercase tracking-wider">
+          <div className="min-w-0">
+            <div className="text-[10px] sm:text-xs text-base-content/60 font-semibold uppercase tracking-wider truncate">
               Sources Audited
             </div>
-            <div className="text-xl md:text-2xl font-black text-base-content mt-0.5">
+            <div className="text-lg sm:text-2xl font-black text-base-content mt-0.5">
               {totalSourcesCount}+
             </div>
           </div>
         </div>
 
-        <div className="card bg-base-200/80 border border-base-300 shadow-sm p-4 flex flex-row items-center gap-3.5">
-          <div className="p-3 rounded-xl bg-success/10 text-success">
-            <CheckCircle2 size={22} />
+        <div className="card bg-base-200/80 border border-base-300 shadow-sm p-3 sm:p-4 flex flex-row items-center gap-2.5 sm:gap-3.5 min-w-0">
+          <div className="p-2 sm:p-3 rounded-xl bg-success/10 text-success shrink-0">
+            <CheckCircle2 size={20} className="sm:w-[22px] sm:h-[22px]" />
           </div>
-          <div>
-            <div className="text-xs text-base-content/60 font-semibold uppercase tracking-wider">
+          <div className="min-w-0">
+            <div className="text-[10px] sm:text-xs text-base-content/60 font-semibold uppercase tracking-wider truncate">
               Persistence
             </div>
             <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="w-2 h-2 rounded-full bg-success animate-pulse"></span>
-              <span className="text-xs md:text-sm font-bold text-base-content">
+              <span className="w-2 h-2 rounded-full bg-success animate-pulse shrink-0"></span>
+              <span className="text-xs sm:text-sm font-bold text-base-content truncate">
                 Firestore Sync
               </span>
             </div>
