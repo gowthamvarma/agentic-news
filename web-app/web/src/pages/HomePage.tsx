@@ -35,6 +35,43 @@ const FLEET_STAGES = [
   { title: 'Stage 5: Who/Where/What Primer & Jargon Buster', short: 'Primers', desc: 'Compiling entity background primers, institutional backdrops, and legal glossaries...' }
 ];
 
+export const TARGET_COUNTRIES = [
+  { code: 'US', name: 'United States', flag: '🇺🇸' },
+  { code: 'CA', name: 'Canada', flag: '🇨🇦' },
+  { code: 'MX', name: 'Mexico', flag: '🇲🇽' },
+  { code: 'BR', name: 'Brazil', flag: '🇧🇷' },
+  { code: 'AR', name: 'Argentina', flag: '🇦🇷' },
+  { code: 'CL', name: 'Chile', flag: '🇨🇱' },
+  { code: 'DE', name: 'Germany', flag: '🇩🇪' },
+  { code: 'GB', name: 'United Kingdom', flag: '🇬🇧' },
+  { code: 'FR', name: 'France', flag: '🇫🇷' },
+  { code: 'CH', name: 'Switzerland', flag: '🇨🇭' },
+  { code: 'IT', name: 'Italy', flag: '🇮🇹' },
+  { code: 'ES', name: 'Spain', flag: '🇪🇸' },
+  { code: 'NL', name: 'Netherlands', flag: '🇳🇱' },
+  { code: 'PL', name: 'Poland', flag: '🇵🇱' },
+  { code: 'RU', name: 'Russia', flag: '🇷🇺' },
+  { code: 'CN', name: 'China', flag: '🇨🇳' },
+  { code: 'IN', name: 'India', flag: '🇮🇳' },
+  { code: 'JP', name: 'Japan', flag: '🇯🇵' },
+  { code: 'KR', name: 'South Korea', flag: '🇰🇷' },
+  { code: 'TW', name: 'Taiwan', flag: '🇹🇼' },
+  { code: 'SG', name: 'Singapore', flag: '🇸🇬' },
+  { code: 'ID', name: 'Indonesia', flag: '🇮🇩' },
+  { code: 'MY', name: 'Malaysia', flag: '🇲🇾' },
+  { code: 'TH', name: 'Thailand', flag: '🇹🇭' },
+  { code: 'VN', name: 'Vietnam', flag: '🇻🇳' },
+  { code: 'SA', name: 'Saudi Arabia', flag: '🇸🇦' },
+  { code: 'AE', name: 'United Arab Emirates', flag: '🇦🇪' },
+  { code: 'IL', name: 'Israel', flag: '🇮🇱' },
+  { code: 'TR', name: 'Turkey', flag: '🇹🇷' },
+  { code: 'ZA', name: 'South Africa', flag: '🇿🇦' },
+  { code: 'NG', name: 'Nigeria', flag: '🇳🇬' },
+  { code: 'EG', name: 'Egypt', flag: '🇪🇬' },
+  { code: 'KE', name: 'Kenya', flag: '🇰🇪' },
+  { code: 'AU', name: 'Australia', flag: '🇦🇺' },
+];
+
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
@@ -50,7 +87,7 @@ export const HomePage: React.FC = () => {
 
   // Dynamic Country Topic Suggestions State
   const [topicSuggestions, setTopicSuggestions] = useState<TopicSuggestionsPayload | null>(null);
-  const [selectedCountry, setSelectedCountry] = useState<string>('GLOBAL');
+  const [selectedCountry, setSelectedCountry] = useState<string>('US');
   const [suggestionsLoading, setSuggestionsLoading] = useState(true);
   const [suggestionsRefreshing, setSuggestionsRefreshing] = useState(false);
 
@@ -226,49 +263,54 @@ export const HomePage: React.FC = () => {
     }
   };
 
-  const activeCountryGroup = topicSuggestions?.countries.find(
+  const activeCountryGroup = topicSuggestions?.countries?.find(
     (c) => c.code === selectedCountry
-  ) || topicSuggestions?.countries[0];
+  );
+  const activeCountryMeta = TARGET_COUNTRIES.find((c) => c.code === selectedCountry) || TARGET_COUNTRIES[0];
+  const activeCountryName = activeCountryGroup?.name || activeCountryMeta.name;
+  const displayTopics = activeCountryGroup?.topics || [];
 
   return (
     <div className="flex flex-col min-h-[calc(100vh-140px)]">
       {/* DaisyUI Hero Section with Search Bar */}
-      <section className="hero py-8 sm:py-12 md:py-16 px-3 sm:px-6 bg-gradient-to-b from-base-200/70 via-base-200/40 to-base-100 border-b border-base-300/40">
-        <div className="hero-content text-center max-w-4xl flex-col p-0 w-full">
+      <section className="py-8 sm:py-12 md:py-14 px-3 sm:px-6 lg:px-8 bg-gradient-to-b from-base-200/70 via-base-200/40 to-base-100 border-b border-base-300/40">
+        <div className="max-w-4xl mx-auto text-center flex flex-col items-center">
           <div className="badge badge-primary badge-outline gap-2 py-2.5 px-3 sm:py-3 sm:px-4 text-xs font-semibold shadow-sm mb-4">
             <Sparkles size={15} />
             <span className="hidden sm:inline">Google Cloud AI Builder Cup 2026 Submission</span>
             <span className="sm:hidden">AI Builder Cup 2026</span>
           </div>
 
-          <h1 className="text-xl sm:text-3xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight px-2 break-words">
+          <h1 className="text-lg sm:text-3xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight px-1 break-words">
             Autonomous Multi-Agent <br />
             <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
               Media Intelligence & Verification
             </span>
           </h1>
 
-          <p className="py-2.5 sm:py-4 text-base-content/75 text-xs sm:text-base md:text-lg max-w-2xl leading-relaxed px-2">
+          <p className="py-3 sm:py-4 text-base-content/75 text-xs sm:text-base md:text-lg max-w-2xl leading-relaxed px-2">
             Forensic cross-source auditing under IFCN principles, contradiction detection, chronological narrative evolution, and causal consequence modeling.
           </p>
 
-          {/* Search Box */}
-          <div className="w-full max-w-3xl mt-2 px-1">
-            <div className="flex items-center w-full shadow-2xl border border-base-300 rounded-2xl bg-base-100 p-1.5 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-              <div className="flex items-center pl-3 sm:pl-4 text-base-content/50 shrink-0">
-                <Search size={20} />
+          {/* Search Box - Fully responsive */}
+          <div className="w-full max-w-3xl mt-3 sm:mt-4 px-1">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-1.5 w-full shadow-xl sm:shadow-2xl border border-base-300 rounded-2xl bg-base-100 p-2 sm:p-1.5 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+              <div className="flex items-center flex-1 min-w-0">
+                <div className="flex items-center pl-2.5 sm:pl-3 text-base-content/50 shrink-0">
+                  <Search size={20} />
+                </div>
+                <input
+                  type="text"
+                  className="input input-ghost w-full min-w-0 flex-1 focus:outline-none text-xs sm:text-sm md:text-base px-2.5 sm:px-3 bg-transparent border-none"
+                  placeholder="Enter breaking event, headline, or policy topic..."
+                  value={topicInput}
+                  onChange={(e) => setTopicInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && !loading && handleSearch()}
+                  disabled={loading}
+                />
               </div>
-              <input
-                type="text"
-                className="input input-ghost w-full min-w-0 flex-1 focus:outline-none text-sm md:text-base px-2.5 sm:px-3 bg-transparent border-none"
-                placeholder="Enter breaking event, headline, or policy topic..."
-                value={topicInput}
-                onChange={(e) => setTopicInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && !loading && handleSearch()}
-                disabled={loading}
-              />
               <button
-                className="btn btn-primary rounded-xl gap-2 px-4 sm:px-6 shadow-md shrink-0 text-xs sm:text-sm"
+                className="btn btn-primary rounded-xl gap-2 px-4 sm:px-6 shadow-md shrink-0 text-xs sm:text-sm h-11 min-h-11 sm:h-12 sm:min-h-12"
                 onClick={() => handleSearch()}
                 disabled={loading || !topicInput.trim()}
               >
@@ -280,163 +322,174 @@ export const HomePage: React.FC = () => {
                 ) : (
                   <>
                     <Sparkles size={16} />
-                    <span className="hidden sm:inline">Run Fleet (25 Agents)</span>
-                    <span className="sm:hidden">Run</span>
+                    <span className="hidden md:inline">Run Fleet (25 Agents)</span>
+                    <span className="md:hidden">Run Fleet</span>
                   </>
                 )}
               </button>
             </div>
-
-            {/* Dynamic Country-Grouped Topic Suggestions Section */}
-            <div className="w-full mt-7">
-              {suggestionsLoading && !topicSuggestions ? (
-                <div className="w-full space-y-4">
-                  <div className="skeleton h-12 w-full rounded-2xl"></div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                    {[1, 2, 3, 4].map((i) => (
-                      <div key={i} className="skeleton h-36 w-full rounded-2xl"></div>
-                    ))}
-                  </div>
-                </div>
-              ) : topicSuggestions && topicSuggestions.countries ? (
-                <div className="w-full">
-                  {/* Country Selector Header & Pills */}
-                  <div className="flex flex-col items-center w-full">
-                    <span className="text-xs font-bold text-base-content/60 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-                      <Globe size={14} className="text-primary" />
-                      Select Region / Country for Live Breaking Topics:
-                    </span>
-
-                    {/* Responsive Segmented Chip Bar */}
-                    <div className="w-full max-w-full overflow-x-auto no-scrollbar py-1">
-                      <div className="inline-flex sm:flex sm:flex-wrap items-center sm:justify-center gap-1.5 sm:gap-2 p-1.5 sm:p-2 bg-base-200/80 rounded-2xl border border-base-300/60 shadow-inner">
-                        {topicSuggestions.countries.map((c) => {
-                          const isSelected = selectedCountry === c.code;
-                          const shortName =
-                            c.code === 'US' ? 'US' :
-                            c.code === 'GB' ? 'UK' :
-                            c.code === 'SG' ? 'Singapore' :
-                            c.code === 'EU' ? 'EU' :
-                            c.name;
-
-                          return (
-                            <button
-                              key={c.code}
-                              onClick={() => setSelectedCountry(c.code)}
-                              className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl font-semibold text-xs sm:text-sm transition-all whitespace-nowrap ${
-                                isSelected
-                                  ? 'bg-primary text-primary-content shadow-md scale-[1.02]'
-                                  : 'bg-base-100/60 hover:bg-base-100 text-base-content/75 hover:text-base-content border border-base-300/40 hover:border-primary/40'
-                              }`}
-                            >
-                              <span className="text-sm sm:text-base leading-none">{c.flag}</span>
-                              <span className="sm:hidden">{shortName}</span>
-                              <span className="hidden sm:inline">{c.name}</span>
-                              <span
-                                className={`inline-flex items-center justify-center min-w-[1.25rem] h-4.5 px-1.5 rounded-full text-[10px] font-bold leading-none ${
-                                  isSelected
-                                    ? 'bg-primary-content/20 text-primary-content'
-                                    : 'bg-base-300/80 text-base-content/60'
-                                }`}
-                              >
-                                {c.topics.length}
-                              </span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Cache Timestamp & Feed Status Bar */}
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 mt-5 mb-3 px-1.5 pb-2.5 border-b border-base-300/50 text-xs text-base-content/65">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="flex items-center gap-1.5 font-bold text-base-content/90">
-                        <Flame size={15} className="text-secondary" />
-                        {activeCountryGroup ? `${activeCountryGroup.flag} ${activeCountryGroup.name} Breaking Topics` : 'Live Topics'}
-                      </span>
-                      <span className="hidden sm:inline text-base-content/30">•</span>
-                      <span className="flex items-center gap-1 text-[11px] sm:text-xs">
-                        <Clock size={13} />
-                        Updated {getCacheAgeText(topicSuggestions?.created_at)} ({formatSuggestionTime(topicSuggestions?.created_at)})
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-                      <span className="badge badge-sm badge-outline gap-1 font-mono text-[11px] bg-base-100/60">
-                        <CheckCircle2 size={12} className="text-success" />
-                        4h Firestore Cache
-                      </span>
-                      <button
-                        className={`btn btn-ghost btn-xs gap-1.5 rounded-lg border border-base-300/40 hover:bg-base-200 font-medium ${suggestionsRefreshing ? 'loading text-primary' : ''}`}
-                        onClick={handleRefreshSuggestions}
-                        disabled={suggestionsRefreshing || loading}
-                        title="Fetch latest Google News RSS & synthesize new topics with Gemini"
-                      >
-                        <RotateCw size={12} className={suggestionsRefreshing ? 'animate-spin' : ''} />
-                        <span>{suggestionsRefreshing ? 'Updating...' : 'Refresh Feed'}</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Topic Cards Grid for Selected Country */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4 mt-2 text-left">
-                    {activeCountryGroup?.topics.map((item) => (
-                      <div
-                        key={item.id}
-                        onClick={() => {
-                          setTopicInput(item.topic);
-                          handleSearch(item.topic);
-                        }}
-                        className="group relative bg-base-100/90 hover:bg-base-100 border border-base-300/80 hover:border-primary/60 shadow-sm hover:shadow-xl transition-all duration-200 cursor-pointer p-4 sm:p-5 rounded-2xl flex flex-col justify-between"
-                      >
-                        <div>
-                          <div className="flex items-center justify-between gap-2 mb-2.5">
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className={`badge badge-xs sm:badge-sm font-semibold shadow-xs ${item.badge_color || 'badge-primary'}`}>
-                                {item.badge}
-                              </span>
-                              <span className="badge badge-outline badge-xs sm:badge-sm text-base-content/75 font-medium">
-                                {item.category}
-                              </span>
-                            </div>
-                            {item.source_outlet && (
-                              <span className="text-[11px] text-base-content/50 font-medium truncate max-w-[140px]">
-                                via {item.source_outlet}
-                              </span>
-                            )}
-                          </div>
-
-                          <h4 className="font-bold text-sm sm:text-base text-base-content group-hover:text-primary transition-colors leading-snug mb-2">
-                            {item.topic}
-                          </h4>
-
-                          <p className="text-xs text-base-content/70 leading-relaxed line-clamp-2">
-                            {item.summary}
-                          </p>
-                        </div>
-
-                        <div className="flex items-center justify-between mt-3.5 pt-2.5 border-t border-base-300/50 text-xs">
-                          <span className="text-primary font-semibold flex items-center gap-1.5 opacity-90 group-hover:opacity-100 transition-opacity">
-                            <Sparkles size={13} className="text-primary" />
-                            <span>Analyze with 25 Agents</span>
-                          </span>
-                          <span className="text-base-content/40 group-hover:text-primary transition-colors text-[11px] font-medium flex items-center gap-1">
-                            Deploy Fleet <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-            </div>
           </div>
 
           {errorMsg && (
-            <div className="alert alert-error shadow-lg max-w-2xl mt-6 rounded-xl">
-              <AlertTriangle size={20} />
-              <span>{errorMsg}</span>
+            <div className="alert alert-error shadow-lg max-w-2xl mt-6 rounded-xl text-left">
+              <AlertTriangle size={20} className="shrink-0" />
+              <span className="text-xs sm:text-sm">{errorMsg}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Dynamic Country Topic Suggestions Section - Expanded to max-w-7xl using most of page width */}
+        <div className="w-full max-w-7xl mx-auto mt-8 sm:mt-12 px-1 sm:px-4">
+          {/* Country Selector Header & Responsive Chips */}
+          <div className="flex flex-col items-center w-full">
+            <span className="text-xs font-bold text-base-content/60 uppercase tracking-wider mb-2.5 flex items-center gap-1.5 text-center">
+              <Globe size={14} className="text-primary" />
+              Select Country for Live Breaking Topics:
+            </span>
+
+            {/* Responsive Country Chip Bar: 20 Countries, ONLY Flag + Country Code, no country name, no count badge */}
+            <div className="w-full flex flex-wrap justify-center items-center gap-1.5 sm:gap-2 p-2 sm:p-2.5 bg-base-200/80 rounded-2xl border border-base-300/60 shadow-inner">
+              {TARGET_COUNTRIES.map((c) => {
+                const isSelected = selectedCountry === c.code;
+                return (
+                  <button
+                    key={c.code}
+                    onClick={() => setSelectedCountry(c.code)}
+                    title={c.name}
+                    aria-label={c.name}
+                    className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-xs sm:text-sm transition-all whitespace-nowrap shrink-0 ${
+                      isSelected
+                        ? 'bg-primary text-primary-content shadow-md scale-105 ring-2 ring-primary/40'
+                        : 'bg-base-100/70 hover:bg-base-100 text-base-content/75 hover:text-base-content border border-base-300/50 hover:border-primary/50'
+                    }`}
+                  >
+                    <img
+                      src={`https://flagcdn.com/24x18/${c.code.toLowerCase()}.png`}
+                      alt=""
+                      className="w-4 h-3 rounded-2xs object-cover shadow-2xs shrink-0"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLElement).style.display = 'none';
+                      }}
+                    />
+                    <span className="font-mono tracking-tight">{c.code}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Cache Timestamp & Feed Status Bar */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 mt-5 mb-3 px-1 pb-2.5 border-b border-base-300/50 text-xs text-base-content/65">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="flex items-center gap-1.5 font-bold text-base-content/90 text-sm">
+                <Flame size={16} className="text-secondary shrink-0" />
+                <img
+                  src={`https://flagcdn.com/28x21/${selectedCountry.toLowerCase()}.png`}
+                  alt=""
+                  className="w-5 h-3.5 rounded-2xs object-cover shadow-2xs inline-block shrink-0"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLElement).style.display = 'none';
+                  }}
+                />
+                <span>{activeCountryName} Breaking Topics</span>
+              </span>
+              <span className="hidden sm:inline text-base-content/30">•</span>
+              <span className="flex items-center gap-1 text-[11px] sm:text-xs">
+                <Clock size={13} className="shrink-0" />
+                <span>Updated {getCacheAgeText(topicSuggestions?.created_at)} ({formatSuggestionTime(topicSuggestions?.created_at)})</span>
+              </span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+              <span className="badge badge-sm badge-outline gap-1 font-mono text-[11px] bg-base-100/60 shrink-0">
+                <CheckCircle2 size={12} className="text-success shrink-0" />
+                <span>4h Cache</span>
+              </span>
+              <button
+                className={`btn btn-ghost btn-xs gap-1.5 rounded-lg border border-base-300/40 hover:bg-base-200 font-medium shrink-0 ${suggestionsRefreshing ? 'loading text-primary' : ''}`}
+                onClick={handleRefreshSuggestions}
+                disabled={suggestionsRefreshing || loading}
+                title="Fetch latest Google News RSS & synthesize new topics with Gemini"
+              >
+                <RotateCw size={12} className={suggestionsRefreshing ? 'animate-spin' : ''} />
+                <span>{suggestionsRefreshing ? 'Updating...' : 'Refresh Feed'}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Topic Cards Grid - Responsive 9 Articles (1 col mobile, 2 col tablet, 3 col desktop) */}
+          {suggestionsLoading && !topicSuggestions ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 mt-3">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+                <div key={i} className="skeleton h-44 w-full rounded-2xl"></div>
+              ))}
+            </div>
+          ) : displayTopics.length === 0 ? (
+            <div className="card bg-base-100/80 border border-base-300/70 p-8 text-center max-w-md mx-auto my-6 shadow-sm">
+              <Globe size={32} className="mx-auto text-primary opacity-60 mb-2" />
+              <h4 className="font-bold text-sm sm:text-base">Loading live topics for {activeCountryName}...</h4>
+              <p className="text-xs text-base-content/70 mt-1 mb-4">
+                Fetching latest breaking headlines and synthesizing with Gemini.
+              </p>
+              <button
+                className="btn btn-primary btn-sm mx-auto gap-2"
+                onClick={handleRefreshSuggestions}
+                disabled={suggestionsRefreshing}
+              >
+                <RotateCw size={14} className={suggestionsRefreshing ? 'animate-spin' : ''} />
+                <span>{suggestionsRefreshing ? 'Fetching...' : 'Fetch Feed'}</span>
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 mt-3 text-left">
+              {displayTopics.slice(0, 9).map((item) => (
+                <div
+                  key={item.id}
+                  onClick={() => {
+                    setTopicInput(item.topic);
+                    handleSearch(item.topic);
+                  }}
+                  className="group relative bg-base-100/90 hover:bg-base-100 border border-base-300/80 hover:border-primary/60 shadow-sm hover:shadow-xl transition-all duration-200 cursor-pointer p-4 sm:p-5 rounded-2xl flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className={`badge badge-xs sm:badge-sm font-semibold shadow-xs ${item.badge_color || 'badge-primary'}`}>
+                          {item.badge}
+                        </span>
+                        <span className="badge badge-outline badge-xs sm:badge-sm text-base-content/75 font-medium">
+                          {item.category}
+                        </span>
+                      </div>
+                      {item.source_outlet && (
+                        <span className="text-[11px] text-base-content/50 font-medium truncate max-w-[140px]">
+                          via {item.source_outlet}
+                        </span>
+                      )}
+                    </div>
+
+                    <h4 className="font-bold text-sm sm:text-base text-base-content group-hover:text-primary transition-colors leading-snug mb-2">
+                      {item.topic}
+                    </h4>
+
+                    <p className="text-xs text-base-content/70 leading-relaxed line-clamp-3">
+                      {item.summary}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between mt-4 pt-3 border-t border-base-300/50 text-xs">
+                    <span className="text-primary font-semibold flex items-center gap-1.5 opacity-90 group-hover:opacity-100 transition-opacity">
+                      <Sparkles size={13} className="text-primary shrink-0" />
+                      <span>Analyze with 25 Agents</span>
+                    </span>
+                    <span className="text-base-content/40 group-hover:text-primary transition-colors text-[11px] font-medium flex items-center gap-1 shrink-0">
+                      <span className="hidden sm:inline">Deploy Fleet</span>
+                      <span className="sm:hidden">Deploy</span>
+                      <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>
