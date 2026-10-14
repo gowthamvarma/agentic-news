@@ -101,8 +101,22 @@ if ($sourceImages.Count -gt 0) {
         $img.Dispose()
     }
     
+    # Patch Graphic Control Extension delay bytes to 280 (2.8 seconds per frame)
+    $gifBytes = [System.IO.File]::ReadAllBytes($gifTarget)
+    $delay100ths = 280
+    $lowByte = [byte]($delay100ths -band 0xFF)
+    $highByte = [byte](($delay100ths -shr 8) -band 0xFF)
+    for ($i = 0; $i -lt ($gifBytes.Length - 7); $i++) {
+        if ($gifBytes[$i] -eq 0x21 -and $gifBytes[$i+1] -eq 0xF9 -and $gifBytes[$i+2] -eq 0x04) {
+            $gifBytes[$i+4] = $lowByte
+            $gifBytes[$i+5] = $highByte
+            $i += 6
+        }
+    }
+    [System.IO.File]::WriteAllBytes($gifTarget, $gifBytes)
+
     $gifSize = (Get-Item $gifTarget).Length
-    Write-Host "Animated GIF created: $gifTarget ($([math]::Round($gifSize / 1KB, 1)) KB)"
+    Write-Host "Animated GIF created: $gifTarget ($([math]::Round($gifSize / 1KB, 1)) KB, 2.8s delay per frame)"
 }
 
 Write-Host "Media capture complete!"
