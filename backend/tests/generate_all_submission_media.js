@@ -258,39 +258,31 @@ async function main() {
       const rHeight = await client.evaluate(`document.documentElement.scrollHeight - window.innerHeight`);
       const maxScroll = Math.max(0, rHeight.result?.value || tab.maxScroll || 0);
 
-      // Determine gradual steps based on total page length
-      let stepsDown = 8;
-      if (maxScroll <= 500) stepsDown = 4;
-      else if (maxScroll <= 1200) stepsDown = 6;
+      // Distribute key reading stops from top (0%) down to bottom (100%)
+      // Each stop has a comfortable 2.6s - 2.8s delay for users to read the content
+      let stopsCount = 4; // default 5 frames (0%, 25%, 50%, 75%, 100%)
+      if (maxScroll <= 500) stopsCount = 2; // 3 frames (0%, 50%, 100%)
+      else if (maxScroll <= 1500) stopsCount = 3; // 4 frames (0%, 33%, 66%, 100%)
 
-      const scrollSteps = [{ pos: 0, delay: 240 }]; // Top resting pause (2.4s)
-
-      // Gradual scroll steps all the way down to the bottom of the page
-      for (let i = 1; i <= stepsDown; i++) {
-        const pos = Math.round((maxScroll * i) / stepsDown);
-        const isBottom = i === stepsDown;
+      const scrollSteps = [];
+      for (let i = 0; i <= stopsCount; i++) {
+        const pos = Math.round((maxScroll * i) / stopsCount);
+        const isBottom = i === stopsCount;
         scrollSteps.push({
           pos,
-          delay: isBottom ? 250 : 22 // 2.5s pause at bottom, 0.22s per gradual downward step
+          delay: isBottom ? 280 : 260 // 2.6s - 2.8s delay between frames
         });
       }
 
-      // Smooth gradual return back up to top
-      const stepsUp = Math.min(3, Math.floor(stepsDown / 2));
-      for (let k = stepsUp; k >= 1; k--) {
-        const pos = Math.round((maxScroll * k) / (stepsUp + 1));
-        scrollSteps.push({ pos, delay: 14 }); // 0.14s per return step
-      }
+      console.log(`    maxScroll: ${maxScroll}px across ${scrollSteps.length} reading stops (2.6s - 2.8s delay each)`);
 
-      console.log(`    maxScroll: ${maxScroll}px across ${scrollSteps.length} gradual frames (bottom reached at frame ${stepsDown})`);
+      const tabFrames = [];
 
-      const tabFrames = [topFrame];
-
-      for (let i = 1; i < scrollSteps.length; i++) {
+      for (let i = 0; i < scrollSteps.length; i++) {
         const step = scrollSteps[i];
         await client.evaluate(`window.scrollTo({ top: ${step.pos}, behavior: 'instant' });`);
-        await new Promise(r => setTimeout(r, 100));
-        const fPath = path.join(TEMP_DIR, `${tab.name}_step_${i}.png`);
+        await new Promise(r => setTimeout(r, 150));
+        const fPath = path.join(TEMP_DIR, `${tab.name}_stop_${i}.png`);
         await client.screenshot(fPath);
         tabFrames.push(fPath);
       }
@@ -299,7 +291,7 @@ async function main() {
       await client.evaluate(`window.scrollTo({ top: 0, behavior: 'instant' });`);
       await new Promise(r => setTimeout(r, 100));
 
-      // Build gradual scrolling GIF
+      // Build scrolling GIF with multi-second delays
       const delays = scrollSteps.map(s => s.delay);
       await buildGifFromFrames(tabFrames, path.join(ASSETS_DIR, `${tab.name}.gif`), delays, 880, 550);
     }
@@ -319,20 +311,17 @@ async function main() {
     const histMaxScroll = Math.max(0, histHeight.result?.value || 300);
 
     const histSteps = [
-      { pos: 0, delay: 240 },
-      { pos: Math.round(histMaxScroll * 0.25), delay: 22 },
-      { pos: Math.round(histMaxScroll * 0.50), delay: 22 },
-      { pos: Math.round(histMaxScroll * 0.75), delay: 22 },
-      { pos: histMaxScroll, delay: 250 }, // Bottom pause
-      { pos: Math.round(histMaxScroll * 0.50), delay: 16 }
+      { pos: 0, delay: 260 },
+      { pos: Math.round(histMaxScroll * 0.50), delay: 260 },
+      { pos: histMaxScroll, delay: 280 } // Bottom pause
     ];
 
-    const histFrames = [historyTop];
-    for (let i = 1; i < histSteps.length; i++) {
+    const histFrames = [];
+    for (let i = 0; i < histSteps.length; i++) {
       const step = histSteps[i];
       await client.evaluate(`window.scrollTo({ top: ${step.pos}, behavior: 'instant' });`);
-      await new Promise(r => setTimeout(r, 100));
-      const fPath = path.join(TEMP_DIR, `history_step_${i}.png`);
+      await new Promise(r => setTimeout(r, 150));
+      const fPath = path.join(TEMP_DIR, `history_stop_${i}.png`);
       await client.screenshot(fPath);
       histFrames.push(fPath);
     }
