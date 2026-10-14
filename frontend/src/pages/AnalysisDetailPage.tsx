@@ -32,14 +32,30 @@ export const AnalysisDetailPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
 
-  // Scroll to the top of the page when analysis page is loaded or ID changes
+  // Scroll to position when analysis page is loaded or ID changes
   useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
-    const drawerContent = document.querySelector('.drawer-content');
-    if (drawerContent) {
-      drawerContent.scrollTop = 0;
+    const params = new URLSearchParams(window.location.search);
+    const scrollY = params.get('scroll');
+    const top = scrollY ? (parseInt(scrollY, 10) || 0) : 0;
+
+    const applyScroll = () => {
+      window.scrollTo({ top, left: 0, behavior: 'instant' });
+      document.documentElement.scrollTop = top;
+      document.body.scrollTop = top;
+      const drawerContent = document.querySelector('.drawer-content');
+      if (drawerContent) {
+        drawerContent.scrollTop = top;
+      }
+    };
+
+    applyScroll();
+    if (top > 0) {
+      const t1 = setTimeout(applyScroll, 300);
+      const t2 = setTimeout(applyScroll, 800);
+      return () => {
+        clearTimeout(t1);
+        clearTimeout(t2);
+      };
     }
   }, [id, report?.id]);
 

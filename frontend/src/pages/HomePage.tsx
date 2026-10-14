@@ -69,7 +69,13 @@ export const HomePage: React.FC = () => {
 
   // Dynamic Country Topic Suggestions State
   const [topicSuggestions, setTopicSuggestions] = useState<TopicSuggestionsPayload | null>(null);
-  const [selectedCountry, setSelectedCountry] = useState<string>('IN');
+  const [selectedCountry, setSelectedCountry] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const p = new URLSearchParams(window.location.search).get('country');
+      if (p) return p.toUpperCase();
+    }
+    return 'IN';
+  });
   const [suggestionsLoading, setSuggestionsLoading] = useState(true);
   const [suggestionsRefreshing, setSuggestionsRefreshing] = useState(false);
 
