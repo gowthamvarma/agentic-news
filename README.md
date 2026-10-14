@@ -6,6 +6,29 @@
 
 ---
 
+## 🏆 Judge's Evaluation Dossier & Submission Documentation
+
+> **Welcome Google Cloud AI Builder Cup 2026 Judges & Evaluators!**  
+> We have prepared a dedicated 5-part technical submission dossier complete with architecture diagrams, Pydantic data contracts, 25-agent UI mappings, and visual walkthroughs:
+
+| Document | Title & Focus Area | Description |
+| :--- | :--- | :--- |
+| 🚀 [**Official Submission Portal**](docs/submission/README.md) | **Submission Overview & Rubric Alignment** | Executive summary, competition rubric mapping, quickstart instructions, and live demo access. |
+| 🔍 [**Document 01**](docs/submission/01-problem-statement-and-differentiation.md) | **Problem Statement & Competitive Differentiation** | Why generic LLM news summarizers fail (hallucinated consensus, single-perspective bias, lack of evidence) and an 8-dimension competitive matrix vs. Perplexity, Ground News, and ChatGPT. |
+| 🛠️ [**Document 02**](docs/submission/02-tech-stack-and-antigravity.md) | **Tech Stack & Antigravity CLI Journey** | Full-stack rationale (React 19, FastAPI, DaisyUI), why Google ADK 2.0 & Python was chosen (tier-1 ADK launchpad, `asyncio.gather`), Firebase Firestore resilience, and development with Antigravity CLI. |
+| 🏛️ [**Document 03**](docs/submission/03-system-architecture-and-technical-design.md) | **Technical Design & System Architecture** | End-to-end topological architecture, Mermaid sequence flows, Pydantic v2 structured JSON engine, 81.6% latency reduction via parallel fan-out, and enterprise guardrail plugins. |
+| 🤖 [**Document 04**](docs/submission/04-multi-agent-ecosystem-and-orchestration.md) | **Multi-Agent Ecosystem & Orchestration** | Deep dive into the 25-agent fleet across 6 stages, Editor-in-Chief orchestration pattern, agent-to-UI component mapping matrix, and 5-Pillar best practices compliance. |
+| 📖 [**Document 05**](docs/submission/05-user-and-evaluator-guide.md) | **User & Evaluator Guide with Visual Media Tour** | 3-minute evaluator checklist, UI page breakdowns, deep-dive into the 8 analysis tabs with high-res screenshots and an animated walkthrough GIF. |
+
+### 🎬 Live Platform Walkthrough
+
+![Platform Walkthrough](docs/submission/assets/app-walkthrough.gif)
+
+> 💡 **Instant Evaluation Test Case**: Once servers are started, explore the pre-audited intelligence brief for **"Elon Musk Starlink India Issue"** directly at:  
+> **[http://localhost:5173/analysis/09c0dbae-2b01-4852-83de-ddc89fdb6614](http://localhost:5173/analysis/09c0dbae-2b01-4852-83de-ddc89fdb6614)**
+
+---
+
 ## 1. Quickstart with Local Firebase Simulator
 
 The project supports local development with the **Firebase Emulator Suite** and an **in-memory fallback**.
