@@ -25,103 +25,158 @@ BROWSER_UA = (
     "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 )
 
-# Supported 16 Core Country Configurations in prioritized order (English edition feeds)
+# Supported 16 Core Country Configurations in prioritized order
 COUNTRY_CONFIGS = [
     {
         "code": "IN",
         "name": "India",
         "flag": "🇮🇳",
-        "rss_url": "https://news.google.com/rss?hl=en-IN&gl=IN&ceid=IN:en",
+        "rss_urls": [
+            "https://news.google.com/rss/headlines/section/topic/NATION?hl=en-IN&gl=IN&ceid=IN:en",
+            "https://news.google.com/rss?hl=en-IN&gl=IN&ceid=IN:en",
+            "https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=en-IN&gl=IN&ceid=IN:en",
+        ],
     },
     {
         "code": "US",
         "name": "United States",
         "flag": "🇺🇸",
-        "rss_url": "https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en",
+        "rss_urls": [
+            "https://news.google.com/rss/headlines/section/topic/NATION?hl=en-US&gl=US&ceid=US:en",
+            "https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en",
+            "https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=en-US&gl=US&ceid=US:en",
+        ],
     },
     {
         "code": "CA",
         "name": "Canada",
         "flag": "🇨🇦",
-        "rss_url": "https://news.google.com/rss?hl=en-CA&gl=CA&ceid=CA:en",
+        "rss_urls": [
+            "https://news.google.com/rss/headlines/section/topic/NATION?hl=en-CA&gl=CA&ceid=CA:en",
+            "https://news.google.com/rss?hl=en-CA&gl=CA&ceid=CA:en",
+            "https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=en-CA&gl=CA&ceid=CA:en",
+        ],
     },
     {
         "code": "CN",
         "name": "China",
         "flag": "🇨🇳",
-        "rss_url": "https://news.google.com/rss?hl=en&gl=CN&ceid=CN:zh-CN",
+        "rss_urls": [
+            "https://news.google.com/rss/search?q=China+when:3d&hl=en-US&gl=US&ceid=US:en",
+            "https://news.google.com/rss/search?q=Beijing+OR+%22Chinese+economy%22+when:3d&hl=en-US&gl=US&ceid=US:en",
+        ],
     },
     {
         "code": "RU",
         "name": "Russia",
         "flag": "🇷🇺",
-        "rss_url": "https://news.google.com/rss?hl=en&gl=RU&ceid=RU:en",
+        "rss_urls": [
+            "https://news.google.com/rss/search?q=Russia+when:3d&hl=en-US&gl=US&ceid=US:en",
+            "https://news.google.com/rss/search?q=Moscow+OR+Kremlin+when:3d&hl=en-US&gl=US&ceid=US:en",
+        ],
     },
     {
         "code": "GB",
         "name": "United Kingdom",
         "flag": "🇬🇧",
-        "rss_url": "https://news.google.com/rss?hl=en-GB&gl=GB&ceid=GB:en",
+        "rss_urls": [
+            "https://news.google.com/rss/headlines/section/topic/NATION?hl=en-GB&gl=GB&ceid=GB:en",
+            "https://news.google.com/rss?hl=en-GB&gl=GB&ceid=GB:en",
+            "https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=en-GB&gl=GB&ceid=GB:en",
+        ],
     },
     {
         "code": "FR",
         "name": "France",
         "flag": "🇫🇷",
-        "rss_url": "https://news.google.com/rss?hl=en&gl=FR&ceid=FR:en",
+        "rss_urls": [
+            "https://news.google.com/rss/search?q=France+when:3d&hl=en-US&gl=US&ceid=US:en",
+            "https://news.google.com/rss/search?q=Paris+OR+%22French+government%22+when:3d&hl=en-US&gl=US&ceid=US:en",
+        ],
     },
     {
         "code": "DE",
         "name": "Germany",
         "flag": "🇩🇪",
-        "rss_url": "https://news.google.com/rss?hl=en&gl=DE&ceid=DE:en",
+        "rss_urls": [
+            "https://news.google.com/rss/search?q=Germany+when:3d&hl=en-US&gl=US&ceid=US:en",
+            "https://news.google.com/rss/search?q=Berlin+OR+%22German+economy%22+when:3d&hl=en-US&gl=US&ceid=US:en",
+        ],
     },
     {
         "code": "AE",
         "name": "United Arab Emirates",
         "flag": "🇦🇪",
-        "rss_url": "https://news.google.com/rss?hl=en&gl=AE&ceid=AE:en",
+        "rss_urls": [
+            "https://news.google.com/rss/search?q=UAE+OR+%22United+Arab+Emirates%22+OR+Dubai+when:3d&hl=en-US&gl=US&ceid=US:en",
+            "https://news.google.com/rss/search?q=%22Abu+Dhabi%22+when:3d&hl=en-US&gl=US&ceid=US:en",
+        ],
     },
     {
         "code": "SA",
         "name": "Saudi Arabia",
         "flag": "🇸🇦",
-        "rss_url": "https://news.google.com/rss?hl=en&gl=SA&ceid=SA:en",
+        "rss_urls": [
+            "https://news.google.com/rss/search?q=%22Saudi+Arabia%22+OR+Riyadh+when:3d&hl=en-US&gl=US&ceid=US:en",
+            "https://news.google.com/rss/search?q=Aramco+when:3d&hl=en-US&gl=US&ceid=US:en",
+        ],
     },
     {
         "code": "IL",
         "name": "Israel",
         "flag": "🇮🇱",
-        "rss_url": "https://news.google.com/rss?hl=en&gl=IL&ceid=IL:en",
+        "rss_urls": [
+            "https://news.google.com/rss/search?q=Israel+when:3d&hl=en-US&gl=US&ceid=US:en",
+            "https://news.google.com/rss/search?q=Knesset+OR+Netanyahu+when:3d&hl=en-US&gl=US&ceid=US:en",
+        ],
     },
     {
         "code": "JP",
         "name": "Japan",
         "flag": "🇯🇵",
-        "rss_url": "https://news.google.com/rss?hl=en&gl=JP&ceid=JP:en",
+        "rss_urls": [
+            "https://news.google.com/rss/search?q=Japan+when:3d&hl=en-US&gl=US&ceid=US:en",
+            "https://news.google.com/rss/search?q=Tokyo+OR+%22Bank+of+Japan%22+when:3d&hl=en-US&gl=US&ceid=US:en",
+        ],
     },
     {
         "code": "SG",
         "name": "Singapore",
         "flag": "🇸🇬",
-        "rss_url": "https://news.google.com/rss?hl=en-SG&gl=SG&ceid=SG:en",
+        "rss_urls": [
+            "https://news.google.com/rss/headlines/section/topic/NATION?hl=en-SG&gl=SG&ceid=SG:en",
+            "https://news.google.com/rss?hl=en-SG&gl=SG&ceid=SG:en",
+            "https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=en-SG&gl=SG&ceid=SG:en",
+        ],
     },
     {
         "code": "ID",
         "name": "Indonesia",
         "flag": "🇮🇩",
-        "rss_url": "https://news.google.com/rss?hl=en&gl=ID&ceid=ID:en",
+        "rss_urls": [
+            "https://news.google.com/rss/search?q=Indonesia+when:3d&hl=en-US&gl=US&ceid=US:en",
+            "https://news.google.com/rss/search?q=Jakarta+OR+Prabowo+when:3d&hl=en-US&gl=US&ceid=US:en",
+        ],
     },
     {
         "code": "MY",
         "name": "Malaysia",
         "flag": "🇲🇾",
-        "rss_url": "https://news.google.com/rss?hl=en-MY&gl=MY&ceid=MY:en",
+        "rss_urls": [
+            "https://news.google.com/rss/headlines/section/topic/NATION?hl=en-MY&gl=MY&ceid=MY:en",
+            "https://news.google.com/rss?hl=en-MY&gl=MY&ceid=MY:en",
+            "https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=en-MY&gl=MY&ceid=MY:en",
+        ],
     },
     {
         "code": "AU",
         "name": "Australia",
         "flag": "🇦🇺",
-        "rss_url": "https://news.google.com/rss?hl=en-AU&gl=AU&ceid=AU:en",
+        "rss_urls": [
+            "https://news.google.com/rss/headlines/section/topic/NATION?hl=en-AU&gl=AU&ceid=AU:en",
+            "https://news.google.com/rss?hl=en-AU&gl=AU&ceid=AU:en",
+            "https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=en-AU&gl=AU&ceid=AU:en",
+        ],
     },
 ]
 
@@ -135,47 +190,52 @@ BADGE_COLORS = [
 ]
 
 
-def fetch_country_headlines(country_code: str, rss_url: str, max_items: int = 30) -> List[Dict[str, str]]:
+def fetch_country_headlines(country_code: str, rss_urls: str | List[str], max_items: int = 35) -> List[Dict[str, str]]:
     """Fetches real breaking headlines from Google News RSS for intelligent agentic evaluation.
     
-    Collects raw candidate dispatches with clean text normalization without brute-force
-    regex keyword blacklists or arbitrary word-overlap clipping.
+    Supports multiple feed URLs per country (e.g. NATION section + Home feed or targeted searches)
+    and deduplicates across feeds by normalized title.
     """
     raw_headlines: List[Dict[str, str]] = []
     seen_titles: set[str] = set()
+    urls = [rss_urls] if isinstance(rss_urls, str) else list(rss_urls)
 
-    try:
-        req = urllib.request.Request(rss_url, headers={"User-Agent": BROWSER_UA})
-        with urllib.request.urlopen(req, timeout=8) as response:
-            xml_data = response.read()
-            root = ET.fromstring(xml_data)
-            items = root.findall(".//item")
-            for item in items[:max_items]:
-                raw_title = item.find("title").text if item.find("title") is not None else ""
-                link = item.find("link").text if item.find("link") is not None else ""
-                pub_date = item.find("pubDate").text if item.find("pubDate") is not None else ""
-                source_elem = item.find("source")
-                outlet = source_elem.text if source_elem is not None and source_elem.text else "News Agency"
+    for feed_url in urls:
+        if len(raw_headlines) >= max_items:
+            break
+        try:
+            req = urllib.request.Request(feed_url, headers={"User-Agent": BROWSER_UA})
+            with urllib.request.urlopen(req, timeout=8) as response:
+                xml_data = response.read()
+                root = ET.fromstring(xml_data)
+                items = root.findall(".//item")
+                for item in items:
+                    raw_title = item.find("title").text if item.find("title") is not None else ""
+                    link = item.find("link").text if item.find("link") is not None else ""
+                    pub_date = item.find("pubDate").text if item.find("pubDate") is not None else ""
+                    source_elem = item.find("source")
+                    outlet = source_elem.text if source_elem is not None and source_elem.text else "News Agency"
 
-                # Clean headline: unescape entities and strip trailing outlet suffix (e.g., "Headline Text - The Guardian")
-                title = re.sub(r"\s*-\s*[^-]+$", "", raw_title).strip()
-                title = re.sub(r"\s+", " ", title)
+                    # Clean headline: unescape entities and strip trailing outlet suffix
+                    title = re.sub(r"\s*-\s*[^-]+$", "", raw_title).strip()
+                    title = re.sub(r"\s+", " ", title)
 
-                # Skip blank or exact duplicate title strings
-                norm_key = title.lower()
-                if title and norm_key not in seen_titles:
-                    seen_titles.add(norm_key)
-                    raw_headlines.append({
-                        "title": title,
-                        "raw_title": raw_title,
-                        "outlet": outlet,
-                        "link": link,
-                        "pub_date": pub_date,
-                    })
-    except Exception as e:
-        logger.warning("Error fetching RSS headlines for %s (%s): %s", country_code, rss_url, e)
+                    norm_key = title.lower()
+                    if title and norm_key not in seen_titles:
+                        seen_titles.add(norm_key)
+                        raw_headlines.append({
+                            "title": title,
+                            "raw_title": raw_title,
+                            "outlet": outlet,
+                            "link": link,
+                            "pub_date": pub_date,
+                        })
+                        if len(raw_headlines) >= max_items:
+                            break
+        except Exception as e:
+            logger.warning("Error fetching RSS headlines for %s (%s): %s", country_code, feed_url, e)
 
-    return raw_headlines[:25]
+    return raw_headlines[:max_items]
 
 
 
@@ -353,7 +413,9 @@ Your task is to evaluate all incoming dispatches and curate exactly 9 topics per
 3. STARK MEDIA BIAS & NARRATIVE DIVERGENCE: Controversies where partisan, state-backed, financial, or alternative media outlets frame the narrative through conflicting ideological filters, selective omissions, or loaded language.
 4. INSTITUTIONAL LESSONS TO LEARN: Complex crises or policy dilemmas that offer profound governance, regulatory, or ethical takeaways rather than being dead-end isolated incidents.
 
-INTELLIGENT NOISE FILTERING (SEMANTIC REASONING, NOT BRUTE-FORCE RULES):
+INTELLIGENT NOISE FILTERING & STRICT GEOGRAPHIC RELEVANCE:
+- STRICT NATIONAL RELEVANCE: Every topic curated for a country MUST directly focus on that specific country's domestic affairs, policies, laws, economy, leadership, companies, infrastructure, or direct international actions.
+- ZERO FOREIGN SPILLOVER: NEVER assign headlines from a different nation (e.g., US local political controversies, French municipal incidents, British court cases) to another country (such as Germany, Japan, China, Russia, Saudi Arabia) unless that country is directly and centrally involved.
 - REJECT isolated, one-off tragic accidents (e.g. amusement park ride malfunctions, individual vehicle crashes, localized animal escapes, slip-and-falls) which lack broader policy debates, ideological friction, or media bias.
 - REJECT routine localized weather forecasts, lottery results, horoscopes, and trivial celebrity gossip/fashion.
 - REJECT mundane administrative schedule notices without controversy.
@@ -464,7 +526,7 @@ def generate_country_topic_suggestions() -> Dict[str, Any]:
     all_country_headlines: Dict[str, List[Dict[str, str]]] = {}
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
         future_to_code = {
-            executor.submit(fetch_country_headlines, country["code"], country["rss_url"], 25): country["code"]
+            executor.submit(fetch_country_headlines, country["code"], country.get("rss_urls") or country.get("rss_url"), 35): country["code"]
             for country in COUNTRY_CONFIGS
         }
         for future in concurrent.futures.as_completed(future_to_code):

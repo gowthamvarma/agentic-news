@@ -1,0 +1,1698 @@
+[
+  {
+    "code": "IN",
+    "name": "India",
+    "flag": "🇮🇳",
+    "topics": [
+      {
+        "id": "in-1",
+        "topic": "Nandan Nilekani Urges AI-Generated Tests to Halt Rampant National Exam Leaks",
+        "summary": "Following repeated national scandals over leaked medical entrance exams, tech architect Nandan Nilekani has proposed replacing conventional paper question banks with dynamically generated artificial intelligence tests. Proponents argue algorithmic exam synthesis eliminates corrupt distribution networks and leak vulnerabilities at the source. Critics and educational traditionalists caution that algorithmic biases, hallucinated questions, and unequal regional tech infrastructure could further disadvantage rural aspirants.",
+        "category": "Technology & AI",
+        "badge": "Policy Clash",
+        "badge_color": "badge-primary",
+        "source_headline": "NEET row: Nandan Nilekani calls for end to question papers, backs AI-generated tests to stop exam leaks",
+        "source_outlet": "Telegraph India",
+        "url": ""
+      },
+      {
+        "id": "in-2",
+        "topic": "Arrests at Jantar Mantar Ignite Clash Over Civil Protest and Supreme Court Precedent",
+        "summary": "The preventive detention of civil society activists at New Delhi's historic Jantar Mantar square has reignited intense debate over executive curbs on public demonstrations. Legal advocates cite landmark Supreme Court rulings affirming that peaceful protest is a fundamental constitutional right immune to blanket administrative bans. State authorities insist that preemptive security restrictions are vital to prevent public disorder and traffic paralysis in the sensitive national capital zone.",
+        "category": "Politics & Law",
+        "badge": "Controversy",
+        "badge_color": "badge-warning",
+        "source_headline": "Saurav Das, Ashutosh Ranka and Ajinkya Shinde under preventive arrest for trespassing into Jantar Mantar",
+        "source_outlet": "The Hindu",
+        "url": ""
+      },
+      {
+        "id": "in-3",
+        "topic": "Sino-Indian Territorial Dispute Escalates Over Ladakh Sovereignty and Himalayan Geographical Renaming",
+        "summary": "Tensions between New Delhi and Beijing surged after China explicitly rejected India's Union Territory of Ladakh while asserting proprietary naming conventions over Himalayan features. Indian External Affairs Minister S. Jaishankar reinforced that normal bilateral ties remain impossible until complete disengagement and tranquility are established along the Line of Actual Control. The strategic standoff underscores the fragility of regional deterrence as both nuclear-armed powers militarize border infrastructure.",
+        "category": "Geopolitics",
+        "badge": "Strategic",
+        "badge_color": "badge-secondary",
+        "source_headline": "China says it doesn’t recognise U.T. of Ladakh; spars with India over naming geographical features",
+        "source_outlet": "The Hindu",
+        "url": ""
+      },
+      {
+        "id": "in-4",
+        "topic": "Severe Water Rationing in Pune Exposes Deepening Maharashtra Urban Climate and Reservoir Crisis",
+        "summary": "Municipal authorities in Pune have imposed weekly blanket water shutdowns across urban sectors as reservoir reserves plunge to critical thresholds. Industrial bodies and residential welfare associations warn that aggressive rationing threatens economic output, sanitation, and public health in major tech corridors. Environmental scientists assert that ad-hoc cuts fail to resolve systemic groundwater depletion, erratic monsoon patterns, and unconstrained metropolitan sprawl.",
+        "category": "Energy & Climate",
+        "badge": "Resource Crisis",
+        "badge_color": "badge-accent",
+        "source_headline": "No Water In Pune On Thursdays: Maharashtra's New Curbs As Crisis Deepens",
+        "source_outlet": "NDTV",
+        "url": ""
+      },
+      {
+        "id": "in-5",
+        "topic": "Amit Shah and Rahul Gandhi Trade Accusations Over Border Security and Infiltration Politics",
+        "summary": "Union Home Minister Amit Shah launched a searing political assault against Rahul Gandhi, alleging opposition policies actively appease illegal infiltrators for sectarian electoral gains. Opposition leaders fired back, accusing the ruling party of weaponizing xenophobic rhetoric and communal wedge issues to distract from domestic economic distress. The escalating confrontation highlights how national security narratives and demographic anxieties dominate Indian electoral discourse.",
+        "category": "Politics & Law",
+        "badge": "Media Bias",
+        "badge_color": "badge-info",
+        "source_headline": "‘Nation aware of your plan to save ghuspaithiyas’: Amit Shah tears into Rahul Gandhi",
+        "source_outlet": "The Indian Express",
+        "url": ""
+      },
+      {
+        "id": "in-6",
+        "topic": "Disproportionate Profiling Allegations in Delhi Intelligence Register Trigger Institutional Civil Rights Alarm",
+        "summary": "Investigative reports revealing that Muslim citizens are disproportionately indexed in Delhi's Special Intelligence Register have sparked national outrage among human rights monitors. Legal observers warn that institutional surveillance matrices operating without robust statutory oversight violate core constitutional protections against profiling and religious discrimination. Law enforcement defenders counter that demographic intelligence collection is driven strictly by objective risk analytics and counter-radicalization mandates.",
+        "category": "Politics & Law",
+        "badge": "Ethics Audit",
+        "badge_color": "badge-warning",
+        "source_headline": "Muslims disproportionately flagged in Delhi SIR",
+        "source_outlet": "The Hindu",
+        "url": ""
+      },
+      {
+        "id": "in-7",
+        "topic": "Traders Challenge Protest Restrictions in High Court Citing Massive Multi-Crore Commercial Losses",
+        "summary": "Delhi business associations have moved the Delhi High Court seeking emergency relief against frequent government security cordons and road blockades, claiming over ₹2,000 crore in operational losses. Commercial syndicates argue that disproportionate state barricading chokes market supply lines, paralyzes consumer footfall, and violates their constitutional right to trade. Judicial examiners now face the delicate task of balancing urban economic livelihoods against municipal public security imperatives.",
+        "category": "Economy & Markets",
+        "badge": "Policy Clash",
+        "badge_color": "badge-primary",
+        "source_headline": "Rs 2,000 crore loss due to protest curbs: Traders move Delhi High Court",
+        "source_outlet": "The Indian Express",
+        "url": ""
+      },
+      {
+        "id": "in-8",
+        "topic": "Tamil Nadu and Andhra Pradesh Convene Critical Negotiations Over Krishna River Water Rights",
+        "summary": "Tamil Nadu Chief Minister Vijay has scheduled high-stakes inter-state discussions with Andhra Pradesh counterpart Chandrababu Naidu to resolve contentious Krishna water allocation formulas for Chennai. Downstream urban planners stress that guaranteed canal flows are vital to prevent catastrophic drinking water shortages in metropolitan centers during dry seasons. Upstream agricultural lobbies contend that regional drought conditions make surplus water transfers untenable without devastating domestic crop yields.",
+        "category": "Energy & Climate",
+        "badge": "Resource Governance",
+        "badge_color": "badge-accent",
+        "source_headline": "Tamil Nadu CM Vijay to meet Naidu today: Krishna water for Chennai on agenda",
+        "source_outlet": "The Hindu",
+        "url": ""
+      },
+      {
+        "id": "in-9",
+        "topic": "Union Minister Resignation Triggers Speculation Over Major Pre-Festive National Cabinet Restructuring",
+        "summary": "The abrupt resignation of Union Minister L. Murugan from both ministerial office and his Rajya Sabha seat has unleashed intense political speculation regarding an impending Union Cabinet reshuffle. Political analysts interpret the unexpected exit as a strategic realignment by the central leadership ahead of critical state assembly contests. Governance observers question whether abrupt executive churn destabilizes ministerial policy implementation across crucial federal portfolios.",
+        "category": "Politics & Law",
+        "badge": "Controversy",
+        "badge_color": "badge-info",
+        "source_headline": "L. Murugan resigns from Ministry, Rajya Sabha seat, setting off buzz about a pre-Deepavali Cabinet reset",
+        "source_outlet": "The Hindu",
+        "url": ""
+      }
+    ]
+  },
+  {
+    "code": "US",
+    "name": "United States",
+    "flag": "🇺🇸",
+    "topics": [
+      {
+        "id": "us-1",
+        "topic": "Elon Musk Injects Record Three Hundred Million Dollars Escalating Midterm Campaign Finance Turmoil",
+        "summary": "Billionaire entrepreneur Elon Musk has emerged as the cycle's dominant political financier after pouring a staggering $366 million into conservative political action committees. Campaign reform advocates warn that hyper-concentrated billionaire spending distorts democratic representation and creates unprecedented oligarchic influence over federal legislative races. Free-speech litigators defend mega-donations as constitutionally protected advocacy, framing political contributions as essential counterweights to institutional media biases.",
+        "category": "Politics & Law",
+        "badge": "Market Debate",
+        "badge_color": "badge-primary",
+        "source_headline": "Elon Musk becomes biggest donor of US midterms cycle with $366m spent",
+        "source_outlet": "The Guardian",
+        "url": ""
+      },
+      {
+        "id": "us-2",
+        "topic": "Federal Judge Halts Government Tree-Clearing Spree at Historic District of Columbia Golf Course",
+        "summary": "A federal judge has issued an injunction halting an aggressive federal government deforesting initiative aimed at redeveloping a municipal Washington D.C. golf course. Conservation groups celebrated the ruling as a vital check against administrative overreach and the destruction of mature urban ecological canopies. Federal redevelopment planners maintain that clearing overgrown foliage is legally authorized and indispensable for modernizing municipal public recreational infrastructure.",
+        "category": "Politics & Law",
+        "badge": "Policy Clash",
+        "badge_color": "badge-secondary",
+        "source_headline": "A judge blocks the government's tree-clearing spree at a municipal D.C. golf course",
+        "source_outlet": "NPR",
+        "url": ""
+      },
+      {
+        "id": "us-3",
+        "topic": "Texas District Attorney Accuses ICE Agents of Intentionally Ramming Immigrant and Withholding Evidence",
+        "summary": "A Texas district attorney has publicly accused Immigration and Customs Enforcement agents of using an official vehicle to deliberately strike an undocumented migrant and suppressing internal surveillance evidence. Civil liberties watchdogs and criminal defense attorneys argue the case exposes a culture of federal law enforcement impunity and sovereign obstruction of local justice. Federal immigration officials maintain the incident was a lawful apprehension maneuver conducted during high-risk field interdictions.",
+        "category": "Politics & Law",
+        "badge": "Ethics Audit",
+        "badge_color": "badge-warning",
+        "source_headline": "Texas DA says ICE intentionally hit immigrant with a car and may have withheld evidence",
+        "source_outlet": "NBC News",
+        "url": ""
+      },
+      {
+        "id": "us-4",
+        "topic": "Anti-Abortion Pill Legislation Weaponized in Novel Lawsuit Against Its Original Conservative Sponsors",
+        "summary": "In an unexpected legal twist, conservative activists who spearheaded strict anti-abortion medication statutes now find themselves sued under the very statutory mechanisms they enacted. Litigants are testing private-right-of-action clauses to uncover how statutory ambiguities create unintended legal liabilities for anti-abortion organizations. Legal scholars view the case as a textbook warning on the systemic unpredictability of vigilante-style enforcement statutes designed to bypass judicial review.",
+        "category": "Health & Science",
+        "badge": "Controversy",
+        "badge_color": "badge-info",
+        "source_headline": "They Pushed an Anti-Abortion Pill Law. Now, They’re Being Sued Under It.",
+        "source_outlet": "The New York Times",
+        "url": ""
+      },
+      {
+        "id": "us-5",
+        "topic": "Florida Carries Out Capital Execution Using Lethal Injection Protocol Linked to Botched Case",
+        "summary": "Florida has executed a death row inmate using an identical chemical protocol previously involved in a prolonged, contested execution in Tennessee. Capital punishment defense attorneys and medical ethicists argue that the unverified three-drug cocktail violates the Eighth Amendment by inflicting cruel and unusual suffering. State corrections authorities assert the statutory protocol meets all constitutional safeguards and provides humane, lawful closure for heinous criminal offenses.",
+        "category": "Politics & Law",
+        "badge": "Ethics Audit",
+        "badge_color": "badge-warning",
+        "source_headline": "Florida executes inmate with same method Tennessee used in botched Pike case",
+        "source_outlet": "The Washington Post",
+        "url": ""
+      },
+      {
+        "id": "us-6",
+        "topic": "PG&E Preemptive Wildfire Power Blackouts Threaten Seventy Thousand California Energy Consumers",
+        "summary": "Pacific Gas & Electric announced imminent Public Safety Power Shutoffs affecting up to 70,000 customers across 29 California counties to mitigate catastrophic wildfire risks during high-wind forecasts. Rural residents, medical device users, and local businesses argue that repeated utility blackouts shift corporate liability costs onto vulnerable households without upgrading grid resilience. Energy regulators counter that proactive de-energization remains a tragic necessity until long-term grid undergrounding projects are completed.",
+        "category": "Energy & Climate",
+        "badge": "Policy Clash",
+        "badge_color": "badge-accent",
+        "source_headline": "MAP: PG&E may cut power to 70,000 customers across 29 California counties this week",
+        "source_outlet": "KCRA",
+        "url": ""
+      },
+      {
+        "id": "us-7",
+        "topic": "New York City Reaches Landmark Accord to Abolish Historic Horse-Drawn Carriage Operations",
+        "summary": "The New York City Council and progressive lawmaker Zohran Mamdani have reached a historic legislative compromise to permanently ban horse-drawn tourist carriages in Central Park. Animal welfare organizations praise the ban as an overdue ethical milestone against equine exploitation in dense urban environments. Carriage driver labor unions and preservationists argue the ban destroys centuries of municipal cultural heritage and eradicates working-class tourism livelihoods.",
+        "category": "Politics & Law",
+        "badge": "Policy Clash",
+        "badge_color": "badge-secondary",
+        "source_headline": "Mamdani and NYC Council Reach Deal to Ban Horse-Drawn Carriages",
+        "source_outlet": "Bloomberg.com",
+        "url": ""
+      },
+      {
+        "id": "us-8",
+        "topic": "Kimberly Guilfoyle Resignation as Ambassador to Greece Triggers Diplomatic and Political Scrutiny",
+        "summary": "The sudden resignation of Kimberly Guilfoyle from her post as United States Ambassador to Greece has unsettled transatlantic diplomatic circles and exposed internal transition friction. Foreign policy analysts question whether sudden ambassadorial vacancies undermine US geopolitical leverage across the eastern Mediterranean during heightened regional tensions. Political observers speculate the exit reflects shifting domestic political loyalties and campaign strategy calculations ahead of federal elections.",
+        "category": "Geopolitics",
+        "badge": "Controversy",
+        "badge_color": "badge-info",
+        "source_headline": "Kimberly Guilfoyle Resigns as Ambassador to Greece",
+        "source_outlet": "The New York Times",
+        "url": ""
+      },
+      {
+        "id": "us-9",
+        "topic": "Donald Trump Rebuffs Bipartisan Blowback Over Controversial Foreign Refined Diesel Import Proposals",
+        "summary": "Donald Trump sought to quell mounting Republican and Democratic criticism by distancing his platform from an energy proposal involving discounted Russian refined fuel imports. National security hawks argue that any commercial reliance on Russian refined products eviscerates international sanctions and rewards geopolitical aggression. Domestic petroleum advocates contend that exploring unconventional global supply channels is necessary to relieve crushing consumer inflation at American fuel pumps.",
+        "category": "Economy & Markets",
+        "badge": "Media Bias",
+        "badge_color": "badge-primary",
+        "source_headline": "'Not a USA deal': Trump downplays Russian diesel plan in the face of GOP criticism",
+        "source_outlet": "Yahoo Finance",
+        "url": ""
+      }
+    ]
+  },
+  {
+    "code": "CA",
+    "name": "Canada",
+    "flag": "🇨🇦",
+    "topics": [
+      {
+        "id": "ca-1",
+        "topic": "Alberta Independence Referendum Question Triggers National Constitutional and Sovereign Debt Alarm",
+        "summary": "Alberta's provincial government has unveiled the language for its contentious separation referendum, sparking immediate constitutional friction with federal authorities in Ottawa. Western sovereignty proponents argue that federal environmental caps and fiscal transfer formulas unfairly exploit Alberta's natural resource economy. Federalists and institutional economists warn that sovereignty maneuvers threaten national unity, destabilize provincial sovereign debt ratings, and trigger corporate capital flight.",
+        "category": "Politics & Law",
+        "badge": "Controversy",
+        "badge_color": "badge-warning",
+        "source_headline": "What does Alberta’s referendum separation question even mean? | About That",
+        "source_outlet": "CBC",
+        "url": ""
+      },
+      {
+        "id": "ca-2",
+        "topic": "Ontario Overrules Municipal Transit Planning by Forcibly Removing Toronto Bloor Bike Lanes",
+        "summary": "Grassroots urban activists in Etobicoke have staged disruptive blockades to halt Ontario Premier Doug Ford's provincial decree mandating the removal of major bike lanes. Municipal cycling coalitions claim the provincial override degrades commuter safety, reverses climate targets, and overrides local democratic planning autonomy. Provincial officials insist bike corridors on arterial thoroughfares exacerbate catastrophic automotive gridlock and paralyze emergency vehicle transit.",
+        "category": "Politics & Law",
+        "badge": "Policy Clash",
+        "badge_color": "badge-primary",
+        "source_headline": "Protesters block Ford government’s removal of Bloor Street bike lanes in Etobicoke",
+        "source_outlet": "Toronto Star",
+        "url": ""
+      },
+      {
+        "id": "ca-3",
+        "topic": "Pierre Poilievre Takes Cross-Border Tariff Exemption Fight Directly to Detroit Auto Leadership",
+        "summary": "Conservative leader Pierre Poilievre traveled directly to Detroit to lobby American automotive manufacturing executives for mutual tariff-free industrial protections across North America. Canadian industrial strategists argue preserving seamless, duty-free supply chain integration is indispensable to survive escalating global electric vehicle competition. Skeptics suggest unilateral political overtures bypass formal diplomatic channels and risk undermining Canada's united bilateral trade negotiations.",
+        "category": "Economy & Markets",
+        "badge": "Market Debate",
+        "badge_color": "badge-secondary",
+        "source_headline": "Poilievre in Detroit to push for tariff-free trade for auto industry",
+        "source_outlet": "CTV News",
+        "url": ""
+      },
+      {
+        "id": "ca-4",
+        "topic": "Ontario Revamps Safer-Supply Opioid Dispensing to Prevent Illicit Black Market Drug Diversion",
+        "summary": "The Ontario government has introduced stringent dispensing protocols for public safer-supply opioid medications, citing evidence of prescription pills being diverted into illegal street markets. Addictions recovery advocates argue that restricting access will drive vulnerable patients back to toxic, lethal street fentanyl, causing overdose fatalities to spike. Provincial health regulators maintain that unmonitored hydromorphone distribution fuels youth addiction and demands rigorous clinical oversight.",
+        "category": "Health & Science",
+        "badge": "Policy Clash",
+        "badge_color": "badge-accent",
+        "source_headline": "Ontario to change how people get safer-supply opioids, in bid to stop drugs being diverted to street",
+        "source_outlet": "Toronto Star",
+        "url": ""
+      },
+      {
+        "id": "ca-5",
+        "topic": "Rural Hospital Staffing Strains Worsen as Contract Travel Nurses Face Protracted Unpaid Invoices",
+        "summary": "Travel nurses recruited to sustain understaffed rural emergency rooms have revealed they have gone months without compensation due to bureaucratic administrative billing failures. Healthcare labor unions argue the standoff demonstrates that relying on high-cost private staffing agencies destabilizes provincial public hospital budgets while demoralizing front-line workers. Regional health authorities contend that complex contractual audits and procurement discrepancies caused temporary payroll delays.",
+        "category": "Health & Science",
+        "badge": "Ethics Audit",
+        "badge_color": "badge-info",
+        "source_headline": "Travel nurses filling gaps in rural hospitals say they haven’t been paid for months",
+        "source_outlet": "CBC",
+        "url": ""
+      },
+      {
+        "id": "ca-6",
+        "topic": "Quebec Corporate Sector Braces for Economic Instability Amid Resurgent Provincial Sovereignty Debates",
+        "summary": "Prominent business federations across Quebec are preparing contingency plans as political momentum behind a renewed provincial sovereignty referendum gathers strength. Corporate leaders warn that constitutional uncertainty risks dampening foreign direct investment, devaluing local real estate, and accelerating executive brain drain toward Ontario. Sovereignist leaders argue that full political autonomy is vital to insulate Quebec's cultural, linguistic, and industrial destiny from federal interference.",
+        "category": "Economy & Markets",
+        "badge": "Market Debate",
+        "badge_color": "badge-warning",
+        "source_headline": "Quebec businesses brace for renewed sovereignty debate",
+        "source_outlet": "The Globe and Mail",
+        "url": ""
+      },
+      {
+        "id": "ca-7",
+        "topic": "Judicial Inquiry Faults Catastrophic Neglected Maintenance in Deadly Columbia Icefield Glacier Crash",
+        "summary": "A fatal crash involving a massive Columbia Icefield tour bus was directly caused by systemic brake failures and ignored mechanical warnings, a judge has concluded. Victims' families and transit safety investigators are demanding strict federal regulatory oversight and mandatory technical standards for specialized off-road commercial operators. Tourism operators defend their broader safety records, contending that extreme glacial operating environments pose unprecedented technical and maintenance challenges.",
+        "category": "Politics & Law",
+        "badge": "Ethics Audit",
+        "badge_color": "badge-secondary",
+        "source_headline": "‘Catastrophic’ brake failure, neglected repairs contributed to deadly Columbia Icefield crash, judge finds",
+        "source_outlet": "CBC",
+        "url": ""
+      },
+      {
+        "id": "ca-8",
+        "topic": "Federal Trade Delegation Departs for India Seeking High-Stakes Repair of Diplomatic Commercial Ties",
+        "summary": "Canada’s trade minister is leading a massive 300-member commercial mission to India, signaling an aggressive push to insulate economic partnerships from severe bilateral diplomatic fallout. Exporters and agricultural trade groups emphasize that accessing India’s vast consumer market is crucial for Canadian commodities and tech innovation. Foreign policy realists warn that deep unresolved geopolitical grievances over extraterritorial law enforcement continue to cast a shadow over trade normalization.",
+        "category": "Geopolitics",
+        "badge": "Strategic",
+        "badge_color": "badge-primary",
+        "source_headline": "Trade minister leading 300-member mission to India this week",
+        "source_outlet": "CTV News",
+        "url": ""
+      },
+      {
+        "id": "ca-9",
+        "topic": "Former Alberta Premier Jason Kenney Demands UCP Expel Separatists to Protect Federalist Conservatism",
+        "summary": "Former Premier Jason Kenney has issued a stark ultimatum to the United Conservative Party, demanding the immediate expulsion of separatist factions following the provincial referendum. Kenney argues that entertaining fringe separation rhetoric betrays the party's founding federalist principles and invites economic catastrophe upon Alberta. Hardline provincial autonomy advocates dismiss his intervention as establishment fearmongering, asserting that complete independence is the only viable path to self-determination.",
+        "category": "Politics & Law",
+        "badge": "Controversy",
+        "badge_color": "badge-danger",
+        "source_headline": "Kenney says UCP must choose federalist roots, expel separatists after Alberta vote",
+        "source_outlet": "Castanet",
+        "url": ""
+      }
+    ]
+  },
+  {
+    "code": "CN",
+    "name": "China",
+    "flag": "🇨🇳",
+    "topics": [
+      {
+        "id": "cn-1",
+        "topic": "China Authorizes Visa Bank Card Operations After Decades of Protected Domestic Monopoly",
+        "summary": "In a milestone financial reform, Beijing regulatory authorities have officially granted Visa approval to process domestic bank card transactions after forty years of restricted operations. International financial analysts view the decision as a decisive move to signal openness to foreign capital and revive global investor confidence amid cooling economic growth. Domestic payment giants UnionPay and Alipay must now brace for competitive challenges within China's traditionally fortified domestic payment ecosystem.",
+        "category": "Economy & Markets",
+        "badge": "Market Debate",
+        "badge_color": "badge-primary",
+        "source_headline": "Visa gets Beijing's green light for bank card business after 40 years of working with China",
+        "source_outlet": "CNBC",
+        "url": ""
+      },
+      {
+        "id": "cn-2",
+        "topic": "China Consumer and Producer Prices Accelerate in September Signalling Potential Industrial Deflation Relief",
+        "summary": "China’s producer price index surged at its fastest clip since June 2022 alongside resilient consumer price metrics, outperforming global economic forecasts. Beijing macroeconomic planners hail the inflationary uptick as initial proof that aggressive stimulus measures are successfully curbing stubborn factory-gate deflation. Skeptical market analysts caution that persistent real estate sector drag and sluggish household domestic consumption may make this price stabilization temporary.",
+        "category": "Economy & Markets",
+        "badge": "Market Debate",
+        "badge_color": "badge-accent",
+        "source_headline": "Producer prices in China rise at fastest pace since June 2022, beating expectations",
+        "source_outlet": "CNBC",
+        "url": ""
+      },
+      {
+        "id": "cn-3",
+        "topic": "Global Chip Equities Plunge as Chinese Memory Breakthroughs Threaten Western Semiconductor Dominance",
+        "summary": "Wall Street semiconductor stocks tumbled sharply following intelligence reports detailing rapid technological advancements by domestic Chinese memory manufacturers despite US export curbs. Western technology investors fear that domestic chip self-sufficiency in China will permanently erode profit margins for American and European silicon exporters. Washington defense hawks argue that the breakthroughs underscore the urgent necessity of tightening semiconductor manufacturing equipment sanctions.",
+        "category": "Technology & AI",
+        "badge": "Strategic",
+        "badge_color": "badge-secondary",
+        "source_headline": "US chip stocks extend slide as China memory report, AI spending jitters hit sector",
+        "source_outlet": "Reuters",
+        "url": ""
+      },
+      {
+        "id": "cn-4",
+        "topic": "American Defense Startups Relocate Operations to Taiwan to Eliminate Chinese Supply Components",
+        "summary": "Venture-backed US defense technology firms are accelerating manufacturing partnerships in Taiwan to engineer uncrewed aerial systems entirely stripped of Chinese hardware. Defense contractors contend that purging Chinese sub-components is a vital national security imperative to prevent supply chain sabotage and cyber surveillance during potential conflicts. Supply chain logistics experts warn that decoupling drone production from mainland China's cost-effective industrial base dramatically inflates defense procurement costs.",
+        "category": "Geopolitics",
+        "badge": "Strategic",
+        "badge_color": "badge-primary",
+        "source_headline": "U.S. Defense Startups Flock to Taiwan to Build China-Free Drones",
+        "source_outlet": "WSJ",
+        "url": ""
+      },
+      {
+        "id": "cn-5",
+        "topic": "Youth Unemployment and Structural Economic Slowdown Threaten China With a Lost Generation",
+        "summary": "Record post-graduate joblessness and corporate hiring freezes across China have fueled demographic anxiety over the emergence of an economically disaffected 'Lost Generation.' Sociologists and labor economists warn that educated youth retreating into underemployment undermines Beijing’s long-term high-tech development goals. State economic planners insist that national state-directed manufacturing transitions and advanced vocational retooling programs will eventually absorb new workforce entrants.",
+        "category": "Economy & Markets",
+        "badge": "Policy Clash",
+        "badge_color": "badge-warning",
+        "source_headline": "China’s Weakening Economy Is Creating a Lost Generation",
+        "source_outlet": "WSJ",
+        "url": ""
+      },
+      {
+        "id": "cn-6",
+        "topic": "China Expands Circular Economy Operations by Converting Vast Industrial Waste Into Energy",
+        "summary": "China has initiated an unprecedented national campaign to recycle urban waste and industrial scrap into renewable energy and high-grade manufacturing inputs. Environmental planners describe this massive waste-to-resource transformation as a vital pillar in achieving carbon neutrality and securing critical raw material supply independence. Independent environmental monitors argue that intensive industrial waste incineration carries severe atmospheric emission hazards if regional environmental oversight remains lax.",
+        "category": "Energy & Climate",
+        "badge": "Resource Crisis",
+        "badge_color": "badge-accent",
+        "source_headline": "China is turning trash into treasure on a vast scale",
+        "source_outlet": "The Economist",
+        "url": ""
+      },
+      {
+        "id": "cn-7",
+        "topic": "Institutional Limits of China's Surveillance State Exposed by Fragmented Data Management Systems",
+        "summary": "A forensic intelligence analysis reveals that despite possessing the world's most extensive public camera network, China's surveillance apparatus struggles with fragmented data silos and bureaucratic friction. Digital governance researchers argue that municipal agencies often fail to synthesize disparate biometric databases, puncturing the myth of an omniscient digital police state. Human rights advocates counter that even an imperfect surveillance regime produces a profound chilling effect on civil liberties.",
+        "category": "Technology & AI",
+        "badge": "Ethics Audit",
+        "badge_color": "badge-info",
+        "source_headline": "The Limits of China’s Surveillance State",
+        "source_outlet": "Foreign Policy",
+        "url": ""
+      },
+      {
+        "id": "cn-8",
+        "topic": "European Union Navigates Independent Trade Countermeasures Against Looming Sino-American Economic Warfare",
+        "summary": "European policymakers are crafting autonomous trade mechanisms to navigate escalating commercial friction between Washington and Beijing without triggering catastrophic tariff retaliation. Brussels trade strategists argue that Europe must pursue strategic derisking rather than wholesale economic decoupling from China's immense manufacturing complex. Skeptics within the transatlantic alliance warn that European hedging allows Beijing to exploit Western trade divisions while flooding European markets with subsidized clean-tech exports.",
+        "category": "Geopolitics",
+        "badge": "Strategic",
+        "badge_color": "badge-secondary",
+        "source_headline": "Europe's alternative to Trump's China trade war",
+        "source_outlet": "Axios",
+        "url": ""
+      },
+      {
+        "id": "cn-9",
+        "topic": "China-Russia Economic Coordination Expands Across Latin America and Caribbean Challenging Western Influence",
+        "summary": "A comprehensive strategic assessment highlights growing bilateral economic coordination between China and Russia across South American infrastructure, energy, and telecommunications corridors. Geopolitical analysts warn that coordinated Sino-Russian financing provides developing nations alternative capital lines that weaken Western diplomatic and sanctions leverage. Regional sovereign partners contend that multi-polar investment packages provide vital capital for emerging market infrastructure without Western political conditionalities.",
+        "category": "Geopolitics",
+        "badge": "Policy Clash",
+        "badge_color": "badge-warning",
+        "source_headline": "Assessing the Impact of China-Russia Economic Coordination in Latin America and the Caribbean",
+        "source_outlet": "CSIS | Center for Strategic and International Studies",
+        "url": ""
+      }
+    ]
+  },
+  {
+    "code": "RU",
+    "name": "Russia",
+    "flag": "🇷🇺",
+    "topics": [
+      {
+        "id": "ru-1",
+        "topic": "U.S.-Russia Diesel Fuel Pact Sparks Bipartisan Outcry Over Sanctions and Foreign Aid",
+        "summary": "Lawmakers on Capitol Hill are fiercely pushing back against an executive deal to import Russian diesel into American markets, calling it a strategic capitulation that violates sanctions laws. Opponents argue the transaction economically fuels Moscow's war chest while betraying Ukraine, whereas defenders cite short-term fuel stabilization for domestic consumers. The controversy underscores the fragile balance between domestic energy price relief and international sanctions enforcement.",
+        "category": "Energy & Climate",
+        "badge": "Policy Clash",
+        "badge_color": "badge-warning",
+        "source_headline": "Bipartisan group of senators call on Trump to rescind Russian diesel deal",
+        "source_outlet": "NPR",
+        "url": ""
+      },
+      {
+        "id": "ru-2",
+        "topic": "Russian State Security Detains Japanese Journalist in Sakhalin Over Espionage Allegations",
+        "summary": "Russian federal security services have apprehended a Japanese correspondent in the Far Eastern Sakhalin region on charges of espionage, drawing swift diplomatic friction. Moscow frames the arrest as a necessary counter-espionage measure against foreign operatives, while Tokyo and press freedom groups denounce it as state-sponsored hostage diplomacy. The case highlights the severe legal risks facing foreign journalists operating in increasingly isolated Russian border regions.",
+        "category": "Politics & Law",
+        "badge": "Controversy",
+        "badge_color": "badge-danger",
+        "source_headline": "Russia Detains Japanese Journalist for Alleged Espionage",
+        "source_outlet": "The New York Times",
+        "url": ""
+      },
+      {
+        "id": "ru-3",
+        "topic": "NATO Unveils Aggressive Defense Doctrine to Deter Russian Escalation Across Eastern Flank",
+        "summary": "NATO leadership has formulated an operational strategic framework dubbed 'block, blunt, break' to counter potential Russian conventional aggression along Europe's frontier. Proponents argue that only forward defense posture and decisive deterrence can deter further Kremlin expansionism, while critics caution that pre-emptive posture risks triggering uncontrollable military escalation. The doctrine exposes a historic paradigm shift from post-Cold War crisis management back to full-scale territorial deterrence.",
+        "category": "Geopolitics",
+        "badge": "Strategic",
+        "badge_color": "badge-info",
+        "source_headline": "‘Block, blunt, break’: What’s in NATO’s new Russia war plan?",
+        "source_outlet": "Al Jazeera",
+        "url": ""
+      },
+      {
+        "id": "ru-4",
+        "topic": "Ukrainian Cyber Strikes on Russian Data Centers Question Effectiveness Against Disinformation Botnets",
+        "summary": "Coordinated cyber strikes against Russian digital infrastructure aimed to cripple bot farms responsible for mass online propaganda. Cybersecurity analysts are divided over whether the infrastructure destruction permanently dismantled disinformation capabilities or merely forced threat actors to relocate to decentralized servers. The incident illustrates the murky frontier of offensive cyber warfare targeting state-backed narrative-manipulation networks.",
+        "category": "Technology & AI",
+        "badge": "Media Bias",
+        "badge_color": "badge-secondary",
+        "source_headline": "Did Ukraine’s strikes on data centers really silence Russian bots?",
+        "source_outlet": "Mashable",
+        "url": ""
+      },
+      {
+        "id": "ru-5",
+        "topic": "Tragic Laboratory Fatality Sparks Scrutiny Over Russian Pathogen Containment and Biosafety Protocols",
+        "summary": "The fatal exposure of a technician in a specialized Russian virology facility has prompted international epidemiological concern regarding biocontainment integrity. While global health authorities assess the outbreak risk as low, non-proliferation observers demand independent audits of dual-use research facilities. The event illuminates institutional gaps in international bio-surveillance and laboratory transparency amid heightened geopolitical secrecy.",
+        "category": "Health & Science",
+        "badge": "Ethics Audit",
+        "badge_color": "badge-accent",
+        "source_headline": "Does a Russian lab worker's death carry pandemic risk? Experts say it's unlikely, with one caveat",
+        "source_outlet": "PBS",
+        "url": ""
+      },
+      {
+        "id": "ru-6",
+        "topic": "Controversy Surrounding US Intelligence Sharing With Ukraine Amid Escalating Russian Missile Strikes",
+        "summary": "Ukrainian officials reported receiving zero advance intelligence warning prior to devastating missile strikes on Kyiv, surfacing rumors of severed tactical intelligence sharing from Washington. While American officials insist intelligence pipelines remain open, discrepancies in real-time air defense coordination have alarmed allied capitals. The dispute demonstrates how military intelligence sharing is increasingly wielded as geopolitical leverage during backchannel negotiations.",
+        "category": "Geopolitics",
+        "badge": "Strategic",
+        "badge_color": "badge-primary",
+        "source_headline": "Ukraine had no intelligence from partners about missiles headed to Kyiv, Zelenskyy says",
+        "source_outlet": "PBS",
+        "url": ""
+      },
+      {
+        "id": "ru-7",
+        "topic": "French Interception of Russian Shadow Fleet Tanker Prompts Outraged Accusations of State Piracy",
+        "summary": "French maritime forces intercepted an illicit oil tanker suspected of operating under Moscow's clandestine shadow fleet to evade maritime insurance caps. The Russian Foreign Ministry immediately denounced the boarding as state piracy violating international maritime conventions, while European authorities defended the raid as vital sanction enforcement. The seizure marks an aggressive escalation in European maritime interdictions of illicit Russian energy shipments.",
+        "category": "Energy & Climate",
+        "badge": "Controversy",
+        "badge_color": "badge-warning",
+        "source_headline": "France seizes another 'shadow fleet' tanker; Russia decries 'piracy'",
+        "source_outlet": "Reuters",
+        "url": ""
+      },
+      {
+        "id": "ru-8",
+        "topic": "Western Intelligence Reports Accuse Russia and Iran of Coordinated Hybrid Warfare Operations",
+        "summary": "Intelligence briefings indicate that Moscow and Tehran are escalating joint asymmetric campaigns, including cyber intrusions and arson operations on British soil. Security officials warn that traditional espionage boundaries have dissolved into state-sponsored criminal disruption, whereas targeted states face difficulty responding without triggering conventional conflict. The revelation presents complex regulatory and defense challenges in countering gray-zone warfare.",
+        "category": "Geopolitics",
+        "badge": "Policy Clash",
+        "badge_color": "badge-info",
+        "source_headline": "Iran and Russia are stepping up hybrid campaigns in Britain, UK spy chief says",
+        "source_outlet": "Reuters",
+        "url": ""
+      },
+      {
+        "id": "ru-9",
+        "topic": "Economic Repercussions and Energy Market Volatility Under Resumed Russian Petroleum Imports",
+        "summary": "Market analysts are evaluating the true economic footprint of importing Russian refined products, noting the volumes represent less than a fortnight of aggregate domestic demand. Critics argue that compromising geopolitical alliances for negligible consumer savings offers zero structural macroeconomic benefit. The debate highlights the fraught calculations policymakers face when weighing domestic fuel inflation against international economic statecraft.",
+        "category": "Economy & Markets",
+        "badge": "Market Debate",
+        "badge_color": "badge-success",
+        "source_headline": "Trump's diesel deal with Russia equals less than two weeks of U.S. demand",
+        "source_outlet": "CNBC",
+        "url": ""
+      }
+    ]
+  },
+  {
+    "code": "GB",
+    "name": "United Kingdom",
+    "flag": "🇬🇧",
+    "topics": [
+      {
+        "id": "gb-1",
+        "topic": "MI5 Chief Warns of Surging Rightwing Extremism and Escalating Domestic Terror Threats",
+        "summary": "The Director General of MI5 revealed that far-right radicalization is accelerating rapidly across the UK, with extremist cells increasingly preparing lethal domestic attacks. Civil liberties advocates caution against expanding surveillance powers that could sweep up lawful political dissent, while counterterrorism officials insist online radicalization warrants aggressive digital monitoring. The warning underscores the profound challenge security agencies confront as ideological extremism migrates into decentralized online spaces.",
+        "category": "Politics & Law",
+        "badge": "Controversy",
+        "badge_color": "badge-danger",
+        "source_headline": "Rightwing extremists increasingly likely to consider terrorist attacks, MI5 chief says",
+        "source_outlet": "The Guardian",
+        "url": ""
+      },
+      {
+        "id": "gb-2",
+        "topic": "UK Early Prisoner Release Program Triggers Fierce Backlash Over Public Safety Risks",
+        "summary": "Hundreds of convicted offenders have walked free under the government's emergency decarceration measure designed to stave off absolute systemic collapse in British prisons. Victim advocacy groups and conservative critics decry the scheme as a hazardous abdication of justice, while prison governors argue overcrowding was hours away from sparking widespread penal riots. The crisis reveals decades of systemic criminal justice underinvestment colliding with acute public protection demands.",
+        "category": "Politics & Law",
+        "badge": "Policy Clash",
+        "badge_color": "badge-warning",
+        "source_headline": "Hundreds of prisoners walk free in second wave of early release – latest updates",
+        "source_outlet": "The Telegraph",
+        "url": ""
+      },
+      {
+        "id": "gb-3",
+        "topic": "MI5 Declassification Confirms Russian Interference in Historic British European Union Referendum",
+        "summary": "The public acknowledgement by Britain's domestic intelligence chief that Russian operatives actively sought to disrupt the 2016 Brexit referendum has reignited fierce constitutional debate. Europhile politicians claim the revelation delegitimizes the referendum's narrow mandate, whereas Brexit supporters accuse the security establishment of weaponizing historical intelligence to undermine British sovereignty. The dispute serves as a cautionary study in how foreign covert operations leave permanent fault lines across democratic institutions.",
+        "category": "Geopolitics",
+        "badge": "Media Bias",
+        "badge_color": "badge-secondary",
+        "source_headline": "Russia did try to interfere in Brexit referendum, head of MI5 confirms",
+        "source_outlet": "The Guardian",
+        "url": ""
+      },
+      {
+        "id": "gb-4",
+        "topic": "Ed Miliband Authorizes Falkland Islands Oil Drilling Igniting Diplomatic Row With Argentina",
+        "summary": "Energy Secretary Ed Miliband has formally approved hydrocarbon drilling licenses off the Falkland Islands, sparking immediate diplomatic protests from Buenos Aires over sovereign maritime rights. Environmental factions within the Labour party also condemn the decision as a betrayal of statutory net-zero commitments, while defense hawks champion economic self-determination for island residents. The decision crystallizes the perennial collision between national strategic resource exploitation and decarbonization pledges.",
+        "category": "Energy & Climate",
+        "badge": "Policy Clash",
+        "badge_color": "badge-warning",
+        "source_headline": "Ed Miliband signs off on Falklands drilling despite Argentina row",
+        "source_outlet": "The Telegraph",
+        "url": ""
+      },
+      {
+        "id": "gb-5",
+        "topic": "AI Minister Warns Imminent Cyber Breaches Threaten Critical British Infrastructure and Defense",
+        "summary": "Government technology ministers have conceded that UK defensive firewalls will likely buckle under sophisticated AI-driven cyber incursions targeting critical national infrastructure. Private sector tech firms demand substantial public subsidies to harden legacy networks, while treasury watchdogs scrutinize the fiscal cost of sovereign cyber resilience. The warning exposes the vulnerability of national data architectures as state and non-state adversaries weaponize generative computational exploits.",
+        "category": "Technology & AI",
+        "badge": "Strategic",
+        "badge_color": "badge-info",
+        "source_headline": "AI minister warns it is 'likely' UK's cyber defences will be breached",
+        "source_outlet": "BBC",
+        "url": ""
+      },
+      {
+        "id": "gb-6",
+        "topic": "Remote Work Fraud Scandal Sparks Major Overhaul Across British Civil Service Management",
+        "summary": "Revelations that a Whitehall employee simultaneously drew salaries from five civil service posts using falsified sick notes and remote logins has prompted a government-wide audit. Conservative parliamentarians argue the scandal proves remote public sector work breeds rampant inefficiency and lack of accountability, while civil service unions defend telework flexibility as vital for retention. The affair provides a critical institutional case study on internal oversight deficits in decentralized digital work environments.",
+        "category": "Economy & Markets",
+        "badge": "Ethics Audit",
+        "badge_color": "badge-accent",
+        "source_headline": "Civil servant 'fraudulently juggled five government jobs using remote work and sick notes'",
+        "source_outlet": "Sky News",
+        "url": ""
+      },
+      {
+        "id": "gb-7",
+        "topic": "Renewed Push by London Mayor to Rejoin European Union Ignites Cross-Party Feud",
+        "summary": "London Mayor Sadiq Khan has reignited the national debate over European integration by urging the UK to renegotiate full membership in the European single market to alleviate urban economic stagnation. Downing Street promptly distanced itself from the remarks to avert an electoral backlash in industrial heartlands, while city business leaders insist customs barriers continue choking capital investments. The friction demonstrates how post-Brexit trade arrangements remain deeply contested between metropolitan hubs and central government.",
+        "category": "Politics & Law",
+        "badge": "Policy Clash",
+        "badge_color": "badge-primary",
+        "source_headline": "'Bombarded by lies': London MPs rage against Brexit as Sadiq Khan says rejoin EU",
+        "source_outlet": "London Evening Standard",
+        "url": ""
+      },
+      {
+        "id": "gb-8",
+        "topic": "Controversial Northern Ireland Troubles Legacy Bill Amendments Reignite Deep Legal Wounds",
+        "summary": "Proposed legislative modifications to Northern Ireland's Troubles legacy legislation have sparked intense fury among victims' relatives and human rights barristers. Government ministers argue the amendments offer the only realistic legal framework for historical closure, whereas legal campaigners contend conditional amnesties violate international human rights treaties. The ongoing deadlock highlights the delicate tension between post-conflict transitional justice and legal accountability for historic crimes.",
+        "category": "Politics & Law",
+        "badge": "Controversy",
+        "badge_color": "badge-danger",
+        "source_headline": "Northern Ireland Troubles Bill: Secretary of State defends new amendments to legislation",
+        "source_outlet": "BBC",
+        "url": ""
+      },
+      {
+        "id": "gb-9",
+        "topic": "Severe Flood Threat Across Britain Sparks Heated Debate on Climate Adaptation Investments",
+        "summary": "Hydrological forecasts warning that millions of British properties face imminent flash flooding under erratic weather patterns have ignited calls for emergency flood barrier funding. Rural municipalities claim environmental spending disproportionately safeguards urban financial centers while leaving agricultural regions exposed to devastation. The controversy illustrates the urgent policy dilemmas municipal authorities encounter when prioritizing climate resilience funding across unequal geographies.",
+        "category": "Energy & Climate",
+        "badge": "Market Debate",
+        "badge_color": "badge-success",
+        "source_headline": "The areas most at risk of flash floods as El Niño threatens millions in UK",
+        "source_outlet": "The i Paper",
+        "url": ""
+      }
+    ]
+  },
+  {
+    "code": "FR",
+    "name": "France",
+    "flag": "🇫🇷",
+    "topics": [
+      {
+        "id": "fr-1",
+        "topic": "Coordinated Cyberattack Cripples Supermarket Refrigeration Networks Across Major French Grocery Chains",
+        "summary": "An unprecedented cyberattack hijacked centralized environmental control systems across hundreds of French supermarkets, intentionally shutting down industrial freezers and spoiling tons of perishable goods. Food retail federations demand state intervention against digital infrastructure extortion, while intelligence investigators probe whether the sabotage represents an extortion scheme or state-sponsored disruption. The incident highlights catastrophic vulnerabilities in the industrial IoT networks underpinning national food supply chains.",
+        "category": "Technology & AI",
+        "badge": "Controversy",
+        "badge_color": "badge-danger",
+        "source_headline": "Cyberattack Hits Hundreds of Supermarket Refrigeration Systems in France",
+        "source_outlet": "The New York Times",
+        "url": ""
+      },
+      {
+        "id": "fr-2",
+        "topic": "Mass High School Demonstrations and Nationwide Clashes Challenge French Educational Governance",
+        "summary": "Nearly half a million secondary students took to the streets across France, clashing with anti-riot police over controversial educational reforms and austerity measures. Youth unions claim public education is being dismantled by neo-liberal restructuring, while interior ministry officials condemn radicalized agitators for turning peaceful protests into street brawls. The standoff exemplifies persistent generational revolt against state centralization and public sector expenditure cuts.",
+        "category": "Politics & Law",
+        "badge": "Policy Clash",
+        "badge_color": "badge-warning",
+        "source_headline": "French students ‘not giving up the fight’ as 480,000 join new day of school protests",
+        "source_outlet": "France 24",
+        "url": ""
+      },
+      {
+        "id": "fr-3",
+        "topic": "Mounting Sovereign Debt Crisis Puts Unprecedented Pressure on France's National Fiscal Trajectory",
+        "summary": "Financial analysts and European credit rating agencies are raising alarms as French public debt surges past critical thresholds, sparking intense bond market scrutiny. Brussels demands immediate fiscal consolidation and social budget cutbacks, while domestic trade unions vow nationwide strikes against any erosion of social welfare entitlements. The crisis reflects a fundamental institutional impasse between European fiscal discipline rules and French social compact expectations.",
+        "category": "Economy & Markets",
+        "badge": "Market Debate",
+        "badge_color": "badge-success",
+        "source_headline": "In charts: How one of the world's biggest economies got trapped by debt",
+        "source_outlet": "CNBC",
+        "url": ""
+      },
+      {
+        "id": "fr-4",
+        "topic": "French Naval Interception of Russian Shadow Fleet Tanker Stirs International Diplomatic Confrontation",
+        "summary": "French naval commandos boarded and impounded an unflagged crude carrier in the English Channel suspected of laundering Russian oil beyond statutory price caps. The French government affirmed its jurisdiction to enforce international environmental and trade sanctions, prompting Russian diplomats to threaten retaliatory maritime legal measures. The boarding underscores the rising operational risks European states face when enforcing sanctions against maritime sanctions-busting operations.",
+        "category": "Geopolitics",
+        "badge": "Strategic",
+        "badge_color": "badge-info",
+        "source_headline": "France seizes another 'shadow fleet' tanker; Russia decries 'piracy'",
+        "source_outlet": "Reuters",
+        "url": ""
+      },
+      {
+        "id": "fr-5",
+        "topic": "NVIDIA Pours Major Strategic Investment into France’s Expanding Artificial Intelligence Startup Ecosystem",
+        "summary": "Semiconductor giant NVIDIA has announced multi-million-euro venture funding into French AI research hubs, cementing Paris as continental Europe's primary artificial intelligence cluster. Proponents celebrate the capital injection as validation of France's engineering prowess, while digital sovereignty advocates warn against over-reliance on foreign silicon monopolies. The strategic deal brings to the forefront Europe's dependence on foreign technological hardware despite aggressive local software innovation.",
+        "category": "Technology & AI",
+        "badge": "Market Debate",
+        "badge_color": "badge-primary",
+        "source_headline": "NVIDIA Announces New Investments in France’s Startups",
+        "source_outlet": "NVIDIA Blog",
+        "url": ""
+      },
+      {
+        "id": "fr-6",
+        "topic": "French High School Shooting Prompts Urgent Inquiries into Youth Violence and Security",
+        "summary": "A shooting incident at a regional high school that left two students wounded has sparked nationwide alarm over the proliferation of illicit firearms among teenagers. Conservative politicians demand the immediate deployment of biometric metal detectors and armed guards at school gates, while teachers' associations urge investments in mental health support and social workers. The crisis underscores the intensifying debate over public school security and juvenile criminal justice reform in France.",
+        "category": "Politics & Law",
+        "badge": "Controversy",
+        "badge_color": "badge-danger",
+        "source_headline": "France school shooting: Police detain pupil after two injured",
+        "source_outlet": "Al Jazeera",
+        "url": ""
+      },
+      {
+        "id": "fr-7",
+        "topic": "Deepening Institutional Gridlock and Protests Dim President Emmanuel Macron’s Remaining Presidential Agenda",
+        "summary": "With parliamentary fragmentation and plunging approval ratings, Emmanuel Macron's final presidential term faces acute institutional gridlock and public disillusionment. Political opponents across both left and far-right flanks are openly pushing for early dissolution or constitutional referendums to dismantle executive decree powers. The political landscape highlights the fragility of the Fifth Republic's centralized executive governance in an era of deep social polarization.",
+        "category": "Politics & Law",
+        "badge": "Media Bias",
+        "badge_color": "badge-secondary",
+        "source_headline": "Macron Dreamed of Reviving France, but His Term Is Ending in Crisis",
+        "source_outlet": "The New York Times",
+        "url": ""
+      },
+      {
+        "id": "fr-8",
+        "topic": "Tech Founder’s Outspoken Critique Sparks Ideological Debate Over French Regulation and Competitiveness",
+        "summary": "A prominent French artificial intelligence entrepreneur sparked fiery political controversy by publicly cautioning American voters against adopting French-style labor and tax models. Business federations echoed the warning regarding punitive corporate taxation and bureaucratic stagnation, whereas progressive leaders denounced the remarks as corporate disloyalty to the country that funded their foundational research. The dispute underscores the ideological fault line separating Silicon Valley-style deregulation from European social safety models.",
+        "category": "Economy & Markets",
+        "badge": "Ethics Audit",
+        "badge_color": "badge-accent",
+        "source_headline": "French AI CEO warns Americans against voting Democrat saying 'you don't want to be France'",
+        "source_outlet": "Fox News",
+        "url": ""
+      },
+      {
+        "id": "fr-9",
+        "topic": "Air France Sparks Controversy by Complying With Restrictive Foreign Flight Crew Directives",
+        "summary": "Air France's decision to enforce foreign government entry regulations barring flight personnel of specific nationalities on certain routes has triggered outrage among aviation labor unions. Union representatives argue the airline is actively abetting discriminatory practices that violate French employment equality statutes, while management maintains non-compliance would forfeit valuable international landing rights. The controversy reveals the fraught ethical and legal dilemmas global transport conglomerates face when adhering to conflicting domestic and international directives.",
+        "category": "Geopolitics",
+        "badge": "Policy Clash",
+        "badge_color": "badge-warning",
+        "source_headline": "Air France says it will follow Israeli rule barring crew from some nations",
+        "source_outlet": "Al Jazeera",
+        "url": ""
+      }
+    ]
+  },
+  {
+    "code": "DE",
+    "name": "Germany",
+    "flag": "🇩🇪",
+    "topics": [
+      {
+        "id": "de-1",
+        "topic": "Ukrainian Ex-Officer Goes on Trial in Germany Over Nord Stream Pipeline Sabotage",
+        "summary": "Federal prosecutors in Germany have indicted a former Ukrainian military officer for orchestrating the underwater demolition of the Nord Stream gas pipelines in the Baltic Sea. The explosive trial puts Berlin in an extraordinary geopolitical bind, pitting its statutory obligation to prosecute strategic sabotage against its role as Kyiv's foremost European military backer. The judicial proceedings offer a dramatic test case of judicial independence versus foreign policy pragmatism during ongoing wartime alliances.",
+        "category": "Politics & Law",
+        "badge": "Controversy",
+        "badge_color": "badge-danger",
+        "source_headline": "Ukrainian ex-officer stands trial in Germany over Nord Stream bombing",
+        "source_outlet": "Reuters",
+        "url": ""
+      },
+      {
+        "id": "de-2",
+        "topic": "Germany, Italy, and Belgium Demand Emergency Regulatory Brake on European Union Legislation",
+        "summary": "A powerful tripartite coalition of European industrial heavyweights has petitioned Brussels to institute a formal 'emergency brake' to pause burdensome regulatory mandates. German industrial associations argue that overzealous ESG reporting requirements and carbon regulations are triggering historic de-industrialization, whereas environmental groups warn that weakening statutory directives will fatally sabotage European green transition goals. The confrontation signals an escalating rebellion by core member states against centralized Brussels bureaucracy.",
+        "category": "Politics & Law",
+        "badge": "Policy Clash",
+        "badge_color": "badge-warning",
+        "source_headline": "Germany, Italy and Belgium call for ‘emergency brake’ on EU laws",
+        "source_outlet": "Euronews.com",
+        "url": ""
+      },
+      {
+        "id": "de-3",
+        "topic": "Proposed Artificial Intelligence Data Restrictions Could Cost German Economy 155 Billion Annually",
+        "summary": "A startling study by the ifo Institute warned that overly restrictive data access rules under European AI statutes could cost the German economy up to €155 billion every year in lost productivity. Domestic software developers argue draconian digital privacy statutes prevent European enterprise models from competing with American and Chinese competitors, while civil liberties jurists maintain strict data governance is non-negotiable. The econometric findings spotlight the severe financial trade-offs between consumer data privacy and technological dynamism.",
+        "category": "Technology & AI",
+        "badge": "Market Debate",
+        "badge_color": "badge-success",
+        "source_headline": "Tighter AI data access could cost Germany €155 billion a year, ifo says",
+        "source_outlet": "Reuters",
+        "url": ""
+      },
+      {
+        "id": "de-4",
+        "topic": "German Cross-Border Arrests Probe Suspected Foreign Sabotage Linked to Polish Starlink Arson",
+        "summary": "German federal police have detained multiple individuals across eastern states in connection with an arson attack targeting satellite communication terminals vital for Ukrainian military logistics. Counterintelligence officials suspect the perpetrators were operating as proxy operatives financed by foreign intelligence agencies to cripple allied communications. The cross-border investigation illustrates the growing peril of decentralized hybrid sabotage operations inside NATO member territories.",
+        "category": "Geopolitics",
+        "badge": "Strategic",
+        "badge_color": "badge-info",
+        "source_headline": "Poland: Germany detains 2 in connection with Starlink fire",
+        "source_outlet": "DW.com",
+        "url": ""
+      },
+      {
+        "id": "de-5",
+        "topic": "German Government Drafts Consumer Levy to Finance Critical National Emergency Gas Reserves",
+        "summary": "The German federal cabinet has circulated draft legislation imposing a nationwide surcharge on domestic utility bills to guarantee long-term funding for strategic underground gas stockpiles. Opposition lawmakers and consumer groups fiercely object to burdening inflation-weary households with state energy security costs, while grid managers stress that strategic storage is indispensable to prevent winter blackouts. The legislation exposes the persistent economic friction over who pays for European energy transition and crisis reserves.",
+        "category": "Energy & Climate",
+        "badge": "Policy Clash",
+        "badge_color": "badge-warning",
+        "source_headline": "Germany to fund new emergency gas reserve via consumer levy, draft says",
+        "source_outlet": "Reuters",
+        "url": ""
+      },
+      {
+        "id": "de-6",
+        "topic": "Resurgence of Far-Right Political Factions Triggers Geopolitical Reassessments and Domestic Polarization",
+        "summary": "The electoral consolidation of far-right political parties in German state legislatures has triggered deep institutional alarm across Berlin's traditional political establishment. Foreign intelligence dossiers suggest regional powers view Germany's domestic polarization as an opportunity to weaken European unity, while domestic conservative factions debate breaking historic sanitaries cordons. The political development represents the most significant stress test for Germany's post-war constitutional consensus in decades.",
+        "category": "Politics & Law",
+        "badge": "Media Bias",
+        "badge_color": "badge-secondary",
+        "source_headline": "The Far Right Breaks Through in Germany",
+        "source_outlet": "Dissent Magazine",
+        "url": ""
+      },
+      {
+        "id": "de-7",
+        "topic": "Bizarre Autonomous Robot Confiscation Prompts Unprecedented Legal Questions Over Assault Liability",
+        "summary": "German police impounded an autonomous commercial robot after it allegedly inappropriately touched a minor, sparking a formal criminal investigation into whether remote human operators or algorithmic malfunctions were culpable. Legal scholars argue the bizarre incident exposes an alarming vacuum in German civil and criminal codes regarding mechanical agency, remote tele-operation, and autonomous liability. The prosecution will likely set a landmark legal precedent for how autonomous robotic interactions in public spaces are regulated.",
+        "category": "Technology & AI",
+        "badge": "Ethics Audit",
+        "badge_color": "badge-accent",
+        "source_headline": "Police confiscate robot that groped 16-year-old girl, probe whether young men were at the controls",
+        "source_outlet": "AP News",
+        "url": ""
+      },
+      {
+        "id": "de-8",
+        "topic": "Transponder Radio Malfunction Prompts Jet Scramble and Sudden Closure of Nuremberg Airport",
+        "summary": "Nuremberg Airport was abruptly shut down and Eurofighter jets were scrambled at supersonic speeds after a commercial airliner inadvertently broadcasted a hijacking transponder code. While the emergency was quickly resolved as an erroneous technical glitch, the rapid military response disrupted regional airspace and ignited debates over aviation communication safeguards. Aviation authorities are now reviewing automated transponder protocols to prevent costly false alarms across high-density European flight corridors.",
+        "category": "Politics & Law",
+        "badge": "Controversy",
+        "badge_color": "badge-danger",
+        "source_headline": "Germany scrambles jets after airline radio glitch sends false hijack alert",
+        "source_outlet": "Reuters",
+        "url": ""
+      },
+      {
+        "id": "de-9",
+        "topic": "Documentation of Hundreds of Child Marriages Sparks Intense Legal and Integration Controversies",
+        "summary": "Government registries revealing over 350 recorded child marriages, some involving victims as young as 11, have ignited fierce legislative clashes across the Bundestag. Women's rights organizations demand the immediate, uncompromising annulment of foreign child unions without judicial discretion, while immigration jurists urge case-by-case protection mechanisms to safeguard vulnerable minors from destitution. The emotional controversy challenges the boundaries of statutory child protection versus cross-border civil recognition.",
+        "category": "Politics & Law",
+        "badge": "Ethics Audit",
+        "badge_color": "badge-accent",
+        "source_headline": "Child marriage in Germany: Over 350 cases logged, some brides aged 11",
+        "source_outlet": "Euronews.com",
+        "url": ""
+      }
+    ]
+  },
+  {
+    "code": "AE",
+    "name": "United Arab Emirates",
+    "flag": "🇦🇪",
+    "topics": [
+      {
+        "id": "ae-1",
+        "topic": "Regulatory Scrutiny Intensifies Over UAE Financial Havens Amid Texas Attorney General Fugitive Revelations",
+        "summary": "Investigative reports exposed Texas Attorney General Ken Paxton socializing in Dubai with indicted U.S. embezzlers, reigniting international debate over the Emirates' extradition protocols and reputation as a safe harbor for illicit wealth. Legal watchdogs and western prosecutors argue that loose financial monitoring in luxury hubs compromises cross-border judicial enforcement, while Emirati officials maintain their compliance apparatus has undergone aggressive anti-money laundering modernization. The episode highlights the systemic tension between sovereign financial privacy and international fugitive tracking.",
+        "category": "Politics & Law",
+        "badge": "Ethics Audit",
+        "badge_color": "badge-warning",
+        "source_headline": "Exclusive | Ken Paxton Partied in Dubai With Fugitives Ahead of High-Stakes Texas Senate Race",
+        "source_outlet": "WSJ",
+        "url": ""
+      },
+      {
+        "id": "ae-2",
+        "topic": "Dubai Approves First Commercial Vertiport Pioneering Urban Air Mobility and Aviation Regulations",
+        "summary": "Dubai authorities officially sanctioned the construction of the world's first commercial vertiport terminal, aiming to launch operational electric vertical take-off and landing (eVTOL) air taxis within two years. Aviation innovators champion the infrastructure as a decarbonized breakthrough for municipal transit congestion, while urban planners and aviation skeptics raise red flags over low-altitude airspace safety, noise pollution, and high capital burn rates. The project tests whether metropolitan regulators can establish robust civil aviation safety frameworks for autonomous aerial transport ahead of Western capitals.",
+        "category": "Technology & AI",
+        "badge": "Strategic",
+        "badge_color": "badge-primary",
+        "source_headline": "Dubai Greenlights World’s First Commercial Vertiport for Air Taxis",
+        "source_outlet": "Thomasnet",
+        "url": ""
+      },
+      {
+        "id": "ae-3",
+        "topic": "Aviation Security Standoff Between Israel and UAE Suspends Direct Flydubai Flight Routes",
+        "summary": "Direct aviation links between Tel Aviv and Dubai face prolonged disruption as Israeli intelligence and UAE aviation authorities spar over tarmac security protocols and the handling of a recent security incident. Commercial carriers express frustration over grounding high-yield business and tourist corridors, while security hardliners insist no operational compromises can be tolerated in a contested regional battlespace. The standoff underscores how geopolitical volatility can swiftly destabilize Abraham Accords bilateral commercial infrastructure.",
+        "category": "Geopolitics",
+        "badge": "Policy Clash",
+        "badge_color": "badge-secondary",
+        "source_headline": "Flydubai's return date up in the air as Israel, UAE said to spar over security, attack investigation",
+        "source_outlet": "The Times of Israel",
+        "url": ""
+      },
+      {
+        "id": "ae-4",
+        "topic": "Historic Diplomatic Step as Israel Approves Permanent United Arab Emirates Embassy Construction",
+        "summary": "Planning authorities in central Israel cleared final blueprints for a permanent United Arab Emirates embassy, cementing long-term institutional ties despite intense regional warfare and geopolitical turbulence. Proponents celebrate the milestone as concrete proof of the normalization treaty's durability amidst historic Middle Eastern turmoil, whereas regional critics decry the diplomatic deepening while neighboring civilian conflicts escalate. The development presents a crucial case study in maintaining transactional diplomatic channels through severe asymmetric conflict.",
+        "category": "Geopolitics",
+        "badge": "Strategic",
+        "badge_color": "badge-accent",
+        "source_headline": "Committee approves building plans for permanent UAE embassy in central Israel",
+        "source_outlet": "The Jerusalem Post",
+        "url": ""
+      },
+      {
+        "id": "ae-5",
+        "topic": "Gulf Startup Ecosystem Consolidates Capital as UAE and Saudi Arabia Dominate Venture Financing",
+        "summary": "New financial data revealed that the UAE and Saudi Arabia captured roughly 90 percent of nearly $3 billion in MENA venture capital, widening the liquidity disparity across the broader Arab world. Venture partners laud the concentration of sovereign wealth and regulatory sandboxes that attract global tech talent to Abu Dhabi and Dubai, while emerging market economists caution that capital hyper-concentration chokes out innovation in distressed regional neighbors. The trend illustrates how sovereign balance sheets are reshaping venture ecosystems into centralized geopolitical tech strongholds.",
+        "category": "Economy & Markets",
+        "badge": "Market Debate",
+        "badge_color": "badge-info",
+        "source_headline": "UAE and Saudi Arabia account for almost 90% of $2.98 billion of startup capital raised in 2026",
+        "source_outlet": "Semafor",
+        "url": ""
+      },
+      {
+        "id": "ae-6",
+        "topic": "Global Cloud Infrastructure Giants Accelerate Multi-Million Dollar Capital Allocations Into UAE Data Centers",
+        "summary": "Retail wealth managers and multinational institutional funds are channeling unprecedented capital into UAE hyper-scale data centers designed to power artificial intelligence computing. Industry analysts praise the nation's cheap baseload energy access and aggressive state subsidies, but prudent fiduciary advisors warn of geopolitical instability risks and sovereign oversight over sensitive data pipelines. This structural pivot illustrates how energy-abundant monarchies are leveraging digital infrastructure to hedge against terminal fossil fuel obsolescence.",
+        "category": "Technology & AI",
+        "badge": "Market Debate",
+        "badge_color": "badge-primary",
+        "source_headline": "‘I am a pretty cautious person’: My financial adviser wants me to invest $350,000 in a UAE data center. Is this risky?",
+        "source_outlet": "MarketWatch",
+        "url": ""
+      },
+      {
+        "id": "ae-7",
+        "topic": "UAE Sovereign Capital Pursues Major Gaming and Hospitality Investments Across Nevada Markets",
+        "summary": "An Emirati governmental delegation completed high-profile tours of Nevada gaming operations as construction accelerates on the multibillion-dollar Wynn integrated casino resort in Ras Al Khaimah. Pro-business factions see the alliance as an essential economic diversification play that establishes commercial gaming legality in the Gulf, while conservative religious observers remain uneasy with the erosion of traditional moral prohibitions against gambling. The cross-border partnership reveals the pragmatic legal adaptations Gulf regimes are willing to implement to secure dominance in luxury tourism.",
+        "category": "Economy & Markets",
+        "badge": "Controversy",
+        "badge_color": "badge-warning",
+        "source_headline": "UAE officials tour Nevada as Wynn project advances",
+        "source_outlet": "CDC Gaming",
+        "url": ""
+      },
+      {
+        "id": "ae-8",
+        "topic": "Dubai Expands Luxury Tobacco and Global Trade Conventions Amid Shifting Middle Eastern Regulations",
+        "summary": "Dubai convened global premium cigar and luxury trade federations for a landmark trade summit, leveraging its lenient commercial exhibition bylaws to capture international business fleeing European and Asian regulatory tightening. Corporate distributors praise the emirate's duty-free transit hubs and frictionless customs, whereas international public health advocates caution against allowing global lifestyle industries to circumvent international health treaties. The gathering exemplifies Dubai's calculated strategy to position itself as the world's premier regulatory sanctuary for high-margin luxury commodities.",
+        "category": "Economy & Markets",
+        "badge": "Policy Clash",
+        "badge_color": "badge-secondary",
+        "source_headline": "World Cigar Show Dubai 2026: The Future of Premium Cigars",
+        "source_outlet": "Premium Cigar Association",
+        "url": ""
+      },
+      {
+        "id": "ae-9",
+        "topic": "Viral Dubai Culinary Export Transforms Into Mainstream Global Commercial Beverage Brand Partnerships",
+        "summary": "The social-media-driven 'Dubai chocolate' confectionery phenomenon secured major global consumer brand licensing, culminating in nationwide caffeinated beverage rollouts across Western retail chains. Brand strategists celebrate the rapid cross-continental monetization of Middle Eastern culinary Intellectual Property, while skeptics point to the fleeting durability of algorithmic food trends and ultra-processed commodity saturation. The product rollout highlights the unprecedented velocity at which Gulf lifestyle exports can infiltrate mainstream consumer retail ecosystems.",
+        "category": "Economy & Markets",
+        "badge": "Strategic",
+        "badge_color": "badge-accent",
+        "source_headline": "The Dubai chocolate trend has officially gone caffeinated with Java Monster's new October drop",
+        "source_outlet": "LehighValleyLive.com",
+        "url": ""
+      }
+    ]
+  },
+  {
+    "code": "SA",
+    "name": "Saudi Arabia",
+    "flag": "🇸🇦",
+    "topics": [
+      {
+        "id": "sa-1",
+        "topic": "Houthi Drone and Missile Strikes Slam Saudi Aramco Facilities Triggering Global Supply Alarms",
+        "summary": "Yemen's Houthi movement struck the corporate headquarters and critical refining infrastructure of Saudi Aramco in retaliation for coalition airstrikes on Sanaa, igniting fires at key administrative hubs. Petroleum hawks warn that renewed strikes against upstream oil installations could choke global energy supplies, while geopolitical analysts emphasize that Riyadh's heavy industrial assets remain acutely vulnerable despite billions spent on anti-air defense. The offensive shatters recent de-escalation agreements and pressures sovereign authorities to demonstrate credible deterrence.",
+        "category": "Energy & Climate",
+        "badge": "Controversy",
+        "badge_color": "badge-warning",
+        "source_headline": "Headquarters of Saudi Aramco hit as Houthis and Riyadh trade strikes",
+        "source_outlet": "CNN",
+        "url": ""
+      },
+      {
+        "id": "sa-2",
+        "topic": "Saudi Strategic Redirection: Accelerating Alternative Export Pipelines to Bypass Volatile Hormuz Strait",
+        "summary": "In response to recurrent maritime and aerial blockades, Saudi Aramco launched emergency expansions of overland pipeline conduits stretching from Eastern Province fields to Red Sea ports to bypass the Strait of Hormuz. Energy security specialists praise the logistics pivot as an indispensable sovereign contingency against Iranian naval interdiction, while maritime shippers note that Red Sea access carries equally perilous threats from Yemeni missile salvos. The massive capital outlay illustrates the existential vulnerability of Gulf fossil fuel egress chokepoints.",
+        "category": "Energy & Climate",
+        "badge": "Strategic",
+        "badge_color": "badge-primary",
+        "source_headline": "Saudi Arabia Is Building Its Own Way Around Hormuz",
+        "source_outlet": "Yahoo Finance",
+        "url": ""
+      },
+      {
+        "id": "sa-3",
+        "topic": "Saudi Flagship Investment Summit Pivots to Hybrid Format Following Deadly Missile Strikes in Riyadh",
+        "summary": "Organizers of the Future Investment Initiative (FII), colloquially termed 'Davos in the Desert,' hastily arranged hybrid and virtual attendance options after Houthi missile debris caused fatalities and disruptions in the capital. Crown Prince Mohammed bin Salman's economic modernization vision relies heavily on foreign direct investment, making visible security lapses in Riyadh a catastrophic narrative setback. International business leaders must now weigh personal safety against access to lucrative multi-trillion-dollar Vision 2030 gigaproject tenders.",
+        "category": "Economy & Markets",
+        "badge": "Market Debate",
+        "badge_color": "badge-secondary",
+        "source_headline": "EXCLUSIVE: Saudi Arabia plans hybrid format for marquee FII conference after attacks, sources say",
+        "source_outlet": "Reuters",
+        "url": ""
+      },
+      {
+        "id": "sa-4",
+        "topic": "Deadly Drone Strike Shuts Riyadh Airport Exposing Vulnerabilities in Kingdom Civil Aviation Defenses",
+        "summary": "Civil aviation regulators shut down Riyadh International Airport after a coordinated missile volley resulted in at least thirteen fatalities, forcing emergency flight diversions and passenger evacuations. Aviation analysts stress that strikes on civilian transit hubs shatter normal commercial risk underwriting, while defense ministers defend early warning alert systems that prevented broader terminal devastation. The incident lays bare the acute challenge of shielding sprawling civilian aviation infrastructure from low-radar-signature unmanned aerial threats.",
+        "category": "Geopolitics",
+        "badge": "Policy Clash",
+        "badge_color": "badge-accent",
+        "source_headline": "News Wrap: Riyadh airport closed after Houthi strikes that killed at least 13",
+        "source_outlet": "PBS",
+        "url": ""
+      },
+      {
+        "id": "sa-5",
+        "topic": "US Air Defense Interceptors Face Critical Scrutiny After Repeated Houthi Missile Incursions",
+        "summary": "Military audits are scrutinizing the tactical performance of American-supplied Patriot and THAAD missile defense batteries after low-cost asymmetric drones and ballistic missiles repeatedly breached urban airspace over Riyadh. Defense procurement specialists argue that multimillion-dollar interceptors are economically unsustainable against swarms of cheap loitering munitions, while military brass argue that interception rates remain remarkably high under saturation conditions. The debate forces a major doctrinal review regarding the future of Gulf collective air defense architectures.",
+        "category": "Geopolitics",
+        "badge": "Ethics Audit",
+        "badge_color": "badge-warning",
+        "source_headline": "Why advanced U.S. weapons aren’t stopping Houthi attacks in Saudi Arabia",
+        "source_outlet": "NBC News",
+        "url": ""
+      },
+      {
+        "id": "sa-6",
+        "topic": "White House Considers Direct Military Coalition Strikes Alongside Saudi Forces Targeting Yemeni Rebels",
+        "summary": "Discussions leaked from Washington indicate the White House is deliberating direct participation in retaliatory kinetic strikes inside Yemen alongside the Royal Saudi Air Force following attacks on critical energy assets. Interventionist lawmakers argue that restoring freedom of navigation and protecting allied oil architecture demands decisive coalition force, whereas anti-war factions warn of sleepwalking into a catastrophic regional confrontation with Tehran. The geopolitical dilemma tests the boundaries of statutory war powers and mutual security commitments.",
+        "category": "Geopolitics",
+        "badge": "Policy Clash",
+        "badge_color": "badge-primary",
+        "source_headline": "President Trump weighing joining Saudi Arabia in retaliatory strikes against Houthis",
+        "source_outlet": "Fox Business",
+        "url": ""
+      },
+      {
+        "id": "sa-7",
+        "topic": "Crude Oil Markets Experience Heightened Risk Premiums Following Direct Strikes on Saudi Infrastructure",
+        "summary": "Global Brent crude futures surged after missile salvos struck Saudi Aramco administrative compounds, forcing commodity traders to price in severe Middle Eastern geopolitical disruption risk. Energy economists note that sustained refinery disruptions could reignite global inflation across manufacturing supply chains, while non-OPEC producers scramble to hedge baseline inventory volumes against potential supply shocks. The market reaction highlights the precarious fragility of global industrial logistics when Gulf energy centers come under asymmetric fire.",
+        "category": "Economy & Markets",
+        "badge": "Market Debate",
+        "badge_color": "badge-info",
+        "source_headline": "Oil rises amid growing Mideast tensions between Iran-backed Houthis and Saudi Arabia",
+        "source_outlet": "CNBC",
+        "url": ""
+      },
+      {
+        "id": "sa-8",
+        "topic": "Saudi Arabia Navigates Dangerous Geopolitical Crossfire Between Escalating US-Iran Hostilities and Regional Security",
+        "summary": "As missile strikes hit sovereign Saudi territory, Riyadh's diplomatic corps faces an agonizing strategic dilemma over becoming the primary collateral battleground in a widening proxy war between Washington and Tehran. Diplomatic realists urge Saudi leadership to preserve fragile normalization channels with Iran, while national security hawks demand unconditional alignment with Western deterrent military campaigns. The crisis reveals the extreme diplomatic precarity of middle-power states positioned between competing nuclear and regional hegemons.",
+        "category": "Geopolitics",
+        "badge": "Strategic",
+        "badge_color": "badge-secondary",
+        "source_headline": "As Houthis strike Riyadh, Saudi Arabia confronts the costs of U.S. war on Iran",
+        "source_outlet": "The Washington Post",
+        "url": ""
+      },
+      {
+        "id": "sa-9",
+        "topic": "Riyadh Municipal Emergency Defense Protocols Tested by Falling Debris From Intercepted Ballistic Missiles",
+        "summary": "Civil defense sirens echoed across residential districts in Riyadh as falling debris from intercepted Houthi projectiles wounded civilians and damaged civic infrastructure, prompting the U.S. Embassy to issue emergency shelter-in-place warnings. Municipal responders moved swiftly to clear shrapnel and declare all-clear notices, while urban safety critics question whether public shelter infrastructure and civic notification protocols are adequate for dense population centers. The event underscores the domestic human hazards created even by successful mid-air kinetic missile interceptions.",
+        "category": "Health & Science",
+        "badge": "Controversy",
+        "badge_color": "badge-warning",
+        "source_headline": "Saudi Arabia reports 4 wounded in Riyadh by debris from intercepted Houthi missiles",
+        "source_outlet": "The Times of Israel",
+        "url": ""
+      }
+    ]
+  },
+  {
+    "code": "IL",
+    "name": "Israel",
+    "flag": "🇮🇱",
+    "topics": [
+      {
+        "id": "il-1",
+        "topic": "Netanyahu Faces Fractured Coalition and Mounting Public Backlash Ahead of Impending National Elections",
+        "summary": "Prime Minister Benjamin Netanyahu's wartime cabinet is grappling with bitter internal splits as public pressure mounts to dissolve the Knesset and call snap national elections amidst ongoing conflict. Opposition leaders accuse the premier of prolonging military operations to delay criminal corruption trials and preserve his coalition with far-right ultranationalists, whereas loyalists argue that changing leadership during active warfare would capitulate to foreign adversaries. The showdown tests the resiliency of Israeli democratic institutions under protracted state-of-emergency governance.",
+        "category": "Politics & Law",
+        "badge": "Controversy",
+        "badge_color": "badge-warning",
+        "source_headline": "Will Israel Ditch Netanyahu? With Haviv Rettig Gur",
+        "source_outlet": "The Free Press",
+        "url": ""
+      },
+      {
+        "id": "il-2",
+        "topic": "Hezbollah Modernizes Weaponized Drone Fleets Heightening Cross-Border Escalation Risks Across Northern Israel",
+        "summary": "Israeli intelligence reports reveal that Hezbollah has integrated advanced autonomous navigation and shaped-charge explosive payloads into its cross-border unmanned aerial vehicle arsenal. Military strategists assert that pre-emptive kinetic operations against launch infrastructure are vital to protect displaced northern communities, while international mediators warn that an all-out border invasion could precipitate a full-scale regional conflagration. The technological arms race highlights the limitations of traditional iron-dome air defense when counteracting swarm drone tactics.",
+        "category": "Geopolitics",
+        "badge": "Strategic",
+        "badge_color": "badge-accent",
+        "source_headline": "Report: Hezbollah preparing for war with Israel, upgrading explosive drones",
+        "source_outlet": "The Jerusalem Post",
+        "url": ""
+      },
+      {
+        "id": "il-3",
+        "topic": "Advancing Military Yellow Line in Gaza Triggers Severe Displacement and Humanitarian Condemnation",
+        "summary": "The Israeli military's forward expansion of designated security perimeters, known as the 'Yellow Line,' has compressed Gaza's displaced population into increasingly unviable humanitarian pockets. Defense officials insist the buffer corridor is an operational necessity to sever underground insurgent supply tunnels and protect border kibbutzim, whereas human rights organizations characterize the land clearance as de facto permanent displacement under international law. The policy intensifies global diplomatic scrutiny over urban battlefield demarcation standards.",
+        "category": "Geopolitics",
+        "badge": "Policy Clash",
+        "badge_color": "badge-secondary",
+        "source_headline": "Israel’s Yellow Line in Gaza advances, leaving displaced with nowhere to go",
+        "source_outlet": "Al Jazeera",
+        "url": ""
+      },
+      {
+        "id": "il-4",
+        "topic": "Israeli Security Forces Raid Palestinian Civil Society Organizations Across Occupied West Bank",
+        "summary": "Israeli defense forces executed synchronized raids on several prominent Palestinian non-governmental organizations and refugee camp facilities in the West Bank, confiscating operational records and welding doors shut. Security authorities justify the closures by alleging institutional links to militant financing networks, while human rights monitors condemn the actions as an aggressive campaign to criminalize Palestinian civic life and independent documentation. The crackdown deepens civil unrest and escalates tensions across the occupied territories.",
+        "category": "Politics & Law",
+        "badge": "Ethics Audit",
+        "badge_color": "badge-warning",
+        "source_headline": "Israeli forces raid Palestinian NGOs in occupied West Bank",
+        "source_outlet": "Al Jazeera",
+        "url": ""
+      },
+      {
+        "id": "il-5",
+        "topic": "Unsealed Revelations Detail Unheeded Egyptian Intelligence Warnings Ahead of October 7 Terror Assaults",
+        "summary": "Startling admissions revealed that Egypt's intelligence director made direct, urgent visits to Israeli leadership warnings of imminent catastrophic escalations prior to the October 7 attacks, contradicting early official timelines. Parliamentary accountability committees demand transparent inquiries into systemic intelligence dismissals and military hubris, while executive defenders maintain that ambiguous general warnings lacked actionable tactical specifics. The disclosure intensifies the domestic legal battle over executive culpability and statutory military intelligence reform.",
+        "category": "Politics & Law",
+        "badge": "Controversy",
+        "badge_color": "badge-primary",
+        "source_headline": "Netanyahu admits Egyptian intelligence chief visited Israel before Hamas attack: Report",
+        "source_outlet": "Anadolu Ajansı",
+        "url": ""
+      },
+      {
+        "id": "il-6",
+        "topic": "Syrian Officials Accuse Israeli Covert Operations of Arming Regional Militias in Suwayda Governorate",
+        "summary": "Damascus issued a formal diplomatic broadside accusing Israeli intelligence of covertly funding and arming anti-government Druze and Bedouin militias in southern Syria to create a destabilizing buffer zone. Israeli security doctrine has historically favored quiet border alliances to prevent Iranian proxies from securing footholds on the Golan Heights, while Syrian officials assert the covert aid breaches sovereign international boundaries. The accusations highlight the murky shadow conflicts shaping borderland geopolitics across the Levant.",
+        "category": "Geopolitics",
+        "badge": "Policy Clash",
+        "badge_color": "badge-info",
+        "source_headline": "Syria accuses Israel of arming, funding militias in Suwayda to sow ‘chaos’",
+        "source_outlet": "Anadolu Ajansı",
+        "url": ""
+      },
+      {
+        "id": "il-7",
+        "topic": "International Press Freedom Groups Demand Forensic Inquiries Into Fatal Military Strikes on Journalists",
+        "summary": "Global press advocacy groups and international legal tribunals escalated formal proceedings against the Israeli military regarding targeted and collateral strikes that resulted in high journalist casualties since 2023. Media watchdogs argue that targeting clearly identified press vehicles constitutes gross violations of the Geneva Conventions and chills independent battlefield reporting, while military advocates insist operational units only target active combatants operating within press cover. The controversy underscores growing legal friction over state accountability and battlefield transparency.",
+        "category": "Politics & Law",
+        "badge": "Ethics Audit",
+        "badge_color": "badge-warning",
+        "source_headline": "Media rights group urges pressure on Israel over deadly 2023 strike",
+        "source_outlet": "Courthouse News",
+        "url": ""
+      },
+      {
+        "id": "il-8",
+        "topic": "Psychological and Political Repercussions Deepen Across Israeli Society Following Fragile Hostage Negotiations",
+        "summary": "The protracted, agonizing process of hostage negotiations and body repatriations has triggered widespread societal trauma and fractured political discourse across Israel. Families of captives and civil advocacy groups demand an immediate cessation of hostilities to prioritize human life, while conservative defense factions insist that halting military pressure surrenders long-term national deterrence. The profound domestic divide exposes the painful trade-offs between individual citizen rescue obligations and strategic sovereign defense doctrines.",
+        "category": "Health & Science",
+        "badge": "Market Debate",
+        "badge_color": "badge-accent",
+        "source_headline": "What the hostages’ return means to Israel",
+        "source_outlet": "JNS.org",
+        "url": ""
+      },
+      {
+        "id": "il-9",
+        "topic": "Netanyahu Reportedly Pressured US Political Leadership to Launch Preemptive Campaign Against Iranian Facilities",
+        "summary": "Diplomatic dispatches report that Israeli leadership directly lobbied U.S. political figures to renew preemptive offensive strikes against Iranian enrichment facilities prior to pivotal electoral cycles in both countries. Israeli security hawks argue that window-of-opportunity thresholds are closing before Tehran achieves nuclear breakout capabilities, while diplomatic doves caution that dragging foreign superpowers into preemptive war invites catastrophic global blowback. The maneuvers underscore the intricate alignment between domestic election calendars and high-stakes military brinkmanship.",
+        "category": "Geopolitics",
+        "badge": "Strategic",
+        "badge_color": "badge-primary",
+        "source_headline": "Netanyahu reportedly pressed Trump to renew Iran fighting before Israeli and US elections",
+        "source_outlet": "The Times of Israel",
+        "url": ""
+      }
+    ]
+  },
+  {
+    "code": "JP",
+    "name": "Japan",
+    "flag": "🇯🇵",
+    "topics": [
+      {
+        "id": "jp-1",
+        "topic": "Surge in AI-Generated Ransomware Infiltration Exposes Severe Cyber Defenses Across Japanese Critical Infrastructure",
+        "summary": "Sophisticated ransomware networks utilizing generative artificial intelligence to engineer polymorphic malware and flawless Japanese-language spear-phishing attacks have paralyzed dozens of corporate systems and public utilities. Technology executives plead for relaxed privacy regulations to facilitate centralized threat telemetry, while civil liberties jurists caution against expanding state-sponsored digital surveillance across private networks. The crisis exposes structural deficits in Japan's cybersecurity workforce and legacy mainframe infrastructure.",
+        "category": "Technology & AI",
+        "badge": "Policy Clash",
+        "badge_color": "badge-primary",
+        "source_headline": "Ransomware Attacks Have Swept Japan. A.I. May Be Making Them Easier.",
+        "source_outlet": "The New York Times",
+        "url": ""
+      },
+      {
+        "id": "jp-2",
+        "topic": "Diplomatic Impasse Deepens as Russia Detains Japanese Journalist on Sakhalin Island Espionage Charges",
+        "summary": "Russian federal security services detained a Japanese correspondent in the Sakhalin region under severe espionage allegations, prompting emergency diplomatic demarches from Tokyo demanding immediate access and transparent legal due process. Foreign policy scholars view the detention as state-sanctioned hostage diplomacy intended to penalize Tokyo for its firm enforcement of Western sanctions against Moscow, while Russian prosecutors claim to possess classified territorial espionage evidence. The arrest marks a dangerous nadir in bilateral Russo-Japanese diplomatic relations.",
+        "category": "Geopolitics",
+        "badge": "Controversy",
+        "badge_color": "badge-warning",
+        "source_headline": "Russia detains Japanese journalist, accusing him of alleged spying",
+        "source_outlet": "The Guardian",
+        "url": ""
+      },
+      {
+        "id": "jp-3",
+        "topic": "Violent Okinawa Homicide Prompts Comprehensive Overhaul of Off-Duty US Military Troop Conduct Guidelines",
+        "summary": "The brutal murder of a local woman in Okinawa allegedly linked to off-duty American service personnel triggered island-wide demonstrations and emergency reviews of military conduct protocols. Okinawan prefectural leaders demand structural renegotiation of the Status of Forces Agreement (SOFA) to curb jurisdictional immunity, while defense officials in Tokyo and Washington seek to mitigate public fury without dismantling indispensable forward-basing deterrence. The tragic incident reignites historic local grievances regarding military occupation burdens.",
+        "category": "Politics & Law",
+        "badge": "Ethics Audit",
+        "badge_color": "badge-secondary",
+        "source_headline": "Behavior rules for off-duty U.S. troops in Japan under review after woman's killing in Okinawa",
+        "source_outlet": "CBS News",
+        "url": ""
+      },
+      {
+        "id": "jp-4",
+        "topic": "Japanese Youth Sentiment Shifts Away From Traditional US Security Alignment Toward Multipolar Hedging",
+        "summary": "Sociological polling reveals that younger Japanese demographics increasingly view American domestic political volatility with greater apprehension than Chinese regional competition, challenging decades of unconditional security dependence. Progressive youth activists cite democratic regression and tariff threats in the United States as reasons to pursue strategic autonomy, whereas foreign ministry traditionalists argue that abandoning the Washington alliance would invite immediate geopolitical coercion. The demographic shift signals an impending generational transformation in Japanese grand strategy.",
+        "category": "Geopolitics",
+        "badge": "Market Debate",
+        "badge_color": "badge-accent",
+        "source_headline": "Why younger Japanese now fear Trump’s America more than China",
+        "source_outlet": "South China Morning Post",
+        "url": ""
+      },
+      {
+        "id": "jp-5",
+        "topic": "Tokyo Accelerates Trilateral Deterrence Exercises With Washington and Seoul Against North Korean Ballistics",
+        "summary": "Senior defense ministers from Japan, South Korea, and the United States converged to harmonize automated missile-tracking networks in response to successive multi-stage North Korean ballistic missile launches. Proponents emphasize that real-time radar data sharing eliminates blind spots during hypersonic vehicle terminal phases, while domestic pacifist factions and regional critics warn that institutionalizing trilateral combat networks accelerates an Asian NATO dynamic. The strategic coordination reflects Tokyo's constitutional shift toward preemptive counterstrike capabilities.",
+        "category": "Geopolitics",
+        "badge": "Strategic",
+        "badge_color": "badge-info",
+        "source_headline": "South Korea, U.S., Japan discuss response to North Korean missiles",
+        "source_outlet": "upi",
+        "url": ""
+      },
+      {
+        "id": "jp-6",
+        "topic": "Rapid Demographic Decline Forces Japanese Municipalities to Navigate Unprecedented Rises in Foreign Residents",
+        "summary": "New census records indicate that Japanese municipalities where foreign nationals exceed five percent of the population have more than doubled, driven by critical labor shortages across regional industrial centers. Business federations demand expanded long-term residency tracks to sustain declining factories and elderly care facilities, while cultural preservationists worry about civic assimilation strains and public service funding deficits. The data exposes the irreversible collision between Japan's strict immigration orthodoxy and catastrophic demographic contraction.",
+        "category": "Politics & Law",
+        "badge": "Policy Clash",
+        "badge_color": "badge-warning",
+        "source_headline": "Japanese municipalities with over 5% foreign nationals up more than twofold",
+        "source_outlet": "The Japan Times",
+        "url": ""
+      },
+      {
+        "id": "jp-7",
+        "topic": "Diet Rejection of Imperial Succession Transcripts Sparks Fierce Institutional Clash Over Government Secrecy",
+        "summary": "Japan's Lower House of the Diet formally denied public disclosure requests for official deliberations regarding imperial succession laws, sparking intense debate over democratic transparency and traditional monarchical protocols. Transparency advocates argue that citizens have a constitutional right to inspect debate records on allowing female monarchs amid a dwindling pool of male heirs, while traditionalists insist that public politicization destroys the sacred continuity of the Chrysanthemum Throne. The ruling showcases the ongoing struggle between modern archival governance and ancient dynastic secrecy.",
+        "category": "Politics & Law",
+        "badge": "Ethics Audit",
+        "badge_color": "badge-secondary",
+        "source_headline": "Japan lower house declines disclosure of records on imperial law debate",
+        "source_outlet": "Japan Wire by Kyodo News",
+        "url": ""
+      },
+      {
+        "id": "jp-8",
+        "topic": "Japanese Prime Minister Confronts Reflationist Criticism Amid Persistent Inflation and Currency Market Fluctuations",
+        "summary": "Financial analysts and political opponents are challenging the Japanese Prime Minister's macroeconomic agenda, questioning whether persistent reflationary monetary stimulus continues to destabilize the yen and aggravate import-driven cost-of-living crises. Pro-growth factions argue that premature interest rate hikes risk plunging the fragile economy back into deflationary stagnation, while market pragmatists demand fiscal discipline to rein in soaring sovereign debt yields. The ideological deadlock tests the limits of Abenomics-era monetary doctrine in a high-inflation global environment.",
+        "category": "Economy & Markets",
+        "badge": "Market Debate",
+        "badge_color": "badge-primary",
+        "source_headline": "Breakingviews - COMMENTARY: Japanese PM’s reflationist label is hard to shake",
+        "source_outlet": "Reuters",
+        "url": ""
+      },
+      {
+        "id": "jp-9",
+        "topic": "Historic Appointment Elevates Japanese Leadership to Chairmanship of Joint World Bank and IMF Committee",
+        "summary": "Former minister Satsuki Katayama was elected as the first Japanese chair of the prestigious World Bank-IMF Joint Development Committee, signaling Tokyo's expanding footprint in international sovereign debt restructuring. Financial diplomats celebrate the appointment as an opportunity to bridge lending standards between Western institutions and Global South debtors, whereas critics question whether Tokyo will enforce rigorous environmental benchmarks over developing economy loans. The milestone places Japan at the center of contentious global development finance reforms.",
+        "category": "Economy & Markets",
+        "badge": "Strategic",
+        "badge_color": "badge-accent",
+        "source_headline": "Katayama Set to Become First Japanese Chair of World Bank-IMF Committee",
+        "source_outlet": "JAPAN Forward",
+        "url": ""
+      }
+    ]
+  },
+  {
+    "code": "SG",
+    "name": "Singapore",
+    "flag": "🇸🇬",
+    "topics": [
+      {
+        "id": "sg-1",
+        "topic": "Transboundary Haze Smog Chokes Singapore Triggering Public Health and Economic Supply Concerns",
+        "summary": "Singapore is once again engulfed in choking transboundary smoke originating from Indonesian peatland fires, driving the Pollutant Standards Index into the unhealthy range islandwide. Panicked residents have rushed to secure N95 respirators and domestic air purifiers, reviving domestic anxiety over regional environmental accountability. While health authorities maintain stockpile readiness, environmental advocates urge ASEAN ministers to abandon diplomatic leniency and enforce statutory penalties against irresponsible plantation operators.",
+        "category": "Energy & Climate",
+        "badge": "Crisis Audit",
+        "badge_color": "badge-warning",
+        "source_headline": "Haze in Singapore persists; PSI remains unhealthy for all regions",
+        "source_outlet": "The Straits Times",
+        "url": ""
+      },
+      {
+        "id": "sg-2",
+        "topic": "PM Lawrence Wong Warns Generative AI Threatens Entry-Level White-Collar Career Ladders",
+        "summary": "Prime Minister Lawrence Wong sounded an alarm that accelerated workplace automation could dismantle the bottom rungs of traditional professional careers. While tech evangelists celebrate unprecedented productivity gains, policymakers fear fresh graduates will be permanently locked out of cognitive apprenticeships previously used to hone tradecraft. The government is pivoting skills subsidies toward cognitive resilience, urging corporate employers to redesign junior roles rather than eliminate them outright.",
+        "category": "Technology & AI",
+        "badge": "Labor Clash",
+        "badge_color": "badge-accent",
+        "source_headline": "Govt worried that ‘bottom rung’ of career ladder may be broken by AI: PM Wong",
+        "source_outlet": "The Straits Times",
+        "url": ""
+      },
+      {
+        "id": "sg-3",
+        "topic": "Public Healthcare IT Outage Sparks Urgent Scrutiny Over Mission-Critical Systems Resilience",
+        "summary": "A nine-hour technical disruption crippled public hospital clusters across Singapore, forcing clinicians to deploy manual contingency protocols and delaying patient diagnostics. Although operations have normalized without catastrophic clinical outcomes, the outage has exposed structural vulnerabilities within centralized health informatics. Tech regulators and patient advocacy groups are demanding mandatory architectural redundancy audits to prevent future software bottlenecks from jeopardizing acute patient care.",
+        "category": "Health & Science",
+        "badge": "Systemic Risk",
+        "badge_color": "badge-danger",
+        "source_headline": "Business as usual for most patients as public healthcare clusters recover from 9-hour disruption",
+        "source_outlet": "CNA",
+        "url": ""
+      },
+      {
+        "id": "sg-4",
+        "topic": "GovTech and Google DeepMind Partner on Real-Time Device AI Scam Detection",
+        "summary": "Singapore's GovTech agency has joined forces with Google DeepMind to engineer on-device artificial intelligence capable of intercepting fraudulent communications before victims surrender credentials. Proponents argue this edge-computing shield provides indispensable zero-latency defenses against sophisticated social engineering syndicates. However, digital privacy advocates caution that real-time behavioral monitoring must preserve impenetrable end-to-end user encryption boundaries without enabling covert state telemetry.",
+        "category": "Technology & AI",
+        "badge": "Innovation",
+        "badge_color": "badge-primary",
+        "source_headline": "GovTech and Google DeepMind developing real-time detection of AI scams on devices",
+        "source_outlet": "CNA",
+        "url": ""
+      },
+      {
+        "id": "sg-5",
+        "topic": "National Youth Council Data Breach Sparks Scrutiny Over Public Sector Information Governance",
+        "summary": "An administrative oversight at the National Youth Council leaked the personal details of 600 civic forum participants, triggering widespread public embarrassment for state data stewards. Government officials promptly issued apologies and initiated security containment measures to notify affected youths. Nevertheless, cyber law analysts emphasize that recurring public agency data lapses undermine public trust just as the state aggressively rolls out nationwide digital identity mandates.",
+        "category": "Politics & Law",
+        "badge": "Data Privacy",
+        "badge_color": "badge-warning",
+        "source_headline": "National Youth Council mistakenly leaks personal data of 600 SG Youth Forum participants",
+        "source_outlet": "The Straits Times",
+        "url": ""
+      },
+      {
+        "id": "sg-6",
+        "topic": "Health Ministry Weighs Regulatory Speed Against Patient Safety for Breakthrough Medical Innovations",
+        "summary": "Health Minister Ong Ye Kung declared that Singapore must modernize clinical licensing pathways to ensure life-saving therapeutics reach bedside wards faster. While biotech executives applaud proposals to truncate bureaucratic commercialization timelines, clinical bioethicists warn against compromising rigorous longitudinal clinical trials. The debate underscores a strategic balancing act between establishing Singapore as an agile global biomedical hub and safeguarding uncompromised patient safety.",
+        "category": "Health & Science",
+        "badge": "Policy Clash",
+        "badge_color": "badge-info",
+        "source_headline": "Good medical innovations reach patients sooner with good regulation: Ong Ye Kung",
+        "source_outlet": "The Straits Times",
+        "url": ""
+      },
+      {
+        "id": "sg-7",
+        "topic": "Mandated Non-Teaching Hours for Preschool Staff Highlights Early Childhood Sector Labor Crisis",
+        "summary": "Early childhood regulators have instituted mandatory weekly allotments of protected non-teaching time to alleviate chronic teacher burnout and reduce turnover across preschool centers. Operators warn that carving out curriculum planning periods amid acute staffing shortages could trigger scheduling headaches and inflate center operating overheads. Conversely, labor organizers insist structural workload containment is the only viable remedy to arrest an accelerating exodus of qualified early educators.",
+        "category": "Politics & Law",
+        "badge": "Workforce Reform",
+        "badge_color": "badge-secondary",
+        "source_headline": "Preschool teachers to get at least 2 hours a week away from teaching duties to plan lessons, engage parents",
+        "source_outlet": "CNA",
+        "url": ""
+      },
+      {
+        "id": "sg-8",
+        "topic": "Singapore and Finland Partner to Expand Equitable Access to Emerging Artificial Intelligence",
+        "summary": "Singapore and Finland have inked a bilateral accord aimed at democratizing emerging digital technologies and curbing widening algorithmic inequality. The cross-continental pact seeks to co-develop ethical governance frameworks that prevent technological capabilities from being monopolized exclusively by Silicon Valley and state-backed tech conglomerates. Diplomats frame the partnership as a vital multi-lateral blueprint for smaller, highly digitized sovereign economies seeking common global standards.",
+        "category": "Geopolitics",
+        "badge": "Strategic",
+        "badge_color": "badge-primary",
+        "source_headline": "S’pore, Finland to deepen cooperation on accessibility of benefits of AI, emerging technologies",
+        "source_outlet": "The Straits Times",
+        "url": ""
+      },
+      {
+        "id": "sg-9",
+        "topic": "Shell Company Tenancy Scams Expose Legal Loopholes in Singapore Private Rental Protections",
+        "summary": "A sophisticated tenancy dispute involving an individual who used corporate shell entities to occupy luxury landed properties without paying rent has stunned landlords across the city-state. Property owners complain that rigid eviction statutes and prolonged civil litigation leave them powerless against serial squatters gaming residential lease regulations. Legal scholars note this controversy will intensify legislative calls to expedite summary civil repossession processes for clear-cut contractual fraud.",
+        "category": "Politics & Law",
+        "badge": "Legal Loophole",
+        "badge_color": "badge-accent",
+        "source_headline": "Man uses shell companies to rent landed homes, later defaulting on rent and refusing to move out",
+        "source_outlet": "The Straits Times",
+        "url": ""
+      }
+    ]
+  },
+  {
+    "code": "ID",
+    "name": "Indonesia",
+    "flag": "🇮🇩",
+    "topics": [
+      {
+        "id": "id-1",
+        "topic": "Prabowo Orders Wildfire Mobilization as ASEAN Neighbours Demand Accountability for Toxic Haze",
+        "summary": "President Prabowo Subianto has directed security forces and regional agencies to surge resources into fire-ravaged provinces as toxic haze spreads across maritime Southeast Asia. Neighboring capitals in Singapore and Malaysia have registered sharp protests over recurring seasonal air pollution that threatens millions of citizens and shuttered regional flights. Jakarta faces intense scrutiny over whether this military-led deployment can overcome systemic enforcement deficits that permit illegal slash-and-burn clearances.",
+        "category": "Geopolitics",
+        "badge": "Diplomatic Clash",
+        "badge_color": "badge-warning",
+        "source_headline": "Indonesia's Prabowo orders more resources to fight wildfires as haze anger grows",
+        "source_outlet": "Reuters",
+        "url": ""
+      },
+      {
+        "id": "id-2",
+        "topic": "Government Reversal on Massive Deforestation Megaproject Signals Major Indonesian Environmental Shift",
+        "summary": "Jakarta has abruptly walked back approvals for the world's largest commercial clearing project, pausing vast industrial agricultural expansion in pristine rainforest frontiers. Environmental non-governmental organizations celebrate the policy reversal as a watershed triumph for indigenous territorial rights and tropical carbon retention. However, domestic agribusiness lobbies warn that abrupt regulatory pivots jeopardize sovereign commodity targets and chill foreign direct infrastructure investments.",
+        "category": "Energy & Climate",
+        "badge": "Policy Reversal",
+        "badge_color": "badge-success",
+        "source_headline": "Indonesia to Reverse Course on ‘World’s Largest Deforestation Project’",
+        "source_outlet": "Yale E360",
+        "url": ""
+      },
+      {
+        "id": "id-3",
+        "topic": "Domestic Biofuel and Cooking Oil Demands Eclipse Exports in Driving Forest Clearance",
+        "summary": "A groundbreaking study revealed that two-thirds of contemporary palm oil-linked deforestation in Indonesia is now driven by domestic industrial consumption and mandatory biofuel quotas rather than Western imports. This finding upends traditional geopolitical talking points that blamed European trade policies for driving agricultural encroachment. Trade reform advocates argue that Jakarta must overhaul its domestic market obligations to mandate traceable deforestation-free standards across national supply chains.",
+        "category": "Economy & Markets",
+        "badge": "Market Debate",
+        "badge_color": "badge-info",
+        "source_headline": "Two-thirds of palm oil deforestation in Indonesia linked to domestic demand",
+        "source_outlet": "Stockholm Environment Institute",
+        "url": ""
+      },
+      {
+        "id": "id-4",
+        "topic": "Indonesian Maritime Strategy Faces Scrutiny Over Feasibility of Acquiring Aircraft Carrier Capabilities",
+        "summary": "Defense strategic circles are debating the tactical rationale and exorbitant capital expenditure required for Indonesia to operate an aircraft carrier in the contested Indo-Pacific. Naval modernizers argue a flagship vessel is indispensable to assert sovereign archipelagic sea lanes against coercive superpowers. Critics, however, contend that pouring scarce defense funds into high-maintenance blue-water prestige assets compromises asymmetric coastal defense, littoral patrol vessels, and radar surveillance.",
+        "category": "Geopolitics",
+        "badge": "Strategic",
+        "badge_color": "badge-primary",
+        "source_headline": "Indonesia’s New Aircraft Carrier Tests The Limits Of Its Maritime Strategy – Analysis",
+        "source_outlet": "Eurasia Review",
+        "url": ""
+      },
+      {
+        "id": "id-5",
+        "topic": "Bali Sea Turtle Smuggling Bust Highlights Escalating Law Enforcement Battle Against Poachers",
+        "summary": "Maritime law enforcement officers in Bali intercepted an organized wildlife trafficking syndicate, repatriating 20 endangered green sea turtles back into protected marine reserves. While conservationists commended the rapid tactical interdiction, civil monitors caution that illicit trafficking rings easily exploit lax border policing across the archipelago. The operation highlights persistent institutional gaps in dismantling high-level wildlife crime syndicates that finance localized coastal poaching networks.",
+        "category": "Politics & Law",
+        "badge": "Law Enforcement",
+        "badge_color": "badge-secondary",
+        "source_headline": "Indonesia returns 20 green sea turtles to the ocean after Bali smuggling raid - news",
+        "source_outlet": "news - Mongabay",
+        "url": ""
+      },
+      {
+        "id": "id-6",
+        "topic": "Drained Peatlands and El Niño Compound Firefighting Gaps Across Indonesian National Parks",
+        "summary": "Degraded peat swamps and severe El Niño droughts have turned protected national parks into combustible tinderboxes, decimating primary ecosystems and razing hundreds of rural settlements. Field personnel report that subterranean peat blazes are virtually impossible to extinguish without massive heavy water-bombing infrastructure and systematic canal blocking. The disaster spotlights historical failures in enforcing wetland restoration mandates on private concession holders whose drainage canals leave landscapes vulnerable.",
+        "category": "Energy & Climate",
+        "badge": "Ecological Crisis",
+        "badge_color": "badge-warning",
+        "source_headline": "Damaged and drained, Indonesia's peatlands go up in smoke",
+        "source_outlet": "Phys.org",
+        "url": ""
+      },
+      {
+        "id": "id-7",
+        "topic": "Care Economy Emerges as Potential Primary Engine for Post-Industrial Indonesian Economic Growth",
+        "summary": "Economic policy analysts are urging the Indonesian administration to formalize and invest heavily in the national care economy to unlock sustainable employment and gender equity. Advocates maintain that state investments in early childcare, eldercare, and healthcare infrastructure would yield higher multipliers than capital-intensive extractives. Skeptics, however, question whether municipal budgets can finance formal welfare frameworks amid macroeconomic tightening and strict sovereign debt ceilings.",
+        "category": "Economy & Markets",
+        "badge": "Economic Shift",
+        "badge_color": "badge-accent",
+        "source_headline": "The care economy could be Indonesia’s next growth engine",
+        "source_outlet": "East Asia Forum",
+        "url": ""
+      },
+      {
+        "id": "id-8",
+        "topic": "Wildfire Orangutan Rescues Reveal Acute Deficits in Biodiversity Conservation and Habitat Safeguards",
+        "summary": "Wildlife rescue teams conducted emergency evacuations of eight critically endangered orangutans from encroaching infernos, relocating them to secure forest reserves. The operation laid bare the catastrophic toll that unchecked habitat fragmentation inflicts on Indonesia's most iconic wildlife. Primatologists argue that temporary rescue stunts do little to prevent extinction unless provincial authorities immediately cease granting plantation leases across vital biological migration corridors.",
+        "category": "Health & Science",
+        "badge": "Conservation",
+        "badge_color": "badge-success",
+        "source_headline": "Eight orangutans find new forest home in Indonesia after wildfire rescue",
+        "source_outlet": "Al Jazeera",
+        "url": ""
+      },
+      {
+        "id": "id-9",
+        "topic": "Regional Tension Mounts Over Defiant Indonesian Diplomatic Rhetoric Regarding Transboundary Smog Disasters",
+        "summary": "Public backlash across Southeast Asia has surged following defensive statements by Indonesian officials downplaying the international severity of agricultural fire emissions. Diplomatic observers warn that Jakarta's perceived lack of empathy risks eroding decades of mutual trust established under the ASEAN Agreement on Transboundary Haze Pollution. The spat demonstrates how domestic political sensitivities in Jakarta consistently undermine cohesive regional environmental governance and joint disaster responses.",
+        "category": "Geopolitics",
+        "badge": "Media Bias",
+        "badge_color": "badge-secondary",
+        "source_headline": "Is Indonesia’s haze rhetoric ‘unempathetic’? Words test regional cooperation",
+        "source_outlet": "South China Morning Post",
+        "url": ""
+      }
+    ]
+  },
+  {
+    "code": "MY",
+    "name": "Malaysia",
+    "flag": "🇲🇾",
+    "topics": [
+      {
+        "id": "my-1",
+        "topic": "MACC and Police Probe MyEG and Zetrix AI Over RM314 Million Unremitted Collections",
+        "summary": "The Malaysian Anti-Corruption Commission has stepped in alongside federal police to investigate allegations of RM314 million in unremitted government revenues involving MyEG and Zetrix AI. The high-profile inquiry centers on corporate compliance and digital concessionaire oversight during public revenue collection operations. Transparency groups demand an exhaustive forensic audit into tech monopolies handling sovereign citizen databases, while company representatives insist financial reconciliation protocols were fully honored.",
+        "category": "Politics & Law",
+        "badge": "Corruption Probe",
+        "badge_color": "badge-warning",
+        "source_headline": "MACC joins police probe into MyEG, Zetrix AI over RM314m unpaid collections",
+        "source_outlet": "Malay Mail",
+        "url": ""
+      },
+      {
+        "id": "my-2",
+        "topic": "Treasury Claims Leakage Reductions Can Fund Record RM510 Billion Federal Budget Without Taxes",
+        "summary": "Finance Minister II Amir Hamzah Azizan announced that Malaysia can sustain its historic RM510 billion spending program without levying broad consumption taxes by plugging procurement leakages. Skeptical fiscal economists argue that eliminating graft alone cannot bridge widening budget deficits without reintroducing structural measures like the Goods and Services Tax. The controversy captures an ongoing ideological tug-of-war between populism and long-term fiscal consolidation ahead of global credit rating reviews.",
+        "category": "Economy & Markets",
+        "badge": "Fiscal Policy",
+        "badge_color": "badge-info",
+        "source_headline": "RM510b but no new taxes? Amir Hamzah says 2027 Budget possible through cutting leakages",
+        "source_outlet": "Malay Mail",
+        "url": ""
+      },
+      {
+        "id": "my-3",
+        "topic": "Economists Question Viability of RM2,500 Graduate Minimum Pay Amid Persistent Wage Stagnation",
+        "summary": "Prominent labor economists warned that a proposed RM2,500 monthly starting salary for tertiary graduates does almost nothing to overcome rising urban living costs and wage compression. Employers' federations argue that arbitrary wage mandates without matching productivity surges will devastate small and medium enterprises. The standoff highlights structural failures in Malaysia's industrial ecosystem, where high-skilled job creation continues to lag significantly behind university graduation rates.",
+        "category": "Economy & Markets",
+        "badge": "Market Debate",
+        "badge_color": "badge-accent",
+        "source_headline": "RM2,500 starting pay makes little difference for graduates, say economists",
+        "source_outlet": "Free Malaysia Today",
+        "url": ""
+      },
+      {
+        "id": "my-4",
+        "topic": "Health Ministry Drive to Absorb Contract Officers Confronts Strict Public Sector Headcount",
+        "summary": "Health Minister Dzulkefly Ahmad pledged to aggressively push for the permanent absorption of contract dental and pharmacy officers into the national civil service. Medical associations welcome the initiative as crucial to arresting an alarming brain drain of clinical specialists to the private sector and overseas. However, the Treasury and Public Service Department face acute fiscal constraints in accommodating expanded permanent pension and operational expenditure liabilities.",
+        "category": "Health & Science",
+        "badge": "Labor Clash",
+        "badge_color": "badge-primary",
+        "source_headline": "MOH will push for absorbing contract dental and pharmacy officers, says Dzulkefly",
+        "source_outlet": "Malay Mail",
+        "url": ""
+      },
+      {
+        "id": "my-5",
+        "topic": "Pending Royal Assent for Progressive Citizenship Reforms Sparks Civil Rights Reform Anticipation",
+        "summary": "The Home Ministry confirmed that landmark statutory amendments guaranteeing equal citizenship rights to overseas-born children of Malaysian mothers are finalized and awaiting Royal Assent. Human rights advocates celebrate the historic correction of entrenched gender discrimination in nationality laws after decades of sustained litigation. Concurrently, legal watchdogs remain vigilant regarding regressive secondary clauses that could restrict stateless individuals and foundlings from securing legal identity documents.",
+        "category": "Politics & Law",
+        "badge": "Constitutional",
+        "badge_color": "badge-success",
+        "source_headline": "Govt ready to implement new citizenship rules, just waiting for date from Agong - minister",
+        "source_outlet": "Malaysiakini",
+        "url": ""
+      },
+      {
+        "id": "my-6",
+        "topic": "Sarawak UEC Tuition Exemption Rekindles Heated Debate Over National Language Educational Standards",
+        "summary": "Sarawak's decision to permit Unified Examination Certificate holders to access free state university education without mandatory Bahasa Melayu passes has provoked sharp resistance from peninsular nationalist groups. Critics allege that state-level exemptions dilute the constitutional status of the national language and fragment federal education cohesion. Sarawakian authorities defend their autonomous policy, framing it as an essential pragmatic strategy to retain indigenous academic talent and spur high-tech development.",
+        "category": "Politics & Law",
+        "badge": "Policy Clash",
+        "badge_color": "badge-warning",
+        "source_headline": "UEC holders don’t need to pass BM to study for free in S’wak",
+        "source_outlet": "Free Malaysia Today",
+        "url": ""
+      },
+      {
+        "id": "my-7",
+        "topic": "Transboundary Haze Inflicts Billion-Ringgit Economic Toll as Malaysia Urges Decisive Regional Action",
+        "summary": "Deputy Prime Minister Ahmad Zahid Hamidi expressed hope that shifting monsoon wind corridors would alleviate toxic transboundary haze currently battering Malaysian tourism, aviation, and public health. Economic research reports estimate the nationwide financial toll of recurring smoke pollution at several billion ringgit in lost productivity and healthcare expenditures. The government faces mounting domestic calls to table a Transboundary Haze Pollution Act that would hold offending multinational conglomerates legally liable in Malaysian courts.",
+        "category": "Energy & Climate",
+        "badge": "Economic Impact",
+        "badge_color": "badge-secondary",
+        "source_headline": "Billion-ringgit cost of the haze",
+        "source_outlet": "The Star",
+        "url": ""
+      },
+      {
+        "id": "my-8",
+        "topic": "High Court Grants Opposition Leave for Judicial Review Over Controversial Parliamentary Suspensions",
+        "summary": "The Kuala Lumpur High Court granted the opposition Perikatan Nasional coalition permission to initiate judicial review proceedings challenging the punitive suspension of its members by parliamentary leadership. While the court declined to issue an immediate stay, granting leave pierces traditional absolute parliamentary immunity doctrines under administrative law. The verdict sets the stage for a historic constitutional confrontation regarding whether the judiciary can review arbitrary disciplinary rulings by the Dewan Rakyat Speaker.",
+        "category": "Politics & Law",
+        "badge": "Legal Battle",
+        "badge_color": "badge-accent",
+        "source_headline": "Court denies PN's stay of suspension bid, grants leave for judicial review",
+        "source_outlet": "Malaysiakini",
+        "url": ""
+      },
+      {
+        "id": "my-9",
+        "topic": "Divergence Between Inflated Local SPM Results and Plummeting Global PISA Performance Scrutinized",
+        "summary": "Opposition politicians and education specialists have demanded an independent review into the widening discrepancy between glowing domestic SPM examination results and Malaysia's sliding scores in international PISA assessments. Critics allege grade deflation and lowered grading thresholds are masking alarming declines in student literacy, numeracy, and critical reasoning capabilities. Education officials counter that local curricula are being systematically modernized to balance holistic student evaluation against rigid standardized global benchmarking.",
+        "category": "Politics & Law",
+        "badge": "Education Crisis",
+        "badge_color": "badge-danger",
+        "source_headline": "Gap between SPM results and Pisa scores puzzling, says Dr Wee",
+        "source_outlet": "The Star",
+        "url": ""
+      }
+    ]
+  },
+  {
+    "code": "AU",
+    "name": "Australia",
+    "flag": "🇦🇺",
+    "topics": [
+      {
+        "id": "au-1",
+        "topic": "Albanese Publicly Overrules Treasurer Chalmers to Mandate Imminent Ban on ATO Card Surcharges",
+        "summary": "Prime Minister Anthony Albanese unilaterally pledged to outlaw credit card surcharges levied on tax payments to the Australian Taxation Office, contradicting earlier cautionary statements by Treasurer Jim Chalmers. The sudden executive intervention highlighted rare policy friction at the apex of the federal economic leadership during a cost-of-living squeeze. While small businesses and consumer groups celebrate the proposed fee abolition, budget analysts warn the move will erase critical sovereign administrative revenue.",
+        "category": "Politics & Law",
+        "badge": "Executive Clash",
+        "badge_color": "badge-warning",
+        "source_headline": "Chalmers denies Albanese overruled him on ATO credit card ban after PM says ‘I will get it done’",
+        "source_outlet": "The Guardian",
+        "url": ""
+      },
+      {
+        "id": "au-2",
+        "topic": "Treasurer Chalmers Slams Progressive Factions Over Smug Moral Superiority Amid Policy Fractures",
+        "summary": "Treasurer Jim Chalmers launched a blistering critique against left-wing activists and the Greens, demanding they abandon smug moral superiority that alienates outer-suburban working-class constituencies. The remarks expose deep philosophical fractures within the broader progressive movement over immigration targets, renewable energy transition pacing, and economic realism. Green parliamentarians responded furiously, accusing the Albanese administration of abandoning core climate principles to pander to conservative regional electorates.",
+        "category": "Politics & Law",
+        "badge": "Ideological Rift",
+        "badge_color": "badge-secondary",
+        "source_headline": "Chalmers’s proclamation to Left: ‘Drop the smug moral superiority’",
+        "source_outlet": "The Australian",
+        "url": ""
+      },
+      {
+        "id": "au-3",
+        "topic": "Greens Accuse Labor of Preserving Private School Tax Loopholes in Fiscal Legislation",
+        "summary": "The Australian Greens have attacked the federal government's tax legislation, alleging it deliberately safeguards generous financial fee loopholes for elite private educational institutions. Public school advocates contend that continuing indirect subsidies for wealthy non-government schools exacerbates severe socio-economic segregation across metropolitan suburbs. Labor ministers firmly defend the legislative package, insisting it maintains sectoral equity and ensures nationwide educational funding stability without destabilizing non-government schooling sectors.",
+        "category": "Politics & Law",
+        "badge": "Tax Dispute",
+        "badge_color": "badge-accent",
+        "source_headline": "Greens claim Labor’s tax bill contains private school fee loophole",
+        "source_outlet": "The Age",
+        "url": ""
+      },
+      {
+        "id": "au-4",
+        "topic": "Federal Court Overturns Environment Minister Heritage Veto Blocking Blayney Gold Mine Development",
+        "summary": "A pivotal Federal Court decision has quashed the federal Environment Minister's indigenous heritage protection order that previously halted construction of the $1 billion Blayney gold mine in New South Wales. Mining executives and regional business leaders hailed the ruling as an indispensable victory for regulatory predictability and critical resource development. Conversely, Indigenous traditional custodians and environmental advocates decried the judgment as an egregious dismantling of statutory cultural protection mechanisms.",
+        "category": "Energy & Climate",
+        "badge": "Judicial Ruling",
+        "badge_color": "badge-primary",
+        "source_headline": "Court overrules Blayney mine heritage decision",
+        "source_outlet": "The Australian",
+        "url": ""
+      },
+      {
+        "id": "au-5",
+        "topic": "High Court Landmark Ruling Grants Female Inmate Right to Elective Fertility Preservation",
+        "summary": "In a precedent-setting constitutional ruling, the High Court of Australia established that incarcerated female prisoners have a legal entitlement to access elective egg freezing and fertility preservation services. Human rights barristers praised the decision as an enlightened affirmation of bodily autonomy and reproductive rights for individuals in custodial detention. Corrective services authorities voiced logistical reservations, warning that transporting inmates for external medical treatments will strain operational security and taxpayer budgets.",
+        "category": "Health & Science",
+        "badge": "Human Rights",
+        "badge_color": "badge-success",
+        "source_headline": "High Court rules in favour of prisoner trying to freeze her eggs",
+        "source_outlet": "ABC News & Headlines – Australian Broadcasting Corporation",
+        "url": ""
+      },
+      {
+        "id": "au-6",
+        "topic": "Polling Predicts Dramatic Queensland Coalition Defeat as One Nation Threatens Decisive Seat Flips",
+        "summary": "Shock polling forecasts indicate that up to nine Coalition-held electorates in Queensland are poised to fall to Pauline Hanson's One Nation party in an impending electoral realignment. The surge in populist right-wing sentiment reflects surging voter disillusionment with mainstream parties over surging utility bills, youth crime, and aggressive net-zero climate transitions. Conservative strategists are scrambling to overhaul their regional platform before the splinter vote fatally fractures the center-right opposition bloc.",
+        "category": "Politics & Law",
+        "badge": "Electoral Shock",
+        "badge_color": "badge-danger",
+        "source_headline": "Nine Coalition seats in Qld set to flip to One Nation in orange bloodbath",
+        "source_outlet": "The Courier Mail",
+        "url": ""
+      },
+      {
+        "id": "au-7",
+        "topic": "Alleged Construction Qualification Forgery Ring Infiltrates Major Victoria Government Transport Infrastructure Projects",
+        "summary": "A former professional football prospect has been indicted for running an extensive fraudulent certification racket that placed unqualified workers onto multi-billion-dollar Victorian government infrastructure worksites. The revelations have shocked the construction industry, prompting demands for immediate independent safety re-inspections across ongoing transport megaprojects. Labor unions and safety regulators insist the scandal points to a catastrophic breakdown in state contractor compliance and auditing enforcement.",
+        "category": "Politics & Law",
+        "badge": "Fraud Scandal",
+        "badge_color": "badge-warning",
+        "source_headline": "Former AFL prospect charged in alleged fake certificate scheme across major state projects",
+        "source_outlet": "The Age",
+        "url": ""
+      },
+      {
+        "id": "au-8",
+        "topic": "Backlash Intensifies Over Coalition MP Outburst Demanding Labor Minister Anne Aly Be Stoned",
+        "summary": "A major political scandal erupted after a Liberal parliamentarian allegedly stated that federal Labor Minister Anne Aly should be 'shamed and stoned,' drawing ferocious nationwide condemnation. Despite subsequent attempts at private conciliation by party leadership, government ministers and crossbenchers branded the violent rhetoric completely unacceptable and rooted in Islamophobia. The incident has inflamed debates over toxic parliamentary workplace culture and the urgent need for mandatory enforceable codes of conduct.",
+        "category": "Politics & Law",
+        "badge": "Political Ethics",
+        "badge_color": "badge-danger",
+        "source_headline": "Australian politics live: Liberal MP ‘reached out’ to Anne Aly after saying she should be ‘shamed and stoned’, Hume says",
+        "source_outlet": "The Guardian",
+        "url": ""
+      },
+      {
+        "id": "au-9",
+        "topic": "Western Australia Mega-University Merger Proposal Ignites Fierce Debate Over Academic Independence",
+        "summary": "State-sponsored plans to amalgamate Western Australia's prominent universities into a singular institutional mega-campus have sparked fierce resistance from faculty associations and student unions. Proponents argue consolidation will create an internationally competitive research powerhouse capable of commanding immense global rankings and industrial endowments. Academic critics counter that corporate consolidation will destroy institutional diversity, prompt mass redundancies, and decimate specialized humanities faculties.",
+        "category": "Economy & Markets",
+        "badge": "Institutional Reform",
+        "badge_color": "badge-info",
+        "source_headline": "What you need to know about WA's planned university merger",
+        "source_outlet": "ABC News & Headlines – Australian Broadcasting Corporation",
+        "url": ""
+      }
+    ]
+  }
+]
