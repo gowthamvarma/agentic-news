@@ -10,12 +10,31 @@
 
 The project supports local development with the **Firebase Emulator Suite** and an **in-memory fallback**.
 
-### Run Everything with One Command (Windows)
+### Run Everything with One Command
+
+#### Windows
 Double-click or run:
 ```bat
 start_dev.bat
 ```
-This automatically starts:
+
+#### macOS
+Run in Terminal:
+```bash
+chmod +x start_dev_mac.sh start_dev.sh
+./start_dev_mac.sh
+```
+> **Tip**: `start_dev_mac.sh` spawns the Emulator, Backend, and Frontend in separate Terminal windows/tabs. Alternatively, run `./start_dev.sh` to run all services within a single terminal with graceful `Ctrl+C` shutdown.
+
+#### Linux
+Run in Terminal:
+```bash
+chmod +x start_dev_linux.sh start_dev.sh
+./start_dev_linux.sh
+```
+> **Tip**: `start_dev_linux.sh` opens separate windows if a desktop terminal (GNOME Terminal, Konsole, etc.) is detected, or seamlessly runs all services concurrently in the current terminal. You can also run `./start_dev.sh` directly in any shell (including WSL & headless environments).
+
+#### What Gets Started Automatically:
 1. **Firebase Firestore Emulator**: `http://localhost:8085` (Emulator UI: `http://localhost:4000`)
 2. **FastAPI ADK Backend**: `http://localhost:8080` (Docs: `http://localhost:8080/docs`)
 3. **React Vite Web Dashboard**: `http://localhost:5173`
@@ -31,11 +50,21 @@ npx firebase-tools emulators:start --only firestore --project agentic-news-dev -
 ```
 
 ### Step 2: Start the FastAPI Backend
-```bash
+
+**Windows:**
+```cmd
 cd backend
 set FIRESTORE_EMULATOR_HOST=127.0.0.1:8085
 set FIREBASE_PROJECT_ID=agentic-news-dev
 python api_server.py
+```
+
+**Linux / macOS:**
+```bash
+cd backend
+export FIRESTORE_EMULATOR_HOST=127.0.0.1:8085
+export FIREBASE_PROJECT_ID=agentic-news-dev
+python3 api_server.py
 ```
 
 ### Step 3: Start the Web Dashboard
