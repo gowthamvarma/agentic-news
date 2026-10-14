@@ -33,14 +33,14 @@ flowchart TD
         InMemoryFallback["In-Memory Resilient Cache Fallback"]
     end
 
-    ReactApp <-->|REST APIs & SSE Streams (Port 8080)| FastAPIApp
+    ReactApp <-->|"REST APIs and SSE Streams [Port 8080]"| FastAPIApp
     FastAPIApp <--> ADKEngine
     ADKEngine <--> FleetAgents
     FleetAgents <--> GenAISDK
     ADKEngine <--> PydanticSchemas
-    FastAPIApp <-->|Async I/O| FirestoreCloud
-    FastAPIApp <-->|Local Dev / CI| EmulatorStore
-    EmulatorStore -.->|Fallback| InMemoryFallback
+    FastAPIApp <-->|"Async I/O"| FirestoreCloud
+    FastAPIApp <-->|"Local Dev / CI"| EmulatorStore
+    EmulatorStore -.->|"Fallback"| InMemoryFallback
 ```
 
 ---

@@ -65,7 +65,7 @@ flowchart TD
         LocalEmulator[("Local Emulator:8085 (Offline Dev)")]
     end
 
-    ActiveTab <-->|HTTP REST & JSON (Port 8080)| Router
+    ActiveTab <-->|"HTTP REST and JSON [Port 8080]"| Router
     SSEStreamer <--> Runner
     PluginEngine <--> SixLayers
     SixLayers --> Builder
