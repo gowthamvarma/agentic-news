@@ -23,6 +23,23 @@ function LegacyRouteRedirector() {
   return null;
 }
 
+// Automatically scroll to the top of the page on route change
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    const drawerContent = document.querySelector('.drawer-content');
+    if (drawerContent) {
+      drawerContent.scrollTop = 0;
+    }
+  }, [pathname]);
+
+  return null;
+}
+
 function MainAppLayout() {
   const { theme } = useTheme();
 
@@ -39,6 +56,7 @@ function MainAppLayout() {
       <div className="drawer-content flex flex-col min-h-screen overflow-x-hidden">
         <Navbar />
 
+        <ScrollToTop />
         <LegacyRouteRedirector />
 
         <div className="flex-1">

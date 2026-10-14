@@ -32,6 +32,17 @@ export const AnalysisDetailPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
 
+  // Scroll to the top of the page when analysis page is loaded or ID changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    const drawerContent = document.querySelector('.drawer-content');
+    if (drawerContent) {
+      drawerContent.scrollTop = 0;
+    }
+  }, [id, report?.id]);
+
   useEffect(() => {
     if (!id) {
       setError('No analysis ID provided in URL');

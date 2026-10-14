@@ -210,6 +210,9 @@ export const HomePage: React.FC = () => {
           showToast('Intelligence Report successfully generated!', 'success');
           const targetId = data.id || data.analysis_id;
           if (targetId) {
+            window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
             navigate(`/analysis/${targetId}`, { state: { report: data } });
           }
         }
@@ -219,6 +222,9 @@ export const HomePage: React.FC = () => {
       if (finalReport) {
         const targetId = (finalReport as any).id || (finalReport as any).analysis_id;
         if (targetId) {
+          window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+          document.documentElement.scrollTop = 0;
+          document.body.scrollTop = 0;
           navigate(`/analysis/${targetId}`, { state: { report: finalReport } });
           return;
         }
@@ -232,6 +238,9 @@ export const HomePage: React.FC = () => {
         showToast('Intelligence Report loaded!', 'success');
         const targetId = data.id || data.analysis_id;
         if (targetId) {
+          window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+          document.documentElement.scrollTop = 0;
+          document.body.scrollTop = 0;
           navigate(`/analysis/${targetId}`, { state: { report: data } });
         } else {
           setErrorMsg('Received analysis report without an ID.');
