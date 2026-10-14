@@ -14,57 +14,84 @@ Rather than building a brittle, monolithic chatbot that tries to do everything i
 
 ```mermaid
 flowchart TD
-    RootAgent["👑 Master Orchestrator: news_analyser (Gemini 3.1 Pro)"]
-    
-    subgraph L1 ["Stage 1: Ingestion & Extraction"]
-        A1["source_collector"]
-        A2["claim_extractor"]
+    Root["👑 Master Orchestrator: news_analyser<br/>(Gemini 3.1 Pro Reasoning)"]
+
+    subgraph S1 ["Stage 1: Ingestion & Extraction"]
+        direction LR
+        A1["📥 source_collector"]
+        A2["✂️ claim_extractor"]
     end
 
-    subgraph L2 ["Stage 2: Understand & Context"]
-        A3["context_builder"]
-        A4["timeline_agent"]
-        A5["knowledge_graph_agent"]
-        A6["stakeholder_map_agent"]
+    subgraph S2 ["Stage 2: Understand & Context"]
+        direction LR
+        A3["📖 context_builder"]
+        A4["⏱️ timeline_agent"]
+        A5["🕸️ knowledge_graph_agent"]
+        A6["🗺️ stakeholder_map_agent"]
     end
 
-    subgraph L3 ["Stage 3: Verify & Audit"]
-        A7["fact_verifier"]
-        A8["source_reliability_agent"]
-        A9["contradiction_analyst"]
-        A10["bias_analyst"]
-        A11["manipulation_detector"]
-        A12["coverage_gap_agent"]
+    subgraph S3 ["Stage 3: Verify & Audit"]
+        direction TB
+        subgraph S3A ["Evidentiary Auditing"]
+            direction LR
+            A7["🛡️ fact_verifier"]
+            A8["📰 source_reliability_agent"]
+            A9["⚖️ contradiction_analyst"]
+        end
+        subgraph S3B ["Framing & Detection"]
+            direction LR
+            A10["🧭 bias_analyst"]
+            A11["🚨 manipulation_detector"]
+            A12["🔍 coverage_gap_agent"]
+        end
+        S3A --> S3B
     end
 
-    subgraph L4 ["Stage 4: Analyse & Learn"]
-        A13["root_cause_agent"]
-        A14["lessons_prevention_agent"]
-        A15["impact_analyzer"]
-        A16["historical_parallels_agent"]
-        A17["scenario_prediction_agent"]
-        A18["country_transferability_agent"]
+    subgraph S4 ["Stage 4: Analyse & Learn"]
+        direction TB
+        subgraph S4A ["Causal & Cascades"]
+            direction LR
+            A13["🔬 root_cause_agent"]
+            A14["🛡️ lessons_prevention_agent"]
+            A15["🌊 impact_analyzer"]
+        end
+        subgraph S4B ["Scenarios & Parallels"]
+            direction LR
+            A16["📜 historical_parallels_agent"]
+            A17["🔮 scenario_prediction_agent"]
+            A18["🌐 country_transferability_agent"]
+        end
+        S4A --> S4B
     end
 
-    subgraph L5 ["Stage 5: Synthesis & Adaptation"]
-        A19["report_synthesizer"]
-        A20["audience_adaptation_agent"]
+    subgraph S5 ["Stage 5: Synthesis & Adaptation"]
+        direction LR
+        A19["📋 report_synthesizer"]
+        A20["🌍 audience_adaptation_agent"]
     end
 
-    subgraph L6 ["Stage 6: Engage & Active Recall"]
-        A21["tutor_agent"]
-        A22["perspective_debate_agent"]
-        A23["research_copilot"]
-        A24["topic_curator"]
-        A25["offline_simulation_agent"]
+    subgraph S6 ["Stage 6: Engage & Active Recall"]
+        direction TB
+        subgraph S6A ["Interactive Learning"]
+            direction LR
+            A21["🎓 tutor_agent"]
+            A22["⚔️ perspective_debate_agent"]
+            A23["💬 research_copilot"]
+        end
+        subgraph S6B ["Discovery & Resilience"]
+            direction LR
+            A24["🔥 topic_curator"]
+            A25["⚡ offline_simulation_agent"]
+        end
+        S6A --> S6B
     end
 
-    RootAgent --> L1
-    RootAgent --> L2
-    RootAgent --> L3
-    RootAgent --> L4
-    RootAgent --> L5
-    RootAgent --> L6
+    Root ==> S1
+    S1 ==> S2
+    S2 ==> S3
+    S3 ==> S4
+    S4 ==> S5
+    S5 ==> S6
 ```
 
 ---
