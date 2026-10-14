@@ -42,10 +42,6 @@ export const AnalysisDetailPage: React.FC = () => {
       window.scrollTo({ top, left: 0, behavior: 'instant' });
       document.documentElement.scrollTop = top;
       document.body.scrollTop = top;
-      const drawerContent = document.querySelector('.drawer-content');
-      if (drawerContent) {
-        drawerContent.scrollTop = top;
-      }
     };
 
     applyScroll();

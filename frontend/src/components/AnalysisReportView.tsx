@@ -187,6 +187,17 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
     return initialTab;
   });
 
+  useEffect(() => {
+    const onHashChange = () => {
+      const h = window.location.hash.replace('#', '');
+      if (['brief', 'sources', 'verification', 'timeline', 'insights', 'quiz', 'debate', 'copilot'].includes(h)) {
+        setActiveTab(h as any);
+      }
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
   // Check if sections are already saved in the report
   const hasSavedScenarios = !!(
     (report.future_scenarios && report.future_scenarios.length > 0) ||

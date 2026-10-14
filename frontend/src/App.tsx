@@ -49,11 +49,11 @@ function MainAppLayout() {
   };
 
   return (
-    <div className="drawer min-h-screen bg-base-100 text-base-content font-sans overflow-x-hidden">
+    <div className="drawer min-h-screen bg-base-100 text-base-content font-sans overflow-x-clip">
       <input id="main-drawer" type="checkbox" className="drawer-toggle" />
 
       {/* Drawer Content */}
-      <div className="drawer-content flex flex-col min-h-screen overflow-x-hidden">
+      <div className="drawer-content flex flex-col min-h-screen overflow-x-clip">
         <Navbar />
 
         <ScrollToTop />
