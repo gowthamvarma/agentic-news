@@ -20,7 +20,7 @@ try:
     env_paths = [
         Path(__file__).resolve().parent.parent / ".env",
         Path.cwd() / ".env",
-        Path.cwd() / "adk-web-news" / ".env",
+        Path.cwd() / "backend" / ".env",
     ]
     for env_file in env_paths:
         if env_file.exists():

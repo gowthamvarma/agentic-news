@@ -124,14 +124,14 @@ flowchart TD
 
 ### 1. Configure Environment
 ```bash
-# In adk-web-news/.env
+# In backend/.env
 GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
 ### 2. Run with ADK Web UI
 From the project root:
 ```bash
-adk web adk-web-news
+adk web backend
 ```
 The browser interface will discover and display all standalone agents in the dropdown:
 - `news_analyser` (Master Multi-Agent Orchestrator)

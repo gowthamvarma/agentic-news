@@ -13,14 +13,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy backend requirements and install
-COPY adk-web-news/requirements.txt /app/requirements.txt
+COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt \
     && pip install --no-cache-dir fastapi uvicorn google-cloud-firestore
 
 # Copy source code
-COPY adk-web-news /app/adk-web-news
+COPY . /app
 
-WORKDIR /app/adk-web-news
+WORKDIR /app
 
 EXPOSE 8080
 

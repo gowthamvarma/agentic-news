@@ -26,12 +26,13 @@ This automatically starts:
 
 ### Step 1: Start the Local Firestore Emulator
 ```bash
-npx firebase-tools emulators:start --only firestore --project agentic-news-dev
+cd firebase
+npx firebase-tools emulators:start --only firestore --project agentic-news-dev --import=./emulator-data --export-on-exit=./emulator-data
 ```
 
 ### Step 2: Start the FastAPI Backend
 ```bash
-cd adk-web-news
+cd backend
 set FIRESTORE_EMULATOR_HOST=127.0.0.1:8085
 set FIREBASE_PROJECT_ID=agentic-news-dev
 python api_server.py
@@ -39,7 +40,7 @@ python api_server.py
 
 ### Step 3: Start the Web Dashboard
 ```bash
-cd web
+cd frontend
 npm run dev
 ```
 Open [http://localhost:5173](http://localhost:5173) in your browser.

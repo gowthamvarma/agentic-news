@@ -39,6 +39,8 @@ firebase-debug.log*
 **/.firebase/
 emulator-cache/
 **/.emulator-cache/
+firebase-export-*/
+**/firebase-export-*/
 
 # Environment variables & secrets
 .env
