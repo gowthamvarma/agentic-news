@@ -26,6 +26,21 @@
 
 ---
 
+## 🌐 Live Production Deployment
+
+- **Live Application URL**: [https://agentic-news-api-851051382437.us-central1.run.app/](https://agentic-news-api-851051382437.us-central1.run.app/)
+- **Health Check API**: [https://agentic-news-api-851051382437.us-central1.run.app/api/health](https://agentic-news-api-851051382437.us-central1.run.app/api/health)
+- **Deployment & Ops Manual**: [docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md)
+
+### Deploying Updates to Production
+
+To build and deploy new updates to Cloud Run and Firestore with a single command:
+
+- **Windows**: `deploy.bat`
+- **Linux / macOS**: `./deploy.sh`
+
+---
+
 ## 1. Quickstart with Local Firebase Simulator
 
 The project supports local development with the **Firebase Emulator Suite** and an **in-memory fallback**.
