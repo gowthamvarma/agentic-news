@@ -113,7 +113,7 @@ def _generate_adaptive_mock_articles(topic: str, num_sources: int = 4) -> List[D
     ][:num_sources]
 
 
-_NEWS_CACHE: Dict[str, tuple[float, str]] = {}
+_NEWS_CACHE: Dict[str, tuple[float, List[Dict[str, Any]]]] = {}
 
 
 def fetch_news_articles(topic: str, num_sources: int = 5) -> str:
@@ -129,13 +129,13 @@ def fetch_news_articles(topic: str, num_sources: int = 5) -> str:
     Returns:
         JSON string containing a list of source articles with title, outlet, url, content, and date.
     """
-    cache_key = f"{topic.strip().lower()}:{num_sources}"
+    topic_key = topic.strip().lower()
     now = time.time()
-    if cache_key in _NEWS_CACHE:
-        cached_time, cached_val = _NEWS_CACHE[cache_key]
-        if now - cached_time < 300:  # 5 min TTL
+    if topic_key in _NEWS_CACHE:
+        cached_time, cached_articles = _NEWS_CACHE[topic_key]
+        if now - cached_time < 300 and len(cached_articles) >= min(num_sources, 3):
             logger.debug("Returning cached articles for '%s'", topic)
-            return cached_val
+            return json.dumps(cached_articles[:num_sources], indent=2)
 
     logger.info("Tool fetch_news_articles called for topic: '%s'", topic)
     articles: List[Dict[str, Any]] = []
@@ -227,7 +227,7 @@ def fetch_news_articles(topic: str, num_sources: int = 5) -> str:
         articles = _generate_adaptive_mock_articles(topic, num_sources=num_sources)
 
     res_json = json.dumps(articles, indent=2)
-    _NEWS_CACHE[cache_key] = (now, res_json)
+    _NEWS_CACHE[topic_key] = (now, articles)
     return res_json
 
 

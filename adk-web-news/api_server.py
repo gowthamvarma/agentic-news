@@ -142,6 +142,9 @@ async def execute_adk_agent(agent_name: str, target_agent: Any, prompt: str) -> 
         role="user",
     )
 
+    from google.adk.tools.function_tool import _SYNC_CALLABLE_RUNNER
+    token = _SYNC_CALLABLE_RUNNER.set(lambda target, args: asyncio.to_thread(target, **args))
+
     collected_text = []
     try:
         async for event in runner.run_async(
@@ -160,6 +163,8 @@ async def execute_adk_agent(agent_name: str, target_agent: Any, prompt: str) -> 
         logger.warning("ADK live execution error for %s: %s. Using dynamic fallback.", agent_name, e)
         fallback_text = _route_simulation_response(agent_name, prompt)
         return fallback_text, []
+    finally:
+        _SYNC_CALLABLE_RUNNER.reset(token)
 
 
 @app.get("/api/health")
@@ -197,8 +202,8 @@ async def analyze_topic(req: AnalyzeRequest):
     # Execute orchestrator
     raw_markdown, ledger = await execute_adk_agent("news_analyser", news_agent, topic)
 
-    # Build structured report
-    report_data = build_structured_intelligence(topic, raw_markdown)
+    # Build structured report in worker thread so event loop remains responsive for other tabs
+    report_data = await asyncio.to_thread(build_structured_intelligence, topic, raw_markdown)
     report_data["id"] = analysis_id
     report_data["analysis_id"] = analysis_id
     report_data["topic"] = topic
@@ -353,7 +358,7 @@ async def generate_quiz(req: AnalyzeRequest):
     """Generates an active recall quiz for a topic."""
     topic = req.topic.strip()
     quiz_id = str(uuid.uuid4())
-    quiz_data = build_structured_quiz(topic)
+    quiz_data = await asyncio.to_thread(build_structured_quiz, topic)
     quiz_data["quiz_id"] = quiz_id
     await FirestoreService.save_quiz(quiz_id, quiz_data)
 
@@ -406,7 +411,7 @@ async def generate_perspective_debate(req: AnalyzeRequest):
     """Generates a structured, evidence-grounded perspective debate on an issue."""
     topic = req.topic.strip()
     debate_id = str(uuid.uuid4())
-    debate_data = build_structured_debate(topic)
+    debate_data = await asyncio.to_thread(build_structured_debate, topic)
     debate_data["debate_id"] = debate_id
     await FirestoreService.save_debate(debate_id, debate_data)
 
@@ -424,7 +429,7 @@ async def generate_future_scenarios(req: AnalyzeRequest):
     if not topic:
         raise HTTPException(status_code=400, detail="Topic cannot be empty.")
 
-    scenarios_data = build_structured_scenarios(topic)
+    scenarios_data = await asyncio.to_thread(build_structured_scenarios, topic)
     if req.analysis_id:
         await FirestoreService.update_analysis(req.analysis_id, {
             "root_cause_analysis": scenarios_data.get("root_cause_analysis"),
@@ -442,7 +447,7 @@ async def generate_topic_contradictions(req: AnalyzeRequest):
     if not topic:
         raise HTTPException(status_code=400, detail="Topic cannot be empty.")
 
-    contradictions = generate_live_contradictions(topic)
+    contradictions = await asyncio.to_thread(generate_live_contradictions, topic)
     if req.analysis_id:
         await FirestoreService.update_analysis(req.analysis_id, {
             "contradictions": contradictions
@@ -519,24 +524,44 @@ async def clear_copilot_chat_history(analysis_id: str):
     }
 
 
+_suggestions_lock = asyncio.Lock()
+_suggestions_task: Optional[asyncio.Task] = None
+
+
+async def _run_or_await_suggestions_generation() -> Dict[str, Any]:
+    """Generates fresh suggestions with single-flight deduplication across multiple tabs."""
+    global _suggestions_task
+    async with _suggestions_lock:
+        if _suggestions_task is not None and not _suggestions_task.done():
+            task_to_await = _suggestions_task
+        else:
+            async def _worker():
+                fresh_data = await asyncio.to_thread(generate_country_topic_suggestions)
+                saved = await FirestoreService.save_topic_suggestions(fresh_data)
+                saved["is_stale"] = False
+                saved["age_seconds"] = 0
+                saved["refreshed"] = True
+                return saved
+
+            _suggestions_task = asyncio.create_task(_worker())
+            task_to_await = _suggestions_task
+
+    return await asyncio.shield(task_to_await)
+
+
 @app.get("/api/topics/suggestions")
 async def get_topic_suggestions():
-    """Retrieves country-grouped topic suggestions from Firestore cache.
+    """Retrieves country-grouped topic suggestions from memory cache or Firestore.
     
-    If cache does not exist, generates fresh suggestions, saves to Firestore,
-    and returns them. If cache exists, calculates age; marks is_stale=True
-    if older than 24 hours (86,400 seconds).
+    If cache exists, returns immediately (0ms). If cache does not exist,
+    triggers single-flight generation so multiple tabs share the same in-flight task.
     """
     cached = await FirestoreService.get_topic_suggestions()
     now = time.time()
 
     if not cached:
-        logger.info("No topic suggestions found in Firestore. Generating fresh suggestions...")
-        fresh_data = await asyncio.to_thread(generate_country_topic_suggestions)
-        saved = await FirestoreService.save_topic_suggestions(fresh_data)
-        saved["is_stale"] = False
-        saved["age_seconds"] = 0
-        return saved
+        logger.info("No topic suggestions found in Firestore. Initiating deduplicated generation...")
+        return await _run_or_await_suggestions_generation()
 
     created_at = cached.get("created_at") or cached.get("updated_at") or 0
     age_seconds = max(0.0, now - created_at)
@@ -550,16 +575,11 @@ async def get_topic_suggestions():
 
 @app.post("/api/topics/suggestions/refresh")
 async def refresh_topic_suggestions():
-    """Generates fresh country-grouped topic suggestions using live RSS + Gemini,
+    """Generates fresh country-grouped topic suggestions using single-flight execution,
     persists them to Firestore with created_at timestamp, and returns the refreshed data.
     """
     logger.info("Triggered refresh of country-grouped topic suggestions...")
-    fresh_data = await asyncio.to_thread(generate_country_topic_suggestions)
-    saved = await FirestoreService.save_topic_suggestions(fresh_data)
-    saved["is_stale"] = False
-    saved["age_seconds"] = 0
-    saved["refreshed"] = True
-    return saved
+    return await _run_or_await_suggestions_generation()
 
 
 if __name__ == "__main__":

@@ -13,6 +13,7 @@ allowing seamless local development and automated CI/CD testing.
 
 from __future__ import annotations
 
+import asyncio
 import os
 import time
 import uuid
@@ -25,33 +26,63 @@ if cred_env and not os.path.isfile(cred_env):
     logger.info("GOOGLE_APPLICATION_CREDENTIALS ('%s') is not a valid file path. Clearing from environment.", cred_env)
     del os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
 
-try:
-    from google.cloud import firestore
-    from google.auth.credentials import AnonymousCredentials
+FIRESTORE_TIMEOUT_READ = 2.5
+FIRESTORE_TIMEOUT_WRITE = 5.0
 
-    emulator_host = (os.environ.get("FIRESTORE_EMULATOR_HOST") or "").strip()
-    if emulator_host:
-        os.environ["FIRESTORE_EMULATOR_HOST"] = emulator_host
-    project_id = (os.environ.get("FIREBASE_PROJECT_ID") or os.environ.get("GOOGLE_CLOUD_PROJECT") or "agentic-news-dev").strip()
+_client_instance: Optional[Any] = None
+_client_attempted: bool = False
+FIRESTORE_AVAILABLE: bool = True
 
-    if emulator_host:
-        logger.info("Connecting to local Firestore emulator at '%s' for project '%s'", emulator_host, project_id)
-        db_client = firestore.AsyncClient(project=project_id, credentials=AnonymousCredentials())
-        FIRESTORE_AVAILABLE = True
-    elif os.environ.get("GOOGLE_APPLICATION_CREDENTIALS") or project_id:
-        db_client = firestore.AsyncClient(project=project_id)
-        FIRESTORE_AVAILABLE = True
-        logger.info("Firestore AsyncClient initialized for project: %s", project_id)
-    else:
-        try:
-            db_client = firestore.AsyncClient(project="agentic-news-local")
+def get_db_client():
+    """Lazily initializes and returns the Firestore AsyncClient in the running event loop."""
+    global _client_instance, _client_attempted, FIRESTORE_AVAILABLE
+    if _client_attempted:
+        return _client_instance
+    _client_attempted = True
+    try:
+        from google.cloud import firestore
+        from google.auth.credentials import AnonymousCredentials
+
+        emulator_host = (os.environ.get("FIRESTORE_EMULATOR_HOST") or "").strip()
+        project_id = (os.environ.get("FIREBASE_PROJECT_ID") or os.environ.get("GOOGLE_CLOUD_PROJECT") or "agentic-news-dev").strip()
+
+        if emulator_host:
+            os.environ["FIRESTORE_EMULATOR_HOST"] = emulator_host
+            logger.info("Connecting to local Firestore emulator at '%s' for project '%s'", emulator_host, project_id)
+            _client_instance = firestore.AsyncClient(project=project_id, credentials=AnonymousCredentials())
             FIRESTORE_AVAILABLE = True
-            logger.info("Firestore AsyncClient initialized with default credentials.")
-        except Exception:
-            FIRESTORE_AVAILABLE = False
-except Exception as e:
-    logger.info("Firestore client not initialized: %s. Using in-memory store.", e)
-    FIRESTORE_AVAILABLE = False
+        elif os.environ.get("GOOGLE_APPLICATION_CREDENTIALS") or project_id:
+            _client_instance = firestore.AsyncClient(project=project_id)
+            FIRESTORE_AVAILABLE = True
+            logger.info("Firestore AsyncClient initialized for project: %s", project_id)
+        else:
+            try:
+                _client_instance = firestore.AsyncClient(project="agentic-news-local")
+                FIRESTORE_AVAILABLE = True
+                logger.info("Firestore AsyncClient initialized with default credentials.")
+            except Exception:
+                _client_instance = None
+                FIRESTORE_AVAILABLE = False
+    except Exception as e:
+        logger.info("Firestore client not initialized: %s. Using in-memory store.", e)
+        _client_instance = None
+        FIRESTORE_AVAILABLE = False
+    return _client_instance
+
+
+class _DbClientProxy:
+    """Transparent proxy preserving legacy 'db_client' references."""
+    def __getattr__(self, name: str) -> Any:
+        c = get_db_client()
+        if c is None:
+            raise RuntimeError("Firestore db_client is not initialized")
+        return getattr(c, name)
+
+    def __bool__(self) -> bool:
+        return get_db_client() is not None
+
+
+db_client = _DbClientProxy()
 
 
 _MEMORY_STORE: Dict[str, Dict[str, Dict[str, Any]]] = {
@@ -63,6 +94,7 @@ _MEMORY_STORE: Dict[str, Dict[str, Dict[str, Any]]] = {
     "chat_history": {},
     "topic_suggestions": {},
 }
+_mem_suggestions_loaded_at: float = 0.0
 
 
 class FirestoreService:
@@ -77,15 +109,18 @@ class FirestoreService:
             data["is_favorite"] = False
         data["id"] = analysis_id
 
-        if FIRESTORE_AVAILABLE and db_client:
+        # Update in-memory store immediately
+        _MEMORY_STORE["analyses"][analysis_id] = dict(data)
+
+        client = get_db_client()
+        if client:
             try:
-                doc_ref = db_client.collection("analyses").document(analysis_id)
-                await doc_ref.set(data)
+                doc_ref = client.collection("analyses").document(analysis_id)
+                await asyncio.wait_for(doc_ref.set(data), timeout=FIRESTORE_TIMEOUT_WRITE)
                 return analysis_id
             except Exception as e:
-                logger.warning("Failed saving analysis to Firestore (%s). Saving to memory.", e)
+                logger.warning("Failed saving analysis to Firestore (%s). Saved in memory.", e)
 
-        _MEMORY_STORE["analyses"][analysis_id] = data
         return analysis_id
 
     @staticmethod
@@ -93,29 +128,36 @@ class FirestoreService:
         """Updates specific fields (such as is_favorite) in Firestore or memory."""
         updates["updated_at"] = time.time()
 
-        if FIRESTORE_AVAILABLE and db_client:
+        if analysis_id in _MEMORY_STORE["analyses"]:
+            _MEMORY_STORE["analyses"][analysis_id].update(updates)
+            updated_in_memory = dict(_MEMORY_STORE["analyses"][analysis_id])
+        else:
+            updated_in_memory = None
+
+        client = get_db_client()
+        if client:
             try:
-                doc_ref = db_client.collection("analyses").document(analysis_id)
-                await doc_ref.set(updates, merge=True)
-                doc = await doc_ref.get()
+                doc_ref = client.collection("analyses").document(analysis_id)
+                await asyncio.wait_for(doc_ref.set(updates, merge=True), timeout=FIRESTORE_TIMEOUT_WRITE)
+                doc = await asyncio.wait_for(doc_ref.get(), timeout=FIRESTORE_TIMEOUT_READ)
                 if doc.exists:
-                    return doc.to_dict()
+                    doc_data = doc.to_dict()
+                    _MEMORY_STORE["analyses"][analysis_id] = doc_data
+                    return doc_data
             except Exception as e:
                 logger.warning("Failed updating analysis in Firestore (%s). Updating in memory.", e)
 
-        if analysis_id in _MEMORY_STORE["analyses"]:
-            _MEMORY_STORE["analyses"][analysis_id].update(updates)
-            return _MEMORY_STORE["analyses"][analysis_id]
-        return None
+        return updated_in_memory
 
     @staticmethod
     async def delete_analysis(analysis_id: str) -> bool:
         """Deletes an analysis document from Firestore and memory."""
         deleted = False
-        if FIRESTORE_AVAILABLE and db_client:
+        client = get_db_client()
+        if client:
             try:
-                doc_ref = db_client.collection("analyses").document(analysis_id)
-                await doc_ref.delete()
+                doc_ref = client.collection("analyses").document(analysis_id)
+                await asyncio.wait_for(doc_ref.delete(), timeout=FIRESTORE_TIMEOUT_WRITE)
                 deleted = True
             except Exception as e:
                 logger.warning("Failed deleting analysis in Firestore (%s). Removing from memory.", e)
@@ -127,12 +169,19 @@ class FirestoreService:
 
     @staticmethod
     async def get_analysis(analysis_id: str) -> Optional[Dict[str, Any]]:
-        if FIRESTORE_AVAILABLE and db_client:
+        # Fast memory check first
+        if analysis_id in _MEMORY_STORE["analyses"]:
+            return dict(_MEMORY_STORE["analyses"][analysis_id])
+
+        client = get_db_client()
+        if client:
             try:
-                doc_ref = db_client.collection("analyses").document(analysis_id)
-                doc = await doc_ref.get()
+                doc_ref = client.collection("analyses").document(analysis_id)
+                doc = await asyncio.wait_for(doc_ref.get(), timeout=FIRESTORE_TIMEOUT_READ)
                 if doc.exists:
-                    return doc.to_dict()
+                    data = doc.to_dict()
+                    _MEMORY_STORE["analyses"][analysis_id] = data
+                    return data
             except Exception as e:
                 logger.warning("Failed getting analysis from Firestore (%s). Checking memory.", e)
 
@@ -153,11 +202,15 @@ class FirestoreService:
         """Lists analyses with search, favorites filter, and pagination."""
         items: List[Dict[str, Any]] = []
 
-        if FIRESTORE_AVAILABLE and db_client:
+        client = get_db_client()
+        if client:
             try:
-                col_ref = db_client.collection("analyses")
-                docs = await col_ref.get()
+                col_ref = client.collection("analyses")
+                docs = await asyncio.wait_for(col_ref.get(), timeout=FIRESTORE_TIMEOUT_READ)
                 items = [d.to_dict() for d in docs]
+                for it in items:
+                    if "id" in it:
+                        _MEMORY_STORE["analyses"][it["id"]] = it
             except Exception as e:
                 logger.warning("Failed listing filtered analyses from Firestore (%s). Checking memory.", e)
                 items = list(_MEMORY_STORE["analyses"].values())
@@ -189,38 +242,48 @@ class FirestoreService:
     async def save_fact_check(check_id: str, data: Dict[str, Any]) -> str:
         data["id"] = check_id
         data["created_at"] = time.time()
-        if FIRESTORE_AVAILABLE and db_client:
+        _MEMORY_STORE["fact_checks"][check_id] = dict(data)
+
+        client = get_db_client()
+        if client:
             try:
-                doc_ref = db_client.collection("fact_checks").document(check_id)
-                await doc_ref.set(data)
+                doc_ref = client.collection("fact_checks").document(check_id)
+                await asyncio.wait_for(doc_ref.set(data), timeout=FIRESTORE_TIMEOUT_WRITE)
                 return check_id
             except Exception as e:
                 logger.warning("Failed saving fact-check to Firestore (%s). Saving to memory.", e)
-        _MEMORY_STORE["fact_checks"][check_id] = data
         return check_id
 
     @staticmethod
     async def save_quiz(quiz_id: str, data: Dict[str, Any]) -> str:
         data["id"] = quiz_id
         data["created_at"] = time.time()
-        if FIRESTORE_AVAILABLE and db_client:
+        _MEMORY_STORE["quizzes"][quiz_id] = dict(data)
+
+        client = get_db_client()
+        if client:
             try:
-                doc_ref = db_client.collection("quizzes").document(quiz_id)
-                await doc_ref.set(data)
+                doc_ref = client.collection("quizzes").document(quiz_id)
+                await asyncio.wait_for(doc_ref.set(data), timeout=FIRESTORE_TIMEOUT_WRITE)
                 return quiz_id
             except Exception as e:
                 logger.warning("Failed saving quiz to Firestore (%s). Saving to memory.", e)
-        _MEMORY_STORE["quizzes"][quiz_id] = data
         return quiz_id
 
     @staticmethod
     async def get_quiz(quiz_id: str) -> Optional[Dict[str, Any]]:
-        if FIRESTORE_AVAILABLE and db_client:
+        if quiz_id in _MEMORY_STORE["quizzes"]:
+            return dict(_MEMORY_STORE["quizzes"][quiz_id])
+
+        client = get_db_client()
+        if client:
             try:
-                doc_ref = db_client.collection("quizzes").document(quiz_id)
-                doc = await doc_ref.get()
+                doc_ref = client.collection("quizzes").document(quiz_id)
+                doc = await asyncio.wait_for(doc_ref.get(), timeout=FIRESTORE_TIMEOUT_READ)
                 if doc.exists:
-                    return doc.to_dict()
+                    data = doc.to_dict()
+                    _MEMORY_STORE["quizzes"][quiz_id] = data
+                    return data
             except Exception as e:
                 logger.warning("Failed fetching quiz from Firestore (%s). Checking memory.", e)
         return _MEMORY_STORE["quizzes"].get(quiz_id)
@@ -229,27 +292,31 @@ class FirestoreService:
     async def save_debate(debate_id: str, data: Dict[str, Any]) -> str:
         data["id"] = debate_id
         data["created_at"] = time.time()
-        if FIRESTORE_AVAILABLE and db_client:
+        _MEMORY_STORE["debates"][debate_id] = dict(data)
+
+        client = get_db_client()
+        if client:
             try:
-                doc_ref = db_client.collection("debates").document(debate_id)
-                await doc_ref.set(data)
+                doc_ref = client.collection("debates").document(debate_id)
+                await asyncio.wait_for(doc_ref.set(data), timeout=FIRESTORE_TIMEOUT_WRITE)
                 return debate_id
             except Exception as e:
                 logger.warning("Failed saving debate to Firestore (%s). Saving to memory.", e)
-        _MEMORY_STORE["debates"][debate_id] = data
         return debate_id
 
     @staticmethod
     async def save_evidence_ledger(ledger_id: str, entries: List[Dict[str, Any]]) -> str:
         doc = {"id": ledger_id, "created_at": time.time(), "entries": entries}
-        if FIRESTORE_AVAILABLE and db_client:
+        _MEMORY_STORE["evidence_ledger"][ledger_id] = dict(doc)
+
+        client = get_db_client()
+        if client:
             try:
-                doc_ref = db_client.collection("evidence_ledger").document(ledger_id)
-                await doc_ref.set(doc)
+                doc_ref = client.collection("evidence_ledger").document(ledger_id)
+                await asyncio.wait_for(doc_ref.set(doc), timeout=FIRESTORE_TIMEOUT_WRITE)
                 return ledger_id
             except Exception as e:
                 logger.warning("Failed saving ledger to Firestore (%s). Saving to memory.", e)
-        _MEMORY_STORE["evidence_ledger"][ledger_id] = doc
         return ledger_id
 
     @staticmethod
@@ -272,19 +339,20 @@ class FirestoreService:
             _MEMORY_STORE["analyses"][analysis_id]["chat_history"] = existing_messages
 
         # 2. Persist to Firestore if available
-        if FIRESTORE_AVAILABLE and db_client:
+        client = get_db_client()
+        if client:
             try:
                 # Save to dedicated chat_history collection
-                chat_doc_ref = db_client.collection("chat_history").document(analysis_id)
-                await chat_doc_ref.set({
+                chat_doc_ref = client.collection("chat_history").document(analysis_id)
+                await asyncio.wait_for(chat_doc_ref.set({
                     "analysis_id": analysis_id,
                     "messages": existing_messages,
                     "updated_at": time.time(),
-                })
+                }), timeout=FIRESTORE_TIMEOUT_WRITE)
 
                 # Also sync into analyses document if it exists
-                analysis_doc_ref = db_client.collection("analyses").document(analysis_id)
-                await analysis_doc_ref.set({"chat_history": existing_messages, "updated_at": time.time()}, merge=True)
+                analysis_doc_ref = client.collection("analyses").document(analysis_id)
+                await asyncio.wait_for(analysis_doc_ref.set({"chat_history": existing_messages, "updated_at": time.time()}, merge=True), timeout=FIRESTORE_TIMEOUT_WRITE)
             except Exception as e:
                 logger.warning("Failed saving chat history to Firestore (%s). Preserved in memory.", e)
 
@@ -293,30 +361,34 @@ class FirestoreService:
     @staticmethod
     async def get_chat_history(analysis_id: str) -> List[Dict[str, Any]]:
         """Retrieves full chat message history for an analysis from Firestore or memory."""
-        if FIRESTORE_AVAILABLE and db_client:
-            try:
-                # First check dedicated chat_history collection
-                chat_doc_ref = db_client.collection("chat_history").document(analysis_id)
-                doc = await chat_doc_ref.get()
-                if doc.exists:
-                    data = doc.to_dict()
-                    return data.get("messages", [])
-
-                # Fallback check analyses collection
-                analysis_doc_ref = db_client.collection("analyses").document(analysis_id)
-                adoc = await analysis_doc_ref.get()
-                if adoc.exists:
-                    adata = adoc.to_dict()
-                    if "chat_history" in adata and isinstance(adata["chat_history"], list):
-                        return adata["chat_history"]
-            except Exception as e:
-                logger.warning("Failed reading chat history from Firestore (%s). Checking memory.", e)
-
         if analysis_id in _MEMORY_STORE["chat_history"]:
             return list(_MEMORY_STORE["chat_history"][analysis_id])
 
-        if analysis_id in _MEMORY_STORE["analyses"]:
-            return list(_MEMORY_STORE["analyses"][analysis_id].get("chat_history", []))
+        if analysis_id in _MEMORY_STORE["analyses"] and "chat_history" in _MEMORY_STORE["analyses"][analysis_id]:
+            return list(_MEMORY_STORE["analyses"][analysis_id]["chat_history"])
+
+        client = get_db_client()
+        if client:
+            try:
+                # First check dedicated chat_history collection
+                chat_doc_ref = client.collection("chat_history").document(analysis_id)
+                doc = await asyncio.wait_for(chat_doc_ref.get(), timeout=FIRESTORE_TIMEOUT_READ)
+                if doc.exists:
+                    data = doc.to_dict()
+                    msgs = data.get("messages", [])
+                    _MEMORY_STORE["chat_history"][analysis_id] = msgs
+                    return msgs
+
+                # Fallback check analyses collection
+                analysis_doc_ref = client.collection("analyses").document(analysis_id)
+                adoc = await asyncio.wait_for(analysis_doc_ref.get(), timeout=FIRESTORE_TIMEOUT_READ)
+                if adoc.exists:
+                    adata = adoc.to_dict()
+                    if "chat_history" in adata and isinstance(adata["chat_history"], list):
+                        _MEMORY_STORE["chat_history"][analysis_id] = adata["chat_history"]
+                        return adata["chat_history"]
+            except Exception as e:
+                logger.warning("Failed reading chat history from Firestore (%s). Checking memory.", e)
 
         return []
 
@@ -327,13 +399,14 @@ class FirestoreService:
         if analysis_id in _MEMORY_STORE["analyses"]:
             _MEMORY_STORE["analyses"][analysis_id]["chat_history"] = []
 
-        if FIRESTORE_AVAILABLE and db_client:
+        client = get_db_client()
+        if client:
             try:
-                chat_doc_ref = db_client.collection("chat_history").document(analysis_id)
-                await chat_doc_ref.delete()
+                chat_doc_ref = client.collection("chat_history").document(analysis_id)
+                await asyncio.wait_for(chat_doc_ref.delete(), timeout=FIRESTORE_TIMEOUT_WRITE)
 
-                analysis_doc_ref = db_client.collection("analyses").document(analysis_id)
-                await analysis_doc_ref.set({"chat_history": [], "updated_at": time.time()}, merge=True)
+                analysis_doc_ref = client.collection("analyses").document(analysis_id)
+                await asyncio.wait_for(analysis_doc_ref.set({"chat_history": [], "updated_at": time.time()}, merge=True), timeout=FIRESTORE_TIMEOUT_WRITE)
             except Exception as e:
                 logger.warning("Failed clearing chat history in Firestore (%s). Cleared in memory.", e)
 
@@ -341,13 +414,24 @@ class FirestoreService:
 
     @staticmethod
     async def get_topic_suggestions() -> Optional[Dict[str, Any]]:
-        """Retrieves country-grouped topic suggestions from Firestore or memory."""
-        if FIRESTORE_AVAILABLE and db_client:
+        """Retrieves country-grouped topic suggestions from memory cache or Firestore."""
+        global _mem_suggestions_loaded_at
+        # 1. Fast in-memory cache check: if cached recently in memory, return immediately (0ms latency, zero blocking!)
+        mem_latest = _MEMORY_STORE["topic_suggestions"].get("latest")
+        if mem_latest and isinstance(mem_latest.get("countries"), list) and len(mem_latest["countries"]) > 0:
+            if time.time() - _mem_suggestions_loaded_at < 300:  # Fresh memory hit (loaded within 5 minutes)
+                return dict(mem_latest)
+
+        client = get_db_client()
+        if client:
             try:
-                doc_ref = db_client.collection("topic_suggestions").document("latest")
-                doc = await doc_ref.get()
+                doc_ref = client.collection("topic_suggestions").document("latest")
+                doc = await asyncio.wait_for(doc_ref.get(), timeout=FIRESTORE_TIMEOUT_READ)
                 if doc.exists:
-                    return doc.to_dict()
+                    data = doc.to_dict()
+                    _MEMORY_STORE["topic_suggestions"]["latest"] = data
+                    _mem_suggestions_loaded_at = time.time()
+                    return data
             except Exception as e:
                 logger.warning("Failed retrieving topic suggestions from Firestore (%s). Checking memory.", e)
 
@@ -356,18 +440,23 @@ class FirestoreService:
     @staticmethod
     async def save_topic_suggestions(data: Dict[str, Any]) -> Dict[str, Any]:
         """Saves country-grouped topic suggestions with timestamp to Firestore and memory."""
+        global _mem_suggestions_loaded_at
         now = time.time()
         data["updated_at"] = now
         if "created_at" not in data:
             data["created_at"] = now
         data["id"] = "latest"
 
-        if FIRESTORE_AVAILABLE and db_client:
+        # Update in-memory store immediately
+        _MEMORY_STORE["topic_suggestions"]["latest"] = dict(data)
+        _mem_suggestions_loaded_at = now
+
+        client = get_db_client()
+        if client:
             try:
-                doc_ref = db_client.collection("topic_suggestions").document("latest")
-                await doc_ref.set(data)
+                doc_ref = client.collection("topic_suggestions").document("latest")
+                await asyncio.wait_for(doc_ref.set(data), timeout=FIRESTORE_TIMEOUT_WRITE)
             except Exception as e:
                 logger.warning("Failed saving topic suggestions to Firestore (%s). Saved in memory.", e)
 
-        _MEMORY_STORE["topic_suggestions"]["latest"] = data
         return data
