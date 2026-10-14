@@ -1,4 +1,4 @@
-# Document 03: Technical Design & System Architecture
+# Document 04: Technical Design & System Architecture
 ## Deep Architecture Breakdown: Google ADK 2.0, Pydantic v2 Structured JSON Engine & Firebase Integration
 
 > **Submission Track**: Google Cloud AI Builder Cup 2026 — *Media, Content & Digital Experiences*  

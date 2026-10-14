@@ -1,4 +1,4 @@
-# Document 04: Multi-Agent Ecosystem & Orchestration
+# Document 05: Multi-Agent Ecosystem & Orchestration
 ## The 25-Agent Fleet, Hierarchical Orchestration, UI Mapping & 5-Pillar Architecture Standards
 
 > **Submission Track**: Google Cloud AI Builder Cup 2026 — *Media, Content & Digital Experiences*  

@@ -22,11 +22,11 @@ All documentation files and visual assets will be contained in `docs/submission/
 ```
 docs/submission/
 ├── README.md                                      # Executive Submission Portal & Quick Navigation for Judges
-├── 01-problem-statement-and-differentiation.md    # Problem, Vision & Why This Beats Generic Summarizers
-├── 02-tech-stack-and-antigravity.md               # Stack Rationale, ADK 2.0 Python Choice & Antigravity CLI Journey
-├── 03-system-architecture-and-technical-design.md # End-to-End System Design, Concurrency, Pydantic & Firestore
-├── 04-multi-agent-ecosystem-and-orchestration.md  # 25-Agent Fleet, Hierarchy, UI Mapping & 5-Pillar Best Practices
-├── 05-user-and-evaluator-guide.md                 # End-to-End Evaluator Guide with Live UI Walkthrough
+├── 01-user-and-evaluator-guide.md                 # End-to-End Evaluator Guide with Live UI Walkthrough
+├── 02-problem-statement-and-differentiation.md    # Problem, Vision & Why This Beats Generic Summarizers
+├── 03-tech-stack-and-antigravity.md               # Stack Rationale, ADK 2.0 Python Choice & Antigravity CLI Journey
+├── 04-system-architecture-and-technical-design.md # End-to-End System Design, Concurrency, Pydantic & Firestore
+├── 05-multi-agent-ecosystem-and-orchestration.md  # 25-Agent Fleet, Hierarchy, UI Mapping & 5-Pillar Best Practices
 └── assets/                                        # Optimized visual media (<5MB total for Git performance)
     ├── hero-overview.png                          # High-resolution home view & region feed
     ├── history-archive.png                        # Filterable Firestore archive grid
@@ -45,8 +45,19 @@ docs/submission/
 
 ## 3. Document Specifications
 
-### Document 1: Problem Statement & Competitive Differentiation
-- **File**: `docs/submission/01-problem-statement-and-differentiation.md`
+### Document 1: User & Evaluator Guide
+- **File**: `docs/submission/01-user-and-evaluator-guide.md`
+- **Core Narrative**:
+  - 3-Minute Quickstart for Judges: Local launch commands, one-click analysis URLs, and testing pre-populated analyses.
+  - UI Navigation & Layout Tour:
+    - Global controls (Theme picker, drawer navigation, search).
+    - Home Page (8-country regional breaking news feed, trending topic chips, real-time agent execution pipeline stepper).
+    - History Archive (Firestore filterable grid, search, tags, favorites).
+  - Deep Dive into the 8 Analysis Tabs (Illustrated with real screenshots from `http://localhost:5173/analysis/09c0dbae-2b01-4852-83de-ddc89fdb6614`):
+    - Tab 1: Executive Brief & Entity Primer.
+
+### Document 2: Problem Statement & Competitive Differentiation
+- **File**: `docs/submission/02-problem-statement-and-differentiation.md`
 - **Core Narrative**:
   - The breakdown of trust in online news: algorithmic echo chambers, speed-over-accuracy publishing, and conflicting claims during fast-moving events.
   - The 4 structural failures of basic LLM summarizers:
@@ -58,8 +69,8 @@ docs/submission/
   - Competitive Analysis Matrix: Side-by-side comparison with Perplexity AI, Ground News, ChatGPT Web, and SmartNews across 8 rigorous dimensions.
   - Target Impact Personas: Policy analysts, investigative journalists, financial researchers, and everyday citizens.
 
-### Document 2: Technology Stack & Antigravity CLI Journey
-- **File**: `docs/submission/02-tech-stack-and-antigravity.md`
+### Document 3: Technology Stack & Antigravity CLI Journey
+- **File**: `docs/submission/03-tech-stack-and-antigravity.md`
 - **Core Narrative**:
   - Frontend Stack: React 19, TypeScript 5, Vite 6, Tailwind CSS 3.4, DaisyUI 4 (with reactive multi-theme switching, zero-dependency SVG avatar generators, and responsive mobile drawers).
   - Backend Stack: Python 3.12, FastAPI, Uvicorn, Pydantic v2, Google Cloud Firestore AsyncClient.
@@ -73,8 +84,8 @@ docs/submission/
     - Rapid scaffolding of multi-agent modules and typed Pydantic contracts.
     - Continuous simulation and test automation with live verification.
 
-### Document 3: Technical Design & System Architecture
-- **File**: `docs/submission/03-system-architecture-and-technical-design.md`
+### Document 4: Technical Design & System Architecture
+- **File**: `docs/submission/04-system-architecture-and-technical-design.md`
 - **Core Narrative**:
   - Hybrid Orchestration Architecture: Deterministic collection/extraction coupled with dynamic parallel fan-out supervisor.
   - End-to-end data flow with Mermaid diagrams: User Query $\rightarrow$ FastAPI $\rightarrow$ ADK Runner $\rightarrow$ Gemini 3.8 Flash / 3.1 Pro $\rightarrow$ Pydantic Schema Validation $\rightarrow$ Firestore AsyncClient $\rightarrow$ React UI.
@@ -84,8 +95,8 @@ docs/submission/
   - Concurrency & Performance: Parallel fan-out via `asyncio.gather` reducing multi-agent evaluation latency from 45s to ~8s.
   - Guardrail Plugins: `EvidenceLedgerPlugin`, `TokenTrackerPlugin`, `NewsGuardrailPlugin`.
 
-### Document 4: Multi-Agent Ecosystem & Orchestration
-- **File**: `docs/submission/04-multi-agent-ecosystem-and-orchestration.md`
+### Document 5: Multi-Agent Ecosystem & Orchestration
+- **File**: `docs/submission/05-multi-agent-ecosystem-and-orchestration.md`
 - **Core Narrative**:
   - The 6 Architectural Layers:
     1. *Ingestion*: `source_collector`, `claim_extractor`.
@@ -102,17 +113,6 @@ docs/submission/
     - Pillar 3: Grounded Evidence Tools (`fetch_news_tool`, `factcheck_db_tool`, `perspectives_tool`).
     - Pillar 4: Progressive Skills & Toolsets (Fact-verification heuristics, media framing heuristics).
     - Pillar 5: Callbacks, Guardrails & Simulation engine.
-
-### Document 5: End-to-End User & Evaluator Guide
-- **File**: `docs/submission/05-user-and-evaluator-guide.md`
-- **Core Narrative**:
-  - 3-Minute Quickstart for Judges: Local launch commands, one-click analysis URLs, and testing pre-populated analyses.
-  - UI Navigation & Layout Tour:
-    - Global controls (Theme picker, drawer navigation, search).
-    - Home Page (8-country regional breaking news feed, trending topic chips, real-time agent execution pipeline stepper).
-    - History Archive (Firestore filterable grid, search, tags, favorites).
-  - Deep Dive into the 8 Analysis Tabs (Illustrated with real screenshots from `http://localhost:5173/analysis/09c0dbae-2b01-4852-83de-ddc89fdb6614`):
-    - Tab 1: Executive Brief & Entity Primer.
     - Tab 2: Sources, Diversity & Ideological Spectrum.
     - Tab 3: Fact-Check Verdicts & Cross-Source Contradictions.
     - Tab 4: Chronological Event Timeline & Narrative Evolution.

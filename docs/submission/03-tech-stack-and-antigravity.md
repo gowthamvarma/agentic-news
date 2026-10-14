@@ -1,4 +1,4 @@
-# Document 02: Technology Stack & Antigravity CLI Engineering Journey
+# Document 03: Technology Stack & Antigravity CLI Engineering Journey
 ## Architectural Technology Choices, Google ADK 2.0 Python Rationale & Autonomous Development
 
 > **Submission Track**: Google Cloud AI Builder Cup 2026 — *Media, Content & Digital Experiences*  

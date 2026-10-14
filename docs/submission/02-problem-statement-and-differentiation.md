@@ -1,4 +1,4 @@
-# Document 01: Problem Statement & Competitive Differentiation
+# Document 02: Problem Statement & Competitive Differentiation
 ## Why the Agentic News Analyser Wins Beyond Traditional AI Summarizers
 
 > **Submission Track**: Google Cloud AI Builder Cup 2026 — *Media, Content & Digital Experiences*  
