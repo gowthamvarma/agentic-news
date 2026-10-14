@@ -24,29 +24,53 @@ When high-stakes global events unfold—such as central bank interest rate decis
 
 ---
 
-## 2. Why Conventional LLM "News Summarizers" Fail
+## 2. Why Conventional "News Summarizers" Fall Short & How We Build Beyond Them
 
-Current AI solutions in the media space are almost universally **text compressors** (single-prompt RAG or prompt-engineered LLM chatbots). While they reduce word count, they fundamentally fail at news intelligence in four critical ways:
+Current approaches to AI news processing—typically single-turn LLM summarizers, generic search bots, and headline aggregators—treat news primarily as a **text compression problem**. They shrink word counts and paste raw links, but they leave critical analytical blind spots untouched. 
 
-### Failure 1: The Flattening of Contested Realities (Hallucinated Consensus)
-* **The Problem**: When Outlet A reports *"casualty estimate is 45"* and Outlet B reports *"authorities confirm 120"*, a conventional LLM summarizer typically averages the numbers or arbitrarily repeats the last ingested figure: *"Around 80 casualties occurred."*
-* **The Failure**: It turns an active, contested factual dispute into a false artificial consensus.
-* **Our Solution**: The **Cross-Source Contradiction Analyst** extracts atomic propositions and places them side-by-side with explicit divergence tags (`Numerical Discrepancy`, `Timeline Divergence`, `Fact Negation`), preserving evidentiary nuance.
+To build an intelligence platform that genuinely elevates how humans understand complex events, we address the core failure modes of existing tools:
 
-### Failure 2: Single-Perspective Vulnerability
-* **The Problem**: Basic summarizers summarize whatever single article is pasted into the prompt box, or whichever top-3 SEO-optimized articles are returned by a search API.
-* **The Failure**: The reader receives a compressed version of one outlet's ideological framing and selective omissions.
-* **Our Solution**: The **Multi-Region Source Ingestion Engine** retrieves coverage across 8 global regions (US, UK, India, Japan, Germany, France, Australia, and Global wires) and evaluates editorial bias across a 7-point AllSides-aligned ideological spectrum (Far Left to Far Right).
+### Failure 1: The Flattening of Contested Realities (Averaged Consensus vs. Atomic Contradiction Auditing)
+* **The Limitation of Existing Tools**: When different outlets report conflicting facts (e.g., Outlet A reports *"45 casualties"* while Outlet B reports *"120 confirmed by local authorities"*), standard summarizers tend to smooth over the conflict by averaging numbers (*"around 80 casualties occurred"*) or repeating whichever article was ingested last. Genuine factual disagreements disappear into a false artificial consensus.
+* **How We Build Better**: The **Cross-Source Contradiction Analyst** decomposes reporting into atomic propositions and maps discrepancies side-by-side with explicit divergence tags (`Numerical Discrepancy`, `Timeline Divergence`, `Direct Fact Negation`), preserving evidentiary truth and nuance.
 
-### Failure 3: Zero Evidentiary Auditability (The Black-Box Blurb)
-* **The Problem**: A ChatGPT or Perplexity summary provides bullet points with footnotes that often point to general homepages or hallucinated URLs. Readers cannot audit *why* the AI made a specific assertion.
-* **The Failure**: In critical domains (policy, finance, legal), un-auditable AI outputs cannot be trusted.
-* **Our Solution**: An immutable **Evidence Ledger Plugin** tracks every claim back to primary source text, quoted speakers, timestamped publications, and IFCN-certified fact-checking databases.
+### Failure 2: The Jargon Barrier & Passive Skimming (Information Firehose vs. Cognitive Scaffolding)
+* **The Limitation of Existing Tools**: Technical domains (sovereign debt restructuring, semiconductor trade sanctions, environmental accords) are laden with dense regulatory, financial, and bureaucratic terminology. Generic summaries present walls of text that alienate non-specialists, leading to the "illusion of comprehension" followed by rapid knowledge decay (the Ebbinghaus curve).
+* **How We Build Better**: 
+  * **Upfront Cognitive Scaffolding**: Before presenting the full brief, an automated **Jargon Buster & Entity Glossary** unpacks foundational acronyms, institutional mechanisms, and key actors with authoritative references.
+  * **Active Recall & Literacy Tutor**: Rather than passive reading, our system generates interactive Socratic quizzes with pedagogical explanations to verify comprehension and dismantle common misconceptions.
 
-### Failure 4: The Passive Consumption Trap (The Ebbinghaus Forgetting Curve)
-* **The Problem**: Readers passively read a summary bullet list and forget over 70% of the material within 24 hours.
-* **The Failure**: Summarization creates the *illusion of comprehension* without cognitive retention.
-* **Our Solution**: The **Active Recall Pedagogical Tutor** transforms the intelligence report into interactive, adaptive comprehension quizzes (MCQs with pedagogical rationales) and dialectical perspective debates that stimulate critical thinking.
+### Failure 3: Unchecked Media Framing & Partisan Echo Chambers
+* **The Limitation of Existing Tools**: Most tools summarize the top search results without analyzing *how* the story is framed. Biased framing often operates subtly through loaded adjectives, emotional valence, and selective omissions rather than outright falsehoods.
+* **How We Build Better**:
+  * **Linguistic Framing Analysis**: Audits loaded rhetoric, sensationalized adjectives, and omitted context across regional and ideological spectrums.
+  * **Dialectical Perspective Debate Simulator**: Instead of presenting a bland, middle-ground compromise, the system steelmans both opposing credible perspectives using primary citations, culminating in an objective, balanced synthesis.
+
+### Failure 4: The "Episodic Event" Trap (Superficial Symptoms vs. Root Cause Diagnostics)
+* **The Limitation of Existing Tools**: Conventional summaries focus entirely on the *acute spark*—the immediate crisis or announcement—without explaining the *underlying tinder*. Readers learn what just happened, but understand nothing of the systemic, institutional, or historical conditions that produced it.
+* **How We Build Better**: Our **Root Cause Diagnostic Agent** applies structured **5-Whys methodology** to trace events back to regulatory gaps, structural vulnerabilities, and institutional precedents, delivering depth comparable to professional intelligence briefs.
+
+### Failure 5: Flat 1st-Order Summaries vs. 3-Tier Consequence Cascades
+* **The Limitation of Existing Tools**: Existing tools stop at the direct, headline-level consequences (*"Company X was fined → stock drops 3%"*). In reality, major global events create non-linear, multi-order ripple effects across industries, supply chains, and international relations.
+* **How We Build Better**: The **Impact Analyzer** maps consequences across a **3-Tier Cascade**:
+  * **1st-Order (Direct & Immediate)**: Immediate operational and market reactions.
+  * **2nd-Order (Structural & Supply Chain)**: Market substitutions, supply chain re-routing, and retaliatory measures.
+  * **3rd-Order (Systemic & Precedent-Setting)**: Long-term geopolitical realignments, regulatory shifts, and capital market reallocations.
+
+### Failure 6: Retrospective Paralysis (Backward-Looking Summaries vs. Forward-Looking Scenarios)
+* **The Limitation of Existing Tools**: Existing news tools are exclusively retrospective—they look backward at what already happened. When asked about implications, standard AI tools default to vague disclaimers (*"The future remains uncertain..."*).
+* **How We Build Better**: The **Scenario Prediction Agent** generates structured, bounded forward forecasts:
+  * **Best-Case, Most Likely, and Worst-Case Scenarios** with calibrated qualitative probabilities.
+  * **Actionable Leading Indicators ("Tripwires")**: Concrete milestones and observable triggers for decision-makers to monitor over 30- to 90-day horizons.
+  * **Lessons Learned & Systemic Prevention**: Actionable takeaways to build institutional resilience and prevent recurring crises.
+
+### Failure 7: Temporal Conflation & Narrative Pivot Blindness
+* **The Limitation of Existing Tools**: In rapidly developing stories, early unverified rumors, mid-week qualifiers, and late-breaking official confirmations often get conflated into a confusing chronological blur.
+* **How We Build Better**: The **Chronological Timeline Engine** disaggregates *Event Occurrence Time* from *Media Reporting Time*, explicitly charting **Narrative Shifts** as official explanations and reporting evolve over time.
+
+### Failure 8: Footnote Clutter vs. Audited Evidence Ledger
+* **The Limitation of Existing Tools**: Traditional AI search tools generate link citations that frequently point to secondary aggregators, paywalled homepages, or unverified blogs without auditing credibility or primary origin.
+* **How We Build Better**: All claims are anchored to an **Immutable Evidence Ledger** that pairs every factual assertion with extracted quotes, source timestamps, and cross-references against IFCN-certified fact-checking repositories.
 
 ---
 
@@ -92,7 +116,7 @@ Every interface surface in the Agentic News Analyser was designed to expose mult
 
 ## 5. Comprehensive 8-Dimension Competitive Matrix
 
-| Evaluation Dimension | Standard RAG / LLM Chatbot (ChatGPT, Claude) | Dedicated Search AI (Perplexity Pro) | Media Aggregators (Ground News, AllSides) | **Agentic News Analyser (Our Solution)** |
+| Evaluation Dimension | Standard LLM Chatbots | Search-Augmented AI Assistants | Traditional News Aggregators | **Agentic News Analyser (Our Solution)** |
 | :--- | :--- | :--- | :--- | :--- |
 | **1. Claim Decomposition** | ❌ None (summarizes paragraphs) | ⚠️ Sentence-level text citations | ❌ Manual editorial tagging | **✅ Automated atomic claim extraction into typed Pydantic DTOs** |
 | **2. Contradiction Detection** | ❌ Averages or ignores conflicts | ⚠️ Mentions alternate sources in text | ⚠️ Flags headline differences | **✅ Structured side-by-side divergence matrix with typed contradiction categories** |
