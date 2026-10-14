@@ -22,7 +22,8 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from fastapi import FastAPI, HTTPException, Query, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, ConfigDict
 
 from google.adk.runners import Runner
@@ -580,6 +581,26 @@ async def refresh_topic_suggestions():
     """
     logger.info("Triggered refresh of country-grouped topic suggestions...")
     return await _run_or_await_suggestions_generation()
+
+
+
+# ------------------------------------------------------------------------------
+# Production Static SPA Mounting (React Vite build)
+# ------------------------------------------------------------------------------
+DIST_DIR = PROJECT_ROOT / "dist"
+if (DIST_DIR / "index.html").exists():
+    if (DIST_DIR / "assets").exists():
+        app.mount("/assets", StaticFiles(directory=str(DIST_DIR / "assets")), name="assets")
+
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        # Let API 404s stay 404s
+        if full_path.startswith("api"):
+            raise HTTPException(status_code=404, detail="API endpoint not found")
+        file_path = DIST_DIR / full_path
+        if full_path and file_path.is_file():
+            return FileResponse(str(file_path))
+        return FileResponse(str(DIST_DIR / "index.html"))
 
 
 if __name__ == "__main__":

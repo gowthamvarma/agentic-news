@@ -59,6 +59,7 @@ firebase-export-*/
 *.env
 !.env.example
 !.env.*.example
+*sa-key*.json
 
 # Python virtual environments
 .venv/
