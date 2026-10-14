@@ -245,7 +245,7 @@ async function main() {
         window.dispatchEvent(new HashChangeEvent('hashchange'));
         window.scrollTo({ top: 0, behavior: 'instant' });
       `);
-      await new Promise(r => setTimeout(r, 600));
+      await new Promise(r => setTimeout(r, 700));
 
       // 1. Capture Top Resting View (Scroll 0)
       const topFrame = path.join(TEMP_DIR, `${tab.name}_top.png`);
@@ -254,26 +254,42 @@ async function main() {
       fs.copyFileSync(topFrame, path.join(ASSETS_DIR, `${tab.name}.png`));
       walkthroughFrames.push(topFrame);
 
-      // 2. Capture Smooth Multi-Frame Scroll
-      const s1 = Math.round(tab.maxScroll * 0.33);
-      const s2 = Math.round(tab.maxScroll * 0.67);
-      const sMax = tab.maxScroll;
-      const sBack = Math.round(tab.maxScroll * 0.50);
+      // 2. Determine actual full document scroll height dynamically
+      const rHeight = await client.evaluate(`document.documentElement.scrollHeight - window.innerHeight`);
+      const maxScroll = Math.max(0, rHeight.result?.value || tab.maxScroll || 0);
 
-      const scrollSteps = [
-        { pos: 0, delay: 260 },      // Top view rests for 2.6s
-        { pos: s1, delay: 16 },      // Smooth scroll step 1 (0.16s)
-        { pos: s2, delay: 16 },      // Smooth scroll step 2 (0.16s)
-        { pos: sMax, delay: 280 },    // Deep dive view rests for 2.8s
-        { pos: sBack, delay: 16 }     // Smooth scroll return (0.16s)
-      ];
+      // Determine gradual steps based on total page length
+      let stepsDown = 8;
+      if (maxScroll <= 500) stepsDown = 4;
+      else if (maxScroll <= 1200) stepsDown = 6;
+
+      const scrollSteps = [{ pos: 0, delay: 240 }]; // Top resting pause (2.4s)
+
+      // Gradual scroll steps all the way down to the bottom of the page
+      for (let i = 1; i <= stepsDown; i++) {
+        const pos = Math.round((maxScroll * i) / stepsDown);
+        const isBottom = i === stepsDown;
+        scrollSteps.push({
+          pos,
+          delay: isBottom ? 250 : 22 // 2.5s pause at bottom, 0.22s per gradual downward step
+        });
+      }
+
+      // Smooth gradual return back up to top
+      const stepsUp = Math.min(3, Math.floor(stepsDown / 2));
+      for (let k = stepsUp; k >= 1; k--) {
+        const pos = Math.round((maxScroll * k) / (stepsUp + 1));
+        scrollSteps.push({ pos, delay: 14 }); // 0.14s per return step
+      }
+
+      console.log(`    maxScroll: ${maxScroll}px across ${scrollSteps.length} gradual frames (bottom reached at frame ${stepsDown})`);
 
       const tabFrames = [topFrame];
 
       for (let i = 1; i < scrollSteps.length; i++) {
         const step = scrollSteps[i];
         await client.evaluate(`window.scrollTo({ top: ${step.pos}, behavior: 'instant' });`);
-        await new Promise(r => setTimeout(r, 120));
+        await new Promise(r => setTimeout(r, 100));
         const fPath = path.join(TEMP_DIR, `${tab.name}_step_${i}.png`);
         await client.screenshot(fPath);
         tabFrames.push(fPath);
@@ -283,9 +299,9 @@ async function main() {
       await client.evaluate(`window.scrollTo({ top: 0, behavior: 'instant' });`);
       await new Promise(r => setTimeout(r, 100));
 
-      // Build smooth scrolling GIF
+      // Build gradual scrolling GIF
       const delays = scrollSteps.map(s => s.delay);
-      await buildGifFromFrames(tabFrames, path.join(ASSETS_DIR, `${tab.name}.gif`), delays);
+      await buildGifFromFrames(tabFrames, path.join(ASSETS_DIR, `${tab.name}.gif`), delays, 880, 550);
     }
 
     // -------------------------------------------------------------
@@ -299,19 +315,23 @@ async function main() {
     fs.copyFileSync(historyTop, path.join(ASSETS_DIR, 'history-archive.png'));
     walkthroughFrames.push(historyTop);
 
+    const histHeight = await client.evaluate(`document.documentElement.scrollHeight - window.innerHeight`);
+    const histMaxScroll = Math.max(0, histHeight.result?.value || 300);
+
     const histSteps = [
-      { pos: 0, delay: 260 },
-      { pos: 180, delay: 16 },
-      { pos: 360, delay: 16 },
-      { pos: 540, delay: 280 },
-      { pos: 270, delay: 16 }
+      { pos: 0, delay: 240 },
+      { pos: Math.round(histMaxScroll * 0.25), delay: 22 },
+      { pos: Math.round(histMaxScroll * 0.50), delay: 22 },
+      { pos: Math.round(histMaxScroll * 0.75), delay: 22 },
+      { pos: histMaxScroll, delay: 250 }, // Bottom pause
+      { pos: Math.round(histMaxScroll * 0.50), delay: 16 }
     ];
 
     const histFrames = [historyTop];
     for (let i = 1; i < histSteps.length; i++) {
       const step = histSteps[i];
       await client.evaluate(`window.scrollTo({ top: ${step.pos}, behavior: 'instant' });`);
-      await new Promise(r => setTimeout(r, 120));
+      await new Promise(r => setTimeout(r, 100));
       const fPath = path.join(TEMP_DIR, `history_step_${i}.png`);
       await client.screenshot(fPath);
       histFrames.push(fPath);
@@ -320,7 +340,9 @@ async function main() {
     await buildGifFromFrames(
       histFrames,
       path.join(ASSETS_DIR, 'history-archive.gif'),
-      histSteps.map(s => s.delay)
+      histSteps.map(s => s.delay),
+      880,
+      550
     );
 
     // -------------------------------------------------------------
