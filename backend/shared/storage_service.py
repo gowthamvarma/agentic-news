@@ -35,16 +35,28 @@ def _get_gcs_bucket():
     try:
         from google.cloud import storage
 
-        _gcs_client = storage.Client(project=FIREBASE_PROJECT_ID)
-        bucket = _gcs_client.bucket(GCS_MEDIA_BUCKET)
+        # Sanitize credentials if needed
+        cred_env = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
+        if cred_env and not os.path.isfile(cred_env):
+            os.environ.pop("GOOGLE_APPLICATION_CREDENTIALS", None)
+
+        project_id = (
+            os.environ.get("FIREBASE_PROJECT_ID")
+            or os.environ.get("GOOGLE_CLOUD_PROJECT")
+            or FIREBASE_PROJECT_ID
+        ).strip()
+        bucket_name = (os.environ.get("GCS_MEDIA_BUCKET") or GCS_MEDIA_BUCKET).strip()
+
+        _gcs_client = storage.Client(project=project_id)
+        bucket = _gcs_client.bucket(bucket_name)
         # Check if bucket exists or can be accessed
         if bucket.exists():
             _gcs_bucket_obj = bucket
-            logger.info("Connected to Google Cloud Storage bucket: %s", GCS_MEDIA_BUCKET)
+            logger.info("Connected to Google Cloud Storage bucket: %s", bucket_name)
         else:
-            logger.info("GCS bucket '%s' does not exist yet. Using local media cache.", GCS_MEDIA_BUCKET)
+            logger.warning("GCS bucket '%s' does not exist yet. Using local media cache.", bucket_name)
     except Exception as e:
-        logger.info("GCS client not active (%s). Using local media cache: %s", e, LOCAL_MEDIA_DIR)
+        logger.warning("GCS client not active (%s). Using local media cache: %s", e, LOCAL_MEDIA_DIR)
         _gcs_bucket_obj = None
 
     return _gcs_bucket_obj
@@ -64,13 +76,14 @@ def upload_image_bytes(
         try:
             blob = bucket.blob(f"images/{filename}")
             blob.upload_from_string(image_bytes, content_type=content_type)
-            # Make public or return standard storage URL
+            # Uniform bucket-level access uses bucket IAM, but try make_public if fine-grained
             try:
                 blob.make_public()
             except Exception:
                 pass
-            public_url = f"https://storage.googleapis.com/{GCS_MEDIA_BUCKET}/images/{filename}"
-            logger.info("Uploaded image to GCS: %s", public_url)
+            bucket_name = bucket.name
+            public_url = f"https://storage.googleapis.com/{bucket_name}/images/{filename}"
+            logger.info("Successfully uploaded image to GCS: %s", public_url)
             return public_url
         except Exception as e:
             logger.warning("Failed uploading to GCS bucket (%s). Falling back to local disk.", e)

@@ -29,6 +29,11 @@ try:
 except ImportError:
     pass
 
+# Sanitize GOOGLE_APPLICATION_CREDENTIALS if it is an API key or not an existing file on disk
+cred_env = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
+if cred_env and not os.path.isfile(cred_env):
+    os.environ.pop("GOOGLE_APPLICATION_CREDENTIALS", None)
+
 # Determine API Key availability
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
 IS_SIMULATION_MODE = not bool(GEMINI_API_KEY and GEMINI_API_KEY.strip())
