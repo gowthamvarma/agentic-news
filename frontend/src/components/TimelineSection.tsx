@@ -270,9 +270,9 @@ export const TimelineSection: React.FC<TimelineSectionProps> = ({ timeline }) =>
                   </div>
 
                   {/* Timeline End: Full-width card aligned to the right of the timeline */}
-                  <div className="timeline-end mb-6 w-full">
+                  <div className="timeline-end mb-6 w-full min-w-0">
                     <div
-                      className={`card transition-all p-4 md:p-6 rounded-2xl shadow-sm text-start w-full ${ev.isRecent
+                      className={`card transition-all p-4 md:p-6 rounded-2xl shadow-sm text-start w-full overflow-hidden min-w-0 break-words ${ev.isRecent
                           ? 'bg-gradient-to-br from-warning/10 via-base-100 to-base-100 border-2 border-warning/60 shadow-md ring-1 ring-warning/30'
                           : 'bg-base-100 border border-base-300 hover:border-primary/50'
                         }`}
@@ -281,7 +281,7 @@ export const TimelineSection: React.FC<TimelineSectionProps> = ({ timeline }) =>
                       <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <div
-                            className={`badge badge-sm gap-1 font-mono font-bold ${ev.isRecent ? 'badge-warning text-warning-content' : 'badge-info badge-outline'
+                            className={`badge badge-sm gap-1 font-mono font-bold shrink-0 ${ev.isRecent ? 'badge-warning text-warning-content' : 'badge-info badge-outline'
                               }`}
                           >
                             <Calendar size={12} />
@@ -289,7 +289,7 @@ export const TimelineSection: React.FC<TimelineSectionProps> = ({ timeline }) =>
                           </div>
 
                           {ev.isRecent && (
-                            <span className="badge badge-warning badge-sm font-bold gap-1 text-warning-content animate-pulse">
+                            <span className="badge badge-warning badge-sm font-bold gap-1 text-warning-content animate-pulse shrink-0">
                               <Flame size={12} className="fill-current" />
                               <span>Recent Incident / Trending</span>
                             </span>
@@ -299,7 +299,7 @@ export const TimelineSection: React.FC<TimelineSectionProps> = ({ timeline }) =>
                         <button
                           type="button"
                           onClick={() => handleCopyEvent(ev, idx)}
-                          className="btn btn-ghost btn-xs text-base-content/60 hover:text-base-content p-1"
+                          className="btn btn-ghost btn-xs text-base-content/60 hover:text-base-content p-1 shrink-0"
                           title="Copy milestone details"
                         >
                           {isCopied ? (
@@ -311,12 +311,12 @@ export const TimelineSection: React.FC<TimelineSectionProps> = ({ timeline }) =>
                       </div>
 
                       {/* Headline */}
-                      <h3 className="font-bold text-base md:text-lg text-base-content mt-1 leading-snug">
+                      <h3 className="font-bold text-base md:text-lg text-base-content mt-1 leading-snug break-words">
                         {ev.headline}
                       </h3>
 
                       {/* Description */}
-                      <p className="text-sm text-base-content/80 mt-2 leading-relaxed">
+                      <p className="text-sm text-base-content/80 mt-2 leading-relaxed break-words">
                         {ev.description}
                       </p>
 

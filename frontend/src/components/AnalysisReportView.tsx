@@ -916,15 +916,15 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
         {/* Live Fleet Pipeline Streaming Notification with Aura Glow */}
         {isStreaming && (
           <div className="relative p-0.5 rounded-2xl bg-gradient-to-r from-primary via-secondary to-accent mb-6 shadow-md">
-            <div className="alert alert-info bg-base-100 text-base-content rounded-[14px] flex items-center justify-between py-3 px-5 border-none">
-              <div className="flex items-center gap-3">
-                <span className="loading loading-spinner loading-sm text-primary"></span>
-                <div>
+            <div className="alert alert-info bg-base-100 text-base-content rounded-[14px] flex flex-wrap items-center justify-between gap-3 py-3 px-4 md:px-5 border-none">
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="loading loading-spinner loading-sm text-primary shrink-0"></span>
+                <div className="min-w-0">
                   <div className="font-bold text-xs text-primary uppercase tracking-wider">Live Fleet Pipeline Streaming</div>
-                  <div className="text-xs text-base-content/80">{streamStatus || 'Progressive sections arriving in real time...'}</div>
+                  <div className="text-xs text-base-content/80 break-words">{streamStatus || 'Progressive sections arriving in real time...'}</div>
                 </div>
               </div>
-              <span className="badge badge-sm badge-ghost font-mono uppercase text-[10px] tracking-wider">
+              <span className="badge badge-sm badge-ghost font-mono uppercase text-[10px] tracking-wider shrink-0">
                 SSE Active
               </span>
             </div>
@@ -935,8 +935,8 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
         {activeTab === 'brief' && (
           <div className="flex flex-col gap-6">
             {/* Executive Summary Card */}
-            <div className="card bg-base-200 border border-base-300 shadow-xl">
-              <div className="card-body p-6 md:p-8">
+            <div className="card bg-base-200 border border-base-300 shadow-xl overflow-hidden min-w-0 break-words">
+              <div className="card-body p-4 sm:p-6 md:p-8">
                 <div className="flex flex-col gap-3 pb-3 border-b border-base-300">
                   <div className="flex flex-wrap items-center gap-2">
                     {/* Copy Bookmark Link Button */}
@@ -961,18 +961,18 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                         <span className="text-xs">{report.is_favorite ? 'Favorited' : 'Favorite'}</span>
                       </button>
                     )}
-                    <div className="badge badge-outline badge-primary font-medium py-3 px-3 whitespace-nowrap text-xs">
+                    <div className="badge badge-outline badge-primary font-medium py-1.5 px-3 whitespace-normal h-auto text-xs text-center max-w-full">
                       Audited across {report.articles_analyzed?.length || report.sources_analyzed?.length || 6} major outlets
                     </div>
                   </div>
 
-                  <div className="card-title text-xl md:text-2xl font-black text-base-content flex items-center gap-3 mb-0">
+                  <div className="card-title text-xl md:text-2xl font-black text-base-content flex items-center gap-3 mb-0 min-w-0">
                     <FileText size={24} className="text-primary flex-shrink-0" />
-                    <span>Executive Intelligence Brief: {report.topic}</span>
+                    <span className="break-words min-w-0">Executive Intelligence Brief: {report.topic}</span>
                   </div>
                 </div>
 
-                <p className="text-base md:text-lg leading-relaxed text-base-content/90 mt-4 font-normal">
+                <p className="text-base md:text-lg leading-relaxed text-base-content/90 mt-4 font-normal break-words">
                   {report.executive_summary}
                 </p>
 
@@ -1044,12 +1044,12 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                         {/* 1. KEY ORGANIZATIONS & INSTITUTIONS (SHOWN FIRST & PROMINENTLY) */}
                         {orgItems.length > 0 && (
                           <div className="mt-6">
-                            <div className="text-xs font-bold uppercase tracking-wider text-primary mb-3 flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <Building2 size={16} />
-                                <span>Key Organizations & Institutions ({orgItems.length})</span>
+                            <div className="text-xs font-bold uppercase tracking-wider text-primary mb-3 flex flex-wrap items-center justify-between gap-2">
+                              <div className="flex items-center gap-2 min-w-0 max-w-full">
+                                <Building2 size={16} className="shrink-0" />
+                                <span className="break-words">Key Organizations & Institutions ({orgItems.length})</span>
                               </div>
-                              <span className="badge badge-primary badge-outline badge-xs font-semibold">
+                              <span className="badge badge-primary badge-outline badge-xs font-semibold whitespace-normal h-auto py-1 text-center shrink-0">
                                 Corporate & Regulatory Bodies
                               </span>
                             </div>
@@ -1057,7 +1057,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                               {orgItems.map((item, idx) => (
                                 <div
                                   key={idx}
-                                  className="card bg-base-100 border border-base-300 shadow-sm p-4 hover:border-primary/40 transition-all flex flex-col justify-between"
+                                  className="card bg-base-100 border border-base-300 shadow-sm p-4 hover:border-primary/40 transition-all flex flex-col justify-between overflow-hidden min-w-0 break-words"
                                 >
                                   <div>
                                     <div className="flex items-start gap-3 mb-2">
@@ -1067,22 +1067,22 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                                         imageUrl={item.image_url}
                                         entityType="ORGANIZATION"
                                       />
-                                      <div className="min-w-0">
-                                        <div className="font-bold text-base text-base-content leading-snug">
+                                      <div className="min-w-0 flex-1">
+                                        <div className="font-bold text-base text-base-content leading-snug break-words">
                                           {item.entity_name}
                                         </div>
                                         {item.role_or_title && (
-                                          <div className="text-xs font-medium text-primary leading-tight mt-0.5">
+                                          <div className="text-xs font-medium text-primary leading-tight mt-0.5 break-words">
                                             {item.role_or_title}
                                           </div>
                                         )}
                                       </div>
                                     </div>
-                                    <p className="text-xs text-base-content/80 mt-2 leading-relaxed">
+                                    <p className="text-xs text-base-content/80 mt-2 leading-relaxed break-words">
                                       {item.explainer_2_lines}
                                     </p>
                                     {item.historical_context && (
-                                      <div className="text-[11px] text-base-content/60 mt-2 pt-2 border-t border-base-200">
+                                      <div className="text-[11px] text-base-content/60 mt-2 pt-2 border-t border-base-200 break-words">
                                         <strong>Context:</strong> {item.historical_context}
                                       </div>
                                     )}
@@ -1109,12 +1109,12 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                         {/* 2. KEY FIGURES & LEADERS (PERSONS) */}
                         {personItems.length > 0 && (
                           <div className="mt-6">
-                            <div className="text-xs font-bold uppercase tracking-wider text-secondary mb-3 flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <User size={16} />
-                                <span>Key Figures & Decision Makers (Persons) ({personItems.length})</span>
+                            <div className="text-xs font-bold uppercase tracking-wider text-secondary mb-3 flex flex-wrap items-center justify-between gap-2">
+                              <div className="flex items-center gap-2 min-w-0 max-w-full">
+                                <User size={16} className="shrink-0" />
+                                <span className="break-words">Key Figures & Decision Makers (Persons) ({personItems.length})</span>
                               </div>
-                              <span className="badge badge-secondary badge-outline badge-xs font-semibold">
+                              <span className="badge badge-secondary badge-outline badge-xs font-semibold whitespace-normal h-auto py-1 text-center shrink-0">
                                 Leaders & Officials
                               </span>
                             </div>
@@ -1122,7 +1122,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                               {personItems.map((item, idx) => (
                                 <div
                                   key={idx}
-                                  className="card bg-base-100 border border-base-300 shadow-sm p-4 hover:border-secondary/40 transition-all flex flex-col justify-between"
+                                  className="card bg-base-100 border border-base-300 shadow-sm p-4 hover:border-secondary/40 transition-all flex flex-col justify-between overflow-hidden min-w-0 break-words"
                                 >
                                   <div>
                                     <div className="flex items-start gap-3 mb-2">
@@ -1132,22 +1132,22 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                                         imageUrl={item.image_url}
                                         entityType="PERSON"
                                       />
-                                      <div className="min-w-0">
-                                        <div className="font-bold text-base text-base-content leading-snug">
+                                      <div className="min-w-0 flex-1">
+                                        <div className="font-bold text-base text-base-content leading-snug break-words">
                                           {item.entity_name}
                                         </div>
                                         {item.role_or_title && (
-                                          <div className="text-xs font-medium text-secondary leading-tight mt-0.5">
+                                          <div className="text-xs font-medium text-secondary leading-tight mt-0.5 break-words">
                                             {item.role_or_title}
                                           </div>
                                         )}
                                       </div>
                                     </div>
-                                    <p className="text-xs text-base-content/80 mt-2 leading-relaxed">
+                                    <p className="text-xs text-base-content/80 mt-2 leading-relaxed break-words">
                                       {item.explainer_2_lines}
                                     </p>
                                     {item.historical_context && (
-                                      <div className="text-[11px] text-base-content/60 mt-2 pt-2 border-t border-base-200">
+                                      <div className="text-[11px] text-base-content/60 mt-2 pt-2 border-t border-base-200 break-words">
                                         <strong>Context:</strong> {item.historical_context}
                                       </div>
                                     )}
@@ -1185,20 +1185,20 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                                   className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl shadow-sm"
                                 >
                                   <input type="checkbox" defaultChecked={idx === 0} />
-                                  <div className="collapse-title text-base font-bold text-base-content flex items-center justify-between pr-10">
-                                    <div className="flex items-center gap-3">
+                                  <div className="collapse-title text-base font-bold text-base-content flex flex-wrap items-center justify-between gap-2 pr-10">
+                                    <div className="flex flex-wrap items-center gap-2 min-w-0">
                                       <span className={`badge ${
                                         item.entity_type === 'CONCEPT'
                                           ? 'badge-accent'
                                           : item.entity_type === 'LOCATION'
                                           ? 'badge-info'
                                           : 'badge-neutral'
-                                      } badge-sm font-bold uppercase`}>
+                                      } badge-sm font-bold uppercase shrink-0`}>
                                         {item.entity_type}
                                       </span>
-                                      <span>{item.entity_name}</span>
+                                      <span className="break-words">{item.entity_name}</span>
                                       {item.role_or_title && (
-                                        <span className="text-xs font-normal text-base-content/60 hidden sm:inline">
+                                        <span className="text-xs font-normal text-base-content/60 break-words">
                                           — {item.role_or_title}
                                         </span>
                                       )}
@@ -1288,24 +1288,24 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
         {/* TAB: VERIFIED SOURCES (Cross-Regional APAC & Global Outlets) */}
         {activeTab === 'sources' && (
           <div className="flex flex-col gap-6">
-            <div className="card bg-base-200 border border-base-300 shadow-xl">
-              <div className="card-body p-6 md:p-8">
+            <div className="card bg-base-200 border border-base-300 shadow-xl overflow-hidden min-w-0 break-words">
+              <div className="card-body p-4 sm:p-6 md:p-8">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-base-300">
-                  <div className="card-title text-xl font-black text-base-content flex items-center gap-3">
+                  <div className="card-title text-xl font-black text-base-content flex items-center gap-3 min-w-0">
                     <Globe size={24} className="text-primary flex-shrink-0" />
-                    <span>Verified Source Articles & Media Bias Directory</span>
+                    <span className="break-words">Verified Source Articles & Media Bias Directory</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="badge badge-primary font-bold text-xs">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="badge badge-primary font-bold text-xs shrink-0">
                       {report.articles_analyzed?.length || 0} Articles Audited
                     </span>
-                    <span className="badge badge-outline text-xs font-semibold">
+                    <span className="badge badge-outline text-xs font-semibold shrink-0">
                       APAC & Major Economies
                     </span>
                   </div>
                 </div>
 
-                <p className="text-sm text-base-content/80 mt-3 leading-relaxed">
+                <p className="text-sm text-base-content/80 mt-3 leading-relaxed break-words">
                   Every source article ingested by the multi-agent fleet is verified, categorized by editorial lean, and linked directly with its canonical URL so you can inspect and audit the reporting firsthand.
                 </p>
 
@@ -1315,20 +1315,20 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     report.articles_analyzed.map((art, idx) => (
                       <div
                         key={idx}
-                        className="card bg-base-100 border border-base-300 shadow-sm p-5 hover:border-primary/50 transition-all flex flex-col justify-between"
+                        className="card bg-base-100 border border-base-300 shadow-sm p-4 sm:p-5 hover:border-primary/50 transition-all flex flex-col justify-between overflow-hidden min-w-0 break-words"
                       >
                         <div>
-                          <div className="flex items-center justify-between gap-2 mb-2">
-                            <div className="flex items-center gap-2">
-                              {art.flag && <span className="text-lg">{art.flag}</span>}
-                              <span className="font-bold text-sm text-base-content">{art.outlet}</span>
+                          <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                            <div className="flex flex-wrap items-center gap-2 min-w-0">
+                              {art.flag && <span className="text-lg shrink-0">{art.flag}</span>}
+                              <span className="font-bold text-sm text-base-content break-words">{art.outlet}</span>
                               {art.country && (
-                                <span className="text-xs text-base-content/60 hidden sm:inline">
+                                <span className="text-xs text-base-content/60">
                                   ({art.country})
                                 </span>
                               )}
                             </div>
-                            <div className="flex items-center gap-1.5">
+                            <div className="flex flex-wrap items-center gap-1.5 shrink-0">
                               {art.editorial_lean && (
                                 <span className={`badge badge-xs font-bold ${
                                   art.editorial_lean.includes('Left')
@@ -1348,16 +1348,16 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                             </div>
                           </div>
 
-                          <h4 className="font-bold text-base text-base-content leading-snug mb-2">
+                          <h4 className="font-bold text-base text-base-content leading-snug mb-2 break-words">
                             {art.title}
                           </h4>
 
-                          <p className="text-xs text-base-content/75 line-clamp-3 leading-relaxed mb-4">
+                          <p className="text-xs text-base-content/75 line-clamp-3 leading-relaxed mb-4 break-words">
                             {art.content}
                           </p>
                         </div>
 
-                        <div className="pt-3 border-t border-base-200 flex items-center justify-between text-xs">
+                        <div className="pt-3 border-t border-base-200 flex flex-wrap items-center justify-between gap-2 text-xs">
                           <span className="text-base-content/50">
                             {art.published_date || 'Recent Report'}
                           </span>
@@ -1418,10 +1418,10 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     const confPercent = Math.round(v.confidence * 100);
 
                     return (
-                      <div key={v.claim_id} className="card bg-base-100 border border-base-300 shadow-sm p-6 hover:border-primary/50 transition-all">
+                      <div key={v.claim_id} className="card bg-base-100 border border-base-300 shadow-sm p-4 sm:p-6 hover:border-primary/50 transition-all overflow-hidden min-w-0 break-words">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
-                          <div className="flex items-center gap-2">
-                            <span className="badge badge-neutral font-bold text-xs">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="badge badge-neutral font-bold text-xs shrink-0">
                               Claim #{v.claim_id}
                             </span>
                             <span className={`badge ${
@@ -1430,13 +1430,13 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                                 : v.status === 'DISPUTED'
                                 ? 'badge-warning text-warning-content'
                                 : 'badge-error text-error-content'
-                            } font-bold text-xs py-2 px-3`}>
+                            } font-bold text-xs py-2 px-3 shrink-0`}>
                               {v.status}
                             </span>
                           </div>
 
                           {/* Radial Progress for Confidence Score */}
-                          <div className="flex items-center gap-3 self-end sm:self-auto">
+                          <div className="flex items-center gap-3 self-end sm:self-auto shrink-0">
                             <div className="text-right">
                               <div className="text-[10px] uppercase font-bold text-base-content/60">Audit Confidence</div>
                               <div className="text-xs font-bold">{confPercent}% Confirmed</div>
@@ -1444,7 +1444,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                             <div
                               className={`radial-progress ${
                                 confPercent >= 80 ? 'text-success' : confPercent >= 50 ? 'text-warning' : 'text-error'
-                              } font-bold text-xs`}
+                              } font-bold text-xs shrink-0`}
                               style={{ '--value': confPercent, '--size': '2.75rem', '--thickness': '3px' } as React.CSSProperties}
                               role="progressbar"
                             >
@@ -1453,17 +1453,17 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                           </div>
                         </div>
 
-                        <div className="text-base md:text-lg font-bold text-base-content leading-snug">
+                        <div className="text-base md:text-lg font-bold text-base-content leading-snug break-words">
                           "{v.claim_text}"
                         </div>
 
-                        <p className="text-sm text-base-content/80 mt-2 leading-relaxed">
+                        <p className="text-sm text-base-content/80 mt-2 leading-relaxed break-words">
                           {v.reasoning}
                         </p>
 
-                        <div className="text-xs text-base-content/60 mt-3 pt-3 border-t border-base-200 flex flex-wrap gap-2">
+                        <div className="text-xs text-base-content/60 mt-3 pt-3 border-t border-base-200 flex flex-wrap gap-2 break-words">
                           <span className="font-bold text-base-content/80">Corroborating:</span>
-                          <span>{v.corroborating_sources?.join(', ') || 'Primary Records & Court Filings'}</span>
+                          <span className="break-words">{v.corroborating_sources?.join(', ') || 'Primary Records & Court Filings'}</span>
                         </div>
                       </div>
                     );
@@ -1484,27 +1484,27 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
             />
 
             {/* Media Framing & Political Lean Spectrum */}
-            <div className="card bg-base-200 border border-base-300 shadow-xl">
-              <div className="card-body p-6 md:p-8">
-                <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-3 border-b border-base-300">
+            <div className="card bg-base-200 border border-base-300 shadow-xl overflow-hidden min-w-0 break-words">
+              <div className="card-body p-4 sm:p-6 md:p-8">
+                <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-3 border-b border-base-300 min-w-0">
                   <Scale size={24} className="text-accent flex-shrink-0" />
-                  <span>Media Framing & Political Lean Spectrum</span>
+                  <span className="break-words">Media Framing & Political Lean Spectrum</span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                   {report.bias_evaluations?.map((b, idx) => (
-                    <div key={idx} className="card bg-base-100 border border-base-300 shadow-sm p-5 hover:border-accent transition-all">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-bold text-base text-base-content">{b.outlet}</span>
-                        <span className="badge badge-accent badge-outline text-xs font-bold">
+                    <div key={idx} className="card bg-base-100 border border-base-300 shadow-sm p-4 sm:p-5 hover:border-accent transition-all overflow-hidden min-w-0 break-words">
+                      <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                        <span className="font-bold text-base text-base-content break-words">{b.outlet}</span>
+                        <span className="badge badge-accent badge-outline text-xs font-bold shrink-0">
                           {b.assessed_lean}
                         </span>
                       </div>
-                      <p className="text-sm text-base-content/80 mt-1 leading-relaxed">
+                      <p className="text-sm text-base-content/80 mt-1 leading-relaxed break-words">
                         {b.framing_narrative}
                       </p>
                       {b.loaded_terms_identified?.length > 0 && (
-                        <div className="text-xs text-base-content/60 mt-3 pt-2 border-t border-base-200">
+                        <div className="text-xs text-base-content/60 mt-3 pt-2 border-t border-base-200 break-words">
                           <span className="font-bold text-warning">Loaded Terms:</span>{' '}
                           {b.loaded_terms_identified.join(', ')}
                         </div>
@@ -1776,9 +1776,9 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-4">
                           {scenarios?.map((sc: any, idx: number) => (
-                            <div key={idx} className="card bg-base-100 border border-base-300 shadow-md p-6 flex flex-col justify-between hover:border-secondary transition-all">
+                            <div key={idx} className="card bg-base-100 border border-base-300 shadow-md p-4 sm:p-6 flex flex-col justify-between hover:border-secondary transition-all overflow-hidden min-w-0 break-words">
                               <div>
-                                <div className="flex items-center justify-between gap-2 mb-2">
+                                <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                                   <div className="flex items-center gap-1.5 flex-wrap">
                                     <span className={`badge ${
                                       sc.scenario_type === 'BEST_CASE'
@@ -1795,12 +1795,14 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                                       </span>
                                     )}
                                   </div>
-                                  {renderProbabilityRating(sc.probability_rating)}
+                                  <div className="shrink-0">
+                                    {renderProbabilityRating(sc.probability_rating)}
+                                  </div>
                                 </div>
-                                <div className="font-bold text-base md:text-lg text-base-content mt-1 mb-2">
+                                <div className="font-bold text-base md:text-lg text-base-content mt-1 mb-2 break-words">
                                   {sc.scenario_title}
                                 </div>
-                                <p className="text-sm text-base-content/80 leading-relaxed mb-4">
+                                <p className="text-sm text-base-content/80 leading-relaxed mb-4 break-words">
                                   {sc.potential_impact}
                                 </p>
                               </div>
@@ -2096,8 +2098,8 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                   {/* Quiz Grading Result Action with Radial Progress */}
                   <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 pt-4 border-t border-base-300">
                     {quizResult ? (
-                      <div className="stat bg-primary text-primary-content rounded-2xl p-5 w-full shadow-lg flex items-center justify-between">
-                        <div>
+                      <div className="stat bg-primary text-primary-content rounded-2xl p-4 sm:p-5 w-full shadow-lg flex flex-wrap items-center justify-between gap-3 overflow-hidden min-w-0">
+                        <div className="min-w-0">
                           <div className="stat-title text-primary-content/80 font-bold uppercase text-xs">Comprehension Score</div>
                           <div className="stat-value text-2xl md:text-3xl font-black mt-1">
                             {quizResult.score_percentage}%
@@ -2107,7 +2109,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                           </div>
                         </div>
                         <div
-                          className="radial-progress text-primary-content font-black text-sm"
+                          className="radial-progress text-primary-content font-black text-sm shrink-0"
                           style={{ '--value': quizResult.score_percentage, '--size': '4rem', '--thickness': '4px' } as React.CSSProperties}
                           role="progressbar"
                         >
@@ -2343,10 +2345,10 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
 
         {/* TAB 7: LIVELY RESEARCH COPILOT (DaisyUI Chat Components) */}
         {activeTab === 'copilot' && (
-          <div className="card bg-base-200 border border-base-300 shadow-xl h-[700px] flex flex-col">
+          <div className="card bg-base-200 border border-base-300 shadow-xl h-[700px] flex flex-col overflow-hidden min-w-0">
             {/* Copilot Header */}
-            <div className="p-4 md:p-6 border-b border-base-300 flex items-center justify-between bg-base-200/50">
-              <div className="flex items-center gap-3">
+            <div className="p-4 md:p-6 border-b border-base-300 flex flex-wrap items-center justify-between gap-3 bg-base-200/50">
+              <div className="flex items-center gap-3 min-w-0">
                 <RobotAvatar
                   size="md"
                   isThinking={chatLoading}
@@ -2354,25 +2356,26 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                   variant="primary"
                   glow={true}
                 />
-                <div>
-                  <div className="font-bold text-base md:text-lg text-base-content flex items-center gap-2">
+                <div className="min-w-0">
+                  <div className="font-bold text-base md:text-lg text-base-content flex flex-wrap items-center gap-2">
                     <span>Research Copilot</span>
-                    <span className="badge badge-primary badge-outline text-xs">Autonomous Agent</span>
+                    <span className="badge badge-primary badge-outline text-xs shrink-0">Autonomous Agent</span>
                   </div>
-                  <div className="text-xs text-base-content/60">
+                  <div className="text-xs text-base-content/60 truncate max-w-[180px] sm:max-w-xs md:max-w-md">
                     Context: {report.topic}
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                <div className="badge badge-success badge-sm gap-1.5 py-2.5 font-medium shadow-sm">
-                  <span className="w-2 h-2 rounded-full bg-success-content animate-pulse"></span>
-                  <span>Online • Gemini 3.8 Flash (Fast & Precise)</span>
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <div className="badge badge-success badge-sm gap-1.5 py-1.5 sm:py-2.5 font-medium shadow-sm whitespace-normal h-auto">
+                  <span className="w-2 h-2 rounded-full bg-success-content animate-pulse shrink-0"></span>
+                  <span className="hidden sm:inline">Online • Gemini 3.8 Flash (Fast & Precise)</span>
+                  <span className="sm:hidden">Gemini 3.8 Flash</span>
                 </div>
                 <button
                   onClick={handleClearChat}
-                  className="btn btn-sm btn-ghost btn-outline border-base-300 gap-1.5"
+                  className="btn btn-sm btn-ghost btn-outline border-base-300 gap-1.5 shrink-0"
                   title="Clear Chat History"
                 >
                   <Trash2 size={14} />
@@ -2412,15 +2415,17 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     )}
                     <time className="text-[11px] opacity-60 ml-1">{msg.time}</time>
                   </div>
-                  <div className={`chat-bubble text-sm md:text-base leading-relaxed ${
+                  <div className={`chat-bubble max-w-[90%] sm:max-w-[80%] break-words text-sm md:text-base leading-relaxed ${
                     msg.sender === 'user'
                       ? 'chat-bubble-primary text-primary-content shadow-primary/20'
                       : 'chat-bubble-neutral text-neutral-content border border-base-content/10 shadow-md'
                   } shadow-md`}>
                     {msg.sender === 'user' ? (
-                      <span className="whitespace-pre-wrap">{msg.text}</span>
+                      <span className="whitespace-pre-wrap break-words">{msg.text}</span>
                     ) : (
-                      <FormattedMarkdown content={msg.text} />
+                      <div className="break-words">
+                        <FormattedMarkdown content={msg.text} />
+                      </div>
                     )}
                   </div>
                 </div>

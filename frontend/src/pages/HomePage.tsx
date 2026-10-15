@@ -446,15 +446,15 @@ export const HomePage: React.FC = () => {
                     setTopicInput(item.topic);
                     handleSearch(item.topic);
                   }}
-                  className="group relative bg-base-100/90 hover:bg-base-100 border border-base-300/80 hover:border-primary/60 shadow-sm hover:shadow-xl transition-all duration-200 cursor-pointer p-4 sm:p-5 rounded-2xl flex flex-col justify-between"
+                  className="group relative bg-base-100/90 hover:bg-base-100 border border-base-300/80 hover:border-primary/60 shadow-sm hover:shadow-xl transition-all duration-200 cursor-pointer p-4 sm:p-5 rounded-2xl flex flex-col justify-between overflow-hidden min-w-0 break-words"
                 >
                   <div>
                     <div className="flex flex-wrap items-center justify-between gap-2 mb-2.5">
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className={`badge badge-xs sm:badge-sm font-semibold shadow-xs ${item.badge_color || 'badge-primary'}`}>
+                        <span className={`badge badge-xs sm:badge-sm font-semibold shadow-xs shrink-0 ${item.badge_color || 'badge-primary'}`}>
                           {item.badge}
                         </span>
-                        <span className="badge badge-outline badge-xs sm:badge-sm text-base-content/75 font-medium">
+                        <span className="badge badge-outline badge-xs sm:badge-sm text-base-content/75 font-medium shrink-0">
                           {item.category}
                         </span>
                       </div>
@@ -465,11 +465,11 @@ export const HomePage: React.FC = () => {
                       )}
                     </div>
 
-                    <h4 className="font-bold text-sm sm:text-base text-base-content group-hover:text-primary transition-colors leading-snug mb-2.5">
+                    <h4 className="font-bold text-sm sm:text-base text-base-content group-hover:text-primary transition-colors leading-snug mb-2.5 break-words">
                       {item.topic}
                     </h4>
 
-                    <p className="text-xs text-base-content/75 leading-relaxed">
+                    <p className="text-xs text-base-content/75 leading-relaxed break-words">
                       {item.summary}
                     </p>
                   </div>
@@ -632,23 +632,23 @@ export const HomePage: React.FC = () => {
                   return (
                     <div
                       key={targetId || item.topic}
-                      className="card bg-base-200/90 border border-base-300 hover:border-primary/50 shadow-md hover:shadow-xl transition-all flex flex-col justify-between group"
+                      className="card bg-base-200/90 border border-base-300 hover:border-primary/50 shadow-md hover:shadow-xl transition-all flex flex-col justify-between group overflow-hidden min-w-0 break-words"
                     >
-                      <div className="card-body p-5">
-                        <div className="flex items-center justify-between gap-2 mb-2">
-                          <span className="badge badge-primary badge-outline badge-xs font-bold font-mono px-2.5 py-1 shadow-xs">
+                      <div className="card-body p-4 sm:p-5">
+                        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                          <span className="badge badge-primary badge-outline badge-xs font-bold font-mono px-2.5 py-1 shadow-xs shrink-0">
                             {dateStr}
                           </span>
                           {item.is_favorite && (
-                            <span className="text-warning text-sm drop-shadow-sm" title="Favorited">★</span>
+                            <span className="text-warning text-sm drop-shadow-sm shrink-0" title="Favorited">★</span>
                           )}
                         </div>
 
-                        <h3 className="font-bold text-base text-base-content group-hover:text-primary transition-colors line-clamp-2">
+                        <h3 className="font-bold text-base text-base-content group-hover:text-primary transition-colors line-clamp-2 break-words">
                           {item.topic}
                         </h3>
 
-                        <p className="text-xs text-base-content/75 line-clamp-3 mt-2 leading-relaxed">
+                        <p className="text-xs text-base-content/75 line-clamp-3 mt-2 leading-relaxed break-words">
                           {item.executive_summary || 'Multi-outlet intelligence synthesis with forensic fact checking.'}
                         </p>
                       </div>

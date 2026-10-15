@@ -371,7 +371,7 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
                       <span className="badge badge-neutral font-mono font-bold text-xs">
                         #{c.contradiction_id || `DIV-${idx + 1}`}
                       </span>
-                      <h3 className="text-base font-bold text-base-content tracking-tight">
+                      <h3 className="text-base font-bold text-base-content tracking-tight break-words">
                         {c.topic_aspect}
                       </h3>
                     </div>
@@ -415,17 +415,17 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
                       </div>
 
                       {/* OUTLET A CONTAINER */}
-                      <div className="flex flex-col justify-between rounded-xl p-4 md:p-5 bg-gradient-to-br from-primary/5 via-base-100 to-base-100 border-2 border-primary/30 shadow-xs relative">
+                      <div className="flex flex-col justify-between rounded-xl p-4 md:p-5 bg-gradient-to-br from-primary/5 via-base-100 to-base-100 border-2 border-primary/30 shadow-xs relative overflow-hidden min-w-0 break-words">
                         <div>
                           {/* Outlet Tag */}
-                          <div className="flex items-center justify-between gap-2 mb-3">
-                            <div className="flex items-center gap-2">
-                              <span className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
-                              <span className="text-xs font-black uppercase tracking-wider text-primary">
+                          <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse shrink-0" />
+                              <span className="text-xs font-black uppercase tracking-wider text-primary break-words">
                                 {c.outlet_a}
                               </span>
                             </div>
-                            <span className="badge badge-primary badge-outline badge-xs font-bold uppercase tracking-wider">
+                            <span className="badge badge-primary badge-outline badge-xs font-bold uppercase tracking-wider shrink-0">
                               Perspective A
                             </span>
                           </div>
@@ -436,7 +436,7 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
                               size={16}
                               className="text-primary/40 absolute -left-1.5 -top-2 fill-primary/10"
                             />
-                            <p className="text-sm md:text-base font-semibold text-base-content leading-relaxed">
+                            <p className="text-sm md:text-base font-semibold text-base-content leading-relaxed break-words">
                               "{c.claim_a}"
                             </p>
                           </div>
@@ -455,17 +455,17 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
                       </div>
 
                       {/* OUTLET B CONTAINER */}
-                      <div className="flex flex-col justify-between rounded-xl p-4 md:p-5 bg-gradient-to-br from-secondary/5 via-base-100 to-base-100 border-2 border-secondary/30 shadow-xs relative">
+                      <div className="flex flex-col justify-between rounded-xl p-4 md:p-5 bg-gradient-to-br from-secondary/5 via-base-100 to-base-100 border-2 border-secondary/30 shadow-xs relative overflow-hidden min-w-0 break-words">
                         <div>
                           {/* Outlet Tag */}
-                          <div className="flex items-center justify-between gap-2 mb-3">
-                            <div className="flex items-center gap-2">
-                              <span className="w-2.5 h-2.5 rounded-full bg-secondary animate-pulse" />
-                              <span className="text-xs font-black uppercase tracking-wider text-secondary">
+                          <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span className="w-2.5 h-2.5 rounded-full bg-secondary animate-pulse shrink-0" />
+                              <span className="text-xs font-black uppercase tracking-wider text-secondary break-words">
                                 {c.outlet_b}
                               </span>
                             </div>
-                            <span className="badge badge-secondary badge-outline badge-xs font-bold uppercase tracking-wider">
+                            <span className="badge badge-secondary badge-outline badge-xs font-bold uppercase tracking-wider shrink-0">
                               Perspective B
                             </span>
                           </div>
@@ -476,7 +476,7 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
                               size={16}
                               className="text-secondary/40 absolute -left-1.5 -top-2 fill-secondary/10"
                             />
-                            <p className="text-sm md:text-base font-semibold text-base-content leading-relaxed">
+                            <p className="text-sm md:text-base font-semibold text-base-content leading-relaxed break-words">
                               "{c.claim_b}"
                             </p>
                           </div>
