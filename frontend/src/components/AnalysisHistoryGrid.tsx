@@ -10,6 +10,7 @@ import {
   Database,
   Table,
   LayoutGrid,
+  MonitorSmartphone,
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
@@ -23,7 +24,6 @@ interface AnalysisHistoryGridProps {
   onSelectAnalysis: (analysisId: string) => void;
 }
 
-type ViewMode = 'table' | 'cards';
 type SortField = 'created_at' | 'topic' | 'sources';
 type SortDirection = 'asc' | 'desc';
 
@@ -39,20 +39,42 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
   const [pageSize, setPageSize] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
-  // View mode: 'table' (Modern DaisyUI Table) | 'cards' (Cards Grid)
-  const [viewMode, setViewMode] = useState<ViewMode>(() => {
-    const saved = localStorage.getItem('agentic_news_history_view');
-    return saved === 'cards' ? 'cards' : 'table';
+  // Screen size detection: desktop mode (>= 768px) vs mobile mode (< 768px)
+  const [isDesktop, setIsDesktop] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 768;
+    }
+    return true;
   });
+
+  // Optional manual user override: null follows screen size automatically
+  const [userOverride, setUserOverride] = useState<'table' | 'cards' | null>(null);
+
+  useEffect(() => {
+    // Purge any stale legacy localStorage value that was forcing table view
+    try {
+      localStorage.removeItem('agentic_news_history_view');
+    } catch {}
+
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+
+    // Initial check on mount
+    handleResize();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
+  }, []);
 
   // Client sort state
   const [sortField, setSortField] = useState<SortField>('created_at');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
-
-  const handleSetViewMode = (mode: ViewMode) => {
-    setViewMode(mode);
-    localStorage.setItem('agentic_news_history_view', mode);
-  };
 
   const loadData = useCallback(async () => {
     try {
@@ -304,24 +326,45 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
             {/* View Mode Toggle Switcher */}
             <div className="join bg-base-100 p-1 rounded-xl border border-base-300 shadow-sm">
               <button
-                onClick={() => handleSetViewMode('table')}
+                onClick={() => setUserOverride(null)}
                 className={`join-item btn btn-xs md:btn-sm rounded-lg gap-1.5 transition-all ${
-                  viewMode === 'table' ? 'btn-primary shadow-sm' : 'btn-ghost text-base-content/60'
+                  userOverride === null
+                    ? 'btn-primary shadow-sm'
+                    : 'btn-ghost text-base-content/60 hover:text-base-content'
                 }`}
-                title="Table View"
+                title={`Screen Size Auto: currently ${isDesktop ? 'Desktop Table View' : 'Mobile Card View'}`}
               >
-                <Table size={14} />
-                <span className="hidden sm:inline text-xs">Table</span>
+                <MonitorSmartphone size={14} />
+                <span className="hidden sm:inline text-xs font-semibold">
+                  Auto
+                  <span className="opacity-75 text-[10px] ml-1 font-normal hidden lg:inline">
+                    ({isDesktop ? 'Table' : 'Cards'})
+                  </span>
+                </span>
               </button>
               <button
-                onClick={() => handleSetViewMode('cards')}
+                onClick={() => setUserOverride('table')}
                 className={`join-item btn btn-xs md:btn-sm rounded-lg gap-1.5 transition-all ${
-                  viewMode === 'cards' ? 'btn-primary shadow-sm' : 'btn-ghost text-base-content/60'
+                  userOverride === 'table'
+                    ? 'btn-primary shadow-sm'
+                    : 'btn-ghost text-base-content/60 hover:text-base-content'
                 }`}
-                title="Card Grid View"
+                title="Force Table View"
+              >
+                <Table size={14} />
+                <span className="hidden sm:inline text-xs font-semibold">Table</span>
+              </button>
+              <button
+                onClick={() => setUserOverride('cards')}
+                className={`join-item btn btn-xs md:btn-sm rounded-lg gap-1.5 transition-all ${
+                  userOverride === 'cards'
+                    ? 'btn-primary shadow-sm'
+                    : 'btn-ghost text-base-content/60 hover:text-base-content'
+                }`}
+                title="Force Card View"
               >
                 <LayoutGrid size={14} />
-                <span className="hidden sm:inline text-xs">Cards</span>
+                <span className="hidden sm:inline text-xs font-semibold">Cards</span>
               </button>
             </div>
 
@@ -347,9 +390,16 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
           </div>
         )}
 
-        {/* VIEW 1: Modern Interactive DaisyUI Table View (Default) */}
-        {viewMode === 'table' && (
-          <div className="overflow-x-auto w-full">
+        {/* VIEW 1: Modern Interactive DaisyUI Table View (Desktop & Forced Table) */}
+        <div
+          className={`w-full overflow-x-auto ${
+            userOverride === 'table'
+              ? 'block'
+              : userOverride === 'cards'
+              ? 'hidden'
+              : 'hidden md:block'
+          }`}
+        >
             <table className="table table-zebra w-full text-left">
               {/* Header */}
               <thead>
@@ -561,15 +611,21 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
               </tbody>
             </table>
           </div>
-        )}
 
-        {/* VIEW 2: Visual Card Grid View */}
-        {viewMode === 'cards' && (
-          <div className="p-5">
+        {/* VIEW 2: Visual Card Grid View (Mobile & Forced Cards) */}
+        <div
+          className={`p-3.5 sm:p-5 ${
+            userOverride === 'cards'
+              ? 'block'
+              : userOverride === 'table'
+              ? 'hidden'
+              : 'block md:hidden'
+          }`}
+        >
             {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
                 {[1, 2, 3, 4, 5, 6].map((n) => (
-                  <div key={n} className="card bg-base-100 border border-base-300 p-5 flex flex-col justify-between rounded-xl animate-pulse shadow-sm">
+                  <div key={n} className="card bg-base-100 border border-base-300 p-4 sm:p-5 flex flex-col justify-between rounded-xl animate-pulse shadow-sm">
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="skeleton h-5 w-24 rounded-full"></div>
@@ -590,18 +646,19 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
                 ))}
               </div>
             ) : sortedItems.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
                 {sortedItems.map((item) => {
                   const sourcesCount = Math.max(
                     item.sources_analyzed?.length || 0,
                     item.articles_analyzed?.length || 0
                   );
+                  const verificationsCount = item.verifications?.length || 0;
 
                   return (
                     <div
                       key={item.id}
                       onClick={() => onSelectAnalysis(item.id)}
-                      className="card bg-base-100 border border-base-300 hover:border-primary/50 shadow-sm hover:shadow-xl transition-all p-5 flex flex-col justify-between group cursor-pointer rounded-xl"
+                      className="card bg-base-100 border border-base-300 hover:border-primary/50 shadow-sm hover:shadow-xl transition-all p-4 sm:p-5 flex flex-col justify-between group cursor-pointer rounded-xl"
                     >
                       <div>
                         <div className="flex items-center justify-between gap-2 mb-2.5">
@@ -610,10 +667,11 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
                           </span>
                           <button
                             onClick={(e) => handleToggleFavorite(item, e)}
-                            className="btn btn-ghost btn-xs btn-square"
+                            className="btn btn-ghost btn-xs btn-square hover:bg-transparent transition-transform hover:scale-110"
+                            title={item.is_favorite ? 'Starred' : 'Star this investigation'}
                           >
                             {item.is_favorite ? (
-                              <Star size={16} className="text-warning fill-warning" />
+                              <Star size={16} className="text-warning fill-warning drop-shadow-sm" />
                             ) : (
                               <Star size={16} className="text-base-content/25 hover:text-warning" />
                             )}
@@ -624,13 +682,24 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
                           {item.topic}
                         </h3>
 
+                        <div className="flex items-center gap-2 mt-1.5 text-[11px] text-base-content/60">
+                          <span className="badge badge-xs badge-neutral font-mono font-normal px-2 py-0.5">
+                            {item.id.slice(0, 12)}...
+                          </span>
+                          {verificationsCount > 0 && (
+                            <span className="text-[11px] text-base-content/60 font-medium">
+                              {verificationsCount} Fact-Audits
+                            </span>
+                          )}
+                        </div>
+
                         <p className="text-xs text-base-content/75 line-clamp-3 mt-2.5 leading-relaxed">
                           {item.executive_summary || 'Autonomous multi-outlet intelligence dispatch.'}
                         </p>
                       </div>
 
-                      <div className="mt-4 pt-3.5 border-t border-base-300/60 flex items-center justify-between">
-                        <span className="badge badge-sm badge-ghost font-mono gap-1.5 px-2.5 py-1 text-[11px]">
+                      <div className="mt-4 pt-3.5 border-t border-base-300/60 flex items-center justify-between gap-2">
+                        <span className="badge badge-sm badge-outline badge-primary font-mono gap-1.5 px-2.5 py-1 text-[11px] font-semibold">
                           <Globe size={12} />
                           <span>{sourcesCount} Outlets</span>
                         </span>
@@ -641,15 +710,15 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
                               e.stopPropagation();
                               onSelectAnalysis(item.id);
                             }}
-                            className="btn btn-primary btn-xs gap-1 shadow-sm font-semibold"
+                            className="btn btn-primary btn-xs gap-1 shadow-sm font-semibold group-hover:scale-105 transition-transform"
                           >
                             <span>Open</span>
                             <ArrowRight size={11} />
                           </button>
                           <button
                             onClick={(e) => handleDelete(item, e)}
-                            className="btn btn-ghost btn-xs btn-square text-error/60 hover:text-error"
-                            title="Delete"
+                            className="btn btn-ghost btn-xs btn-square text-error/60 hover:text-error hover:bg-error/10"
+                            title="Delete record"
                           >
                             <Trash2 size={13} />
                           </button>
@@ -661,13 +730,31 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
               </div>
             ) : (
               <div className="py-12 text-center">
-                <Search size={32} className="mx-auto text-base-content/40 mb-2" />
-                <h4 className="font-bold text-base">No matching investigations found</h4>
-                <p className="text-xs text-base-content/60 mt-1">Try resetting search filters.</p>
+                <div className="p-3.5 rounded-full bg-base-300/60 text-base-content/50 mx-auto w-fit mb-2">
+                  <Search size={28} />
+                </div>
+                <h4 className="font-bold text-base text-base-content">
+                  No matching investigations found
+                </h4>
+                <p className="text-xs text-base-content/60 max-w-sm mx-auto mt-1">
+                  {searchTerm || favoritesOnly
+                    ? 'No archived investigations match your active filter criteria. Try clearing search or removing the star filter.'
+                    : 'No intelligence reports have been archived in the database yet.'}
+                </p>
+                {(searchTerm || favoritesOnly) && (
+                  <button
+                    onClick={() => {
+                      setSearchTerm('');
+                      setFavoritesOnly(false);
+                    }}
+                    className="btn btn-sm btn-outline btn-primary rounded-xl mt-3 font-semibold"
+                  >
+                    Clear All Filters
+                  </button>
+                )}
               </div>
             )}
           </div>
-        )}
 
         {/* Pagination & Status Footer Bar */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 border-t border-base-300/80 bg-base-200/90 text-xs text-base-content/70">
