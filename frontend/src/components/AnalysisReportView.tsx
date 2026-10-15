@@ -362,7 +362,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
           lessons_learned: data.lessons_learned,
         });
       }
-      showToast('Forward Scenarios synthesized & saved to Firestore', 'success');
+      showToast('Forward Scenarios synthesized & saved', 'success');
     } catch (err: any) {
       console.error(err);
       showToast('Failed to generate scenarios: ' + (err?.message || err), 'error');
@@ -385,7 +385,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
       if (onUpdateReport) {
         onUpdateReport({ ...report, quiz: data });
       }
-      showToast('Active Recall Quiz ready & saved to Firestore', 'success');
+      showToast('Active Recall Quiz ready & saved', 'success');
     } catch (err: any) {
       console.error(err);
       showToast('Failed to generate quiz: ' + (err?.message || err), 'error');
@@ -406,7 +406,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
       if (onUpdateReport) {
         onUpdateReport({ ...report, debate: data });
       }
-      showToast('Perspective Debate dialectic generated & saved to Firestore', 'success');
+      showToast('Perspective Debate dialectic generated & saved', 'success');
     } catch (err: any) {
       console.error(err);
       showToast('Failed to generate debate: ' + (err?.message || err), 'error');
@@ -1546,7 +1546,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 {scenariosStatus === 'ready' && (
                   <span className="badge badge-success gap-2 py-2.5 px-3.5 text-xs font-bold text-success-content shadow-sm my-0.5">
                     <CheckCircle2 size={14} />
-                    <span>Saved in Firestore</span>
+                    <span>Saved</span>
                   </span>
                 )}
               </div>
@@ -1576,7 +1576,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                   Launch Causal Diagnostics & Forward Scenarios
                 </h3>
                 <p className="text-sm text-base-content/75 max-w-md mx-auto mb-8 leading-relaxed">
-                  Synthesize 3-tier consequence cascades, root-cause 5-Whys failure points, and forward probabilistic projections. Results will be saved permanently to Firestore for instant viewing from the archive.
+                  Synthesize 3-tier consequence cascades, root-cause 5-Whys failure points, and forward probabilistic projections. Results will be saved permanently for instant viewing from the archive.
                 </p>
                 <button
                   onClick={handleLoadScenarios}
@@ -1588,7 +1588,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 </button>
                 <div className="text-[11px] text-base-content/50 mt-4 flex items-center justify-center gap-1.5">
                   <CheckCircle2 size={13} className="text-success" />
-                  <span>Results will be saved to Firestore to prevent re-running in archive</span>
+                  <span>Results will be saved to prevent re-running in archive</span>
                 </div>
               </div>
             )}
@@ -1916,7 +1916,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                   {quizStatus === 'ready' && (
                     <span className="badge badge-success gap-2 py-2.5 px-3.5 text-xs font-bold text-success-content shadow-sm my-0.5">
                       <CheckCircle2 size={14} />
-                      <span>Saved in Firestore</span>
+                      <span>Saved</span>
                     </span>
                   )}
                 </div>
@@ -1946,7 +1946,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     Generate Active Recall Quiz
                   </h3>
                   <p className="text-sm text-base-content/75 max-w-md mx-auto mb-8 leading-relaxed">
-                    Test your news literacy with pedagogical multiple-choice questions grounded in audited evidence. Results will be saved permanently to Firestore for this investigation.
+                    Test your news literacy with pedagogical multiple-choice questions grounded in audited evidence. Results will be saved permanently for this investigation.
                   </p>
                   <button
                     onClick={handleLoadQuiz}
@@ -1958,7 +1958,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                   </button>
                   <div className="text-[11px] text-base-content/50 mt-4 flex items-center justify-center gap-1.5">
                     <CheckCircle2 size={13} className="text-success" />
-                    <span>Saved in Firestore for replay & archival access</span>
+                    <span>Saved for replay & archival access</span>
                   </div>
                 </div>
               )}
@@ -2157,7 +2157,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                   {debateStatus === 'ready' && (
                     <span className="badge badge-success gap-2 py-2.5 px-3.5 text-xs font-bold text-success-content shadow-sm my-0.5">
                       <CheckCircle2 size={14} />
-                      <span>Saved in Firestore</span>
+                      <span>Saved</span>
                     </span>
                   )}
                 </div>
@@ -2187,7 +2187,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     Simulate Perspective Debate
                   </h3>
                   <p className="text-sm text-base-content/75 max-w-md mx-auto mb-8 leading-relaxed">
-                    Generate steelmanned, grounded opposing arguments and a neutral compromise synthesis across stakeholders. Results will be saved permanently to Firestore for this investigation.
+                    Generate steelmanned, grounded opposing arguments and a neutral compromise synthesis across stakeholders. Results will be saved permanently for this investigation.
                   </p>
                   <button
                     onClick={handleLoadDebate}
@@ -2199,7 +2199,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                   </button>
                   <div className="text-[11px] text-base-content/50 mt-4 flex items-center justify-center gap-1.5">
                     <CheckCircle2 size={13} className="text-success" />
-                    <span>Saved in Firestore for replay & archival access</span>
+                    <span>Saved for replay & archival access</span>
                   </div>
                 </div>
               )}
