@@ -38,6 +38,8 @@ from shared.config import (
 )
 from shared.firestore_service import FirestoreService
 from shared.topic_suggester import generate_country_topic_suggestions
+from shared.schemas import ArticleGenerateRequest
+from shared.article_generator import generate_article_for_analysis
 from shared.structured_builder import (
     build_structured_intelligence,
     build_structured_quiz,
@@ -522,6 +524,67 @@ async def clear_copilot_chat_history(analysis_id: str):
     return {
         "status": "cleared" if success else "failed",
         "analysis_id": analysis_id,
+    }
+
+
+# ==============================================================================
+# Article Studio Endpoints (On-Demand Analysis-Grounded Article Generation)
+# ==============================================================================
+
+@app.post("/api/analysis/{analysis_id}/article")
+async def generate_analysis_article(analysis_id: str, req: ArticleGenerateRequest):
+    """Generates an on-demand customized article grounded in the analysis dossier,
+    persists it to Firestore with date & time, and returns the payload.
+    """
+    analysis_data = await FirestoreService.get_analysis(analysis_id)
+    if not analysis_data:
+        raise HTTPException(status_code=404, detail=f"Analysis '{analysis_id}' not found.")
+
+    logger.info(
+        "Generating article for analysis '%s' (style=%s, length=%s, lang=%s)...",
+        analysis_id,
+        req.writing_style,
+        req.target_length,
+        req.language,
+    )
+
+    article = await asyncio.to_thread(
+        generate_article_for_analysis,
+        analysis=analysis_data,
+        writing_style=req.writing_style,
+        target_length=req.target_length,
+        custom_word_count=req.custom_word_count,
+        language=req.language,
+        editorial_framing=req.editorial_framing,
+        include_social_kit=req.include_social_kit,
+    )
+
+    # Persist in Firestore (and mirror in parent analysis doc)
+    saved_id = await FirestoreService.save_article(article)
+    article["id"] = saved_id
+    logger.info("Saved article '%s' to Firestore for analysis '%s'", saved_id, analysis_id)
+    return article
+
+
+@app.get("/api/analysis/{analysis_id}/articles")
+async def get_analysis_articles(analysis_id: str):
+    """Retrieves all articles generated for a specific analysis, sorted by date/time descending."""
+    articles = await FirestoreService.get_articles_for_analysis(analysis_id)
+    return {
+        "analysis_id": analysis_id,
+        "articles": articles,
+        "total": len(articles),
+    }
+
+
+@app.delete("/api/analysis/{analysis_id}/article/{article_id}")
+async def delete_analysis_article(analysis_id: str, article_id: str):
+    """Deletes an article from Firestore and the parent analysis document."""
+    success = await FirestoreService.delete_article(analysis_id, article_id)
+    return {
+        "success": success,
+        "analysis_id": analysis_id,
+        "article_id": article_id,
     }
 
 

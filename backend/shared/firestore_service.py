@@ -93,6 +93,7 @@ _MEMORY_STORE: Dict[str, Dict[str, Dict[str, Any]]] = {
     "evidence_ledger": {},
     "chat_history": {},
     "topic_suggestions": {},
+    "articles": {},
 }
 _mem_suggestions_loaded_at: float = 0.0
 
@@ -460,3 +461,118 @@ class FirestoreService:
                 logger.warning("Failed saving topic suggestions to Firestore (%s). Saved in memory.", e)
 
         return data
+
+    @staticmethod
+    async def save_article(article_data: Dict[str, Any]) -> str:
+        """Saves a generated article to the articles collection and links it to its parent analysis."""
+        article_id = article_data.get("id") or str(uuid.uuid4())
+        article_data["id"] = article_id
+        now = time.time()
+        article_data["updated_at"] = now
+        if "created_at" not in article_data:
+            article_data["created_at"] = now
+
+        analysis_id = article_data.get("analysis_id")
+
+        # Save to memory store
+        _MEMORY_STORE["articles"][article_id] = dict(article_data)
+
+        # Also append/update in analysis in-memory
+        if analysis_id and analysis_id in _MEMORY_STORE["analyses"]:
+            analysis_doc = _MEMORY_STORE["analyses"][analysis_id]
+            articles_list = analysis_doc.setdefault("generated_articles", [])
+            existing_idx = next((i for i, a in enumerate(articles_list) if a.get("id") == article_id), None)
+            if existing_idx is not None:
+                articles_list[existing_idx] = dict(article_data)
+            else:
+                articles_list.insert(0, dict(article_data))
+
+        client = get_db_client()
+        if client:
+            try:
+                # Save to top-level articles collection
+                doc_ref = client.collection("articles").document(article_id)
+                await asyncio.wait_for(doc_ref.set(article_data), timeout=FIRESTORE_TIMEOUT_WRITE)
+
+                # Mirror into parent analysis doc
+                if analysis_id:
+                    analysis_ref = client.collection("analyses").document(analysis_id)
+                    parent_doc = await asyncio.wait_for(analysis_ref.get(), timeout=FIRESTORE_TIMEOUT_READ)
+                    if parent_doc.exists:
+                        p_data = parent_doc.to_dict()
+                        curr_articles = p_data.get("generated_articles", [])
+                        idx = next((i for i, a in enumerate(curr_articles) if a.get("id") == article_id), None)
+                        if idx is not None:
+                            curr_articles[idx] = article_data
+                        else:
+                            curr_articles.insert(0, article_data)
+                        await asyncio.wait_for(
+                            analysis_ref.update({"generated_articles": curr_articles}),
+                            timeout=FIRESTORE_TIMEOUT_WRITE
+                        )
+            except Exception as e:
+                logger.warning("Failed saving article to Firestore (%s). Saved in memory.", e)
+
+        return article_id
+
+    @staticmethod
+    async def get_articles_for_analysis(analysis_id: str) -> List[Dict[str, Any]]:
+        """Retrieves all articles generated for a specific analysis."""
+        client = get_db_client()
+        if client:
+            try:
+                col_ref = client.collection("articles").where("analysis_id", "==", analysis_id)
+                docs = await asyncio.wait_for(col_ref.get(), timeout=FIRESTORE_TIMEOUT_READ)
+                results = [d.to_dict() for d in docs]
+                if results:
+                    results.sort(key=lambda x: x.get("created_at", 0), reverse=True)
+                    for art in results:
+                        _MEMORY_STORE["articles"][art["id"]] = art
+                    return results
+            except Exception as e:
+                logger.warning("Failed fetching articles from Firestore query (%s). Falling back.", e)
+
+        # Fallback to in-memory store
+        matching = [
+            art for art in _MEMORY_STORE["articles"].values()
+            if art.get("analysis_id") == analysis_id
+        ]
+        if not matching and analysis_id in _MEMORY_STORE["analyses"]:
+            matching = _MEMORY_STORE["analyses"][analysis_id].get("generated_articles", [])
+
+        matching.sort(key=lambda x: x.get("created_at", 0), reverse=True)
+        return matching
+
+    @staticmethod
+    async def delete_article(analysis_id: str, article_id: str) -> bool:
+        """Deletes an article from Firestore and memory."""
+        if article_id in _MEMORY_STORE["articles"]:
+            del _MEMORY_STORE["articles"][article_id]
+
+        if analysis_id in _MEMORY_STORE["analyses"]:
+            articles_list = _MEMORY_STORE["analyses"][analysis_id].get("generated_articles", [])
+            _MEMORY_STORE["analyses"][analysis_id]["generated_articles"] = [
+                a for a in articles_list if a.get("id") != article_id
+            ]
+
+        client = get_db_client()
+        if client:
+            try:
+                await asyncio.wait_for(
+                    client.collection("articles").document(article_id).delete(),
+                    timeout=FIRESTORE_TIMEOUT_WRITE,
+                )
+                if analysis_id:
+                    analysis_ref = client.collection("analyses").document(analysis_id)
+                    p_doc = await asyncio.wait_for(analysis_ref.get(), timeout=FIRESTORE_TIMEOUT_READ)
+                    if p_doc.exists:
+                        p_data = p_doc.to_dict()
+                        updated = [a for a in p_data.get("generated_articles", []) if a.get("id") != article_id]
+                        await asyncio.wait_for(
+                            analysis_ref.update({"generated_articles": updated}),
+                            timeout=FIRESTORE_TIMEOUT_WRITE
+                        )
+                return True
+            except Exception as e:
+                logger.warning("Failed deleting article from Firestore (%s).", e)
+        return True

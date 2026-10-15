@@ -56,6 +56,7 @@ import { UserAvatar } from './UserAvatar';
 import { FormattedMarkdown } from './FormattedMarkdown';
 import { CrossSourceContradictionsSection } from './CrossSourceContradictionsSection';
 import { TimelineSection } from './TimelineSection';
+import { ArticleStudioSection } from './ArticleStudioSection';
 import { useToast } from '../context/ToastContext';
 
 // Display metadata for Lessons & Prevention target audiences
@@ -168,7 +169,7 @@ interface AnalysisReportViewProps {
   onUpdateReport?: (updated: NewsIntelligenceReport) => void;
   isStreaming?: boolean;
   streamStatus?: string;
-  initialTab?: 'brief' | 'sources' | 'verification' | 'timeline' | 'insights' | 'quiz' | 'debate' | 'copilot';
+  initialTab?: AnalysisTabId;
 }
 
 export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
@@ -742,6 +743,23 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
               </button>
             </li>
 
+            <li>
+              <button
+                className={`flex items-center justify-between py-2.5 px-3 rounded-xl font-medium transition-all ${
+                  activeTab === 'article'
+                    ? 'active font-bold shadow-md bg-primary text-primary-content'
+                    : 'hover:bg-base-300 text-base-content'
+                }`}
+                onClick={() => handleTabChange('article')}
+              >
+                <span className="flex items-center gap-2.5">
+                  <Sparkles size={17} className={activeTab === 'article' ? 'text-primary-content' : 'text-primary'} />
+                  <span>Article Studio</span>
+                </span>
+                <span className="badge badge-xs badge-secondary font-mono">130+ Lang</span>
+              </button>
+            </li>
+
             <li className="mt-1 pt-1 border-t border-base-300">
               <Link
                 to="/history"
@@ -907,6 +925,16 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
             onClick={() => handleTabChange('copilot')}
           >
             Copilot
+          </button>
+          <button
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+              activeTab === 'article'
+                ? 'bg-primary text-primary-content shadow-sm'
+                : 'text-base-content/75 hover:bg-base-300/60 hover:text-base-content'
+            }`}
+            onClick={() => handleTabChange('article')}
+          >
+            Article Studio
           </button>
         </div>
       </div>
@@ -2480,6 +2508,21 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
           </div>
         )}
 
+        {/* Tab 9: On-Demand Article Studio */}
+        {activeTab === 'article' && (
+          <ArticleStudioSection
+            analysis={report}
+            onUpdateAnalysis={(patch) => {
+              if (onUpdateReport) {
+                onUpdateReport({
+                  ...report,
+                  ...patch,
+                });
+              }
+            }}
+          />
+        )}
+
         {/* Section Navigation Pager (Previous / Next Buttons) */}
         <nav
           aria-label="Section navigation"
@@ -2494,7 +2537,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 <ChevronLeft size={20} className="text-primary group-hover:-translate-x-1 transition-transform shrink-0" />
                 <div className="flex flex-col min-w-0">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-base-content/60">
-                    Previous Section ({currentTabIndex}/8)
+                    Previous Section ({currentTabIndex}/{ANALYSIS_TABS.length})
                   </span>
                   <span className="text-xs sm:text-sm font-bold text-base-content truncate">
                     {prevTab.shortLabel}
@@ -2514,7 +2557,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
               <div className="flex items-center justify-between sm:justify-end w-full gap-2.5 min-w-0">
                 <div className="flex flex-col items-start sm:items-end min-w-0">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-primary-content/80">
-                    Next Section ({currentTabIndex + 2}/8)
+                    Next Section ({currentTabIndex + 2}/{ANALYSIS_TABS.length})
                   </span>
                   <span className="text-xs sm:text-sm font-bold text-primary-content truncate">
                     {nextTab.shortLabel}

@@ -133,6 +133,7 @@ export interface NewsIntelligenceReport {
   quiz?: QuizPayload;
   debate?: PerspectiveDebateReport;
   chat_history?: ChatMessage[];
+  generated_articles?: GeneratedArticleItem[];
 }
 
 export interface ChatMessage {
@@ -223,6 +224,53 @@ export interface TopicSuggestionsPayload {
   countries: CountryTopicGroup[];
 }
 
+export type ArticleStyleId =
+  | 'investigative'
+  | 'wire_dispatch'
+  | 'executive_brief'
+  | 'op_ed'
+  | 'explainer_eli5'
+  | 'academic_essay'
+  | 'newsletter';
+
+export type ArticleLengthId = 'flash' | 'standard' | 'longform' | 'custom';
+
+export interface SocialPublishingKit {
+  headline_variants: string[];
+  seo_meta_description: string;
+  social_thread: string[];
+  key_takeaways: string[];
+}
+
+export interface GeneratedArticleItem {
+  id: string;
+  analysis_id: string;
+  topic: string;
+  headline: string;
+  subheadline?: string;
+  content_markdown: string;
+  writing_style: ArticleStyleId | string;
+  target_length: ArticleLengthId | string;
+  word_count: number;
+  reading_time_minutes: number;
+  language: string;
+  editorial_framing: string;
+  social_kit?: SocialPublishingKit;
+  created_at: number;
+  created_at_iso: string;
+  updated_at?: number;
+}
+
+export interface ArticleGenerateRequestPayload {
+  analysis_id: string;
+  writing_style?: ArticleStyleId | string;
+  target_length?: ArticleLengthId | string;
+  custom_word_count?: number;
+  language?: string;
+  editorial_framing?: string;
+  include_social_kit?: boolean;
+}
+
 export type AnalysisTabId =
   | 'brief'
   | 'sources'
@@ -231,7 +279,8 @@ export type AnalysisTabId =
   | 'insights'
   | 'quiz'
   | 'debate'
-  | 'copilot';
+  | 'copilot'
+  | 'article';
 
 export interface AnalysisTabMeta {
   id: AnalysisTabId;
@@ -248,5 +297,6 @@ export const ANALYSIS_TABS: AnalysisTabMeta[] = [
   { id: 'quiz', label: 'Active Recall Literacy Tutor', shortLabel: 'Recall Tutor' },
   { id: 'debate', label: 'Perspective Debate Simulator', shortLabel: 'Debate' },
   { id: 'copilot', label: 'Autonomous Research Copilot', shortLabel: 'Copilot' },
+  { id: 'article', label: 'On-Demand Article Studio', shortLabel: 'Article Studio' },
 ];
 

@@ -419,6 +419,11 @@ class NewsIntelligenceReport(BaseModel):
         default_factory=list,
         description="Detailed primary source articles analysed with direct links and metadata",
     )
+    id: Optional[str] = Field(default=None, description="Unique analysis dossier ID")
+    generated_articles: List[Dict[str, Any]] = Field(
+        default_factory=list,
+        description="On-demand generated articles associated with this analysis",
+    )
 
 
 class AudienceAdaptationItem(BaseModel):
@@ -543,4 +548,47 @@ class TopicSuggestionsPayload(BaseModel):
     is_stale: Optional[bool] = False
     age_seconds: Optional[float] = 0.0
     countries: List[CountryTopicGroupPayload] = Field(default_factory=list)
+
+
+# ==============================================================================
+# Article Studio & On-Demand Newsroom Schemas
+# ==============================================================================
+
+class SocialPublishingKit(BaseModel):
+    """Publishing kit for multi-platform dissemination."""
+    headline_variants: List[str] = Field(default_factory=list, description="3-5 alternative headlines (analytical, punchy, question)")
+    seo_meta_description: str = Field(default="", description="150-160 char search-optimized summary")
+    social_thread: List[str] = Field(default_factory=list, description="Twitter/X and LinkedIn breakdown posts")
+    key_takeaways: List[str] = Field(default_factory=list, description="Key bullet takeaways")
+
+
+class ArticleGenerateRequest(BaseModel):
+    """User request configuration for on-demand article generation."""
+    analysis_id: str = Field(..., description="ID of the parent analysis dossier to ground in")
+    writing_style: str = Field(default="wire_dispatch", description="Style: investigative, wire_dispatch, executive_brief, op_ed, explainer_eli5, academic_essay, newsletter")
+    target_length: str = Field(default="standard", description="Length preset: flash (~250w), standard (~600w), longform (~1200w), custom")
+    custom_word_count: Optional[int] = Field(default=None, description="Exact word count if target_length is custom")
+    language: str = Field(default="English", description="Target language (130+ Google-supported languages)")
+    editorial_framing: str = Field(default="neutral", description="neutral, watchdog, solution_oriented, dialectical")
+    include_social_kit: bool = Field(default=True, description="Whether to include SEO and social media assets")
+
+
+class GeneratedArticleItem(BaseModel):
+    """Complete generated article entity persisted in Firestore."""
+    id: str = Field(description="Unique article ID")
+    analysis_id: str = Field(description="Associated analysis ID")
+    topic: str = Field(description="Headline / topic")
+    headline: str = Field(description="Main title")
+    subheadline: Optional[str] = Field(default=None, description="Secondary deck / subheadline")
+    content_markdown: str = Field(description="Full article text in Markdown")
+    writing_style: str
+    target_length: str
+    word_count: int
+    reading_time_minutes: int
+    language: str
+    editorial_framing: str
+    social_kit: Optional[SocialPublishingKit] = None
+    created_at: float
+    created_at_iso: str
+    updated_at: Optional[float] = None
 

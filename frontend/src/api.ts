@@ -5,7 +5,9 @@ import type {
   PaginatedAnalysesResponse,
   ChatMessage,
   TopicSuggestionsPayload,
-  ContradictionItem
+  ContradictionItem,
+  GeneratedArticleItem,
+  ArticleGenerateRequestPayload
 } from './types';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
@@ -217,5 +219,44 @@ export async function refreshTopicSuggestions(): Promise<TopicSuggestionsPayload
   });
   if (!res.ok) throw new Error('Failed to refresh topic suggestions');
   return res.json();
+}
+
+export async function generateAnalysisArticle(
+  payload: ArticleGenerateRequestPayload
+): Promise<GeneratedArticleItem> {
+  const res = await fetch(`${API_BASE}/analysis/${encodeURIComponent(payload.analysis_id)}/article`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: 'Failed to generate article' }));
+    throw new Error(err.detail || 'Article generation failed');
+  }
+  return res.json();
+}
+
+export async function fetchAnalysisArticles(
+  analysisId: string
+): Promise<GeneratedArticleItem[]> {
+  const res = await fetch(`${API_BASE}/analysis/${encodeURIComponent(analysisId)}/articles`);
+  if (!res.ok) throw new Error('Failed to fetch articles for this analysis');
+  const data = await res.json();
+  return data.articles || [];
+}
+
+export async function deleteAnalysisArticle(
+  analysisId: string,
+  articleId: string
+): Promise<boolean> {
+  const res = await fetch(
+    `${API_BASE}/analysis/${encodeURIComponent(analysisId)}/article/${encodeURIComponent(articleId)}`,
+    {
+      method: 'DELETE',
+    }
+  );
+  if (!res.ok) throw new Error('Failed to delete article');
+  const data = await res.json();
+  return data.success ?? true;
 }
 

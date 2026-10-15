@@ -185,7 +185,7 @@ service cloud.firestore {
           'contradictions', 'verifications', 'bias_evaluations',
           'root_cause_analysis', 'consequences_tree', 'future_scenarios',
           'lessons_learned', 'sources_analyzed', 'evidence_ledger',
-          'chat_history',
+          'chat_history', 'generated_articles', 'quiz', 'debate', 'is_favorite', 'notes',
           'raw_markdown', 'created_at', 'updated_at', 'uid', 'author', 'status'
         ]) &&
         data.id is string && data.id == analysisId &&
@@ -206,6 +206,7 @@ service cloud.firestore {
         isValidOptionalList(data, 'sources_analyzed', 50) &&
         isValidOptionalList(data, 'evidence_ledger', 200) &&
         isValidOptionalList(data, 'chat_history', 200) &&
+        isValidOptionalList(data, 'generated_articles', 100) &&
         isValidOptionalString(data, 'raw_markdown', 0, 100000) &&
         isValidOptionalTime(data, 'created_at') &&
         isValidOptionalTime(data, 'updated_at') &&
@@ -326,6 +327,18 @@ service cloud.firestore {
         isValidOptionalString(data, 'uid', 1, 128);
     }
 
+    function isValidArticle(data, articleId) {
+      return data.keys().hasAll(['id', 'analysis_id', 'topic', 'headline', 'content_markdown']) &&
+        data.id is string && data.id == articleId &&
+        data.id.size() >= 1 && data.id.size() <= 128 &&
+        data.analysis_id is string && data.analysis_id.size() >= 1 && data.analysis_id.size() <= 128 &&
+        data.topic is string && data.topic.size() <= 1000 &&
+        data.headline is string && data.headline.size() <= 500 &&
+        data.content_markdown is string && data.content_markdown.size() <= 100000 &&
+        isValidOptionalTime(data, 'created_at') &&
+        isValidOptionalTime(data, 'updated_at');
+    }
+
     // ===============================================================
     // Collection Rules
     // ===============================================================
@@ -427,6 +440,14 @@ service cloud.firestore {
                     areImmutableFieldsUnchanged(['id', 'created_at']) &&
                     (!('uid' in resource.data) || resource.data.uid == request.auth.uid || isAdmin());
       allow delete: if false;
+    }
+
+    // 8. Articles: On-demand customized articles generated from analyses
+    match /articles/{articleId} {
+      allow read: if true;
+      allow create: if isValidArticle(request.resource.data, articleId);
+      allow update: if isValidArticle(request.resource.data, articleId);
+      allow delete: if true;
     }
 
     // Default Deny: all unmapped collections and wildcard paths
