@@ -33,9 +33,23 @@ except ImportError:
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
 IS_SIMULATION_MODE = not bool(GEMINI_API_KEY and GEMINI_API_KEY.strip())
 
-# Official Verified Gemini Models
+# Official Verified Gemini & Imagen Models
 MODEL_AGENT_FAST = "gemini-3.8-flash"
 MODEL_REASONING_PRO = "gemini-3.1-pro-preview"
+MODEL_IMAGE = os.environ.get("MODEL_IMAGE", "gemini-3.1-flash-image")
+MODEL_IMAGEN = os.environ.get("MODEL_IMAGEN", "imagen-3.0-generate-002")
+
+# Cloud Storage & Media Cache
+FIREBASE_PROJECT_ID = (
+    os.environ.get("FIREBASE_PROJECT_ID")
+    or os.environ.get("GOOGLE_CLOUD_PROJECT")
+    or "agentic-news-dev"
+).strip()
+GCS_MEDIA_BUCKET = os.environ.get(
+    "GCS_MEDIA_BUCKET", f"agentic-news-media-{FIREBASE_PROJECT_ID}"
+).strip()
+LOCAL_MEDIA_DIR = Path(__file__).resolve().parent.parent / "media_cache"
+LOCAL_MEDIA_DIR.mkdir(parents=True, exist_ok=True)
 
 # Logger setup
 LOG_LEVEL_STR = os.environ.get("ADK_LOG_LEVEL", "INFO").upper()

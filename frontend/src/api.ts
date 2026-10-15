@@ -7,10 +7,25 @@ import type {
   TopicSuggestionsPayload,
   ContradictionItem,
   GeneratedArticleItem,
-  ArticleGenerateRequestPayload
+  ArticleGenerateRequestPayload,
+  ImagePromptSuggestion,
+  GeneratedImageItem,
+  ImageGenerateRequestPayload
 } from './types';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+
+export function resolveMediaUrl(url?: string): string {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+    return url;
+  }
+  const apiHost = API_BASE.replace(/\/api\/?$/, '');
+  if (apiHost.startsWith('http://') || apiHost.startsWith('https://')) {
+    return `${apiHost}${url.startsWith('/') ? '' : '/'}${url}`;
+  }
+  return url;
+}
 
 export async function checkApiHealth() {
   const res = await fetch(`${API_BASE}/health`);
@@ -259,4 +274,57 @@ export async function deleteAnalysisArticle(
   const data = await res.json();
   return data.success ?? true;
 }
+
+export async function fetchEditorialImagePrompts(
+  analysisId: string,
+  refresh: boolean = false
+): Promise<ImagePromptSuggestion[]> {
+  const query = refresh ? '?refresh=true' : '';
+  const res = await fetch(`${API_BASE}/analysis/${encodeURIComponent(analysisId)}/image-prompts${query}`, {
+    method: 'POST',
+  });
+  if (!res.ok) throw new Error('Failed to fetch image prompts');
+  const data = await res.json();
+  return data.prompts || [];
+}
+
+export async function generateDossierImage(
+  payload: ImageGenerateRequestPayload
+): Promise<GeneratedImageItem> {
+  const res = await fetch(`${API_BASE}/analysis/${encodeURIComponent(payload.analysis_id)}/generate-image`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: 'Failed to generate image' }));
+    throw new Error(err.detail || 'Image generation failed');
+  }
+  return res.json();
+}
+
+export async function fetchDossierImages(
+  analysisId: string
+): Promise<GeneratedImageItem[]> {
+  const res = await fetch(`${API_BASE}/analysis/${encodeURIComponent(analysisId)}/images`);
+  if (!res.ok) throw new Error('Failed to fetch images for this analysis');
+  const data = await res.json();
+  return data.images || [];
+}
+
+export async function deleteDossierImage(
+  analysisId: string,
+  imageId: string
+): Promise<boolean> {
+  const res = await fetch(
+    `${API_BASE}/analysis/${encodeURIComponent(analysisId)}/image/${encodeURIComponent(imageId)}`,
+    {
+      method: 'DELETE',
+    }
+  );
+  if (!res.ok) throw new Error('Failed to delete image');
+  const data = await res.json();
+  return data.success ?? true;
+}
+
 

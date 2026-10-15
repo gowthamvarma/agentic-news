@@ -67,6 +67,7 @@ echo ""
 echo "[4/4] Building container and deploying to Google Cloud Run..."
 (
     cd backend
+    BUCKET_NAME="agentic-news-media-$PROJECT_ID"
     if [ -z "$API_KEY" ]; then
         gcloud run deploy "$SERVICE_NAME" \
             --source . \
@@ -74,7 +75,7 @@ echo "[4/4] Building container and deploying to Google Cloud Run..."
             --project "$PROJECT_ID" \
             --platform managed \
             --allow-unauthenticated \
-            --set-env-vars "FIREBASE_PROJECT_ID=$PROJECT_ID,ADK_LOG_LEVEL=INFO" \
+            --set-env-vars "FIREBASE_PROJECT_ID=$PROJECT_ID,GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GCS_MEDIA_BUCKET=$BUCKET_NAME,ADK_LOG_LEVEL=INFO" \
             --timeout 300 \
             --memory 2Gi \
             --cpu 2 \
@@ -88,7 +89,7 @@ echo "[4/4] Building container and deploying to Google Cloud Run..."
             --project "$PROJECT_ID" \
             --platform managed \
             --allow-unauthenticated \
-            --set-env-vars "FIREBASE_PROJECT_ID=$PROJECT_ID,GEMINI_API_KEY=$API_KEY,ADK_LOG_LEVEL=INFO" \
+            --set-env-vars "FIREBASE_PROJECT_ID=$PROJECT_ID,GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GEMINI_API_KEY=$API_KEY,GCS_MEDIA_BUCKET=$BUCKET_NAME,ADK_LOG_LEVEL=INFO" \
             --timeout 300 \
             --memory 2Gi \
             --cpu 2 \

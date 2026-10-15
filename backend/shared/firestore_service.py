@@ -26,8 +26,8 @@ if cred_env and not os.path.isfile(cred_env):
     logger.info("GOOGLE_APPLICATION_CREDENTIALS ('%s') is not a valid file path. Clearing from environment.", cred_env)
     del os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
 
-FIRESTORE_TIMEOUT_READ = 2.5
-FIRESTORE_TIMEOUT_WRITE = 5.0
+FIRESTORE_TIMEOUT_READ = 10.0
+FIRESTORE_TIMEOUT_WRITE = 15.0
 
 _client_instance: Optional[Any] = None
 _client_attempted: bool = False
@@ -94,6 +94,8 @@ _MEMORY_STORE: Dict[str, Dict[str, Dict[str, Any]]] = {
     "chat_history": {},
     "topic_suggestions": {},
     "articles": {},
+    "images": {},
+    "image_prompts": {},
 }
 _mem_suggestions_loaded_at: float = 0.0
 
@@ -576,3 +578,165 @@ class FirestoreService:
             except Exception as e:
                 logger.warning("Failed deleting article from Firestore (%s).", e)
         return True
+
+    @staticmethod
+    async def save_image_metadata(image_data: Dict[str, Any]) -> str:
+        """Saves generated image metadata to the images collection and mirrors it in its parent analysis."""
+        image_id = image_data.get("id") or str(uuid.uuid4())
+        image_data["id"] = image_id
+        now = time.time()
+        image_data["updated_at"] = now
+        if "created_at" not in image_data:
+            image_data["created_at"] = now
+
+        analysis_id = image_data.get("analysis_id")
+
+        # Save to memory store
+        _MEMORY_STORE["images"][image_id] = dict(image_data)
+
+        # Also append/update in analysis in-memory
+        if analysis_id and analysis_id in _MEMORY_STORE["analyses"]:
+            analysis_doc = _MEMORY_STORE["analyses"][analysis_id]
+            images_list = analysis_doc.setdefault("generated_images", [])
+            existing_idx = next((i for i, img in enumerate(images_list) if img.get("id") == image_id), None)
+            if existing_idx is not None:
+                images_list[existing_idx] = dict(image_data)
+            else:
+                images_list.insert(0, dict(image_data))
+
+        client = get_db_client()
+        if client:
+            try:
+                # Save to top-level images collection
+                doc_ref = client.collection("images").document(image_id)
+                await asyncio.wait_for(doc_ref.set(image_data), timeout=FIRESTORE_TIMEOUT_WRITE)
+
+                # Mirror into parent analysis doc
+                if analysis_id:
+                    analysis_ref = client.collection("analyses").document(analysis_id)
+                    parent_doc = await asyncio.wait_for(analysis_ref.get(), timeout=FIRESTORE_TIMEOUT_READ)
+                    if parent_doc.exists:
+                        p_data = parent_doc.to_dict()
+                        curr_images = p_data.get("generated_images", [])
+                        idx = next((i for i, img in enumerate(curr_images) if img.get("id") == image_id), None)
+                        if idx is not None:
+                            curr_images[idx] = image_data
+                        else:
+                            curr_images.insert(0, image_data)
+                        await asyncio.wait_for(
+                            analysis_ref.update({"generated_images": curr_images}),
+                            timeout=FIRESTORE_TIMEOUT_WRITE
+                        )
+            except Exception as e:
+                logger.warning("Failed saving image metadata to Firestore (%s). Saved in memory.", e)
+
+        return image_id
+
+    @staticmethod
+    async def get_images_for_analysis(analysis_id: str) -> List[Dict[str, Any]]:
+        """Retrieves all images generated for a specific analysis."""
+        client = get_db_client()
+        if client:
+            try:
+                col_ref = client.collection("images").where("analysis_id", "==", analysis_id)
+                docs = await asyncio.wait_for(col_ref.get(), timeout=FIRESTORE_TIMEOUT_READ)
+                results = [d.to_dict() for d in docs]
+                if results:
+                    results.sort(key=lambda x: x.get("created_at", 0), reverse=True)
+                    for img in results:
+                        _MEMORY_STORE["images"][img["id"]] = img
+                    return results
+            except Exception as e:
+                logger.warning("Failed fetching images from Firestore query (%s). Falling back.", e)
+
+        # Fallback to in-memory store
+        matching = [
+            img for img in _MEMORY_STORE["images"].values()
+            if img.get("analysis_id") == analysis_id
+        ]
+        if not matching and analysis_id in _MEMORY_STORE["analyses"]:
+            matching = _MEMORY_STORE["analyses"][analysis_id].get("generated_images", [])
+
+        matching.sort(key=lambda x: x.get("created_at", 0), reverse=True)
+        return matching
+
+    @staticmethod
+    async def delete_image_metadata(analysis_id: str, image_id: str) -> bool:
+        """Deletes image metadata from Firestore and memory."""
+        if image_id in _MEMORY_STORE["images"]:
+            del _MEMORY_STORE["images"][image_id]
+
+        if analysis_id in _MEMORY_STORE["analyses"]:
+            images_list = _MEMORY_STORE["analyses"][analysis_id].get("generated_images", [])
+            _MEMORY_STORE["analyses"][analysis_id]["generated_images"] = [
+                img for img in images_list if img.get("id") != image_id
+            ]
+
+        client = get_db_client()
+        if client:
+            try:
+                await asyncio.wait_for(
+                    client.collection("images").document(image_id).delete(),
+                    timeout=FIRESTORE_TIMEOUT_WRITE,
+                )
+                if analysis_id:
+                    analysis_ref = client.collection("analyses").document(analysis_id)
+                    p_doc = await asyncio.wait_for(analysis_ref.get(), timeout=FIRESTORE_TIMEOUT_READ)
+                    if p_doc.exists:
+                        p_data = p_doc.to_dict()
+                        updated = [img for img in p_data.get("generated_images", []) if img.get("id") != image_id]
+                        await asyncio.wait_for(
+                            analysis_ref.update({"generated_images": updated}),
+                            timeout=FIRESTORE_TIMEOUT_WRITE
+                        )
+                return True
+            except Exception as e:
+                logger.warning("Failed deleting image from Firestore (%s).", e)
+        return True
+
+    @staticmethod
+    async def save_image_prompts(analysis_id: str, prompts: List[Dict[str, Any]]) -> bool:
+        """Persists AI-generated image prompts on the parent analysis document and memory."""
+        _MEMORY_STORE["image_prompts"][analysis_id] = prompts
+        if analysis_id in _MEMORY_STORE["analyses"]:
+            _MEMORY_STORE["analyses"][analysis_id]["image_prompts"] = prompts
+
+        client = get_db_client()
+        if client:
+            try:
+                doc_ref = client.collection("analyses").document(analysis_id)
+                await asyncio.wait_for(
+                    doc_ref.set({"image_prompts": prompts, "updated_at": time.time()}, merge=True),
+                    timeout=FIRESTORE_TIMEOUT_WRITE,
+                )
+                logger.info("Persisted %d image prompts in Firestore for analysis '%s'", len(prompts), analysis_id)
+                return True
+            except Exception as e:
+                logger.warning("Failed saving image prompts to Firestore (%s). Saved in memory.", e)
+        return True
+
+    @staticmethod
+    async def get_image_prompts(analysis_id: str) -> List[Dict[str, Any]]:
+        """Retrieves cached image prompts for an analysis from memory or Firestore."""
+        if analysis_id in _MEMORY_STORE["image_prompts"] and _MEMORY_STORE["image_prompts"][analysis_id]:
+            return list(_MEMORY_STORE["image_prompts"][analysis_id])
+
+        if analysis_id in _MEMORY_STORE["analyses"] and _MEMORY_STORE["analyses"][analysis_id].get("image_prompts"):
+            return list(_MEMORY_STORE["analyses"][analysis_id]["image_prompts"])
+
+        client = get_db_client()
+        if client:
+            try:
+                doc_ref = client.collection("analyses").document(analysis_id)
+                doc = await asyncio.wait_for(doc_ref.get(), timeout=FIRESTORE_TIMEOUT_READ)
+                if doc.exists:
+                    data = doc.to_dict()
+                    prompts = data.get("image_prompts", [])
+                    if prompts:
+                        _MEMORY_STORE["image_prompts"][analysis_id] = prompts
+                        return prompts
+            except Exception as e:
+                logger.warning("Failed retrieving image prompts from Firestore (%s).", e)
+
+        return []
+

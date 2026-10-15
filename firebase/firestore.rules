@@ -26,6 +26,7 @@ rules_version = '2';
 //   - sources_analyzed: list of strings (optional, max 50 items)
 //   - evidence_ledger: list of maps (optional, max 200 items)
 //   - chat_history: list of maps (optional, max 200 items)
+//   - image_prompts: list of strings (optional, max 20 items)
 //   - raw_markdown: string (optional, max 100,000 chars)
 //   - created_at: number | timestamp (optional, immutable)
 //   - updated_at: number | timestamp (optional)
@@ -185,7 +186,7 @@ service cloud.firestore {
           'contradictions', 'verifications', 'bias_evaluations',
           'root_cause_analysis', 'consequences_tree', 'future_scenarios',
           'lessons_learned', 'sources_analyzed', 'evidence_ledger',
-          'chat_history', 'generated_articles', 'quiz', 'debate', 'is_favorite', 'notes',
+          'chat_history', 'generated_articles', 'generated_images', 'image_prompts', 'quiz', 'debate', 'is_favorite', 'notes',
           'raw_markdown', 'created_at', 'updated_at', 'uid', 'author', 'status'
         ]) &&
         data.id is string && data.id == analysisId &&
@@ -207,6 +208,8 @@ service cloud.firestore {
         isValidOptionalList(data, 'evidence_ledger', 200) &&
         isValidOptionalList(data, 'chat_history', 200) &&
         isValidOptionalList(data, 'generated_articles', 100) &&
+        isValidOptionalList(data, 'generated_images', 100) &&
+        isValidOptionalList(data, 'image_prompts', 20) &&
         isValidOptionalString(data, 'raw_markdown', 0, 100000) &&
         isValidOptionalTime(data, 'created_at') &&
         isValidOptionalTime(data, 'updated_at') &&
@@ -339,6 +342,17 @@ service cloud.firestore {
         isValidOptionalTime(data, 'updated_at');
     }
 
+    function isValidImage(data, imageId) {
+      return data.keys().hasAll(['id', 'analysis_id', 'prompt', 'image_url']) &&
+        data.id is string && data.id == imageId &&
+        data.id.size() >= 1 && data.id.size() <= 128 &&
+        data.analysis_id is string && data.analysis_id.size() >= 1 && data.analysis_id.size() <= 128 &&
+        data.prompt is string && data.prompt.size() <= 5000 &&
+        data.image_url is string && data.image_url.size() <= 2000 &&
+        isValidOptionalTime(data, 'created_at') &&
+        isValidOptionalTime(data, 'updated_at');
+    }
+
     // ===============================================================
     // Collection Rules
     // ===============================================================
@@ -447,6 +461,14 @@ service cloud.firestore {
       allow read: if true;
       allow create: if isValidArticle(request.resource.data, articleId);
       allow update: if isValidArticle(request.resource.data, articleId);
+      allow delete: if true;
+    }
+
+    // 9. Images: On-demand generated editorial images from Imagen 3
+    match /images/{imageId} {
+      allow read: if true;
+      allow create: if isValidImage(request.resource.data, imageId);
+      allow update: if isValidImage(request.resource.data, imageId);
       allow delete: if true;
     }
 

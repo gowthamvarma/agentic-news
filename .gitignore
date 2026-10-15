@@ -92,3 +92,6 @@ ehthumbs.db
 *.swo
 .vscode/
 .idea/
+
+# Local media cache for development / fallback
+backend/media_cache/

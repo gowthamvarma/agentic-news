@@ -30,7 +30,8 @@ import {
   Lightbulb,
   Landmark,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Image as ImageIcon
 } from 'lucide-react';
 import {
   updateAnalysis,
@@ -57,6 +58,7 @@ import { FormattedMarkdown } from './FormattedMarkdown';
 import { CrossSourceContradictionsSection } from './CrossSourceContradictionsSection';
 import { TimelineSection } from './TimelineSection';
 import { ArticleStudioSection } from './ArticleStudioSection';
+import { ImageStudioSection } from './ImageStudioSection';
 import { useToast } from '../context/ToastContext';
 
 // Display metadata for Lessons & Prevention target audiences
@@ -760,6 +762,23 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
               </button>
             </li>
 
+            <li>
+              <button
+                className={`flex items-center justify-between py-2.5 px-3 rounded-xl font-medium transition-all ${
+                  activeTab === 'image'
+                    ? 'active font-bold shadow-md bg-primary text-primary-content'
+                    : 'hover:bg-base-300 text-base-content'
+                }`}
+                onClick={() => handleTabChange('image')}
+              >
+                <span className="flex items-center gap-2.5">
+                  <ImageIcon size={17} className={activeTab === 'image' ? 'text-primary-content' : 'text-primary'} />
+                  <span>Image Studio</span>
+                </span>
+                <span className="badge badge-xs badge-accent font-mono">Imagen 3</span>
+              </button>
+            </li>
+
             <li className="mt-1 pt-1 border-t border-base-300">
               <Link
                 to="/history"
@@ -807,7 +826,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
         </button>
 
         <div className="text-center font-medium truncate px-1 text-base-content/80">
-          <span className="font-bold text-primary">Section {currentTabIndex + 1} of 8:</span>{' '}
+          <span className="font-bold text-primary">Section {currentTabIndex + 1} of {ANALYSIS_TABS.length}:</span>{' '}
           <span className="font-semibold text-base-content">{currentTab.shortLabel}</span>
         </div>
 
@@ -935,6 +954,16 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
             onClick={() => handleTabChange('article')}
           >
             Article Studio
+          </button>
+          <button
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+              activeTab === 'image'
+                ? 'bg-primary text-primary-content shadow-sm'
+                : 'text-base-content/75 hover:bg-base-300/60 hover:text-base-content'
+            }`}
+            onClick={() => handleTabChange('image')}
+          >
+            Image Studio
           </button>
         </div>
       </div>
@@ -2511,6 +2540,21 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
         {/* Tab 9: On-Demand Article Studio */}
         {activeTab === 'article' && (
           <ArticleStudioSection
+            analysis={report}
+            onUpdateAnalysis={(patch) => {
+              if (onUpdateReport) {
+                onUpdateReport({
+                  ...report,
+                  ...patch,
+                });
+              }
+            }}
+          />
+        )}
+
+        {/* Tab 10: On-Demand Image Studio */}
+        {activeTab === 'image' && (
+          <ImageStudioSection
             analysis={report}
             onUpdateAnalysis={(patch) => {
               if (onUpdateReport) {

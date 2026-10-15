@@ -13,7 +13,8 @@ import {
   BookOpen,
   Scale,
   MessageSquare,
-  Sparkles
+  Sparkles,
+  Image as ImageIcon
 } from 'lucide-react';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { ToastProvider } from './context/ToastContext';
@@ -34,6 +35,7 @@ const TAB_ICONS: Record<AnalysisTabId, React.ComponentType<{ size?: number; clas
   debate: Scale,
   copilot: MessageSquare,
   article: Sparkles,
+  image: ImageIcon,
 };
 
 // Backwards-compatibility helper for legacy hashes (#archive, ?view=archive)

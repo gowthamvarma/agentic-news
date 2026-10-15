@@ -134,6 +134,8 @@ export interface NewsIntelligenceReport {
   debate?: PerspectiveDebateReport;
   chat_history?: ChatMessage[];
   generated_articles?: GeneratedArticleItem[];
+  generated_images?: GeneratedImageItem[];
+  image_prompts?: ImagePromptSuggestion[];
 }
 
 export interface ChatMessage {
@@ -271,6 +273,36 @@ export interface ArticleGenerateRequestPayload {
   include_social_kit?: boolean;
 }
 
+export interface ImagePromptSuggestion {
+  concept_title: string;
+  style_name: string;
+  prompt_text: string;
+  recommended_aspect_ratio: '16:9' | '1:1' | '4:3' | '9:16' | string;
+}
+
+export interface GeneratedImageItem {
+  id: string;
+  analysis_id: string;
+  article_id?: string;
+  prompt: string;
+  style: string;
+  aspect_ratio: string;
+  image_url: string;
+  gcs_uri?: string;
+  model: string;
+  created_at: number;
+  created_at_iso: string;
+}
+
+export interface ImageGenerateRequestPayload {
+  analysis_id: string;
+  prompt: string;
+  style?: string;
+  aspect_ratio?: string;
+  negative_prompt?: string;
+  article_id?: string;
+}
+
 export type AnalysisTabId =
   | 'brief'
   | 'sources'
@@ -280,7 +312,8 @@ export type AnalysisTabId =
   | 'quiz'
   | 'debate'
   | 'copilot'
-  | 'article';
+  | 'article'
+  | 'image';
 
 export interface AnalysisTabMeta {
   id: AnalysisTabId;
@@ -298,5 +331,6 @@ export const ANALYSIS_TABS: AnalysisTabMeta[] = [
   { id: 'debate', label: 'Perspective Debate Simulator', shortLabel: 'Debate' },
   { id: 'copilot', label: 'Autonomous Research Copilot', shortLabel: 'Copilot' },
   { id: 'article', label: 'On-Demand Article Studio', shortLabel: 'Article Studio' },
+  { id: 'image', label: 'On-Demand Image Studio', shortLabel: 'Image Studio' },
 ];
 

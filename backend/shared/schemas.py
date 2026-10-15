@@ -424,6 +424,14 @@ class NewsIntelligenceReport(BaseModel):
         default_factory=list,
         description="On-demand generated articles associated with this analysis",
     )
+    generated_images: List[Dict[str, Any]] = Field(
+        default_factory=list,
+        description="On-demand generated images associated with this analysis",
+    )
+    image_prompts: List[Dict[str, Any]] = Field(
+        default_factory=list,
+        description="On-demand generated image prompt suggestions associated with this analysis",
+    )
 
 
 class AudienceAdaptationItem(BaseModel):
@@ -591,4 +599,49 @@ class GeneratedArticleItem(BaseModel):
     created_at: float
     created_at_iso: str
     updated_at: Optional[float] = None
+
+
+# ==============================================================================
+# Layer 8: On-Demand Image Studio Models (Imagen 3 & Visual Intelligence)
+# ==============================================================================
+
+class ImagePromptSuggestion(BaseModel):
+    """AI-crafted image generation prompt tailored to the news investigation."""
+    concept_title: str = Field(description="Headline / hook for this visual concept")
+    style_name: str = Field(description="Visual style preset (e.g. Photojournalism, Magazine Cover, 3D Isometric)")
+    prompt_text: str = Field(description="Detailed prompt engineered for Imagen 3")
+    recommended_aspect_ratio: str = Field(default="16:9", description="16:9, 1:1, 4:3, or 9:16")
+
+
+class ImagePromptsResponse(BaseModel):
+    """List of generated prompt ideas for a specific analysis dossier."""
+    analysis_id: str
+    topic: str
+    prompts: List[ImagePromptSuggestion] = Field(default_factory=list)
+
+
+class ImageGenerateRequest(BaseModel):
+    """User request configuration for on-demand image generation."""
+    analysis_id: Optional[str] = Field(default=None, description="Parent analysis dossier ID (inferred from path if omitted)")
+    prompt: str = Field(..., description="Text prompt for image generation")
+    style: str = Field(default="photojournalism", description="Visual style preset")
+    aspect_ratio: str = Field(default="16:9", description="Aspect ratio: 16:9, 1:1, 4:3, 9:16")
+    negative_prompt: Optional[str] = Field(default=None, description="Negative prompt / elements to avoid")
+    article_id: Optional[str] = Field(default=None, description="Optional linked article ID")
+
+
+class GeneratedImageItem(BaseModel):
+    """Persisted generated image metadata record in Firestore."""
+    id: str = Field(description="Unique image ID")
+    analysis_id: str = Field(description="Associated analysis ID")
+    article_id: Optional[str] = Field(default=None, description="Optional associated article ID")
+    prompt: str = Field(description="Prompt used for generation")
+    style: str = Field(default="photojournalism")
+    aspect_ratio: str = Field(default="16:9")
+    image_url: str = Field(description="Web-accessible public URL or local streaming path")
+    gcs_uri: Optional[str] = Field(default=None, description="Full gs:// URI if stored in GCS")
+    model: str = Field(default="imagen-3.0-generate-002")
+    created_at: float
+    created_at_iso: str
+
 

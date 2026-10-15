@@ -7,6 +7,7 @@ Exposes REST APIs connecting the frontend and external clients to the
 from __future__ import annotations
 
 import asyncio
+import datetime
 import json
 import os
 import sys
@@ -38,8 +39,17 @@ from shared.config import (
 )
 from shared.firestore_service import FirestoreService
 from shared.topic_suggester import generate_country_topic_suggestions
-from shared.schemas import ArticleGenerateRequest
+from shared.schemas import ArticleGenerateRequest, ImageGenerateRequest
 from shared.article_generator import generate_article_for_analysis
+from shared.image_generator import (
+    generate_editorial_image_prompts,
+    generate_image_with_imagen,
+)
+from shared.storage_service import (
+    upload_image_bytes,
+    get_local_media_path,
+    delete_image_file,
+)
 from shared.structured_builder import (
     build_structured_intelligence,
     build_structured_quiz,
@@ -586,6 +596,151 @@ async def delete_analysis_article(analysis_id: str, article_id: str):
         "analysis_id": analysis_id,
         "article_id": article_id,
     }
+
+
+# ==============================================================================
+# Image Studio Endpoints (On-Demand AI Visuals with Imagen 3)
+# ==============================================================================
+
+@app.post("/api/analysis/{analysis_id}/image-prompts")
+@app.get("/api/analysis/{analysis_id}/image-prompts")
+async def get_analysis_image_prompts(analysis_id: str, refresh: bool = Query(default=False)):
+    """Retrieves saved editorial image prompts from Firestore, or generates and saves 5 tailored prompts."""
+    analysis_data = await FirestoreService.get_analysis(analysis_id)
+    if not analysis_data:
+        raise HTTPException(status_code=404, detail=f"Analysis '{analysis_id}' not found.")
+
+    # 1. If refresh is False, check for cached / persisted prompts in Firestore
+    if not refresh:
+        existing_prompts = await FirestoreService.get_image_prompts(analysis_id)
+        if existing_prompts:
+            logger.info("Returning %d existing image prompts from Firestore for analysis '%s'", len(existing_prompts), analysis_id)
+            return {
+                "analysis_id": analysis_id,
+                "topic": analysis_data.get("topic", "News Investigation"),
+                "prompts": existing_prompts,
+                "cached": True,
+            }
+
+    # 2. Generate fresh grounded prompts with Gemini
+    logger.info("Generating fresh editorial image prompts for analysis '%s'...", analysis_id)
+    prompts = await asyncio.to_thread(generate_editorial_image_prompts, analysis_data)
+
+    # 3. Persist generated prompts to Firestore
+    await FirestoreService.save_image_prompts(analysis_id, prompts)
+
+    return {
+        "analysis_id": analysis_id,
+        "topic": analysis_data.get("topic", "News Investigation"),
+        "prompts": prompts,
+        "cached": False,
+    }
+
+
+@app.post("/api/analysis/{analysis_id}/generate-image")
+async def generate_dossier_image(analysis_id: str, req: ImageGenerateRequest):
+    """Generates an image via Imagen 3, persists binary in GCS or local media cache,
+    saves metadata to Firestore, and returns the image entity.
+    """
+    analysis_data = await FirestoreService.get_analysis(analysis_id)
+    if not analysis_data:
+        raise HTTPException(status_code=404, detail=f"Analysis '{analysis_id}' not found.")
+
+    image_id = str(uuid.uuid4())
+    logger.info("Generating image '%s' for analysis '%s' with Imagen 3 (aspect_ratio=%s)...", image_id, analysis_id, req.aspect_ratio)
+
+    image_bytes = await asyncio.to_thread(
+        generate_image_with_imagen,
+        prompt=req.prompt,
+        style=req.style,
+        aspect_ratio=req.aspect_ratio,
+        negative_prompt=req.negative_prompt,
+    )
+
+    is_svg = image_bytes.startswith(b"<svg")
+    is_png = image_bytes.startswith(b"\x89PNG")
+    if is_svg:
+        ext = "svg"
+        mime_type = "image/svg+xml"
+    elif is_png:
+        ext = "png"
+        mime_type = "image/png"
+    else:
+        ext = "jpg"
+        mime_type = "image/jpeg"
+    filename = f"{image_id}.{ext}"
+
+    # Upload binary to GCS or local media cache
+    media_url = await asyncio.to_thread(
+        upload_image_bytes,
+        image_bytes=image_bytes,
+        filename=filename,
+        content_type=mime_type,
+    )
+
+    now = time.time()
+    image_record = {
+        "id": image_id,
+        "analysis_id": analysis_id,
+        "article_id": req.article_id,
+        "prompt": req.prompt,
+        "style": req.style,
+        "aspect_ratio": req.aspect_ratio,
+        "image_url": media_url,
+        "gcs_uri": media_url if media_url.startswith("https://storage.googleapis.com") else None,
+        "model": "imagen-3.0-generate-002",
+        "created_at": now,
+        "created_at_iso": datetime.datetime.fromtimestamp(now, tz=datetime.timezone.utc).isoformat(),
+    }
+
+    await FirestoreService.save_image_metadata(image_record)
+    logger.info("Saved image '%s' metadata to Firestore with URL: %s", image_id, media_url)
+    return image_record
+
+
+@app.get("/api/analysis/{analysis_id}/images")
+async def get_analysis_images(analysis_id: str):
+    """Retrieves all images generated for a specific analysis."""
+    images = await FirestoreService.get_images_for_analysis(analysis_id)
+    return {
+        "analysis_id": analysis_id,
+        "images": images,
+        "total": len(images),
+    }
+
+
+@app.delete("/api/analysis/{analysis_id}/image/{image_id}")
+async def delete_analysis_image(analysis_id: str, image_id: str):
+    """Deletes image metadata and its underlying file storage."""
+    success = await FirestoreService.delete_image_metadata(analysis_id, image_id)
+    # Also clean up local or GCS file
+    for ext in ["jpg", "png", "svg"]:
+        delete_image_file(f"{image_id}.{ext}")
+    return {
+        "success": success,
+        "analysis_id": analysis_id,
+        "image_id": image_id,
+    }
+
+
+@app.get("/api/media/{filename}")
+async def serve_local_media(filename: str, download: bool = Query(default=False)):
+    """Serves locally cached images when running in development or offline mode."""
+    path = get_local_media_path(filename)
+    if not path or not path.is_file():
+        raise HTTPException(status_code=404, detail="Media file not found")
+    if filename.endswith(".svg"):
+        media_type = "image/svg+xml"
+    elif filename.endswith(".png"):
+        media_type = "image/png"
+    else:
+        media_type = "image/jpeg"
+
+    headers = {}
+    if download:
+        headers["Content-Disposition"] = f'attachment; filename="{filename}"'
+
+    return FileResponse(path, media_type=media_type, headers=headers)
 
 
 _suggestions_lock = asyncio.Lock()
