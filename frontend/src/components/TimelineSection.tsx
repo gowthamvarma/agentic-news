@@ -101,7 +101,7 @@ export const TimelineSection: React.FC<TimelineSectionProps> = ({ timeline }) =>
     <div className="card bg-base-200 border border-base-300 shadow-xl overflow-hidden">
       <div className="card-body p-6 md:p-8">
         {/* Header with Title and Badges */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-base-300">
+        <div className="pb-4 border-b border-base-300">
           <div className="flex items-start sm:items-center gap-3">
             <div className="w-11 h-11 rounded-xl bg-primary/15 text-primary border border-primary/30 flex items-center justify-center flex-shrink-0 shadow-xs">
               <Clock size={24} />
@@ -125,50 +125,6 @@ export const TimelineSection: React.FC<TimelineSectionProps> = ({ timeline }) =>
                 Tracing early antecedent milestones up to the most recent trending incidents, real-time developments, and narrative shifts.
               </p>
             </div>
-          </div>
-
-          {/* Action Toolbar: Sorting and Recent Filter */}
-          <div className="flex items-center gap-2 flex-wrap self-start lg:self-center flex-shrink-0">
-            {/* Chronological / Reverse Toggle Group */}
-            <div className="join shadow-xs border border-base-300 rounded-lg overflow-hidden">
-              <button
-                type="button"
-                onClick={() => setSortOrder('chronological')}
-                className={`btn btn-sm join-item font-bold gap-1.5 ${sortOrder === 'chronological'
-                  ? 'btn-primary text-primary-content'
-                  : 'btn-ghost text-base-content/75 hover:bg-base-300'
-                  }`}
-                title="View in chronological order (oldest first)"
-              >
-                <Clock size={14} />
-                <span>Oldest First</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setSortOrder('reverse')}
-                className={`btn btn-sm join-item font-bold gap-1.5 ${sortOrder === 'reverse'
-                    ? 'btn-primary text-primary-content'
-                    : 'btn-ghost text-base-content/75 hover:bg-base-300'
-                  }`}
-                title="Reverse order (newest incidents first)"
-              >
-                <ArrowUpDown size={14} />
-                <span>Newest First</span>
-              </button>
-            </div>
-
-            {/* Filter Recent Only Button */}
-            {recentCount > 0 && (
-              <button
-                type="button"
-                onClick={() => setFilterRecentOnly(!filterRecentOnly)}
-                className={`btn btn-sm gap-1.5 font-bold shadow-xs transition-all ${filterRecentOnly ? 'btn-warning text-warning-content' : 'btn-outline btn-warning'
-                  }`}
-              >
-                <Flame size={14} className={filterRecentOnly ? 'fill-current' : ''} />
-                <span>{filterRecentOnly ? 'Showing Recent Only' : 'Recent Only'}</span>
-              </button>
-            )}
           </div>
         </div>
 
@@ -209,7 +165,7 @@ export const TimelineSection: React.FC<TimelineSectionProps> = ({ timeline }) =>
               placeholder="Search timeline..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="input input-xs input-bordered w-full pl-8 pr-3 text-xs bg-base-100 rounded-lg focus:outline-none focus:border-primary"
+              className="input input-sm input-bordered w-full pl-8 pr-3 text-xs bg-base-100 rounded-lg focus:outline-none focus:border-primary"
             />
             {searchQuery && (
               <button
@@ -220,6 +176,56 @@ export const TimelineSection: React.FC<TimelineSectionProps> = ({ timeline }) =>
                 ×
               </button>
             )}
+          </div>
+        </div>
+
+        {/* Action Toolbar: Sorting and Recent Filter (Positioned below Search Input and above Timeline Cards) */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 pb-2 border-t border-base-300/60 my-1">
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Chronological / Reverse Toggle Group */}
+            <div className="join shadow-xs border border-base-300 rounded-lg overflow-hidden bg-base-100">
+              <button
+                type="button"
+                onClick={() => setSortOrder('chronological')}
+                className={`btn btn-sm join-item font-bold gap-1.5 ${sortOrder === 'chronological'
+                  ? 'btn-primary text-primary-content'
+                  : 'btn-ghost text-base-content/75 hover:bg-base-300'
+                  }`}
+                title="View in chronological order (oldest first)"
+              >
+                <Clock size={14} />
+                <span>Oldest First</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setSortOrder('reverse')}
+                className={`btn btn-sm join-item font-bold gap-1.5 ${sortOrder === 'reverse'
+                    ? 'btn-primary text-primary-content'
+                    : 'btn-ghost text-base-content/75 hover:bg-base-300'
+                  }`}
+                title="Reverse order (newest incidents first)"
+              >
+                <ArrowUpDown size={14} />
+                <span>Newest First</span>
+              </button>
+            </div>
+
+            {/* Filter Recent Only Button */}
+            {recentCount > 0 && (
+              <button
+                type="button"
+                onClick={() => setFilterRecentOnly(!filterRecentOnly)}
+                className={`btn btn-sm gap-1.5 font-bold shadow-xs transition-all ${filterRecentOnly ? 'btn-warning text-warning-content' : 'btn-outline btn-warning'
+                  }`}
+              >
+                <Flame size={14} className={filterRecentOnly ? 'fill-current' : ''} />
+                <span>{filterRecentOnly ? 'Showing Recent Only' : 'Recent Only'}</span>
+              </button>
+            )}
+          </div>
+
+          <div className="text-xs text-base-content/60 font-medium">
+            Showing <span className="font-bold text-base-content">{displayedEvents.length}</span> of {rawEvents.length} milestones
           </div>
         </div>
 

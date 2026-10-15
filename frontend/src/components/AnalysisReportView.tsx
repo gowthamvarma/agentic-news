@@ -938,6 +938,11 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
             <div className="card bg-base-200 border border-base-300 shadow-xl overflow-hidden min-w-0 break-words">
               <div className="card-body p-4 sm:p-6 md:p-8">
                 <div className="flex flex-col gap-3 pb-3 border-b border-base-300">
+                  <div className="card-title text-xl md:text-2xl font-black text-base-content flex items-center gap-3 mb-0 min-w-0">
+                    <FileText size={24} className="text-primary flex-shrink-0" />
+                    <span className="break-words min-w-0">Executive Intelligence Brief: {report.topic}</span>
+                  </div>
+
                   <div className="flex flex-wrap items-center gap-2">
                     {/* Copy Bookmark Link Button */}
                     <button
@@ -964,11 +969,6 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     <div className="badge badge-outline badge-primary font-medium py-1.5 px-3 whitespace-normal h-auto text-xs text-center max-w-full">
                       Audited across {report.articles_analyzed?.length || report.sources_analyzed?.length || 6} major outlets
                     </div>
-                  </div>
-
-                  <div className="card-title text-xl md:text-2xl font-black text-base-content flex items-center gap-3 mb-0 min-w-0">
-                    <FileText size={24} className="text-primary flex-shrink-0" />
-                    <span className="break-words min-w-0">Executive Intelligence Brief: {report.topic}</span>
                   </div>
                 </div>
 
@@ -1290,7 +1290,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
           <div className="flex flex-col gap-6">
             <div className="card bg-base-200 border border-base-300 shadow-xl overflow-hidden min-w-0 break-words">
               <div className="card-body p-4 sm:p-6 md:p-8">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-base-300">
+                <div className="flex flex-col gap-2.5 pb-4 border-b border-base-300">
                   <div className="card-title text-xl font-black text-base-content flex items-center gap-3 min-w-0">
                     <Globe size={24} className="text-primary flex-shrink-0" />
                     <span className="break-words">Verified Source Articles & Media Bias Directory</span>
