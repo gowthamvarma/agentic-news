@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ShieldCheck,
@@ -28,7 +28,9 @@ import {
   User,
   Globe,
   Lightbulb,
-  Landmark
+  Landmark,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import {
   updateAnalysis,
@@ -45,8 +47,10 @@ import type {
   QuizPayload,
   PerspectiveDebateReport,
   ChatMessage,
-  LessonItem
+  LessonItem,
+  AnalysisTabId
 } from '../types';
+import { ANALYSIS_TABS } from '../types';
 import { RobotAvatar } from './RobotAvatar';
 import { UserAvatar } from './UserAvatar';
 import { FormattedMarkdown } from './FormattedMarkdown';
@@ -177,21 +181,44 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
   const { showToast } = useToast();
   const [copiedLink, setCopiedLink] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<'brief' | 'sources' | 'verification' | 'timeline' | 'insights' | 'quiz' | 'debate' | 'copilot'>(() => {
+  const reportTopRef = useRef<HTMLDivElement>(null);
+
+  const [activeTab, setActiveTab] = useState<AnalysisTabId>(() => {
     if (typeof window !== 'undefined' && window.location.hash) {
       const h = window.location.hash.replace('#', '');
-      if (['brief', 'sources', 'verification', 'timeline', 'insights', 'quiz', 'debate', 'copilot'].includes(h)) {
-        return h as any;
+      if (ANALYSIS_TABS.some((t) => t.id === h)) {
+        return h as AnalysisTabId;
       }
     }
     return initialTab;
   });
 
+  const currentTabIndex = ANALYSIS_TABS.findIndex((t) => t.id === activeTab);
+  const currentTab = ANALYSIS_TABS[currentTabIndex >= 0 ? currentTabIndex : 0];
+  const prevTab = currentTabIndex > 0 ? ANALYSIS_TABS[currentTabIndex - 1] : null;
+  const nextTab = currentTabIndex < ANALYSIS_TABS.length - 1 ? ANALYSIS_TABS[currentTabIndex + 1] : null;
+
+  const handleTabChange = (tabId: AnalysisTabId) => {
+    setActiveTab(tabId);
+    if (typeof window !== 'undefined') {
+      if (window.location.hash !== `#${tabId}`) {
+        window.location.hash = tabId;
+      }
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
+
+      if (reportTopRef.current) {
+        reportTopRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  };
+
   useEffect(() => {
     const onHashChange = () => {
       const h = window.location.hash.replace('#', '');
-      if (['brief', 'sources', 'verification', 'timeline', 'insights', 'quiz', 'debate', 'copilot'].includes(h)) {
-        setActiveTab(h as any);
+      if (ANALYSIS_TABS.some((t) => t.id === h)) {
+        setActiveTab(h as AnalysisTabId);
       }
     };
     window.addEventListener('hashchange', onHashChange);
@@ -515,7 +542,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
+    <div ref={reportTopRef} className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
       {/* Desktop Sticky Side Navigation */}
       <aside className="w-full lg:w-72 xl:w-80 flex-shrink-0 lg:sticky lg:top-20 z-20 hidden lg:block">
         <div className="card bg-base-200/95 backdrop-blur-md border border-base-300 shadow-xl p-3">
@@ -537,7 +564,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     ? 'active font-bold shadow-md bg-primary text-primary-content'
                     : 'hover:bg-base-300 text-base-content'
                 }`}
-                onClick={() => setActiveTab('brief')}
+                onClick={() => handleTabChange('brief')}
               >
                 <span className="flex items-center gap-2.5">
                   <FileText size={17} className={activeTab === 'brief' ? 'text-primary-content' : 'text-primary'} />
@@ -553,7 +580,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     ? 'active font-bold shadow-md bg-primary text-primary-content'
                     : 'hover:bg-base-300 text-base-content'
                 }`}
-                onClick={() => setActiveTab('sources')}
+                onClick={() => handleTabChange('sources')}
               >
                 <span className="flex items-center gap-2.5">
                   <Globe size={17} className={activeTab === 'sources' ? 'text-primary-content' : 'text-secondary'} />
@@ -572,7 +599,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     ? 'active font-bold shadow-md bg-primary text-primary-content'
                     : 'hover:bg-base-300 text-base-content'
                 }`}
-                onClick={() => setActiveTab('verification')}
+                onClick={() => handleTabChange('verification')}
               >
                 <span className="flex items-center gap-2.5">
                   <ShieldCheck size={17} className={activeTab === 'verification' ? 'text-primary-content' : 'text-success'} />
@@ -591,7 +618,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     ? 'active font-bold shadow-md bg-primary text-primary-content'
                     : 'hover:bg-base-300 text-base-content'
                 }`}
-                onClick={() => setActiveTab('timeline')}
+                onClick={() => handleTabChange('timeline')}
               >
                 <span className="flex items-center gap-2.5">
                   <Clock size={17} className={activeTab === 'timeline' ? 'text-primary-content' : 'text-info'} />
@@ -610,7 +637,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     ? 'active font-bold shadow-md bg-primary text-primary-content'
                     : 'hover:bg-base-300 text-base-content'
                 }`}
-                onClick={() => setActiveTab('insights')}
+                onClick={() => handleTabChange('insights')}
               >
                 <span className="flex items-center gap-2.5">
                   <TrendingUp size={17} className={activeTab === 'insights' ? 'text-primary-content' : 'text-warning'} />
@@ -642,7 +669,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     ? 'active font-bold shadow-md bg-primary text-primary-content'
                     : 'hover:bg-base-300 text-base-content'
                 }`}
-                onClick={() => setActiveTab('quiz')}
+                onClick={() => handleTabChange('quiz')}
               >
                 <span className="flex items-center gap-2.5">
                   <BookOpen size={17} className={activeTab === 'quiz' ? 'text-primary-content' : 'text-accent'} />
@@ -674,7 +701,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     ? 'active font-bold shadow-md bg-primary text-primary-content'
                     : 'hover:bg-base-300 text-base-content'
                 }`}
-                onClick={() => setActiveTab('debate')}
+                onClick={() => handleTabChange('debate')}
               >
                 <span className="flex items-center gap-2.5">
                   <Scale size={17} className={activeTab === 'debate' ? 'text-primary-content' : 'text-secondary'} />
@@ -706,7 +733,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     ? 'active font-bold shadow-md bg-primary text-primary-content'
                     : 'hover:bg-base-300 text-base-content'
                 }`}
-                onClick={() => setActiveTab('copilot')}
+                onClick={() => handleTabChange('copilot')}
               >
                 <span className="flex items-center gap-2.5">
                   <MessageSquare size={17} className={activeTab === 'copilot' ? 'text-primary-content' : 'text-primary'} />
@@ -749,6 +776,34 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
         </div>
       </aside>
 
+      {/* Mobile Section Step Navigation Bar */}
+      <div className="w-full lg:hidden flex items-center justify-between gap-2 mb-3 p-2 bg-base-200/80 rounded-xl border border-base-300 text-xs shadow-xs">
+        <button
+          onClick={() => prevTab && handleTabChange(prevTab.id)}
+          disabled={!prevTab}
+          className="btn btn-xs btn-outline border-base-300 gap-1 disabled:opacity-30"
+          title={prevTab ? `Go to ${prevTab.shortLabel}` : 'No previous section'}
+        >
+          <ChevronLeft size={14} />
+          <span>Prev</span>
+        </button>
+
+        <div className="text-center font-medium truncate px-1 text-base-content/80">
+          <span className="font-bold text-primary">Section {currentTabIndex + 1} of 8:</span>{' '}
+          <span className="font-semibold text-base-content">{currentTab.shortLabel}</span>
+        </div>
+
+        <button
+          onClick={() => nextTab && handleTabChange(nextTab.id)}
+          disabled={!nextTab}
+          className="btn btn-xs btn-primary gap-1 disabled:opacity-30 shadow-xs"
+          title={nextTab ? `Go to ${nextTab.shortLabel}` : 'No next section'}
+        >
+          <span>Next</span>
+          <ChevronRight size={14} />
+        </button>
+      </div>
+
       {/* Mobile Horizontal Tabs Switcher */}
       <div className="w-full lg:hidden mb-4 overflow-x-auto no-scrollbar py-1">
         <div className="flex items-center gap-1.5 p-1 bg-base-200/90 rounded-2xl border border-base-300 w-max shadow-inner">
@@ -758,7 +813,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 ? 'bg-primary text-primary-content shadow-sm'
                 : 'text-base-content/75 hover:bg-base-300/60 hover:text-base-content'
             }`}
-            onClick={() => setActiveTab('brief')}
+            onClick={() => handleTabChange('brief')}
           >
             Brief
           </button>
@@ -768,7 +823,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 ? 'bg-primary text-primary-content shadow-sm'
                 : 'text-base-content/75 hover:bg-base-300/60 hover:text-base-content'
             }`}
-            onClick={() => setActiveTab('sources')}
+            onClick={() => handleTabChange('sources')}
           >
             Sources ({report.articles_analyzed?.length || report.sources_analyzed?.length || 0})
           </button>
@@ -778,7 +833,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 ? 'bg-primary text-primary-content shadow-sm'
                 : 'text-base-content/75 hover:bg-base-300/60 hover:text-base-content'
             }`}
-            onClick={() => setActiveTab('verification')}
+            onClick={() => handleTabChange('verification')}
           >
             Fact Checks & Contradictions ({(report.verifications?.length || 0) + (report.contradictions?.length || 0)})
           </button>
@@ -788,7 +843,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 ? 'bg-primary text-primary-content shadow-sm'
                 : 'text-base-content/75 hover:bg-base-300/60 hover:text-base-content'
             }`}
-            onClick={() => setActiveTab('timeline')}
+            onClick={() => handleTabChange('timeline')}
           >
             Timeline ({report.timeline?.events?.length || 0})
           </button>
@@ -798,7 +853,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 ? 'bg-primary text-primary-content shadow-sm'
                 : 'text-base-content/75 hover:bg-base-300/60 hover:text-base-content'
             }`}
-            onClick={() => setActiveTab('insights')}
+            onClick={() => handleTabChange('insights')}
           >
             <span>Scenarios</span>
             {scenariosStatus === 'loading' ? (
@@ -815,7 +870,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 ? 'bg-primary text-primary-content shadow-sm'
                 : 'text-base-content/75 hover:bg-base-300/60 hover:text-base-content'
             }`}
-            onClick={() => setActiveTab('quiz')}
+            onClick={() => handleTabChange('quiz')}
           >
             <span>Recall Tutor</span>
             {quizStatus === 'loading' ? (
@@ -832,7 +887,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 ? 'bg-primary text-primary-content shadow-sm'
                 : 'text-base-content/75 hover:bg-base-300/60 hover:text-base-content'
             }`}
-            onClick={() => setActiveTab('debate')}
+            onClick={() => handleTabChange('debate')}
           >
             <span>Debate</span>
             {debateStatus === 'loading' ? (
@@ -849,7 +904,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 ? 'bg-primary text-primary-content shadow-sm'
                 : 'text-base-content/75 hover:bg-base-300/60 hover:text-base-content'
             }`}
-            onClick={() => setActiveTab('copilot')}
+            onClick={() => handleTabChange('copilot')}
           >
             Copilot
           </button>
@@ -2419,6 +2474,52 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
             </form>
           </div>
         )}
+
+        {/* Section Navigation Pager (Previous / Next Buttons) */}
+        <nav
+          aria-label="Section navigation"
+          className="mt-8 pt-6 border-t border-base-300 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3"
+        >
+          {prevTab ? (
+            <button
+              onClick={() => handleTabChange(prevTab.id)}
+              className="btn btn-outline border-base-300 hover:border-primary hover:bg-base-300/50 flex-1 flex items-center justify-between sm:justify-start gap-3 py-3 px-4 h-auto text-left shadow-xs transition-all group"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <ChevronLeft size={20} className="text-primary group-hover:-translate-x-1 transition-transform shrink-0" />
+                <div className="flex flex-col min-w-0">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-base-content/60">
+                    Previous Section ({currentTabIndex}/8)
+                  </span>
+                  <span className="text-xs sm:text-sm font-bold text-base-content truncate">
+                    {prevTab.shortLabel}
+                  </span>
+                </div>
+              </div>
+            </button>
+          ) : (
+            <div className="hidden sm:block flex-1" />
+          )}
+
+          {nextTab && (
+            <button
+              onClick={() => handleTabChange(nextTab.id)}
+              className="btn btn-primary flex-1 flex items-center justify-between sm:justify-end gap-3 py-3 px-4 h-auto text-right shadow-md hover:shadow-lg transition-all group"
+            >
+              <div className="flex items-center justify-between sm:justify-end w-full gap-2.5 min-w-0">
+                <div className="flex flex-col items-start sm:items-end min-w-0">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-primary-content/80">
+                    Next Section ({currentTabIndex + 2}/8)
+                  </span>
+                  <span className="text-xs sm:text-sm font-bold text-primary-content truncate">
+                    {nextTab.shortLabel}
+                  </span>
+                </div>
+                <ChevronRight size={20} className="text-primary-content group-hover:translate-x-1 transition-transform shrink-0" />
+              </div>
+            </button>
+          )}
+        </nav>
       </div>
     </div>
   );

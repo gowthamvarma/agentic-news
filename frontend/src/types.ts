@@ -223,3 +223,30 @@ export interface TopicSuggestionsPayload {
   countries: CountryTopicGroup[];
 }
 
+export type AnalysisTabId =
+  | 'brief'
+  | 'sources'
+  | 'verification'
+  | 'timeline'
+  | 'insights'
+  | 'quiz'
+  | 'debate'
+  | 'copilot';
+
+export interface AnalysisTabMeta {
+  id: AnalysisTabId;
+  label: string;
+  shortLabel: string;
+}
+
+export const ANALYSIS_TABS: AnalysisTabMeta[] = [
+  { id: 'brief', label: 'Executive Intelligence Brief', shortLabel: 'Brief' },
+  { id: 'sources', label: 'Verified Sources & Outlets', shortLabel: 'Sources' },
+  { id: 'verification', label: 'Fact Checks & Contradictions', shortLabel: 'Fact Checks' },
+  { id: 'timeline', label: 'Chronological Timeline', shortLabel: 'Timeline' },
+  { id: 'insights', label: 'Root Causes & Future Scenarios', shortLabel: 'Scenarios' },
+  { id: 'quiz', label: 'Active Recall Literacy Tutor', shortLabel: 'Recall Tutor' },
+  { id: 'debate', label: 'Perspective Debate Simulator', shortLabel: 'Debate' },
+  { id: 'copilot', label: 'Autonomous Research Copilot', shortLabel: 'Copilot' },
+];
+
