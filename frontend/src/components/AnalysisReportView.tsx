@@ -882,12 +882,8 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
             {/* Executive Summary Card */}
             <div className="card bg-base-200 border border-base-300 shadow-xl">
               <div className="card-body p-6 md:p-8">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-base-300">
-                  <div className="card-title text-xl md:text-2xl font-black text-base-content flex items-center gap-3">
-                    <FileText size={24} className="text-primary flex-shrink-0" />
-                    <span>Executive Intelligence Brief: {report.topic}</span>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2 self-start md:self-auto flex-shrink-0">
+                <div className="flex flex-col gap-3 pb-3 border-b border-base-300">
+                  <div className="flex flex-wrap items-center gap-2">
                     {/* Copy Bookmark Link Button */}
                     <button
                       onClick={handleCopyBookmarkLink}
@@ -913,6 +909,11 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     <div className="badge badge-outline badge-primary font-medium py-3 px-3 whitespace-nowrap text-xs">
                       Audited across {report.articles_analyzed?.length || report.sources_analyzed?.length || 6} major outlets
                     </div>
+                  </div>
+
+                  <div className="card-title text-xl md:text-2xl font-black text-base-content flex items-center gap-3 mb-0">
+                    <FileText size={24} className="text-primary flex-shrink-0" />
+                    <span>Executive Intelligence Brief: {report.topic}</span>
                   </div>
                 </div>
 
