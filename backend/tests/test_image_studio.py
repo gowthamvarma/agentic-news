@@ -27,12 +27,33 @@ from shared.schemas import (
     ClaimVerification,
 )
 from shared.firestore_service import FirestoreService, _MEMORY_STORE
-from shared.image_generator import generate_editorial_image_prompts, generate_image_with_imagen
+from shared.image_generator import (
+    generate_editorial_image_prompts,
+    generate_image_with_imagen,
+    sanitize_prompt_for_anti_deception,
+)
+from shared.image_editorial_crew import (
+    run_editorial_art_pipeline,
+    run_news_analyst_agent,
+    run_creative_director_agent,
+    run_cinematographer_agent,
+    run_editorial_critic_agent,
+    CLICHE_PATTERNS,
+)
 from shared.storage_service import upload_image_bytes, delete_image_file, get_local_media_path
 
 
 class TestImageStudio(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
+        import shared.config as config
+        self._orig_sim = config.IS_SIMULATION_MODE
+        self._orig_key = config.GEMINI_API_KEY
+        config.IS_SIMULATION_MODE = True
+        config.GEMINI_API_KEY = ""
+
+        for k in _MEMORY_STORE:
+            _MEMORY_STORE[k].clear()
+
         self.client = TestClient(app)
         self.mock_analysis = NewsIntelligenceReport(
             id="test-analysis-img-123",
@@ -62,6 +83,11 @@ class TestImageStudio(unittest.IsolatedAsyncioTestCase):
             ),
             generated_images=[]
         )
+
+    def tearDown(self):
+        import shared.config as config
+        config.IS_SIMULATION_MODE = self._orig_sim
+        config.GEMINI_API_KEY = self._orig_key
 
     def test_suggest_image_prompts_fallback(self):
         """Test generating prompt ideas with simulated fallback."""
@@ -186,6 +212,93 @@ class TestImageStudio(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(resp_del.status_code, 200)
         del_res = resp_del.json()
         self.assertTrue(del_res.get("success"))
+
+    def test_editorial_art_room_multi_agent_pipeline(self):
+        """Test full 4-agent sequential pipeline execution and shared state schema."""
+        with patch("shared.image_editorial_crew.GEMINI_API_KEY", ""):
+            state, prompts = run_editorial_art_pipeline(
+                headline="Global Supply Chain Disruption at Major Shipping Chokepoints",
+                context="Severe bottlenecks and container delays cause widespread inflation and maritime friction.",
+                preferred_aspect_ratio="16:9",
+            )
+
+            # 1. Verify Agent 1: Analyst output
+            self.assertIsNotNone(state.analyst_output)
+            self.assertTrue(len(state.analyst_output.core_tension) > 0)
+            self.assertTrue(len(state.analyst_output.sonic_cues) >= 1)
+            self.assertTrue(len(state.analyst_output.tangible_anchors) >= 1)
+
+            # 2. Verify Agent 2: Creative Director output
+            self.assertIsNotNone(state.creative_director_output)
+            self.assertEqual(len(state.creative_director_output.concepts), 3)
+            for c in state.creative_director_output.concepts:
+                self.assertTrue(len(c.metaphor) > 0)
+                self.assertTrue(len(c.visual_hook) > 0)
+                self.assertTrue(len(c.sensory_synesthesia) > 0)
+
+            # 3. Verify Agent 3: Cinematographer output
+            self.assertIsNotNone(state.cinematographer_output)
+            self.assertTrue(len(state.cinematographer_output.imagen_3_prompt) > 0)
+            self.assertEqual(state.cinematographer_output.aspect_ratio, "16:9")
+
+            # 4. Verify Agent 4: Critic output & Guardrails
+            self.assertIsNotNone(state.critic_evaluation)
+            self.assertTrue(state.critic_evaluation.approved)
+            self.assertGreaterEqual(state.critic_evaluation.attention_score, 7.5)
+            self.assertFalse(state.critic_evaluation.cliche_detected)
+            self.assertFalse(state.critic_evaluation.likeness_risk_detected)
+
+            # 5. Verify synthesized prompts
+            self.assertGreaterEqual(len(prompts), 3)
+            primary_prompt = prompts[0]
+            self.assertIn("Critic Choice", primary_prompt.concept_title)
+            self.assertTrue(len(primary_prompt.sonic_cues) >= 1)
+            self.assertIsNotNone(primary_prompt.attention_score)
+
+    def test_critic_cliche_rejection_and_revision_loop(self):
+        """Test that overused stock photo tropes trigger the critic's revision loop."""
+        analyst_out = run_news_analyst_agent("Tech Startup Debate", "Two founders clash over AI roadmap.")
+        director_out = run_creative_director_agent(analyst_out, "Tech Startup Debate")
+        concept = director_out.concepts[0]
+
+        # Explicitly craft a prompt containing banned stock-photo tropes (chessboard & handshake)
+        cliche_prompt = "Two business executives shaking hands across a chessboard with glowing brain holograms"
+        critic_out = run_editorial_critic_agent(cliche_prompt, concept, analyst_out)
+
+        self.assertFalse(critic_out.approved)
+        self.assertTrue(critic_out.cliche_detected)
+        self.assertLess(critic_out.attention_score, 7.5)
+
+    def test_likeness_guardrail_stripping(self):
+        """Test that names of real living political figures are stripped to prevent deceptive deepfakes."""
+        prompt_with_politicians = "President Biden and Donald Trump discussing diplomatic treaties in the Oval Office"
+        sanitized = sanitize_prompt_for_anti_deception(prompt_with_politicians)
+
+        self.assertNotIn("Biden", sanitized)
+        self.assertNotIn("Trump", sanitized)
+        self.assertIn("silhouetted diplomat seen from behind", sanitized)
+
+    async def test_editorial_art_pipeline_endpoint(self):
+        """Test the POST /api/analysis/{analysis_id}/editorial-art-pipeline endpoint."""
+        await FirestoreService.save_analysis(self.mock_analysis.id, self.mock_analysis.model_dump())
+
+        with patch("shared.image_editorial_crew.GEMINI_API_KEY", ""):
+            resp = self.client.post(
+                f"/api/analysis/{self.mock_analysis.id}/editorial-art-pipeline",
+                json={
+                    "analysis_id": self.mock_analysis.id,
+                    "preferred_aspect_ratio": "16:9",
+                }
+            )
+            self.assertEqual(resp.status_code, 200)
+            data = resp.json()
+            self.assertIn("state", data)
+            self.assertIn("prompts", data)
+            self.assertIn("analyst_output", data["state"])
+            self.assertIn("creative_director_output", data["state"])
+            self.assertIn("cinematographer_output", data["state"])
+            self.assertIn("critic_evaluation", data["state"])
+            self.assertTrue(data["state"]["guardrail_summary"]["anti_deception_guardrail_active"])
 
 
 if __name__ == "__main__":

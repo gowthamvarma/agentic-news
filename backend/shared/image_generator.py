@@ -56,55 +56,24 @@ SUPPORTED_ASPECT_RATIOS = ["16:9", "1:1", "4:3", "9:16"]
 
 
 def generate_editorial_image_prompts(analysis: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """Synthesizes 5 diverse image prompts grounded in the active dossier."""
+    """Synthesizes high-impact editorial image prompts using the 4-agent Editorial Art Room."""
     topic = analysis.get("topic", "News Investigation")
     summary = analysis.get("executive_summary", "")
     metrics = analysis.get("key_metrics_and_numbers", [])
     consensus = analysis.get("consensus_points", [])
 
-    system_instruction = (
-        "You are an elite art director and photo editor at an international news magazine. "
-        "Your task is to analyze the provided investigative news dossier and create 5 distinct, highly compelling "
-        "image generation prompts engineered for Google Imagen 3.\n\n"
-        "Return a strictly valid JSON array of 5 prompt suggestion objects with the following schema:\n"
-        "[\n"
-        "  {\n"
-        "    \"concept_title\": \"Brief punchy title for this visual angle\",\n"
-        "    \"style_name\": \"photojournalism | magazine_cover | isometric_3d | cinematic | minimalist\",\n"
-        "    \"prompt_text\": \"Extremely detailed, visually descriptive prompt describing subject, composition, lighting, environment, and mood for Imagen 3 without buzzwords like photorealistic\",\n"
-        "    \"recommended_aspect_ratio\": \"16:9 | 1:1 | 4:3 | 9:16\"\n"
-        "  }\n"
-        "]"
-    )
-
-    grounding_context = (
-        f"TOPIC: {topic}\n"
-        f"EXECUTIVE SUMMARY: {summary}\n"
-        f"KEY NUMBERS: {', '.join(metrics[:4])}\n"
-        f"CONSENSUS FACTS: {', '.join(consensus[:3])}\n"
-    )
-
-    if not IS_SIMULATION_MODE and GEMINI_API_KEY:
-        try:
-            from google import genai
-            from google.genai import types
-
-            client = genai.Client(api_key=GEMINI_API_KEY)
-            resp = client.models.generate_content(
-                model=MODEL_AGENT_FAST,
-                contents=f"Create 5 editorial image prompts for this topic:\n\n{grounding_context}",
-                config=types.GenerateContentConfig(
-                    system_instruction=system_instruction,
-                    response_mime_type="application/json",
-                    temperature=0.4,
-                ),
-            )
-            raw = resp.text or "[]"
-            data = json.loads(raw)
-            if isinstance(data, list) and len(data) > 0:
-                return data
-        except Exception as e:
-            logger.warning("Gemini prompt generation failed (%s). Falling back to structured templates.", e)
+    try:
+        from shared.image_editorial_crew import run_editorial_art_pipeline
+        _state, prompts = run_editorial_art_pipeline(
+            headline=topic,
+            context=summary,
+            metrics=metrics,
+            consensus=consensus,
+        )
+        if prompts and len(prompts) > 0:
+            return [p.model_dump() for p in prompts]
+    except Exception as e:
+        logger.warning("Multi-agent editorial art pipeline encountered an error (%s). Falling back to simulated prompts.", e)
 
     # Deterministic fallback prompts grounded in the topic
     return _build_simulated_prompts(topic, summary)
@@ -146,20 +115,40 @@ def _build_simulated_prompts(topic: str, summary: str) -> List[Dict[str, Any]]:
     ]
 
 
+def sanitize_prompt_for_anti_deception(prompt: str) -> str:
+    """Replaces names of real politicians and public figures with symbolic equivalents to prevent deepfakes."""
+    try:
+        from shared.image_editorial_crew import POLITICAL_FIGURE_KEYWORDS
+        sanitized = prompt
+        for name in POLITICAL_FIGURE_KEYWORDS:
+            if name in sanitized.lower():
+                pattern = re.compile(rf"\b{re.escape(name)}\b", re.IGNORECASE)
+                sanitized = pattern.sub("a silhouetted diplomat seen from behind", sanitized)
+        return sanitized
+    except Exception:
+        return prompt
+
+
 def generate_image_with_imagen(
     prompt: str,
     style: str = "photojournalism",
     aspect_ratio: str = "16:9",
     negative_prompt: Optional[str] = None,
+    apply_anti_deception_guardrail: bool = True,
 ) -> bytes:
     """Generates an image using Google Gen AI (Gemini 3.1 Flash Image / Imagen 3) and returns JPEG bytes."""
     # Ensure aspect ratio is supported
     if aspect_ratio not in SUPPORTED_ASPECT_RATIOS:
         aspect_ratio = "16:9"
 
+    # Enforce Anti-Deception Guardrail (Likeness stripping & public trust protection)
+    cleaned_prompt = prompt.strip()
+    if apply_anti_deception_guardrail:
+        cleaned_prompt = sanitize_prompt_for_anti_deception(cleaned_prompt)
+
     # Enhance prompt with style directive if not already included
     style_info = STYLE_PRESETS.get(style, STYLE_PRESETS["photojournalism"])
-    enhanced_prompt = prompt.strip()
+    enhanced_prompt = cleaned_prompt
     if not any(kw in enhanced_prompt.lower() for kw in ["photojournalism", "illustration", "3d render", "cinematic", "minimalist"]):
         enhanced_prompt = f"{enhanced_prompt}{style_info['suffix']}"
 
@@ -213,14 +202,18 @@ def generate_image_with_imagen(
             # Strategy 2: Imagen 3 via generate_images (for Vertex AI / Gemini Enterprise Agent Platform mode)
             try:
                 logger.info("Calling Imagen 3 ('%s') with aspect_ratio=%s...", MODEL_IMAGEN, aspect_ratio)
+                imagen_kwargs: Dict[str, Any] = {
+                    "number_of_images": 1,
+                    "aspect_ratio": aspect_ratio,
+                    "output_mime_type": "image/jpeg",
+                }
+                if apply_anti_deception_guardrail:
+                    imagen_kwargs["person_generation"] = "dont_allow"
+
                 resp = client.models.generate_images(
                     model=MODEL_IMAGEN,
                     prompt=enhanced_prompt,
-                    config=types.GenerateImagesConfig(
-                        number_of_images=1,
-                        aspect_ratio=aspect_ratio,
-                        output_mime_type="image/jpeg",
-                    ),
+                    config=types.GenerateImagesConfig(**imagen_kwargs),
                 )
 
                 if resp.generated_images and len(resp.generated_images) > 0:
@@ -233,12 +226,12 @@ def generate_image_with_imagen(
         except Exception as e:
             logger.warning("Google AI image generation pipeline failed (%s). Falling back to deterministic SVG generator.", e)
 
-    # Simulation / Offline Fallback: Generate SVG graphic with rich visual composition
+    # Simulation / Offline Fallback: Generate SVG graphic with rich visual composition & Guardrail Badging
     return _build_simulated_image_bytes(enhanced_prompt, style, aspect_ratio)
 
 
 def _build_simulated_image_bytes(prompt: str, style: str, aspect_ratio: str) -> bytes:
-    """Generates a styled, responsive SVG graphic representing the image."""
+    """Generates a styled, responsive SVG graphic representing the image with Guardrail badges."""
     dim_map = {
         "16:9": (1280, 720),
         "1:1": (1000, 1000),
@@ -292,10 +285,16 @@ def _build_simulated_image_bytes(prompt: str, style: str, aspect_ratio: str) -> 
   <!-- Central Visual Container Card -->
   <rect x="{width * 0.08}" y="{height * 0.12}" width="{width * 0.84}" height="{height * 0.76}" rx="24" fill="{bg2}" fill-opacity="0.4" stroke="{accent}" stroke-opacity="0.3" stroke-width="2" />
 
-  <!-- Badge -->
-  <g transform="translate({width * 0.12}, {height * 0.22})">
-    <rect width="220" height="34" rx="17" fill="url(#accGrad)" />
-    <text x="110" y="22" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="13" font-weight="700" fill="{text_color}" text-anchor="middle" letter-spacing="1">GOOGLE IMAGEN 3</text>
+  <!-- Engine Badge -->
+  <g transform="translate({width * 0.12}, {height * 0.20})">
+    <rect width="210" height="32" rx="16" fill="url(#accGrad)" />
+    <text x="105" y="21" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="12" font-weight="700" fill="{text_color}" text-anchor="middle" letter-spacing="1">GOOGLE IMAGEN 3</text>
+  </g>
+
+  <!-- Anti-Deception Guardrail Provenance Badge -->
+  <g transform="translate({width * 0.12 + 225}, {height * 0.20})">
+    <rect width="{min(340, int(width * 0.44))}" height="32" rx="16" fill="rgba(16, 185, 129, 0.18)" stroke="rgba(16, 185, 129, 0.5)" stroke-width="1.5" />
+    <text x="{min(340, int(width * 0.44)) / 2}" y="20" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="11" font-weight="700" fill="#34d399" text-anchor="middle" letter-spacing="0.5">ANTI-DECEPTION GUARDRAIL ACTIVE</text>
   </g>
 
   <!-- Title / Style Header -->
@@ -311,8 +310,8 @@ def _build_simulated_image_bytes(prompt: str, style: str, aspect_ratio: str) -> 
   </foreignObject>
 
   <!-- Footer Information -->
-  <text x="{width * 0.12}" y="{height * 0.82}" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="12" font-weight="600" fill="rgba(248, 250, 252, 0.6)">
-    ASPECT RATIO: {aspect_ratio}  •  STYLE: {style.upper()}  •  AGENTIC NEWS VISUAL STUDIO
+  <text x="{width * 0.12}" y="{height * 0.82}" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="11" font-weight="600" fill="rgba(248, 250, 252, 0.6)">
+    ASPECT RATIO: {aspect_ratio}  •  STYLE: {style.upper()}  •  EDITORIAL METAPHOR (C2PA SYNTHETIC MEDIA LABELED)
   </text>
 </svg>"""
 

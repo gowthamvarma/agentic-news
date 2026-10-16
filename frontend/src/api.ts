@@ -10,7 +10,9 @@ import type {
   ArticleGenerateRequestPayload,
   ImagePromptSuggestion,
   GeneratedImageItem,
-  ImageGenerateRequestPayload
+  ImageGenerateRequestPayload,
+  MultiAgentPipelineRequestPayload,
+  MultiAgentEditorialArtState,
 } from './types';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
@@ -326,5 +328,27 @@ export async function deleteDossierImage(
   const data = await res.json();
   return data.success ?? true;
 }
+
+export async function runEditorialArtPipeline(
+  analysisId: string,
+  payload?: MultiAgentPipelineRequestPayload
+): Promise<{
+  analysis_id: string;
+  topic: string;
+  state: MultiAgentEditorialArtState;
+  prompts: ImagePromptSuggestion[];
+}> {
+  const res = await fetch(`${API_BASE}/analysis/${encodeURIComponent(analysisId)}/editorial-art-pipeline`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload || { analysis_id: analysisId }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: 'Failed to run editorial art pipeline' }));
+    throw new Error(err.detail || 'Editorial Art Room pipeline failed');
+  }
+  return res.json();
+}
+
 
 

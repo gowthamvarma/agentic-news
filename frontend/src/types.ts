@@ -274,11 +274,81 @@ export interface ArticleGenerateRequestPayload {
   include_social_kit?: boolean;
 }
 
+export interface AnalystOutput {
+  core_tension: string;
+  emotional_frequency: string;
+  sonic_cues: string[];
+  tangible_anchors: string[];
+  restricted_entities: string[];
+}
+
+export interface CreativeConceptItem {
+  concept_id: string;
+  title: string;
+  metaphor: string;
+  visual_hook: string;
+  sensory_synesthesia: string;
+  style_name: string;
+}
+
+export interface CreativeDirectorOutput {
+  concepts: CreativeConceptItem[];
+  selected_concept_id: string;
+}
+
+export interface CinematographerOutput {
+  imagen_3_prompt: string;
+  aspect_ratio: string;
+  style: string;
+  safety_filter_level: string;
+  person_generation: string;
+  formula_breakdown?: {
+    subject_action?: string;
+    environment_acoustic?: string;
+    lighting_palette?: string;
+    camera_medium?: string;
+  };
+}
+
+export interface CriticEvaluation {
+  approved: boolean;
+  attention_score: number;
+  cliche_detected: boolean;
+  likeness_risk_detected: boolean;
+  guardrail_flags: string[];
+  guardrail_notes: string;
+  feedback: string;
+  suggested_revisions?: string;
+}
+
+export interface MultiAgentEditorialArtState {
+  article_headline: string;
+  analyst_output?: AnalystOutput;
+  creative_director_output?: CreativeDirectorOutput;
+  cinematographer_output?: CinematographerOutput;
+  critic_evaluation?: CriticEvaluation;
+  revision_history: Array<Record<string, any>>;
+  iterations_count: number;
+  guardrail_summary?: Record<string, any>;
+}
+
+export interface MultiAgentPipelineRequestPayload {
+  analysis_id?: string;
+  article_headline?: string;
+  article_text?: string;
+  preferred_aspect_ratio?: string;
+}
+
 export interface ImagePromptSuggestion {
   concept_title: string;
   style_name: string;
   prompt_text: string;
   recommended_aspect_ratio: '16:9' | '1:1' | '4:3' | '9:16' | string;
+  sonic_cues?: string[];
+  attention_score?: number;
+  guardrail_status?: string;
+  visual_metaphor?: string;
+  pipeline_state?: MultiAgentEditorialArtState;
 }
 
 export interface GeneratedImageItem {
@@ -293,6 +363,8 @@ export interface GeneratedImageItem {
   model: string;
   created_at: number;
   created_at_iso: string;
+  guardrail_label?: string;
+  anti_deception_verified?: boolean;
 }
 
 export interface ImageGenerateRequestPayload {
@@ -302,6 +374,7 @@ export interface ImageGenerateRequestPayload {
   aspect_ratio?: string;
   negative_prompt?: string;
   article_id?: string;
+  apply_anti_deception_guardrail?: boolean;
 }
 
 export type AnalysisTabId =

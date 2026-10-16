@@ -1079,32 +1079,32 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
               </div>
 
               {/* Main Article Card with DaisyUI Skeletons for Text Not Available */}
-              <div className="card bg-base-100 border border-base-content/10 shadow-xl rounded-2xl overflow-hidden">
+              <div className="card bg-base-100 border border-base-content/10 shadow-xl rounded-2xl overflow-hidden w-full max-w-full">
                 {/* Meta Ribbon showing all available fields */}
-                <div className="bg-base-200/90 px-6 py-3.5 border-b border-base-300 flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex flex-wrap items-center gap-2 text-xs">
-                    <span className="badge badge-primary font-bold gap-1 text-[11px]">
+                <div className="bg-base-200/90 px-4 md:px-6 py-3.5 border-b border-base-300 flex flex-wrap items-center justify-between gap-2.5 w-full max-w-full">
+                  <div className="flex flex-wrap items-center gap-2 text-xs w-full sm:w-auto max-w-full">
+                    <span className="badge badge-primary font-bold gap-1 text-[11px] shrink-0">
                       <span>{selectedLangObj.flag}</span>
                       <span>{selectedLangObj.name}</span>
                     </span>
-                    <span className="badge badge-outline text-[11px] capitalize">
+                    <span className="badge badge-outline text-[11px] capitalize shrink-0">
                       {selectedStyleObj.label}
                     </span>
-                    <span className="badge badge-ghost text-[11px] gap-1">
+                    <span className="badge badge-ghost text-[11px] gap-1 shrink-0">
                       <Clock size={12} />
                       <span>{targetReadMinutes} min read ({targetWordsDisplay})</span>
                     </span>
-                    <span className="badge badge-secondary badge-outline text-[11px]">
+                    <span className="badge badge-secondary badge-outline text-[11px] shrink-0">
                       {selectedFramingObj.label}
                     </span>
-                    <span className="badge badge-primary badge-sm gap-1.5 animate-pulse font-bold text-[11px]">
+                    <span className="badge badge-primary badge-sm gap-1.5 animate-pulse font-bold text-[11px] shrink-0">
                       <span className="loading loading-spinner loading-xs"></span>
                       Synthesizing Article...
                     </span>
                   </div>
 
                   {/* Action Buttons Skeletons */}
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 shrink-0">
                     <div className="skeleton h-6 w-16 rounded-lg opacity-50"></div>
                     <div className="skeleton h-6 w-16 rounded-lg opacity-50"></div>
                     <div className="skeleton h-6 w-20 rounded-lg opacity-50"></div>
@@ -1388,30 +1388,30 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
               </div>
 
               {/* Main Article Reader Card */}
-              <div className="card bg-base-100 border border-base-content/10 shadow-xl rounded-2xl overflow-hidden">
+              <div className="card bg-base-100 border border-base-content/10 shadow-xl rounded-2xl overflow-hidden w-full max-w-full">
                 {/* Meta Ribbon */}
-                <div className="bg-base-200/90 px-6 py-3.5 border-b border-base-300 flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex flex-wrap items-center gap-2 text-xs">
-                    <span className="badge badge-primary font-bold gap-1 text-[11px]">
+                <div className="bg-base-200/90 px-4 md:px-6 py-3.5 border-b border-base-300 flex flex-wrap items-center justify-between gap-2.5 w-full max-w-full">
+                  <div className="flex flex-wrap items-center gap-2 text-xs w-full sm:w-auto max-w-full">
+                    <span className="badge badge-primary font-bold gap-1 text-[11px] shrink-0">
                       <span>{findLanguage(currentArticle.language).flag}</span>
                       <span>{currentArticle.language}</span>
                     </span>
-                    <span className="badge badge-outline text-[11px] capitalize">
+                    <span className="badge badge-outline text-[11px] capitalize shrink-0">
                       {STYLE_OPTIONS.find((s) => s.id === currentArticle.writing_style)?.label || currentArticle.writing_style.replace('_', ' ')}
                     </span>
                     {currentArticle.editorial_framing && (
-                      <span className="badge badge-secondary badge-outline text-[11px]">
+                      <span className="badge badge-secondary badge-outline text-[11px] shrink-0">
                         {FRAMING_OPTIONS.find((f) => f.id === currentArticle.editorial_framing)?.label || currentArticle.editorial_framing.replace('_', ' ')}
                       </span>
                     )}
-                    <span className="badge badge-ghost text-[11px] gap-1">
+                    <span className="badge badge-ghost text-[11px] gap-1 shrink-0">
                       <Clock size={12} />
                       <span>{currentArticle.reading_time_minutes} min read</span>
                     </span>
-                    <span className="badge badge-ghost text-[11px]">
+                    <span className="badge badge-ghost text-[11px] shrink-0">
                       {currentArticle.word_count} words
                     </span>
-                    <span className="text-[11px] text-base-content/60 flex items-center gap-1">
+                    <span className="text-[11px] text-base-content/60 flex items-center gap-1 shrink-0">
                       <Calendar size={12} />
                       <span>
                         {new Date(currentArticle.created_at * 1000).toLocaleString(undefined, {
@@ -1423,7 +1423,7 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex flex-wrap items-center gap-1.5">
+                  <div className="flex flex-wrap items-center gap-1.5 shrink-0">
                     <button
                       type="button"
                       onClick={handleCopyText}

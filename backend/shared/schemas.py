@@ -611,6 +611,86 @@ class ImagePromptSuggestion(BaseModel):
     style_name: str = Field(description="Visual style preset (e.g. Photojournalism, Magazine Cover, 3D Isometric)")
     prompt_text: str = Field(description="Detailed prompt engineered for Imagen 3")
     recommended_aspect_ratio: str = Field(default="16:9", description="16:9, 1:1, 4:3, or 9:16")
+    sonic_cues: List[str] = Field(default_factory=list, description="Acoustic and kinetic cues evoking auditory attention")
+    attention_score: Optional[float] = Field(default=None, description="Critic attention and scroll-stopping score (0-10)")
+    guardrail_status: Optional[str] = Field(default="Passed (Politician Likeness Stripped & Cliché Checked)", description="Editorial safety and anti-deception status")
+    visual_metaphor: Optional[str] = Field(default=None, description="Core visual metaphor formulated by Creative Director")
+    pipeline_state: Optional[Dict[str, Any]] = Field(default=None, description="Detailed multi-agent state data")
+
+
+class AnalystOutput(BaseModel):
+    """Output from Agent 1: The News Analyst."""
+    core_tension: str = Field(description="The primary conflict or colliding forces in the news")
+    emotional_frequency: str = Field(description="The emotional frequency/tone (e.g., high-pressure, melancholic)")
+    sonic_cues: List[str] = Field(default_factory=list, description="Acoustic and kinetic sounds evoking synesthetic resonance")
+    tangible_anchors: List[str] = Field(default_factory=list, description="Real-world objects, textures, materials, and weather")
+    restricted_entities: List[str] = Field(default_factory=list, description="Named political figures, CEOs, or sensitive entities requiring likeness stripping")
+
+
+class CreativeConceptItem(BaseModel):
+    """A distinct visual metaphor concept crafted by Agent 2."""
+    concept_id: str = Field(description="Unique identifier for this concept (e.g., concept_1)")
+    title: str = Field(description="Punchy title for the metaphor")
+    metaphor: str = Field(description="Core visual metaphor translating abstract facts into tangible imagery")
+    visual_hook: str = Field(description="Immediate visual element that stops the scroll")
+    sensory_synesthesia: str = Field(description="Audible/sensory hook evoking sound and kinetic motion")
+    style_name: str = Field(default="magazine_cover", description="Recommended visual style preset")
+
+
+class CreativeDirectorOutput(BaseModel):
+    """Output from Agent 2: The Creative Director."""
+    concepts: List[CreativeConceptItem] = Field(default_factory=list, description="3 distinct visual concepts")
+    selected_concept_id: str = Field(default="concept_1", description="Recommended primary concept ID")
+
+
+class CinematographerOutput(BaseModel):
+    """Output from Agent 3: The Imagen 3 Cinematographer."""
+    imagen_3_prompt: str = Field(description="Production-ready Imagen 3 prompt formatted with natural language formula")
+    aspect_ratio: str = Field(default="16:9", description="Aspect ratio (16:9, 1:1, 4:3, 9:16)")
+    style: str = Field(default="magazine_cover", description="Visual style preset")
+    safety_filter_level: str = Field(default="block_some", description="Vertex AI safety filter level")
+    person_generation: str = Field(default="dont_allow", description="Person generation restriction (dont_allow or symbolic)")
+    formula_breakdown: Optional[Dict[str, str]] = Field(default=None, description="Subject+Action, Atmosphere, Lighting, Camera breakdown")
+
+
+class CriticEvaluation(BaseModel):
+    """Output from Agent 4: The Editorial Critic."""
+    approved: bool = Field(description="Whether the prompt is approved for generation")
+    attention_score: float = Field(description="Scroll-stopping power score from 0.0 to 10.0")
+    cliche_detected: bool = Field(default=False, description="Whether overused stock tropes (chess, handshakes, puzzles) were found")
+    likeness_risk_detected: bool = Field(default=False, description="Whether real public figures required likeness stripping")
+    guardrail_flags: List[str] = Field(default_factory=list, description="List of active guardrail triggers and protections applied")
+    guardrail_notes: str = Field(description="Notes on anti-deception, deepfake prevention, and safety")
+    feedback: str = Field(description="Editorial feedback and critique of visual tension")
+    suggested_revisions: Optional[str] = Field(default=None, description="Guidance provided if revision loop was triggered")
+
+
+class MultiAgentEditorialArtState(BaseModel):
+    """Shared state contract passing through the 4-agent Editorial Art Room pipeline."""
+    article_headline: str = Field(description="News headline or investigation topic")
+    analyst_output: Optional[AnalystOutput] = Field(default=None, description="Agent 1 output")
+    creative_director_output: Optional[CreativeDirectorOutput] = Field(default=None, description="Agent 2 output")
+    cinematographer_output: Optional[CinematographerOutput] = Field(default=None, description="Agent 3 output")
+    critic_evaluation: Optional[CriticEvaluation] = Field(default=None, description="Agent 4 output")
+    revision_history: List[Dict[str, Any]] = Field(default_factory=list, description="History of critique & revision loop steps")
+    iterations_count: int = Field(default=1, description="Number of feedback loop iterations")
+    guardrail_summary: Optional[Dict[str, Any]] = Field(default=None, description="Summary of anti-deception guardrails enforced")
+
+
+class MultiAgentPipelineRequest(BaseModel):
+    """Request payload to trigger the 4-Agent Editorial Art Room pipeline."""
+    analysis_id: Optional[str] = Field(default=None, description="Parent analysis dossier ID")
+    article_headline: Optional[str] = Field(default=None, description="Optional custom news headline")
+    article_text: Optional[str] = Field(default=None, description="Optional custom news article body or summary")
+    preferred_aspect_ratio: Optional[str] = Field(default="16:9", description="16:9, 1:1, 4:3, or 9:16")
+
+
+class MultiAgentPipelineResponse(BaseModel):
+    """Response payload containing the multi-agent state and synthesized prompts."""
+    analysis_id: str
+    topic: str
+    state: MultiAgentEditorialArtState
+    prompts: List[ImagePromptSuggestion] = Field(default_factory=list)
 
 
 class ImagePromptsResponse(BaseModel):
@@ -618,6 +698,7 @@ class ImagePromptsResponse(BaseModel):
     analysis_id: str
     topic: str
     prompts: List[ImagePromptSuggestion] = Field(default_factory=list)
+    state: Optional[MultiAgentEditorialArtState] = Field(default=None, description="Multi-agent pipeline state if available")
 
 
 class ImageGenerateRequest(BaseModel):
@@ -628,6 +709,7 @@ class ImageGenerateRequest(BaseModel):
     aspect_ratio: str = Field(default="16:9", description="Aspect ratio: 16:9, 1:1, 4:3, 9:16")
     negative_prompt: Optional[str] = Field(default=None, description="Negative prompt / elements to avoid")
     article_id: Optional[str] = Field(default=None, description="Optional linked article ID")
+    apply_anti_deception_guardrail: bool = Field(default=True, description="Enforce anti-deception watermark and symbolic likeness")
 
 
 class GeneratedImageItem(BaseModel):
@@ -643,5 +725,13 @@ class GeneratedImageItem(BaseModel):
     model: str = Field(default="imagen-3.0-generate-002")
     created_at: float
     created_at_iso: str
+    guardrail_label: Optional[str] = Field(
+        default="AI-Generated Editorial Metaphor • Synthetic Visual Art",
+        description="Public provenance label preventing deception"
+    )
+    anti_deception_verified: bool = Field(
+        default=True,
+        description="Indicates likeness stripping and editorial art labeling verified"
+    )
 
 

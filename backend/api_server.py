@@ -38,9 +38,14 @@ from shared.config import (
     logger,
 )
 from shared.firestore_service import FirestoreService
-from shared.topic_suggester import generate_country_topic_suggestions
-from shared.schemas import ArticleGenerateRequest, ImageGenerateRequest
+from shared.schemas import (
+    ArticleGenerateRequest,
+    ImageGenerateRequest,
+    MultiAgentPipelineRequest,
+    MultiAgentPipelineResponse,
+)
 from shared.article_generator import generate_article_for_analysis
+from shared.image_editorial_crew import run_editorial_art_pipeline
 from shared.image_generator import (
     generate_editorial_image_prompts,
     generate_image_with_imagen,
@@ -648,8 +653,8 @@ async def get_analysis_image_prompts(analysis_id: str, refresh: bool = Query(def
                 "cached": True,
             }
 
-    # 2. Generate fresh grounded prompts with Gemini
-    logger.info("Generating fresh editorial image prompts for analysis '%s'...", analysis_id)
+    # 2. Generate fresh grounded prompts with 4-Agent Editorial Art Room
+    logger.info("Generating fresh editorial image prompts with 4-Agent pipeline for analysis '%s'...", analysis_id)
     prompts = await asyncio.to_thread(generate_editorial_image_prompts, analysis_data)
 
     # 3. Persist generated prompts to Firestore
@@ -663,6 +668,46 @@ async def get_analysis_image_prompts(analysis_id: str, refresh: bool = Query(def
     }
 
 
+@app.post("/api/analysis/{analysis_id}/editorial-art-pipeline")
+async def run_analysis_editorial_art_pipeline(
+    analysis_id: str,
+    req: Optional[MultiAgentPipelineRequest] = None,
+):
+    """Executes the 4-agent Editorial Art Room pipeline (News Analyst -> Creative Director ->
+    Cinematographer -> Editorial Critic) with anti-deception guardrails and returns the full shared state.
+    """
+    analysis_data = await FirestoreService.get_analysis(analysis_id)
+    if not analysis_data:
+        raise HTTPException(status_code=404, detail=f"Analysis '{analysis_id}' not found.")
+
+    headline = (req and req.article_headline) or analysis_data.get("topic", "News Investigation")
+    context = (req and req.article_text) or analysis_data.get("executive_summary", "")
+    metrics = analysis_data.get("key_metrics_and_numbers", [])
+    consensus = analysis_data.get("consensus_points", [])
+    preferred_ratio = (req and req.preferred_aspect_ratio) or "16:9"
+
+    logger.info("Executing 4-agent Editorial Art Room pipeline for analysis '%s'...", analysis_id)
+    state, prompts = await asyncio.to_thread(
+        run_editorial_art_pipeline,
+        headline=headline,
+        context=context,
+        metrics=metrics,
+        consensus=consensus,
+        preferred_aspect_ratio=preferred_ratio,
+    )
+
+    prompt_dicts = [p.model_dump() for p in prompts]
+    # Persist updated prompts to Firestore
+    await FirestoreService.save_image_prompts(analysis_id, prompt_dicts)
+
+    return {
+        "analysis_id": analysis_id,
+        "topic": headline,
+        "state": state.model_dump(),
+        "prompts": prompt_dicts,
+    }
+
+
 @app.post("/api/analysis/{analysis_id}/generate-image")
 async def generate_dossier_image(analysis_id: str, req: ImageGenerateRequest):
     """Generates an image via Imagen 3, persists binary in GCS or local media cache,
@@ -673,7 +718,8 @@ async def generate_dossier_image(analysis_id: str, req: ImageGenerateRequest):
         raise HTTPException(status_code=404, detail=f"Analysis '{analysis_id}' not found.")
 
     image_id = str(uuid.uuid4())
-    logger.info("Generating image '%s' for analysis '%s' with Imagen 3 (aspect_ratio=%s)...", image_id, analysis_id, req.aspect_ratio)
+    logger.info("Generating image '%s' for analysis '%s' with Imagen 3 (aspect_ratio=%s, guardrail=%s)...",
+                image_id, analysis_id, req.aspect_ratio, req.apply_anti_deception_guardrail)
 
     image_bytes = await asyncio.to_thread(
         generate_image_with_imagen,
@@ -681,6 +727,7 @@ async def generate_dossier_image(analysis_id: str, req: ImageGenerateRequest):
         style=req.style,
         aspect_ratio=req.aspect_ratio,
         negative_prompt=req.negative_prompt,
+        apply_anti_deception_guardrail=req.apply_anti_deception_guardrail,
     )
 
     is_svg = image_bytes.startswith(b"<svg")
@@ -717,6 +764,8 @@ async def generate_dossier_image(analysis_id: str, req: ImageGenerateRequest):
         "model": "imagen-3.0-generate-002",
         "created_at": now,
         "created_at_iso": datetime.datetime.fromtimestamp(now, tz=datetime.timezone.utc).isoformat(),
+        "guardrail_label": "AI-Generated Editorial Metaphor • Synthetic Visual Art",
+        "anti_deception_verified": req.apply_anti_deception_guardrail,
     }
 
     await FirestoreService.save_image_metadata(image_record)
