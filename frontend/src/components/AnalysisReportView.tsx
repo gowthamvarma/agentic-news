@@ -303,10 +303,10 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
       ? 'ready'
       : 'paused';
 
-  // Research Copilot Chat State
+  // AI Reporter Chat State
   const defaultGreeting: ChatMessage = {
     sender: 'agent',
-    text: 'Hello! I am your Research Copilot. Ask any question about this news story, and I will find clear, verified answers for you in simple English.',
+    text: 'Hello! I am your AI Reporter. Ask any question about this news story, and I will find clear, verified answers for you in simple English.',
     time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   };
 
@@ -491,7 +491,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
       const agentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       setChatMessages((prev) => [
         ...prev,
-        { sender: 'agent', text: 'Error connecting to Research Copilot: ' + err.message, time: agentTime }
+        { sender: 'agent', text: 'Error connecting to AI Reporter: ' + err.message, time: agentTime }
       ]);
     } finally {
       setChatLoading(false);
@@ -519,7 +519,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
         chat_history: []
       });
     }
-    showToast('Copilot chat history cleared from Firestore');
+    showToast('AI Reporter chat history cleared from Firestore');
   };
 
   const renderProbabilityRating = (ratingStr: string) => {
@@ -2463,7 +2463,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                       <span className="font-semibold text-base-content/80">You</span>
                     ) : (
                       <>
-                        <span className="font-bold text-primary">Research Copilot</span>
+                        <span className="font-bold text-primary">AI Reporter</span>
                         <span className="badge badge-xs badge-primary/20 text-primary border-none text-[10px] px-1 font-mono">
                           AI AGENT
                         </span>
@@ -2499,7 +2499,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     />
                   </div>
                   <div className="chat-header text-xs opacity-75 mb-1 font-medium flex items-center gap-1.5">
-                    <span className="font-bold text-primary">Research Copilot</span>
+                    <span className="font-bold text-primary">AI Reporter</span>
                     <span className="badge badge-xs badge-warning/20 text-warning border-none text-[10px] px-1 font-mono animate-pulse">
                       INVESTIGATING
                     </span>

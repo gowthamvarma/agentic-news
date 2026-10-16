@@ -14,7 +14,9 @@ import {
   Scale,
   MessageSquare,
   Sparkles,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Layers,
+  Compass
 } from 'lucide-react';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { ToastProvider } from './context/ToastContext';
@@ -161,8 +163,11 @@ function MainAppLayout() {
               </label>
             </div>
 
-            <div className="text-xs font-bold uppercase tracking-wider text-primary mb-2 px-1">
-              Navigation
+            <div className="flex items-center gap-2 px-1 pb-2 mb-2 border-b border-base-300">
+              <Compass size={16} className="text-primary" />
+              <span className="text-xs font-bold uppercase tracking-wider text-base-content/80">
+                Navigation
+              </span>
             </div>
             <ul className="menu menu-md p-0 gap-1 w-full">
               <li>
@@ -172,7 +177,7 @@ function MainAppLayout() {
                   className="flex items-center gap-2.5 py-2.5"
                 >
                   <Search size={18} className="text-primary" />
-                  <span className="font-semibold">Search (Home)</span>
+                  <span className="font-semibold">Search</span>
                 </Link>
               </li>
               <li>
@@ -182,7 +187,7 @@ function MainAppLayout() {
                   className="flex items-center gap-2.5 py-2.5"
                 >
                   <History size={18} className="text-secondary" />
-                  <span className="font-semibold">History Archive</span>
+                  <span className="font-semibold">History</span>
                 </Link>
               </li>
             </ul>
@@ -190,12 +195,17 @@ function MainAppLayout() {
             {/* Analysis Sections (Mobile Hamburger Drawer only on Analysis Page) */}
             {isAnalysisPage && (
               <div className="mt-4 pt-4 border-t border-base-300">
-                <div className="text-xs font-bold uppercase tracking-wider text-primary mb-2 px-1 flex items-center justify-between">
-                  <span>Analysis Sections</span>
-                  <span className="badge badge-xs badge-primary badge-outline font-mono">Dossier</span>
+                <div className="flex items-center justify-between px-1 pb-2.5 mb-2 border-b border-base-300">
+                  <div className="flex items-center gap-2">
+                    <Layers size={16} className="text-primary" />
+                    <span className="text-xs font-bold uppercase tracking-wider text-base-content/80">
+                      Intelligence Fleet
+                    </span>
+                  </div>
+                  <span className="badge badge-primary badge-xs font-bold">25 Agents</span>
                 </div>
                 <ul className="menu menu-sm p-0 gap-1 w-full">
-                  {ANALYSIS_TABS.map((tab, idx) => {
+                  {ANALYSIS_TABS.map((tab) => {
                     const Icon = TAB_ICONS[tab.id];
                     const isActive = activeAnalysisTab === tab.id;
                     return (
@@ -211,7 +221,7 @@ function MainAppLayout() {
                           <span className="flex items-center gap-2.5 truncate">
                             {Icon && <Icon size={16} className={isActive ? 'text-primary-content' : 'text-primary'} />}
                             <span className="truncate text-xs">
-                              {idx + 1}. {tab.label}
+                              {tab.label}
                             </span>
                           </span>
                           {isActive && (

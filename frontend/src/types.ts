@@ -396,15 +396,15 @@ export interface AnalysisTabMeta {
 }
 
 export const ANALYSIS_TABS: AnalysisTabMeta[] = [
-  { id: 'brief', label: 'Executive Intelligence Brief', shortLabel: 'Brief' },
-  { id: 'sources', label: 'Verified Sources & Outlets', shortLabel: 'Sources' },
-  { id: 'verification', label: 'Fact Checks & Contradictions', shortLabel: 'Fact Checks' },
-  { id: 'timeline', label: 'Chronological Timeline', shortLabel: 'Timeline' },
-  { id: 'insights', label: 'Root Causes & Future Scenarios', shortLabel: 'Scenarios' },
-  { id: 'quiz', label: 'Active Recall Literacy Tutor', shortLabel: 'Recall Tutor' },
-  { id: 'debate', label: 'Perspective Debate Simulator', shortLabel: 'Debate' },
-  { id: 'copilot', label: 'Autonomous Research Copilot', shortLabel: 'Copilot' },
-  { id: 'article', label: 'On-Demand Article Studio', shortLabel: 'Article Studio' },
-  { id: 'image', label: 'On-Demand Image Studio', shortLabel: 'Image Studio' },
+  { id: 'brief', label: 'Summary & Overview', shortLabel: 'Overview' },
+  { id: 'sources', label: 'Verified Sources', shortLabel: 'Sources' },
+  { id: 'verification', label: 'Fact Checks & Clashing Claims', shortLabel: 'Fact Checks' },
+  { id: 'timeline', label: 'Timeline', shortLabel: 'Timeline' },
+  { id: 'insights', label: "Why & What's Next", shortLabel: 'Why & Next' },
+  { id: 'quiz', label: 'Knowledge Check', shortLabel: 'Quiz' },
+  { id: 'debate', label: 'Both Sides Debate', shortLabel: 'Both Sides' },
+  { id: 'copilot', label: 'Ask AI Reporter', shortLabel: 'Ask AI' },
+  { id: 'article', label: 'Article Studio', shortLabel: 'Article Studio' },
+  { id: 'image', label: 'Image Studio', shortLabel: 'Image Studio' },
 ];
 
