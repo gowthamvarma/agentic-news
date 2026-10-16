@@ -51,49 +51,49 @@ const STYLE_OPTIONS: Array<{
 }> = [
   {
     id: 'wire_dispatch',
-    label: 'AP / Reuters Wire Dispatch',
+    label: 'News Wire Dispatch',
     badge: 'Neutral Fact',
     badgeClass: 'badge-primary',
-    description: 'Classic inverted-pyramid format with objective lead and verified facts.',
+    description: 'Classic inverted-pyramid format with objective lead and verified facts (AP/Reuters style).',
   },
   {
     id: 'investigative',
-    label: 'Investigative Watchdog',
-    badge: 'Deep Audit',
+    label: 'In-Depth Investigative',
+    badge: 'Forensic',
     badgeClass: 'badge-warning',
-    description: 'Forensic deep-dive scrutinizing evidence chains, contradictions, and motives.',
+    description: 'Deep investigative reporting scrutinizing evidence chains, contradictions, and motives.',
   },
   {
     id: 'executive_brief',
-    label: 'Executive Strategic Brief',
+    label: 'Executive Briefing',
     badge: 'C-Suite',
     badgeClass: 'badge-info',
-    description: 'High-density intelligence memo outlining operational, financial, and regulatory risks.',
+    description: 'High-density intelligence memo outlining operational, financial, and strategic risks.',
   },
   {
     id: 'op_ed',
-    label: 'Dialectical Op-Ed Column',
+    label: 'Persuasive Op-Ed',
     badge: 'Perspective',
     badgeClass: 'badge-secondary',
-    description: 'Balanced editorial essay steelmanning opposing positions before synthesis.',
+    description: 'Balanced editorial essay steelmanning opposing positions before principled synthesis.',
   },
   {
     id: 'explainer_eli5',
-    label: 'ELI5 Deep Explainer',
+    label: 'Plain-English Explainer',
     badge: 'Accessible',
     badgeClass: 'badge-success',
-    description: 'Explain Like I\'m 5: intuitive analogies and zero jargon without losing nuance.',
+    description: 'ELI5 (Explain Like I\'m 5): intuitive analogies and zero jargon without losing factual nuance.',
   },
   {
     id: 'academic_essay',
-    label: 'Academic Research Paper',
+    label: 'Academic Analysis',
     badge: 'Scholarly',
     badgeClass: 'badge-neutral',
     description: 'Formal scholarly tone contextualizing developments in broader socio-legal frameworks.',
   },
   {
     id: 'newsletter',
-    label: 'Punchy Modern Newsletter',
+    label: 'Modern Newsletter',
     badge: 'Curated',
     badgeClass: 'badge-accent',
     description: 'Scannable Morning Brew / Substack style with bold takeaways and punchy prose.',
@@ -101,10 +101,68 @@ const STYLE_OPTIONS: Array<{
 ];
 
 const FRAMING_OPTIONS = [
-  { id: 'neutral', label: 'Strictly Balanced & Neutral', desc: 'Equal weight to all verified viewpoints' },
-  { id: 'watchdog', label: 'Accountability Watchdog', desc: 'Presses hard on discrepancies and conflicts' },
-  { id: 'solution_oriented', label: 'Solutions & Prevention', desc: 'Focuses on lessons learned and forward fixes' },
-  { id: 'dialectical', label: 'Proponent vs Critic Debate', desc: 'Contrasts arguments side-by-side' },
+  { id: 'neutral', label: 'Neutral & Balanced', desc: 'Equal weight to all verified viewpoints' },
+  { id: 'watchdog', label: 'Critical Scrutiny', desc: 'Scrutinizes claims, discrepancies, and accountability' },
+  { id: 'solution_oriented', label: 'Solutions & Impact', desc: 'Focuses on lessons learned and forward fixes' },
+  { id: 'dialectical', label: 'Side-by-Side Debate', desc: 'Contrasts proponent vs critic arguments directly' },
+];
+
+export interface EditorialRecipePreset {
+  id: string;
+  title: string;
+  subtitle: string;
+  icon: string;
+  style: ArticleStyleId;
+  framing: string;
+  lengthPreset: ArticleLengthId;
+}
+
+export const EDITORIAL_RECIPES: EditorialRecipePreset[] = [
+  {
+    id: 'quick_wire',
+    title: 'Quick Wire',
+    subtitle: 'Fast, objective inverted-pyramid dispatch',
+    icon: '⚡',
+    style: 'wire_dispatch',
+    framing: 'neutral',
+    lengthPreset: 'standard',
+  },
+  {
+    id: 'investigative_expose',
+    title: 'Investigative Expose',
+    subtitle: 'Forensic audit probing contradictions',
+    icon: '🔍',
+    style: 'investigative',
+    framing: 'watchdog',
+    lengthPreset: 'longform',
+  },
+  {
+    id: 'executive_brief',
+    title: 'Executive Brief',
+    subtitle: 'Strategic intelligence memo for leaders',
+    icon: '📊',
+    style: 'executive_brief',
+    framing: 'solution_oriented',
+    lengthPreset: 'standard',
+  },
+  {
+    id: 'plain_explainer',
+    title: 'Plain Explainer',
+    subtitle: 'Jargon-free breakdown of key debates',
+    icon: '💡',
+    style: 'explainer_eli5',
+    framing: 'dialectical',
+    lengthPreset: 'standard',
+  },
+  {
+    id: 'opinion_column',
+    title: 'Opinion Column',
+    subtitle: 'Steelmanned persuasive op-ed debate',
+    icon: '✍️',
+    style: 'op_ed',
+    framing: 'dialectical',
+    lengthPreset: 'standard',
+  },
 ];
 
 export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
@@ -123,6 +181,7 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState<boolean>(false);
   const [framing, setFraming] = useState<string>('neutral');
   const [includeSocialKit, setIncludeSocialKit] = useState<boolean>(true);
+  const [selectedRecipeId, setSelectedRecipeId] = useState<string>('quick_wire');
 
   // Generation & Articles State
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
@@ -438,7 +497,8 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
       <body>
         <div class="header">
           <span class="badge">${currentArticle.language}</span>
-          <span class="badge">${currentArticle.writing_style.replace('_', ' ')}</span>
+          <span class="badge">${STYLE_OPTIONS.find((s) => s.id === currentArticle.writing_style)?.label || currentArticle.writing_style.replace('_', ' ')}</span>
+          ${currentArticle.editorial_framing ? `<span class="badge">${FRAMING_OPTIONS.find((f) => f.id === currentArticle.editorial_framing)?.label || currentArticle.editorial_framing.replace('_', ' ')}</span>` : ''}
           <span class="badge">${currentArticle.word_count} words</span>
           <h1>${currentArticle.headline}</h1>
           ${currentArticle.subheadline ? `<div class="subheadline">${currentArticle.subheadline}</div>` : ''}
@@ -577,34 +637,10 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
               </div>
             </div>
 
-            {/* Writing Style */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-base-content/80 flex items-center justify-between">
-                <span>1. Writing Style</span>
-                <span className="text-[11px] text-primary lowercase font-mono">
-                  {STYLE_OPTIONS.find((s) => s.id === style)?.badge}
-                </span>
-              </label>
-              <select
-                className="select select-bordered select-sm w-full font-medium"
-                value={style}
-                onChange={(e) => setStyle(e.target.value as ArticleStyleId)}
-              >
-                {STYLE_OPTIONS.map((opt) => (
-                  <option key={opt.id} value={opt.id}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-              <p className="text-[11px] text-base-content/60 italic px-1">
-                {STYLE_OPTIONS.find((s) => s.id === style)?.description}
-              </p>
-            </div>
-
-            {/* Target Length */}
+            {/* 1. Target Length */}
             <div className="space-y-2">
               <label className="text-xs font-bold uppercase tracking-wider text-base-content/80">
-                2. Target Length
+                1. Target Length
               </label>
               <div className="grid grid-cols-4 gap-1.5">
                 {[
@@ -646,7 +682,133 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
               )}
             </div>
 
-            {/* Searchable Language Selection (130+ Google Languages) */}
+            {/* 2. Editorial Recipes (Presets + Custom) */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold uppercase tracking-wider text-base-content/80 flex items-center gap-1.5">
+                  <Sparkles size={14} className="text-warning" />
+                  <span>2. Editorial Recipes</span>
+                </label>
+                <span className="text-[11px] text-base-content/60">
+                  {selectedRecipeId === 'custom' ? 'Custom mode' : '1-click preset'}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                {EDITORIAL_RECIPES.map((recipe) => {
+                  const isActive = selectedRecipeId === recipe.id;
+                  return (
+                    <button
+                      key={recipe.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedRecipeId(recipe.id);
+                        setStyle(recipe.style);
+                        setFraming(recipe.framing);
+                      }}
+                      className={`p-2.5 rounded-xl border text-left transition-all relative flex flex-col justify-between ${
+                        isActive
+                          ? 'border-primary bg-primary/10 shadow-sm ring-1 ring-primary'
+                          : 'border-base-300 bg-base-100 hover:border-primary/40 hover:bg-base-200/50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-1 w-full mb-1">
+                        <span className="text-sm">{recipe.icon}</span>
+                        {isActive && (
+                          <span className="badge badge-primary badge-xs font-bold">Active</span>
+                        )}
+                      </div>
+                      <div className="font-bold text-xs text-base-content leading-tight">
+                        {recipe.title}
+                      </div>
+                      <div className="text-[10px] text-base-content/65 line-clamp-1 mt-0.5">
+                        {recipe.subtitle}
+                      </div>
+                    </button>
+                  );
+                })}
+
+                {/* Custom Option Card */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedRecipeId('custom');
+                  }}
+                  className={`p-2.5 rounded-xl border text-left transition-all relative flex flex-col justify-between ${
+                    selectedRecipeId === 'custom'
+                      ? 'border-secondary bg-secondary/10 shadow-sm ring-1 ring-secondary'
+                      : 'border-base-300 bg-base-100 hover:border-secondary/40 hover:bg-base-200/50'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-1 w-full mb-1">
+                    <span className="text-sm">⚙️</span>
+                    {selectedRecipeId === 'custom' && (
+                      <span className="badge badge-secondary badge-xs font-bold">Active</span>
+                    )}
+                  </div>
+                  <div className="font-bold text-xs text-base-content leading-tight">
+                    Custom Mix
+                  </div>
+                  <div className="text-[10px] text-base-content/65 line-clamp-1 mt-0.5">
+                    Pick your own tone & angle
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {/* Custom Dropdowns: ONLY shown when "Custom" is selected */}
+            {selectedRecipeId === 'custom' && (
+              <div className="p-3.5 border border-secondary/40 rounded-xl space-y-3.5 bg-secondary/5 animate-fadeIn">
+                <div className="flex items-center gap-2 text-xs font-bold text-secondary uppercase tracking-wider pb-1 border-b border-secondary/20">
+                  <Sliders size={14} />
+                  <span>Custom Editorial Controls</span>
+                </div>
+
+                {/* Format & Tone */}
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-base-content/75 flex items-center justify-between">
+                    <span>Format & Tone (How it reads)</span>
+                    <span className="badge badge-xs badge-primary font-mono text-[10px]">
+                      {selectedStyleObj.badge}
+                    </span>
+                  </label>
+                  <select
+                    className="select select-bordered select-xs w-full font-medium"
+                    value={style}
+                    onChange={(e) => setStyle(e.target.value as ArticleStyleId)}
+                  >
+                    {STYLE_OPTIONS.map((opt) => (
+                      <option key={opt.id} value={opt.id}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-[10px] text-base-content/60 italic px-0.5">
+                    {selectedStyleObj.description}
+                  </p>
+                </div>
+
+                {/* Angle & Focus */}
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-base-content/75">
+                    <span>Angle & Focus (Where to shine spotlight)</span>
+                  </label>
+                  <select
+                    className="select select-bordered select-xs w-full text-xs font-medium"
+                    value={framing}
+                    onChange={(e) => setFraming(e.target.value)}
+                  >
+                    {FRAMING_OPTIONS.map((f) => (
+                      <option key={f.id} value={f.id}>
+                        {f.label} ({f.desc})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {/* 3. Searchable Language Selection (130+ Google Languages) */}
             <div className="space-y-2 relative">
               <label className="text-xs font-bold uppercase tracking-wider text-base-content/80 flex items-center justify-between">
                 <span>3. Language (130+ Google Supported)</span>
@@ -733,24 +895,6 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
                   </div>
                 )}
               </div>
-            </div>
-
-            {/* Editorial Framing */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-base-content/80">
-                4. Editorial Framing
-              </label>
-              <select
-                className="select select-bordered select-sm w-full text-xs font-medium"
-                value={framing}
-                onChange={(e) => setFraming(e.target.value)}
-              >
-                {FRAMING_OPTIONS.map((f) => (
-                  <option key={f.id} value={f.id}>
-                    {f.label} ({f.desc})
-                  </option>
-                ))}
-              </select>
             </div>
 
             {/* Extra Options */}
@@ -862,7 +1006,9 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
                             <span>{art.language}</span>
                           </span>
                           <span>•</span>
-                          <span className="capitalize">{art.writing_style?.replace('_', ' ')}</span>
+                          <span className="capitalize">
+                            {STYLE_OPTIONS.find((s) => s.id === art.writing_style)?.label || art.writing_style?.replace('_', ' ')}
+                          </span>
                           <span>•</span>
                           <span>{art.word_count}w</span>
                           <span>•</span>
@@ -1111,8 +1257,11 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
                     </span>
                   </div>
                   <select
-                    className="select select-bordered select-xs w-full text-xs font-medium"
+                    className={`select select-bordered select-xs w-full text-xs font-medium ${
+                      ttsState !== 'idle' ? 'opacity-60 cursor-not-allowed bg-base-300/40' : ''
+                    }`}
                     value={selectedVoiceUri}
+                    disabled={ttsState !== 'idle'}
                     onChange={(e) => {
                       setSelectedVoiceUri(e.target.value);
                       if (ttsState !== 'idle') handleStopSpeech();
@@ -1133,8 +1282,11 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
                       <span>Speed: {speechRate}x</span>
                       <button
                         type="button"
+                        disabled={ttsState !== 'idle'}
                         onClick={() => setSpeechRate(1.0)}
-                        className="text-[10px] text-primary hover:underline"
+                        className={`text-[10px] text-primary hover:underline ${
+                          ttsState !== 'idle' ? 'opacity-40 cursor-not-allowed' : ''
+                        }`}
                       >
                         reset
                       </button>
@@ -1145,8 +1297,11 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
                       max="2.0"
                       step="0.1"
                       value={speechRate}
+                      disabled={ttsState !== 'idle'}
                       onChange={(e) => setSpeechRate(parseFloat(e.target.value))}
-                      className="range range-xs range-primary"
+                      className={`range range-xs range-primary ${
+                        ttsState !== 'idle' ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                     />
                   </div>
 
@@ -1155,8 +1310,11 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
                       <span>Pitch: {speechPitch}</span>
                       <button
                         type="button"
+                        disabled={ttsState !== 'idle'}
                         onClick={() => setSpeechPitch(1.0)}
-                        className="text-[10px] text-primary hover:underline"
+                        className={`text-[10px] text-primary hover:underline ${
+                          ttsState !== 'idle' ? 'opacity-40 cursor-not-allowed' : ''
+                        }`}
                       >
                         reset
                       </button>
@@ -1167,11 +1325,28 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
                       max="1.5"
                       step="0.1"
                       value={speechPitch}
+                      disabled={ttsState !== 'idle'}
                       onChange={(e) => setSpeechPitch(parseFloat(e.target.value))}
-                      className="range range-xs range-secondary"
+                      className={`range range-xs range-secondary ${
+                        ttsState !== 'idle' ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                     />
                   </div>
                 </div>
+
+                {/* Helper hint when reading is in progress */}
+                {ttsState !== 'idle' && (
+                  <div className="text-[11px] text-base-content/60 italic px-1 pt-1 flex items-center justify-between">
+                    <span>Voice, speed, and pitch are locked while reading is active.</span>
+                    <button
+                      type="button"
+                      onClick={handleStopSpeech}
+                      className="text-primary hover:underline font-semibold"
+                    >
+                      Click Stop to unlock
+                    </button>
+                  </div>
+                )}
 
                 {/* 3. Play & Pause Buttons in a New Line Below Speed & Pitch */}
                 <div className="pt-2 border-t border-base-300 flex items-center justify-between gap-3">
@@ -1222,8 +1397,13 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
                       <span>{currentArticle.language}</span>
                     </span>
                     <span className="badge badge-outline text-[11px] capitalize">
-                      {currentArticle.writing_style.replace('_', ' ')}
+                      {STYLE_OPTIONS.find((s) => s.id === currentArticle.writing_style)?.label || currentArticle.writing_style.replace('_', ' ')}
                     </span>
+                    {currentArticle.editorial_framing && (
+                      <span className="badge badge-secondary badge-outline text-[11px]">
+                        {FRAMING_OPTIONS.find((f) => f.id === currentArticle.editorial_framing)?.label || currentArticle.editorial_framing.replace('_', ' ')}
+                      </span>
+                    )}
                     <span className="badge badge-ghost text-[11px] gap-1">
                       <Clock size={12} />
                       <span>{currentArticle.reading_time_minutes} min read</span>

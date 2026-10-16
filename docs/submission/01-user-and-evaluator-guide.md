@@ -195,19 +195,16 @@ The user interface was built to deliver the responsiveness of a high-end financi
 * **Problem It Solves**: Transforming raw factual intelligence into tailored editorial publications for distinct audiences (executives, general public, academic researchers, social followers) requires hours of tedious drafting, tone adjustment, and multilingual localization.
 * **How It Solves**: Deploys an automated editorial synthesis bureau that translates verified investigation dossiers into publication-ready articles across 7 journalistic styles, complete with Web Speech audio narration, social media distribution kits, and 50+ language translations.
 * **Sub-Sections & Core Functionality**:
-  1. **Editorial Style Selector (7 Journalistic Formats)**:
-     * *AP / Reuters Wire Dispatch* (Neutral inverted-pyramid lead)
-     * *Investigative Watchdog* (Forensic deep-dive into evidence and motives)
-     * *Executive Strategic Brief* (C-suite risk analysis and market impacts)
-     * *Dialectical Op-Ed Column* (Balanced perspective steelmanning)
-     * *ELI5 Deep Explainer* (Zero-jargon conceptual analogies)
-     * *Academic Research Paper* (Scholarly citation and institutional framework)
-     * *Punchy Modern Newsletter* (Curated Morning Brew/Substack takeaways)
-  2. **Target Length & Perspective Controls**: Customize output depth (`Flash Dispatch`, `Standard Report`, `Deep-Dive Longform`) and analytical focus.
-  3. **Multilingual Localization Hub (50+ Languages)**: Instantly re-synthesizes and translates the article into global languages (Spanish, French, German, Japanese, Hindi, Mandarin, Arabic, etc.) with localized nuance.
-  4. **Integrated Text-to-Speech (TTS) Narration**: Built-in audio player with play, pause, stop, and rate controls for listening on the go.
+  1. **Target Length**: Customize output depth (`Flash Dispatch`, `Standard Report`, `Deep-Dive Longform`, or custom word slider).
+  2. **Editorial Recipes & Presets**:
+     * **1-Click Editorial Recipes**: Instant presets pairing format and angle (*Quick Wire*, *Investigative Expose*, *Executive Brief*, *Plain Explainer*, *Opinion Column*).
+     * **Custom Mix**: When selected, unlocks granular dropdown controls for:
+       * **Format & Tone (7 Journalistic Formats)**: *News Wire Dispatch*, *In-Depth Investigative*, *Executive Briefing*, *Persuasive Op-Ed*, *Plain-English Explainer*, *Academic Analysis*, *Modern Newsletter*.
+       * **Angle & Focus**: *Neutral & Balanced*, *Critical Scrutiny*, *Solutions & Impact*, *Side-by-Side Debate*.
+  3. **Multilingual Localization Hub (130+ Languages)**: Instantly synthesizes and translates the article into global languages (Spanish, French, German, Japanese, Hindi, Mandarin, Arabic, etc.) with localized nuance.
+  4. **Integrated Text-to-Speech (TTS) Narration**: Built-in audio player with play, pause, stop, speed rate, and pitch controls for listening on the go.
   5. **Social Publishing & SEO Distribution Kit**: Automated extraction of catchy headline variants, SEO meta descriptions, Twitter/X threads with hook cards, and key takeaways.
-  6. **Saved Article Repository & Export**: Bookmark, copy formatted markdown, print/PDF export, or delete generated editions.
+  6. **Saved Article Repository & Export**: Bookmark, copy formatted markdown, clean print/PDF export, or delete generated editions.
 
 ---
 
