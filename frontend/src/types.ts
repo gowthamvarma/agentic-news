@@ -126,6 +126,7 @@ export interface NewsIntelligenceReport {
     status: string;
   }>;
   created_at?: number;
+  execution_time_seconds?: number;
   raw_markdown?: string;
   is_favorite?: boolean;
   status?: 'generating' | 'partial' | 'completed' | 'error';

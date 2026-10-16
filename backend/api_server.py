@@ -109,6 +109,7 @@ class UpdateAnalysisRequest(BaseModel):
 
     is_favorite: Optional[bool] = Field(default=None, description="Mark or unmark as favorite")
     notes: Optional[str] = Field(default=None, description="Optional researcher notes")
+    execution_time_seconds: Optional[float] = Field(default=None, description="Time taken to analyze in seconds")
     root_cause_analysis: Optional[Dict[str, Any]] = None
     consequences_tree: Optional[List[Dict[str, Any]]] = None
     future_scenarios: Optional[List[Dict[str, Any]]] = None
@@ -209,6 +210,7 @@ async def analyze_topic(req: AnalyzeRequest):
     if not topic:
         raise HTTPException(status_code=400, detail="Topic cannot be empty.")
 
+    start_time = time.time()
     analysis_id = str(uuid.uuid4())
     logger.info("Starting analysis for topic: '%s' (ID: %s)", topic, analysis_id)
 
@@ -221,6 +223,7 @@ async def analyze_topic(req: AnalyzeRequest):
     report_data["analysis_id"] = analysis_id
     report_data["topic"] = topic
     report_data["evidence_ledger"] = ledger
+    report_data["execution_time_seconds"] = round(time.time() - start_time, 1)
 
     # Persist to Firestore
     await FirestoreService.save_analysis(analysis_id, report_data)
@@ -239,6 +242,7 @@ async def stream_analysis(topic: str = Query(..., description="Breaking news top
         raise HTTPException(status_code=400, detail="Topic cannot be empty.")
 
     analysis_id = str(uuid.uuid4())
+    stream_start_time = time.time()
 
     async def event_generator():
         # Step 0: Initial metadata
@@ -285,6 +289,7 @@ async def stream_analysis(topic: str = Query(..., description="Breaking news top
         full_doc["analysis_id"] = analysis_id
         full_doc["status"] = "completed"
         full_doc["available_sections"] = ["brief", "verification", "timeline"]
+        full_doc["execution_time_seconds"] = round(time.time() - stream_start_time, 1)
         await FirestoreService.save_analysis(analysis_id, full_doc)
         yield f"event: complete\ndata: {json.dumps(full_doc)}\n\n"
 

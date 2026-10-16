@@ -1026,6 +1026,21 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     <div className="badge badge-outline badge-primary font-medium py-1.5 px-3 whitespace-normal h-auto text-xs text-center max-w-full">
                       Audited across {report.articles_analyzed?.length || report.sources_analyzed?.length || 6} major outlets
                     </div>
+
+                    {typeof report.execution_time_seconds === 'number' && report.execution_time_seconds > 0 && (
+                      <div
+                        className="badge badge-outline badge-secondary font-medium py-1.5 px-3 whitespace-normal h-auto text-xs text-center max-w-full flex items-center gap-1.5 shadow-2xs"
+                        title={`Total intelligence fleet synthesis execution time: ${report.execution_time_seconds}s`}
+                      >
+                        <Clock size={12} className="text-secondary shrink-0" />
+                        <span>
+                          Analyzed in{' '}
+                          {report.execution_time_seconds >= 60
+                            ? `${Math.floor(report.execution_time_seconds / 60)}m ${Math.round(report.execution_time_seconds % 60)}s`
+                            : `${report.execution_time_seconds}s`}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
 

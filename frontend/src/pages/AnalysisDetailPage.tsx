@@ -22,7 +22,11 @@ export const AnalysisDetailPage: React.FC = () => {
 
   const [report, setReport] = useState<NewsIntelligenceReport | null>(() => {
     const passedReport = location.state?.report as NewsIntelligenceReport | undefined;
+    const durationSeconds = location.state?.durationSeconds as number | undefined;
     if (passedReport && (passedReport.id === id || passedReport.analysis_id === id)) {
+      if (durationSeconds && typeof passedReport.execution_time_seconds !== 'number') {
+        return { ...passedReport, execution_time_seconds: durationSeconds };
+      }
       return passedReport;
     }
     return null;

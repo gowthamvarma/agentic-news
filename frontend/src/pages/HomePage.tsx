@@ -62,10 +62,20 @@ export const HomePage: React.FC = () => {
   const [topicInput, setTopicInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [loadingStage, setLoadingStage] = useState(0);
+  const [analysisElapsedSec, setAnalysisElapsedSec] = useState(0);
   const [streamStatus, setStreamStatus] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [recentAnalyses, setRecentAnalyses] = useState<NewsIntelligenceReport[]>([]);
   const [recentLoading, setRecentLoading] = useState(true);
+
+  // References to guarantee monotonic progress and prevent race conditions between SSE and fallback timer
+  const isStreamingActiveRef = useRef(false);
+  const timerIntervalRef = useRef<any>(null);
+
+  // Guaranteed monotonic progress helper (never allows stage to regress or jump backwards)
+  const advanceStage = (target: number) => {
+    setLoadingStage((prev) => Math.max(prev, target));
+  };
 
   // Dynamic Country Topic Suggestions State
   const [topicSuggestions, setTopicSuggestions] = useState<TopicSuggestionsPayload | null>(null);
@@ -96,17 +106,28 @@ export const HomePage: React.FC = () => {
     }
   }, [loading]);
 
-  // Graceful pacing timer fallback if progressive stream is slow or in non-streaming mode
+  // Graceful pacing timer fallback ONLY used if real SSE stream events have not taken over (e.g. non-streaming fallback mode)
   useEffect(() => {
     let interval: any;
     if (loading) {
       interval = setInterval(() => {
-        // Only incrementally advance up to stage 3 if stream has not sent an update yet
-        setLoadingStage((prev) => (prev < FLEET_STAGES.length - 2 ? prev + 1 : prev));
+        // Only advance incrementally if real SSE stream events are not driving the pipeline
+        if (!isStreamingActiveRef.current) {
+          setLoadingStage((prev) => (prev < FLEET_STAGES.length - 2 ? prev + 1 : prev));
+        }
       }, 7000);
     }
     return () => clearInterval(interval);
   }, [loading]);
+
+  // Cleanup timer interval on unmount
+  useEffect(() => {
+    return () => {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+      }
+    };
+  }, []);
 
   // Load initial health, recent analyses & cached topic suggestions from Firestore
   useEffect(() => {
@@ -191,63 +212,84 @@ export const HomePage: React.FC = () => {
     setErrorMsg(null);
     setLoading(true);
     setLoadingStage(0);
+    setAnalysisElapsedSec(0);
+    isStreamingActiveRef.current = false;
     setStreamStatus('Deploying 25 Autonomous ADK Agents...');
+
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+    }
+    const startTime = Date.now();
+    timerIntervalRef.current = setInterval(() => {
+      setAnalysisElapsedSec(Math.floor((Date.now() - startTime) / 1000));
+    }, 1000);
 
     try {
       let finalReport: NewsIntelligenceReport | null = null;
 
       await analyzeNewsTopicProgressive(q, (eventType, data) => {
+        isStreamingActiveRef.current = true;
         if (eventType === 'init') {
-          setLoadingStage(0);
+          advanceStage(0);
           setStreamStatus('Stage 1: Multi-Outlet Ingestion & Executive Brief compiling...');
         } else if (eventType === 'step_brief') {
-          setLoadingStage(1);
+          advanceStage(1);
           setStreamStatus('Stage 2: Auditing IFCN forensic fact-checks & bias...');
         } else if (eventType === 'step_verification') {
-          setLoadingStage(2);
+          advanceStage(2);
           setStreamStatus('Stage 3: Cross-Source Contradictions & Bias Audits...');
         } else if (eventType === 'step_timeline') {
-          setLoadingStage(3);
+          advanceStage(3);
           setStreamStatus('Stage 4: Reconstructing Chronological Timeline & Primers...');
         } else if (eventType === 'complete') {
-          setLoadingStage(4);
+          advanceStage(4);
           setStreamStatus('Analysis Complete! Finalizing report...');
           finalReport = data;
-          showToast('Intelligence Report successfully generated!', 'success');
+          const totalSec = Math.max(1, Math.floor((Date.now() - startTime) / 1000));
+          const durationSec = data.execution_time_seconds || totalSec;
+          showToast(`Intelligence Report generated in ${durationSec}s!`, 'success');
           const targetId = data.id || data.analysis_id;
           if (targetId) {
             window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
             document.documentElement.scrollTop = 0;
             document.body.scrollTop = 0;
-            navigate(`/analysis/${targetId}`, { state: { report: data } });
+            navigate(`/analysis/${targetId}`, { state: { report: { ...data, execution_time_seconds: durationSec }, durationSeconds: durationSec } });
           }
         }
       });
 
-      // If streaming finished without navigating, handle fallback
-      if (finalReport) {
-        const targetId = (finalReport as any).id || (finalReport as any).analysis_id;
-        if (targetId) {
-          window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-          document.documentElement.scrollTop = 0;
-          document.body.scrollTop = 0;
-          navigate(`/analysis/${targetId}`, { state: { report: finalReport } });
-          return;
-        }
+      // Guard against silent stream abort: If stream ended without complete event, trigger fallback
+      if (!finalReport) {
+        throw new Error('Streaming connection closed before final report arrived. Falling back...');
+      }
+
+      // If streaming finished without navigating, handle fallback navigation
+      const targetId = (finalReport as any).id || (finalReport as any).analysis_id;
+      if (targetId) {
+        const totalSec = Math.max(1, Math.floor((Date.now() - startTime) / 1000));
+        const durationSec = (finalReport as any).execution_time_seconds || totalSec;
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+        navigate(`/analysis/${targetId}`, { state: { report: { ...(finalReport as any), execution_time_seconds: durationSec }, durationSeconds: durationSec } });
+        return;
       }
     } catch (streamErr: any) {
       console.warn('Progressive streaming failed, falling back to standard endpoint:', streamErr);
       try {
+        isStreamingActiveRef.current = false;
         setStreamStatus('Running comprehensive multi-agent synthesis pipeline...');
         const data = await analyzeNewsTopic(q);
-        setLoadingStage(4);
-        showToast('Intelligence Report loaded!', 'success');
+        advanceStage(4);
+        const totalSec = Math.max(1, Math.floor((Date.now() - startTime) / 1000));
+        const durationSec = data.execution_time_seconds || totalSec;
+        showToast(`Intelligence Report loaded in ${durationSec}s!`, 'success');
         const targetId = data.id || data.analysis_id;
         if (targetId) {
           window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
           document.documentElement.scrollTop = 0;
           document.body.scrollTop = 0;
-          navigate(`/analysis/${targetId}`, { state: { report: data } });
+          navigate(`/analysis/${targetId}`, { state: { report: { ...data, execution_time_seconds: durationSec }, durationSeconds: durationSec } });
         } else {
           setErrorMsg('Received analysis report without an ID.');
         }
@@ -255,6 +297,10 @@ export const HomePage: React.FC = () => {
         setErrorMsg(err.message || 'An unexpected error occurred while analyzing this news topic.');
       }
     } finally {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
+      }
       setLoading(false);
       setStreamStatus('');
     }
@@ -496,34 +542,54 @@ export const HomePage: React.FC = () => {
       {loading && (
         <div ref={progressRef} className="container mx-auto px-4 max-w-4xl my-8 scroll-mt-20">
           <div className="card bg-base-200 border border-base-300 shadow-2xl p-6 md:p-10 text-center">
-            {/* Continuously Spinning Circular Progress around Centered Brain Icon */}
-            <div className="relative w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+            {/* Continuously Spinning Circular Progress around DaisyUI Live Elapsed Seconds Counter */}
+            <div className="relative w-28 h-28 mx-auto mb-6 flex items-center justify-center">
               {/* Subtle track ring */}
               <div
                 className="radial-progress text-primary/15 absolute"
                 style={{
                   '--value': 100,
-                  '--size': '5.5rem',
-                  '--thickness': '4px'
+                  '--size': '6.75rem',
+                  '--thickness': '5px'
                 } as React.CSSProperties}
                 aria-hidden="true"
               />
               {/* Continuously spinning progress arc */}
               <div
-                className="radial-progress text-primary animate-spin"
+                className="radial-progress text-primary animate-spin absolute"
                 style={{
-                  '--value': 30,
-                  '--size': '5.5rem',
-                  '--thickness': '4px'
+                  '--value': 28,
+                  '--size': '6.75rem',
+                  '--thickness': '5px'
                 } as React.CSSProperties}
                 role="status"
-                aria-label="Analyzing..."
+                aria-label={`Analyzing... ${analysisElapsedSec} seconds elapsed`}
               />
-              {/* Center upright brain icon */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center shadow-inner">
-                  <Brain size={28} className="text-primary animate-pulse" />
-                </div>
+              {/* Center circular DaisyUI countdown & elapsed time badge */}
+              <div className="w-20 h-20 rounded-full bg-base-100/95 border border-base-300/80 shadow-md flex flex-col items-center justify-center z-10 select-none">
+                {analysisElapsedSec >= 60 ? (
+                  <div className="flex items-baseline justify-center font-mono text-primary font-black">
+                    <span className="countdown text-xl sm:text-2xl">
+                      <span style={{ '--value': Math.min(99, Math.floor(analysisElapsedSec / 60)) } as React.CSSProperties}></span>
+                    </span>
+                    <span className="text-[10px] font-bold text-primary/70 mr-0.5">m</span>
+                    <span className="countdown text-xl sm:text-2xl">
+                      <span style={{ '--value': analysisElapsedSec % 60 } as React.CSSProperties}></span>
+                    </span>
+                    <span className="text-[10px] font-bold text-primary/70">s</span>
+                  </div>
+                ) : (
+                  <div className="flex items-baseline justify-center font-mono text-primary font-black">
+                    <span className="countdown text-2xl sm:text-3xl">
+                      <span style={{ '--value': Math.min(99, analysisElapsedSec) } as React.CSSProperties}></span>
+                    </span>
+                    <span className="text-xs font-bold text-primary/75 ml-0.5">s</span>
+                  </div>
+                )}
+                <span className="text-[9px] font-bold uppercase tracking-wider text-base-content/50 -mt-0.5 flex items-center gap-0.5">
+                  <Clock size={9} className="text-primary/70" />
+                  <span>Elapsed</span>
+                </span>
               </div>
             </div>
 
