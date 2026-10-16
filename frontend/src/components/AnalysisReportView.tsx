@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import {
   ShieldCheck,
   Brain,
@@ -20,7 +19,6 @@ import {
   Building2,
   HelpCircle,
   Trash2,
-  History,
   Copy,
   Check,
   CirclePause,
@@ -781,19 +779,6 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 </span>
                 <span className="badge badge-xs badge-accent font-mono">Imagen 3</span>
               </button>
-            </li>
-
-            <li className="mt-1 pt-1 border-t border-base-300">
-              <Link
-                to="/history"
-                className="flex items-center justify-between py-2 px-3 rounded-xl font-medium transition-all hover:bg-base-300 text-base-content/90"
-              >
-                <span className="flex items-center gap-2.5">
-                  <History size={16} className="text-secondary" />
-                  <span className="text-xs">Browse All Archives</span>
-                </span>
-                <span className="badge badge-sm badge-neutral font-mono px-2 py-0.5">Archive</span>
-              </Link>
             </li>
           </ul>
 
