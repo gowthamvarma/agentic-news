@@ -244,6 +244,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
   // Active Recall Quiz State
   const [quiz, setQuiz] = useState<QuizPayload | null>(() => report.quiz || null);
   const [quizLoading, setQuizLoading] = useState(false);
+  const [isGrading, setIsGrading] = useState(false);
   const [userAnswers, setUserAnswers] = useState<Record<number, number>>({});
   const [quizResult, setQuizResult] = useState<any | null>(null);
 
@@ -446,7 +447,8 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
   };
 
   const handleGradeQuiz = async () => {
-    if (!quiz) return;
+    if (!quiz || isGrading) return;
+    setIsGrading(true);
     try {
       const res = await gradeQuiz(quiz.quiz_id, userAnswers);
       setQuizResult(res);
@@ -454,6 +456,8 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
     } catch (err: any) {
       console.error(err);
       showToast('Failed to grade quiz: ' + (err?.message || err), 'error');
+    } finally {
+      setIsGrading(false);
     }
   };
 
