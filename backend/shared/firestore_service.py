@@ -216,9 +216,9 @@ class FirestoreService:
                         _MEMORY_STORE["analyses"][it["id"]] = it
             except Exception as e:
                 logger.warning("Failed listing filtered analyses from Firestore (%s). Checking memory.", e)
-                items = list(_MEMORY_STORE["analyses"].values())
+                items = list(_MEMORY_STORE["analyses"].copy().values())
         else:
-            items = list(_MEMORY_STORE["analyses"].values())
+            items = list(_MEMORY_STORE["analyses"].copy().values())
 
         if favorites_only:
             items = [item for item in items if item.get("is_favorite") is True]
@@ -536,7 +536,7 @@ class FirestoreService:
 
         # Fallback to in-memory store
         matching = [
-            art for art in _MEMORY_STORE["articles"].values()
+            art for art in _MEMORY_STORE["articles"].copy().values()
             if art.get("analysis_id") == analysis_id
         ]
         if not matching and analysis_id in _MEMORY_STORE["analyses"]:
@@ -651,7 +651,7 @@ class FirestoreService:
 
         # Fallback to in-memory store
         matching = [
-            img for img in _MEMORY_STORE["images"].values()
+            img for img in _MEMORY_STORE["images"].copy().values()
             if img.get("analysis_id") == analysis_id
         ]
         if not matching and analysis_id in _MEMORY_STORE["analyses"]:

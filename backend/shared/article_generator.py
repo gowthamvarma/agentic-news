@@ -223,8 +223,20 @@ Return ONLY valid JSON.
                 ),
             )
             raw_text = (res.text or "").strip()
-            if raw_text.startswith("```"):
-                raw_text = re.sub(r"^```(?:json)?\s*|\s*```$", "", raw_text, flags=re.DOTALL).strip()
+            fence_match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", raw_text, re.IGNORECASE)
+            if fence_match:
+                raw_text = fence_match.group(1).strip()
+            else:
+                first_brace = raw_text.find("{")
+                first_bracket = raw_text.find("[")
+                candidates = [idx for idx in (first_brace, first_bracket) if idx != -1]
+                if candidates:
+                    start_idx = min(candidates)
+                    last_brace = raw_text.rfind("}")
+                    last_bracket = raw_text.rfind("]")
+                    end_idx = max(last_brace, last_bracket)
+                    if end_idx > start_idx:
+                        raw_text = raw_text[start_idx : end_idx + 1]
             data = json.loads(raw_text)
 
             headline = data.get("headline", topic)

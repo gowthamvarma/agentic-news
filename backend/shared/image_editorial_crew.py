@@ -83,8 +83,20 @@ def _call_gemini_json(
             ),
         )
         raw = (resp.text or "{}").strip()
-        if raw.startswith("```"):
-            raw = re.sub(r"^```(?:json)?\s*|\s*```$", "", raw, flags=re.DOTALL).strip()
+        fence_match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", raw, re.IGNORECASE)
+        if fence_match:
+            raw = fence_match.group(1).strip()
+        else:
+            first_brace = raw.find("{")
+            first_bracket = raw.find("[")
+            candidates = [idx for idx in (first_brace, first_bracket) if idx != -1]
+            if candidates:
+                start_idx = min(candidates)
+                last_brace = raw.rfind("}")
+                last_bracket = raw.rfind("]")
+                end_idx = max(last_brace, last_bracket)
+                if end_idx > start_idx:
+                    raw = raw[start_idx : end_idx + 1]
         return json.loads(raw)
     except Exception as exc:
         logger.warning("Gemini JSON call failed on model '%s': %s", model, exc)

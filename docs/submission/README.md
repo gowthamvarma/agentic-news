@@ -23,8 +23,8 @@ While conventional AI news summarizers act as crude text compressors that flatte
 * **Evaluates media bias and manipulation** across a 7-point ideological spectrum.
 * **Performs 5-Whys root cause diagnosis** and models **3-tier consequence cascades** (1st, 2nd, and 3rd order ripple effects).
 * **Reinforces cognitive retention** through adaptive comprehension quizzes and dialectical perspective debates.
-* **Powers an On-Demand Article Studio** generating publication-ready journalism across 7 distinct editorial styles with 50+ language translations and audio speech narration.
-* **Features an On-Demand Image Studio** producing photorealistic and conceptual editorial imagery powered by Imagen 3 / Gemini with Cloud Storage persistence.
+* **Powers Article Studio** generating publication-ready journalism across 7 distinct editorial styles with 50+ language translations and audio speech narration.
+* **Features Image Studio** with a 4-Agent Editorial Art Room producing photorealistic and conceptual imagery powered by Imagen 3 / Gemini with Anti-Deception Guardrails and Cloud Storage persistence.
 
 ---
 

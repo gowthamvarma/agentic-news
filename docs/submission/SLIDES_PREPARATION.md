@@ -55,16 +55,16 @@ By replacing single-turn prompting with an **orchestrated 6-stage multi-agent bu
 * **6-Stage Live Execution Stepper**: Real-time Server-Sent Events (SSE) telemetry displaying agent activity stage-by-stage.
 
 ### 2. Forensic Investigation & Reporting (10 Dedicated Tabs)
-1. **Tab 1: Executive Intelligence Brief (`#brief`)**: Consensus points, key metrics, Who/Where/What entity primers with Wikipedia links, and Jargon Buster glossaries.
-2. **Tab 2: Verified Sources & Media Bias (`#sources`)**: 7-point ideological spectrum (Far Left to Far Right), publisher reliability tiers, and unaddressed coverage gaps.
-3. **Tab 3: Fact Checks & Contradictions (`#verification`)**: IFCN-aligned claim verification badges with confidence meters, plus a side-by-side Contradiction Matrix classifying divergences (*Numerical Discrepancy*, *Timeline Divergence*, *Fact Negation*).
-4. **Tab 4: Chronological Milestone Timeline (`#timeline`)**: Bidirectional chronological event flow tracking media narrative evolution and reporting pivots.
-5. **Tab 5: Causal & Future Scenarios (`#insights`)**: 5-Whys root cause diagnosis, 3-tier consequence cascades (1st, 2nd, 3rd order), probabilistic Best/Likely/Worst scenarios, and leading indicator tripwires.
-6. **Tab 6: Active Recall Comprehension Quiz (`#quiz`)**: Interactive Socratic multiple-choice quiz with auto-grading, radial scorecard, and pedagogical explanations.
-7. **Tab 7: Dialectical Perspective Debate (`#debate`)**: Steelmanned Socratic debate between credible opposing stakeholders, concluding with an objective compromise synthesis.
-8. **Tab 8: Autonomous Research Copilot (`#copilot`)**: Conversational research assistant strictly grounded in the session's verified Evidence Ledger with zero hallucinations.
-9. **Tab 9: On-Demand Article Studio (`#article`)**: Automated journalism generator spanning 7 distinct editorial styles (Wire, Investigative, Executive, Op-Ed, ELI5, Academic, Newsletter), 50+ language translations, Web Speech audio narration, and social SEO publishing kits.
-10. **Tab 10: On-Demand Image Studio (`#image`)**: Photorealistic and conceptual editorial visual generation powered by Imagen 3 and Gemini, featuring 5 style presets, 4 aspect ratios, and Google Cloud Storage persistence.
+1. **Tab 1: Summary & Overview (`#brief`)**: Consensus points, key metrics, Who/Where/What entity primers with Wikipedia links, and Jargon Buster glossaries.
+2. **Tab 2: Verified Sources (`#sources`)**: 7-point ideological spectrum (Far Left to Far Right), publisher reliability tiers, and unaddressed coverage gaps.
+3. **Tab 3: Fact Checks & Clashing Claims (`#verification`)**: IFCN-aligned claim verification badges with confidence meters, plus a side-by-side Contradiction Matrix classifying divergences (*Numerical Discrepancy*, *Timeline Divergence*, *Fact Negation*).
+4. **Tab 4: Timeline (`#timeline`)**: Bidirectional chronological event flow tracking media narrative evolution and reporting pivots.
+5. **Tab 5: Why & What's Next (`#insights`)**: 5-Whys root cause diagnosis, 3-tier consequence cascades (1st, 2nd, 3rd order), probabilistic Best/Likely/Worst scenarios, and leading indicator tripwires.
+6. **Tab 6: Knowledge Check (`#quiz`)**: Interactive Socratic multiple-choice quiz with auto-grading, radial scorecard, and pedagogical explanations.
+7. **Tab 7: Both Sides Debate (`#debate`)**: Steelmanned Socratic debate between credible opposing stakeholders, concluding with an objective compromise synthesis.
+8. **Tab 8: Ask AI Reporter (`#copilot`)**: Conversational research assistant (`AI Reporter`) strictly grounded in the session's verified Evidence Ledger with zero hallucinations.
+9. **Tab 9: Article Studio (`#article`)**: Automated journalism generator spanning 7 distinct editorial styles (Wire, Investigative, Executive, Op-Ed, ELI5, Academic, Newsletter), 50+ language translations, Web Speech audio narration, and social SEO publishing kits.
+10. **Tab 10: Image Studio (`#image`)**: 4-Agent Image Editorial Art Room Crew (News Analyst, Creative Director, Cinematographer, Editorial Critic) synthesizing conceptual and photorealistic visual media via Imagen 3 with Anti-Deception Guardrails and Google Cloud Storage persistence.
 
 ### 3. Institutional Memory & Persistence
 * **History Archive Repository (`/history`)**: Instant sub-100ms rehydration of past investigations with full-text search, star/favorite curation, and auto-switching Table/Card views.
@@ -125,16 +125,16 @@ flowchart TD
 ```
 +-------------------------------------+---------------------------------------------------+
 |  INVESTIGATION DOSSIER TABS         |  ACTIVE DOSSIER DISPLAY                           |
-|  [x] Executive Intelligence Brief   |  * Key Metrics & Statistical Baseline             |
-|  [ ] Verified Sources & Outlets     |  * Entity Primer Cards (Who / Where / What)       |
-|  [ ] Fact Checks & Contradictions   |  * Cross-Spectrum High-Confidence Consensus       |
-|  [ ] Chronological Event Timeline   +---------------------------------------------------+
-|  [ ] Root Causes & Scenarios        |  SIDE-BY-SIDE CONTRADICTION MATRIX:               |
-|  [ ] Active Recall Literacy Tutor   |  [Outlet A Claim]    vs.    [Outlet B Claim]      |
-|  [ ] Perspective Debate Simulator   |  Divergence: Numerical Discrepancy (Confidence 92%)|
-|  [ ] Autonomous Research Copilot    +---------------------------------------------------+
-|  [ ] On-Demand Article Studio       |  EDITORIAL ARTICLE STUDIO:                        |
-|  [ ] On-Demand Image Studio         |  [Wire Dispatch | Investigative | Executive | Op-Ed]|
+|  [x] Summary & Overview             |  * Key Metrics & Statistical Baseline             |
+|  [ ] Verified Sources               |  * Entity Primer Cards (Who / Where / What)       |
+|  [ ] Fact Checks & Clashing Claims  |  * Cross-Spectrum High-Confidence Consensus       |
+|  [ ] Timeline                       +---------------------------------------------------+
+|  [ ] Why & What's Next              |  SIDE-BY-SIDE CONTRADICTION MATRIX:               |
+|  [ ] Knowledge Check                |  [Outlet A Claim]    vs.    [Outlet B Claim]      |
+|  [ ] Both Sides Debate              |  Divergence: Numerical Discrepancy (Confidence 92%)|
+|  [ ] Ask AI Reporter                +---------------------------------------------------+
+|  [ ] Article Studio                 |  EDITORIAL ARTICLE STUDIO:                        |
+|  [ ] Image Studio                   |  [Wire Dispatch | Investigative | Executive | Op-Ed]|
 |                                     |  [Audio Play/Pause] [Translate: 50+ Languages]    |
 |  [<- Previous Tab]  [Next Tab ->]   |  [Imagen 3 Visual Gallery: 16:9 / 1:1 / 4:3]      |
 +-------------------------------------+---------------------------------------------------+
@@ -228,25 +228,25 @@ All prototype screenshots and animated GIF walkthroughs are captured live from t
 
 * **Hero Overview & 16-Country Feed**:  
   `docs/submission/assets/hero-overview.png` & `docs/submission/assets/home-countries.gif`
-* **Tab 1: Executive Intelligence Brief**:  
+* **Tab 1: Summary & Overview**:  
   `docs/submission/assets/tab-01-brief.png` & `docs/submission/assets/tab-01-brief.gif`
-* **Tab 2: Verified Sources & Media Bias Spectrum**:  
+* **Tab 2: Verified Sources**:  
   `docs/submission/assets/tab-02-sources.png` & `docs/submission/assets/tab-02-sources.gif`
-* **Tab 3: Fact Checks & Contradiction Matrix**:  
+* **Tab 3: Fact Checks & Clashing Claims**:  
   `docs/submission/assets/tab-03-verification.png` & `docs/submission/assets/tab-03-verification.gif`
-* **Tab 4: Chronological Milestone Timeline**:  
+* **Tab 4: Timeline**:  
   `docs/submission/assets/tab-04-timeline.png` & `docs/submission/assets/tab-04-timeline.gif`
-* **Tab 5: Causal 5-Whys & Future Scenarios**:  
+* **Tab 5: Why & What's Next**:  
   `docs/submission/assets/tab-05-insights.png` & `docs/submission/assets/tab-05-insights.gif`
-* **Tab 6: Active Recall Literacy Tutor**:  
+* **Tab 6: Knowledge Check**:  
   `docs/submission/assets/tab-06-quiz.png` & `docs/submission/assets/tab-06-quiz.gif`
-* **Tab 7: Dialectical Perspective Debate Simulator**:  
+* **Tab 7: Both Sides Debate**:  
   `docs/submission/assets/tab-07-debate.png` & `docs/submission/assets/tab-07-debate.gif`
-* **Tab 8: Autonomous Research Copilot**:  
+* **Tab 8: Ask AI Reporter**:  
   `docs/submission/assets/tab-08-copilot.png` & `docs/submission/assets/tab-08-copilot.gif`
-* **Tab 9: On-Demand Article Studio**:  
+* **Tab 9: Article Studio**:  
   `docs/submission/assets/tab-09-article.png` & `docs/submission/assets/tab-09-article.gif`
-* **Tab 10: On-Demand Image Studio**:  
+* **Tab 10: Image Studio**:  
   `docs/submission/assets/tab-10-image.png` & `docs/submission/assets/tab-10-image.gif`
 * **History Archive Repository**:  
   `docs/submission/assets/history-archive.png` & `docs/submission/assets/history-archive.gif`

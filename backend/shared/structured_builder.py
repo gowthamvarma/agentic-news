@@ -44,10 +44,22 @@ from shared.schemas import (
 
 
 def _safe_json_loads(raw_text: str) -> Any:
-    """Safely parses JSON from LLM text, stripping markdown code fences if present."""
+    """Safely parses JSON from LLM text, stripping markdown code fences or conversational text if present."""
     cleaned = (raw_text or "").strip()
-    if cleaned.startswith("```"):
-        cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", cleaned, flags=re.DOTALL).strip()
+    fence_match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", cleaned, re.IGNORECASE)
+    if fence_match:
+        cleaned = fence_match.group(1).strip()
+    else:
+        first_brace = cleaned.find("{")
+        first_bracket = cleaned.find("[")
+        candidates = [idx for idx in (first_brace, first_bracket) if idx != -1]
+        if candidates:
+            start_idx = min(candidates)
+            last_brace = cleaned.rfind("}")
+            last_bracket = cleaned.rfind("]")
+            end_idx = max(last_brace, last_bracket)
+            if end_idx > start_idx:
+                cleaned = cleaned[start_idx : end_idx + 1]
     return json.loads(cleaned)
 
 

@@ -117,32 +117,36 @@ Every single agent directly powers an observable, interactive surface in the web
 | Agent Name | Architectural Stage | Primary Model | Python Module | Frontend Component & UI Tab | Problem It Solves in UI |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **`news_analyser`** | Root Orchestrator | Gemini 3.1 Pro | `backend/news_analyser/agent.py` | `App.tsx` & Stepper Banner | Coordinates end-to-end multi-agent execution with live progress telemetry. |
-| **`source_collector`** | 1. Ingestion | Gemini 3.8 Flash | `shared/agents/ingestion.py` | `HomePage.tsx` (Regional Feeds) | Discovers breaking reporting across 8 international regions and diverse outlets. |
-| **`claim_extractor`** | 1. Ingestion | Gemini 3.8 Flash | `shared/agents/ingestion.py` | `tab-03-verification` | Breaks chaotic news narratives into isolated, testable atomic factual claims. |
-| **`context_builder`** | 2. Understand | Gemini 3.8 Flash | `shared/agents/understand.py` | `tab-01-brief` (Entity Primer) | Explains Who/Where/What with direct Wikipedia links and Jargon Buster cards. |
+| **`source_collector`** | 1. Ingestion | Gemini 3.8 Flash | `shared/agents/ingestion.py` | `HomePage.tsx` (Regional Feeds) | Discovers breaking reporting across 16 international regions and diverse outlets. |
+| **`claim_extractor`** | 1. Ingestion | Gemini 3.8 Flash | `shared/agents/ingestion.py` | `tab-03-verification` (`Fact Checks & Clashing Claims`) | Breaks chaotic news narratives into isolated, testable atomic factual claims. |
+| **`context_builder`** | 2. Understand | Gemini 3.8 Flash | `shared/agents/understand.py` | `tab-01-brief` (`Summary & Overview`) | Explains Who/Where/What with direct Wikipedia links and Jargon Buster cards. |
 | **`timeline_agent`** | 2. Understand | Gemini 3.8 Flash | `timeline_agent/agent.py` | `tab-04-timeline` (`TimelineSection.tsx`) | Reconstructs the exact chronological evolution of events and narrative pivots. |
 | **`knowledge_graph_agent`** | 2. Understand | Gemini 3.8 Flash | `shared/agents/understand.py` | `tab-01-brief` (Relationships) | Maps institutional dependencies, alliances, and regulatory oversight bodies. |
 | **`stakeholder_map_agent`**| 2. Understand | Gemini 3.8 Flash | `shared/agents/understand.py` | `tab-01-brief` (Stakeholders) | Identifies who gains, who loses, and the underlying incentives of key actors. |
-| **`fact_verifier`** | 3. Verify | Gemini 3.8 Flash | `fact_verifier/agent.py` | `tab-03-verification` | Forensic verification of claims (VERIFIED, DISPUTED, MISLEADING) with confidence scores. |
-| **`source_reliability_agent`**| 3. Verify | Gemini 3.8 Flash | `shared/agents/verify.py` | `tab-02-sources` (Reliability Tiers) | Audits publisher track records, journalistic corrections history, and source rigor. |
+| **`fact_verifier`** | 3. Verify | Gemini 3.8 Flash | `fact_verifier/agent.py` | `tab-03-verification` (`Fact Checks & Clashing Claims`) | Forensic verification of claims (VERIFIED, DISPUTED, MISLEADING) with confidence scores. |
+| **`source_reliability_agent`**| 3. Verify | Gemini 3.8 Flash | `shared/agents/verify.py` | `tab-02-sources` (`Verified Sources`) | Audits publisher track records, journalistic corrections history, and source rigor. |
 | **`contradiction_analyst`** | 3. Verify | Gemini 3.1 Pro | `shared/agents/verify.py` | `tab-03-verification` (`CrossSourceContradictionsSection.tsx`) | Detects cross-outlet factual, numerical, and timeline discrepancies side-by-side. |
 | **`bias_analyst`** | 3. Verify | Gemini 3.8 Flash | `shared/agents/verify.py` | `tab-02-sources` (Bias Spectrum) | Classifies political lean across a 7-point spectrum and flags loaded language. |
 | **`manipulation_detector`**| 3. Verify | Gemini 3.8 Flash | `shared/agents/verify.py` | `tab-03-verification` (Framing Flags) | Unmasks propaganda techniques, fear appeals, false dilemmas, and sensationalism. |
 | **`coverage_gap_agent`** | 3. Verify | Gemini 3.8 Flash | `shared/agents/verify.py` | `tab-02-sources` (Unanswered Qs) | Detects what outlets are *not* reporting and identifies critical blind spots. |
-| **`root_cause_agent`** | 4. Analyse | Gemini 3.1 Pro | `shared/agents/analyse.py` | `tab-05-insights` (5-Whys Diagnostic) | Diagnoses immediate triggers, contributing factors, and structural failure points. |
+| **`root_cause_agent`** | 4. Analyse | Gemini 3.1 Pro | `shared/agents/analyse.py` | `tab-05-insights` (`Why & What's Next`) | Diagnoses immediate triggers, contributing factors, and structural failure points via 5-Whys. |
 | **`impact_analyzer`** | 4. Analyse | Gemini 3.1 Pro | `shared/agents/analyse.py` | `tab-05-insights` (Consequence Tree) | Models 3-tier ripple effects: 1st-order (immediate), 2nd-order, and 3rd-order (macro). |
 | **`lessons_prevention_agent`**| 4. Analyse | Gemini 3.8 Flash | `shared/agents/analyse.py` | `tab-05-insights` (Action Directives) | Distills concrete prevention steps for individuals, organizations, and regulators. |
 | **`historical_parallels_agent`**| 4. Analyse | Gemini 3.1 Pro | `shared/agents/analyse.py` | `tab-05-insights` (Historical Case) | Retrieves similar past historical crises and compares how they were resolved. |
 | **`scenario_prediction_agent`**| 4. Analyse | Gemini 3.1 Pro | `scenario_prediction/agent.py` | `tab-05-insights` (Scenarios) | Forecasts Best, Likely, and Worst-case outcomes with leading indicator signals. |
 | **`country_transferability_agent`**| 4. Analyse | Gemini 3.8 Flash | `shared/agents/analyse.py` | `tab-05-insights` (Transferability) | Evaluates whether the crisis could happen in the user's home country. |
-| **`report_synthesizer`** | 5. Synthesis | Gemini 3.1 Pro | `shared/agents/synthesis.py` | `tab-01-brief` (Executive Brief) | Synthesizes consensus facts, key metrics, and strategic takeaways into brief format. |
+| **`report_synthesizer`** | 5. Synthesis | Gemini 3.1 Pro | `shared/agents/synthesis.py` | `tab-01-brief` (`Summary & Overview`) | Synthesizes consensus facts, key metrics, and strategic takeaways into brief format. |
 | **`audience_adaptation_agent`**| 5. Synthesis | Gemini 3.8 Flash | `shared/agents/synthesis.py` | `tab-01-brief` (Audience Tone) | Rewrites briefs for varied reading levels (ELI5, Executive, Academic) and languages. |
 | **`article_generator`** | 5. Synthesis & Editorial | Gemini 3.1 Pro & Flash | `shared/article_generator.py` | `tab-09-article` (`ArticleStudioSection.tsx`) | Produces on-demand journalistic articles across 7 styles, 50+ languages, audio speech, and SEO kits. |
-| **`tutor_agent`** | 6. Engage | Gemini 3.8 Flash | `tutor_agent/agent.py` | `tab-06-quiz` (Active Recall Test) | Generates interactive MCQs with pedagogical explanations to reinforce learning. |
-| **`perspective_debate_agent`**| 6. Engage | Gemini 3.1 Pro | `perspective_debate/agent.py` | `tab-07-debate` (Dialectical Stage) | Conducts an evidence-backed debate between competing ideological viewpoints. |
-| **`research_copilot`** | 6. Engage | Gemini 3.1 Pro | `research_copilot/agent.py` | `tab-08-copilot` (Grounded Chat) | Interactive investigative assistant answering follow-up queries via Evidence Ledger. |
+| **`tutor_agent`** | 6. Engage | Gemini 3.8 Flash | `tutor_agent/agent.py` | `tab-06-quiz` (`Knowledge Check`) | Generates interactive MCQs with pedagogical explanations to reinforce learning. |
+| **`perspective_debate_agent`**| 6. Engage | Gemini 3.1 Pro | `perspective_debate/agent.py` | `tab-07-debate` (`Both Sides Debate`) | Conducts an evidence-backed debate between competing ideological viewpoints. |
+| **`research_copilot`** | 6. Engage | Gemini 3.1 Pro | `research_copilot/agent.py` | `tab-08-copilot` (`Ask AI Reporter`) | Interactive investigative assistant (`AI Reporter`) answering follow-up queries via Evidence Ledger. |
+| **`image_analyst`** | 6. Editorial Art Room | Gemini 3.8 Flash | `shared/image_editorial_crew.py` | `tab-10-image` (`ImageStudioSection.tsx`) | Extracts sensory anchors, core tension, and emotional tone from investigative dossier. |
+| **`creative_director`** | 6. Editorial Art Room | Gemini 3.1 Pro | `shared/image_editorial_crew.py` | `tab-10-image` (`ImageStudioSection.tsx`) | Formulates non-literal synesthetic metaphors and conceptual visual directives avoiding clichés. |
+| **`cinematographer`** | 6. Editorial Art Room | Gemini 3.8 Flash | `shared/image_editorial_crew.py` | `tab-10-image` (`ImageStudioSection.tsx`) | Synthesizes camera, lighting, and composition directives optimized for Imagen 3 rendering. |
+| **`editorial_critic`** | 6. Editorial Art Room | Gemini 3.1 Pro | `shared/image_editorial_crew.py` | `tab-10-image` (`ImageStudioSection.tsx`) | Enforces strict Anti-Deception Guardrails, blocks deceptive deepfakes of public leaders, and filters clichés. |
 | **`image_generator`** | 6. Creative & Visual Media | Imagen 3 & Gemini Flash | `shared/image_generator.py` | `tab-10-image` (`ImageStudioSection.tsx`) | Synthesizes photorealistic and conceptual editorial imagery across 5 styles and 4 aspect ratios with Cloud Storage. |
-| **`topic_curator`** | Discovery | Gemini 3.8 Flash | `shared/topic_suggester.py` | `HomePage.tsx` (Trending Chips) | Curates timely, high-impact investigative topics across 8 sovereign nations. |
+| **`topic_curator`** | Discovery | Gemini 3.8 Flash | `shared/topic_suggester.py` | `HomePage.tsx` (Trending Chips) | Curates timely, high-impact investigative topics across 16 sovereign nations. |
 
 ---
 

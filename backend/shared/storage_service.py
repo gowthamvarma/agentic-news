@@ -20,44 +20,52 @@ from shared.config import (
     logger,
 )
 
+import threading
+
 _gcs_client = None
 _gcs_attempted = False
 _gcs_bucket_obj = None
+_gcs_lock = threading.Lock()
 
 
 def _get_gcs_bucket():
-    """Lazily initializes and caches the Google Cloud Storage bucket object."""
+    """Lazily initializes and caches the Google Cloud Storage bucket object (thread-safe)."""
     global _gcs_client, _gcs_attempted, _gcs_bucket_obj
     if _gcs_attempted:
         return _gcs_bucket_obj
 
-    _gcs_attempted = True
-    try:
-        from google.cloud import storage
+    with _gcs_lock:
+        if _gcs_attempted:
+            return _gcs_bucket_obj
 
-        # Sanitize credentials if needed
-        cred_env = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
-        if cred_env and not os.path.isfile(cred_env):
-            os.environ.pop("GOOGLE_APPLICATION_CREDENTIALS", None)
+        try:
+            from google.cloud import storage
 
-        project_id = (
-            os.environ.get("FIREBASE_PROJECT_ID")
-            or os.environ.get("GOOGLE_CLOUD_PROJECT")
-            or FIREBASE_PROJECT_ID
-        ).strip()
-        bucket_name = (os.environ.get("GCS_MEDIA_BUCKET") or GCS_MEDIA_BUCKET).strip()
+            # Sanitize credentials if needed
+            cred_env = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
+            if cred_env and not os.path.isfile(cred_env):
+                os.environ.pop("GOOGLE_APPLICATION_CREDENTIALS", None)
 
-        _gcs_client = storage.Client(project=project_id)
-        bucket = _gcs_client.bucket(bucket_name)
-        # Check if bucket exists or can be accessed
-        if bucket.exists():
-            _gcs_bucket_obj = bucket
-            logger.info("Connected to Google Cloud Storage bucket: %s", bucket_name)
-        else:
-            logger.warning("GCS bucket '%s' does not exist yet. Using local media cache.", bucket_name)
-    except Exception as e:
-        logger.warning("GCS client not active (%s). Using local media cache: %s", e, LOCAL_MEDIA_DIR)
-        _gcs_bucket_obj = None
+            project_id = (
+                os.environ.get("FIREBASE_PROJECT_ID")
+                or os.environ.get("GOOGLE_CLOUD_PROJECT")
+                or FIREBASE_PROJECT_ID
+            ).strip()
+            bucket_name = (os.environ.get("GCS_MEDIA_BUCKET") or GCS_MEDIA_BUCKET).strip()
+
+            _gcs_client = storage.Client(project=project_id)
+            bucket = _gcs_client.bucket(bucket_name)
+            # Check if bucket exists or can be accessed
+            if bucket.exists():
+                _gcs_bucket_obj = bucket
+                logger.info("Connected to Google Cloud Storage bucket: %s", bucket_name)
+            else:
+                logger.warning("GCS bucket '%s' does not exist yet. Using local media cache.", bucket_name)
+        except Exception as e:
+            logger.warning("GCS client not active (%s). Using local media cache: %s", e, LOCAL_MEDIA_DIR)
+            _gcs_bucket_obj = None
+        finally:
+            _gcs_attempted = True
 
     return _gcs_bucket_obj
 

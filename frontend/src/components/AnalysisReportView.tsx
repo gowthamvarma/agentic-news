@@ -1497,7 +1497,8 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     </div>
                   ) : (
                     report.verifications.map((v) => {
-                    const confPercent = Math.round(v.confidence * 100);
+                      const rawConf = typeof v.confidence === 'number' && !isNaN(v.confidence) ? v.confidence : 0.85;
+                      const confPercent = Math.min(100, Math.max(0, Math.round(rawConf > 1 ? rawConf : rawConf * 100)));
 
                     return (
                       <div key={v.claim_id} className="card bg-base-100 border border-base-300 shadow-sm p-4 sm:p-6 hover:border-primary/50 transition-all overflow-hidden min-w-0 break-words">

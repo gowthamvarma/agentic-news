@@ -57,7 +57,7 @@ export const AnalysisDetailPage: React.FC = () => {
         clearTimeout(t2);
       };
     }
-  }, [id, report?.id]);
+  }, [id]);
 
   useEffect(() => {
     if (!id) {
