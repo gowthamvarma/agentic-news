@@ -125,6 +125,10 @@ def deploy_firestore_rules(project_id: str, rules_file: Path):
 
     # Fallback to POST create release
     url_post = f"https://firebaserules.googleapis.com/v1/projects/{project_id}/releases"
+    payload_rel = {
+        "name": release_name,
+        "rulesetName": ruleset_name,
+    }
     post_req = urllib.request.Request(
         url_post,
         data=json.dumps(payload_rel).encode("utf-8"),

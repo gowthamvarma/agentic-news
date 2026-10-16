@@ -58,7 +58,13 @@ echo ""
 
 # STEP 3: Deploy Firestore Security Rules
 echo "[3/4] Releasing Cloud Firestore Security Rules..."
-python3 firebase/deploy_rules.py "$PROJECT_ID" || python firebase/deploy_rules.py "$PROJECT_ID" || {
+PY_BIN="python3"
+if python3 --version >/dev/null 2>&1; then
+    PY_BIN="python3"
+elif python --version >/dev/null 2>&1; then
+    PY_BIN="python"
+fi
+$PY_BIN firebase/deploy_rules.py "$PROJECT_ID" || {
     echo "[WARNING] Firestore rules deployment encountered an issue. Continuing container build..."
 }
 echo ""
@@ -76,7 +82,7 @@ echo "[4/4] Building container and deploying to Google Cloud Run..."
             --platform managed \
             --allow-unauthenticated \
             --set-env-vars "FIREBASE_PROJECT_ID=$PROJECT_ID,GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GCS_MEDIA_BUCKET=$BUCKET_NAME,ADK_LOG_LEVEL=INFO" \
-            --timeout 300 \
+            --timeout=300s \
             --memory 2Gi \
             --cpu 2 \
             --min-instances 0 \
@@ -90,7 +96,7 @@ echo "[4/4] Building container and deploying to Google Cloud Run..."
             --platform managed \
             --allow-unauthenticated \
             --set-env-vars "FIREBASE_PROJECT_ID=$PROJECT_ID,GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GEMINI_API_KEY=$API_KEY,GCS_MEDIA_BUCKET=$BUCKET_NAME,ADK_LOG_LEVEL=INFO" \
-            --timeout 300 \
+            --timeout=300s \
             --memory 2Gi \
             --cpu 2 \
             --min-instances 0 \

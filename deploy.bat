@@ -86,7 +86,7 @@ if "%API_KEY%"=="" (
         --platform managed ^
         --allow-unauthenticated ^
         --set-env-vars "FIREBASE_PROJECT_ID=%PROJECT_ID%,GOOGLE_CLOUD_PROJECT=%PROJECT_ID%,GCS_MEDIA_BUCKET=%BUCKET_NAME%,ADK_LOG_LEVEL=INFO" ^
-        --timeout 300 ^
+        --timeout=300s ^
         --memory 2Gi ^
         --cpu 2 ^
         --min-instances 0 ^
@@ -100,7 +100,7 @@ if "%API_KEY%"=="" (
         --platform managed ^
         --allow-unauthenticated ^
         --set-env-vars "FIREBASE_PROJECT_ID=%PROJECT_ID%,GOOGLE_CLOUD_PROJECT=%PROJECT_ID%,GEMINI_API_KEY=%API_KEY%,GCS_MEDIA_BUCKET=%BUCKET_NAME%,ADK_LOG_LEVEL=INFO" ^
-        --timeout 300 ^
+        --timeout=300s ^
         --memory 2Gi ^
         --cpu 2 ^
         --min-instances 0 ^
