@@ -16,15 +16,15 @@ Evaluators and judges can explore the complete live platform in under 3 minutes:
    * **Backend API**: `http://localhost:8080/` (or run `python backend/api_server.py`)
    * **Frontend UI**: `http://localhost:5173/` (or run `cd frontend && npm run dev`)
 2. **Instant Golden Test Case**: Open [`http://localhost:5173/analysis/09c0dbae-2b01-4852-83de-ddc89fdb6614`](http://localhost:5173/analysis/09c0dbae-2b01-4852-83de-ddc89fdb6614) to load the pre-audited intelligence dossier for **"Elon Musk Starlink India Issue"**.
-3. **Tab Tour**: Click across the 8 investigation tabs on the left sidebar:
-   * **Executive Brief** $\rightarrow$ **Verified Sources** $\rightarrow$ **Fact Checks & Contradictions** $\rightarrow$ **Timeline** $\rightarrow$ **Causal & Scenarios** $\rightarrow$ **Active Recall Tutor** $\rightarrow$ **Perspective Debate** $\rightarrow$ **Research Copilot**.
-4. **Interactive Test**: Go to the **Active Recall Tutor** tab and answer Question 1 to see the instant feedback badge and pedagogical explanation.
+3. **Tab Tour**: Click across the 10 investigation tabs on the left sidebar:
+   * **Executive Brief** $\rightarrow$ **Verified Sources** $\rightarrow$ **Fact Checks & Contradictions** $\rightarrow$ **Timeline** $\rightarrow$ **Causal & Scenarios** $\rightarrow$ **Active Recall Tutor** $\rightarrow$ **Perspective Debate** $\rightarrow$ **Research Copilot** $\rightarrow$ **Article Studio** $\rightarrow$ **Image Studio**.
+4. **Interactive Test**: Go to the **Active Recall Tutor** tab and answer Question 1 to see the instant feedback badge and pedagogical explanation, or explore the **Article Studio** tab to hear Web Speech audio narration or translate the brief into 50+ languages.
 
 ---
 
 ## 2. Animated Platform Walkthrough
 
-Below is an interactive animated tour showing the end-to-end investigative workflow—from global breaking feeds to deep contradiction auditing, causal consequence trees, and active recall learning. All GIFs play continuously in an **infinite loop** with a relaxed **2.6 to 2.8-second transition pace** between frames so you can comfortably read and absorb each section:
+Below is an interactive animated tour showing the end-to-end investigative workflow—from global breaking feeds to deep contradiction auditing, causal consequence trees, active recall learning, and on-demand article and image generation. All GIFs play continuously in an **infinite loop** with a relaxed **2.6 to 3.0-second transition pace** between frames so you can comfortably read and absorb each section:
 
 ![Live Platform Walkthrough](./assets/app-walkthrough.gif)
 
@@ -34,11 +34,12 @@ Below is an interactive animated tour showing the end-to-end investigative workf
 
 The user interface was built to deliver the responsiveness of a high-end financial terminal with the visual polish of a modern media publication.
 
-### Global Header Controls
+### Global Header & Navigation Controls
 * **Brain Logo & Fleet Status**: Shows active connectivity to the 25-agent Google ADK fleet.
 * **Top Navigation**: Direct access to `Search & Live Fleet` (`/`) and `History Archive` (`/history`).
 * **Firestore Sync Indicator**: Real-time badge indicating whether reports are persisting to Google Cloud Firestore or the local emulator.
 * **DaisyUI Multi-Theme Switcher**: Instant switching between `Dark`, `Light`, `Cyberpunk`, and `Synthwave` themes.
+* **Bidirectional Tab Navigation**: Pinned "Previous" and "Next" quick-switch buttons at the base of each analysis tab for effortless reading progression.
 * **Responsive Drawer**: Mobile-friendly sidebar drawer on smaller viewports.
 
 ---
@@ -73,7 +74,7 @@ The user interface was built to deliver the responsiveness of a high-end financi
 
 ---
 
-## 5. The 8 Analysis Report Tabs in Detail
+## 5. The 10 Analysis Report Tabs in Detail
 
 *(Demonstrated using live sample: `http://localhost:5173/analysis/09c0dbae-2b01-4852-83de-ddc89fdb6614`)*
 
@@ -184,3 +185,46 @@ The user interface was built to deliver the responsiveness of a high-end financi
   1. **Copilot Agent Header & Status Badge**: Displays online agent status, Gemini model engine attribution, and conversation management controls (Clear Chat History).
   2. **Evidence-Grounded Chat Stream**: Conversational message thread rendering user questions and agent responses in formatted markdown with direct citations to analyzed articles.
   3. **Interactive Investigation Input Bar**: Real-time query input enabling users to probe specific claims, request entity clarifications, or ask "what if" questions regarding the investigation.
+
+---
+
+### Tab 9: On-Demand Article Studio (`#article`)
+
+![Tab 9: Article Studio Multi-Section Tour](./assets/tab-09-article.gif)
+
+* **Problem It Solves**: Transforming raw factual intelligence into tailored editorial publications for distinct audiences (executives, general public, academic researchers, social followers) requires hours of tedious drafting, tone adjustment, and multilingual localization.
+* **How It Solves**: Deploys an automated editorial synthesis bureau that translates verified investigation dossiers into publication-ready articles across 7 journalistic styles, complete with Web Speech audio narration, social media distribution kits, and 50+ language translations.
+* **Sub-Sections & Core Functionality**:
+  1. **Editorial Style Selector (7 Journalistic Formats)**:
+     * *AP / Reuters Wire Dispatch* (Neutral inverted-pyramid lead)
+     * *Investigative Watchdog* (Forensic deep-dive into evidence and motives)
+     * *Executive Strategic Brief* (C-suite risk analysis and market impacts)
+     * *Dialectical Op-Ed Column* (Balanced perspective steelmanning)
+     * *ELI5 Deep Explainer* (Zero-jargon conceptual analogies)
+     * *Academic Research Paper* (Scholarly citation and institutional framework)
+     * *Punchy Modern Newsletter* (Curated Morning Brew/Substack takeaways)
+  2. **Target Length & Perspective Controls**: Customize output depth (`Flash Dispatch`, `Standard Report`, `Deep-Dive Longform`) and analytical focus.
+  3. **Multilingual Localization Hub (50+ Languages)**: Instantly re-synthesizes and translates the article into global languages (Spanish, French, German, Japanese, Hindi, Mandarin, Arabic, etc.) with localized nuance.
+  4. **Integrated Text-to-Speech (TTS) Narration**: Built-in audio player with play, pause, stop, and rate controls for listening on the go.
+  5. **Social Publishing & SEO Distribution Kit**: Automated extraction of catchy headline variants, SEO meta descriptions, Twitter/X threads with hook cards, and key takeaways.
+  6. **Saved Article Repository & Export**: Bookmark, copy formatted markdown, print/PDF export, or delete generated editions.
+
+---
+
+### Tab 10: On-Demand Image Studio (`#image`)
+
+![Tab 10: Image Studio Multi-Section Tour](./assets/tab-10-image.gif)
+
+* **Problem It Solves**: Quality news reporting requires compelling, contextually grounded visuals, but journalists and readers are typically trapped between generic stock photos or copyright-infringing web grabs.
+* **How It Solves**: Leverages Google Imagen 3 and Gemini multimodal capabilities to generate photorealistic documentary photography, magazine-cover concept art, and technical diagrams grounded directly in the investigated facts, persisted to Google Cloud Storage.
+* **Sub-Sections & Core Functionality**:
+  1. **AI Editorial Prompt Suggestions**: 5 pre-formulated, forensic visual prompts generated specifically from the investigation's verified actors, locations, and events.
+  2. **Visual Style Presets (5 Aesthetics)**:
+     * *Photojournalism* (Authentic 35mm news photograph, candid natural lighting)
+     * *Magazine Cover* (Conceptual editorial art inspired by The Economist & TIME)
+     * *3D Isometric* (Clean technical diagram visualizing industrial infrastructure)
+     * *Cinematic Still* (16:9 widescreen anamorphic depth with dramatic chiaroscuro)
+     * *Minimalist Vector* (Bold Swiss graphic design and geometric symbolism)
+  3. **Multi-Platform Aspect Ratio Selector**: 16:9 Landscape (Hero headers), 1:1 Square (Social feeds), 4:3 Editorial (Print standard), and 9:16 Vertical (Mobile stories).
+  4. **Negative Prompting & Composition Controls**: Advanced negative prompt inputs to eliminate artifacts, watermarks, or unwanted visual elements.
+  5. **Cloud Storage Persistence & Asset Gallery**: Seamless upload to Google Cloud Storage with fast local caching, lightbox modal inspection, metadata display, and one-click image downloads.

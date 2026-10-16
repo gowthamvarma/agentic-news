@@ -68,6 +68,7 @@ flowchart TD
         direction LR
         A19["📋 report_synthesizer"]
         A20["🌍 audience_adaptation_agent"]
+        A26["✍️ article_generator"]
     end
 
     subgraph S6 ["Stage 6: Engage & Active Recall"]
@@ -78,10 +79,11 @@ flowchart TD
             A22["⚔️ perspective_debate_agent"]
             A23["💬 research_copilot"]
         end
-        subgraph S6B ["Discovery & Resilience"]
+        subgraph S6B ["Discovery, Media & Resilience"]
             direction LR
             A24["🔥 topic_curator"]
             A25["⚡ offline_simulation_agent"]
+            A27["🎨 image_generator"]
         end
         S6A --> S6B
     end
@@ -135,9 +137,11 @@ Every single agent directly powers an observable, interactive surface in the web
 | **`country_transferability_agent`**| 4. Analyse | Gemini 3.8 Flash | `shared/agents/analyse.py` | `tab-05-insights` (Transferability) | Evaluates whether the crisis could happen in the user's home country. |
 | **`report_synthesizer`** | 5. Synthesis | Gemini 3.1 Pro | `shared/agents/synthesis.py` | `tab-01-brief` (Executive Brief) | Synthesizes consensus facts, key metrics, and strategic takeaways into brief format. |
 | **`audience_adaptation_agent`**| 5. Synthesis | Gemini 3.8 Flash | `shared/agents/synthesis.py` | `tab-01-brief` (Audience Tone) | Rewrites briefs for varied reading levels (ELI5, Executive, Academic) and languages. |
+| **`article_generator`** | 5. Synthesis & Editorial | Gemini 3.1 Pro & Flash | `shared/article_generator.py` | `tab-09-article` (`ArticleStudioSection.tsx`) | Produces on-demand journalistic articles across 7 styles, 50+ languages, audio speech, and SEO kits. |
 | **`tutor_agent`** | 6. Engage | Gemini 3.8 Flash | `tutor_agent/agent.py` | `tab-06-quiz` (Active Recall Test) | Generates interactive MCQs with pedagogical explanations to reinforce learning. |
 | **`perspective_debate_agent`**| 6. Engage | Gemini 3.1 Pro | `perspective_debate/agent.py` | `tab-07-debate` (Dialectical Stage) | Conducts an evidence-backed debate between competing ideological viewpoints. |
 | **`research_copilot`** | 6. Engage | Gemini 3.1 Pro | `research_copilot/agent.py` | `tab-08-copilot` (Grounded Chat) | Interactive investigative assistant answering follow-up queries via Evidence Ledger. |
+| **`image_generator`** | 6. Creative & Visual Media | Imagen 3 & Gemini Flash | `shared/image_generator.py` | `tab-10-image` (`ImageStudioSection.tsx`) | Synthesizes photorealistic and conceptual editorial imagery across 5 styles and 4 aspect ratios with Cloud Storage. |
 | **`topic_curator`** | Discovery | Gemini 3.8 Flash | `shared/topic_suggester.py` | `HomePage.tsx` (Trending Chips) | Curates timely, high-impact investigative topics across 8 sovereign nations. |
 
 ---

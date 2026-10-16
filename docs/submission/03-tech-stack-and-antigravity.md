@@ -23,22 +23,27 @@ flowchart TD
         FastAPIApp["FastAPI Async Server (Python 3.12)"]
         ADKEngine["Google ADK 2.0 Framework Engine"]
         FleetAgents["25-Agent Multi-Layer Intelligence Fleet"]
-        GenAISDK["Google GenAI 2.22+ SDK (Gemini 3.8 Flash & 3.1 Pro)"]
+        GenerativeStudios["Article Studio & Image Studio Engines"]
+        GenAISDK["Google GenAI 2.22+ SDK (Gemini 3.8 Flash, 3.1 Pro & Imagen 3)"]
         PydanticSchemas["Pydantic v2 Type Contracts & DTOs"]
     end
 
-    subgraph PersistenceTier ["3. Real-Time Data & Storage Layer (Firebase)"]
+    subgraph PersistenceTier ["3. Real-Time Data & Storage Layer (Firebase & GCS)"]
         FirestoreCloud["Google Cloud Firestore (AsyncClient)"]
+        GCSStorage["Google Cloud Storage (Buckets & Media Cache)"]
         EmulatorStore["Local Firestore Emulator (Port 8085)"]
         InMemoryFallback["In-Memory Resilient Cache Fallback"]
     end
 
-    ReactApp <-->|"REST APIs and SSE Streams [Port 8080]"| FastAPIApp
+    ReactApp <-->|"REST APIs, SSE Streams & Media URLs [Port 8080]"| FastAPIApp
     FastAPIApp <--> ADKEngine
     ADKEngine <--> FleetAgents
+    FastAPIApp <--> GenerativeStudios
     FleetAgents <--> GenAISDK
+    GenerativeStudios <--> GenAISDK
     ADKEngine <--> PydanticSchemas
     FastAPIApp <-->|"Async I/O"| FirestoreCloud
+    FastAPIApp <-->|"Binary & Media Assets"| GCSStorage
     FastAPIApp <-->|"Local Dev / CI"| EmulatorStore
     EmulatorStore -.->|"Fallback"| InMemoryFallback
 ```
@@ -97,19 +102,25 @@ erDiagram
     ANALYSES ||--o| ROOT_CAUSE_REPORT : contains
     ANALYSES ||--o| QUIZ_PAYLOAD : contains
     ANALYSES ||--o| PERSPECTIVE_DEBATE : contains
+    ANALYSES ||--o{ GENERATED_ARTICLES : contains
+    ANALYSES ||--o{ GENERATED_IMAGES : contains
+    ANALYSES ||--o{ IMAGE_PROMPTS : contains
     ANALYSES ||--o{ EVIDENCE_LEDGER : audits
 ```
 
-### Firestore Collections in Detail:
+### Firestore & Storage Architecture in Detail:
 1. `analyses`: The master collection storing complete `NewsIntelligenceReport` objects, indexed by UUID (e.g., `09c0dbae-2b01-4852-83de-ddc89fdb6614`). Stores topics, timestamps, executive summaries, entity primers, and user notes.
 2. `fact_checks`: Discrete, searchable audit records for specific claims and source ratings.
 3. `quizzes`: Active recall interactive multiple-choice questions, answer keys, explanations, and user score attempts.
 4. `debates`: Dialectical perspective debate outputs, arguments for/against, and neutrality scores.
-5. `evidence_ledger`: Immutable audit trails recording direct text quotes, URLs, and retrieval timestamps.
+5. `generated_articles`: Sub-collection / persistent records for on-demand generated journalistic articles across 7 styles, complete with target languages and social publishing kits.
+6. `generated_images`: Stored records for Imagen 3 / Gemini generated visual media, prompts, styles, aspect ratios, and media URLs.
+7. `evidence_ledger`: Immutable audit trails recording direct text quotes, URLs, and retrieval timestamps.
+8. `storage_service.py` (Google Cloud Storage + Cache): Unified asset manager saving generated binary images to Google Cloud Storage with resilient local disk caching (`backend/media/generated_images/`) and `/api/media/{path}` streaming.
 
 ### Resilience Engineering: The Three-Tier Storage Fallback
 To ensure the application operates flawlessly during hackathon evaluation, cloud outages, or automated CI/CD testing:
-* **Tier 1 (Cloud Production)**: `google-cloud-firestore` `AsyncClient` connects directly to Google Cloud Firestore with zero cold-start latency.
+* **Tier 1 (Cloud Production)**: `google-cloud-firestore` `AsyncClient` and Google Cloud Storage bucket connect directly with zero cold-start latency.
 * **Tier 2 (Local Emulator)**: Automatic detection of `FIRESTORE_EMULATOR_HOST` (e.g., `localhost:8085`), enabling offline development without Google Cloud billing.
 * **Tier 3 (In-Memory Fallback)**: If no Firestore instance is reachable, `FirestoreService` seamlessly switches to an in-memory dictionary cache with zero crash risk.
 
@@ -128,6 +139,8 @@ Using Antigravity CLI commands and subagent templates, we generated 25 specializ
 Antigravity CLI orchestrated comprehensive test runs across our test suite:
 * `backend/tests/test_schemas.py`: Validating Pydantic v2 models against edge cases.
 * `backend/tests/test_contradictions_pipeline.py`: Verifying divergence detection heuristics.
+* `backend/tests/test_article_studio.py`: Verifying multi-style article generation and multilingual translation schemas.
+* `backend/tests/test_image_studio.py`: Verifying Imagen 3 image generation, prompt curation, and storage persistence.
 * `backend/tests/test_concurrency.py`: Ensuring thread-safe, non-blocking execution under heavy load.
 * `backend/tests/test_firestore_archive.py`: Auditing local emulator persistence and cache rehydration.
 
@@ -135,4 +148,4 @@ Antigravity CLI orchestrated comprehensive test runs across our test suite:
 Antigravity CLI enabled the rapid configuration of modular agent skills (e.g., `fact-verification-heuristics`, `global-media-bias-coverage`, `media-framing-heuristics`), ensuring agents load analytical domain knowledge dynamically on demand without context window bloat.
 
 ### 4. Continuous Refinement & Zero-Downtime Migration
-From initial prototype to production monorepo restructuring, Antigravity CLI safely managed dependency updates, environment variable sanitization, and automated visual screenshot capture.
+From initial prototype to production monorepo restructuring, Antigravity CLI safely managed dependency updates, environment variable sanitization, and automated dynamic media asset generation (`capture_and_build_dynamic_media.py`).

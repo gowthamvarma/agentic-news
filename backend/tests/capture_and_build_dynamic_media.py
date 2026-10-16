@@ -10,8 +10,10 @@ Generates:
 7. `tab-06-quiz.gif`: Cycles quiz question overview and scrolled options / explanations.
 8. `tab-07-debate.gif`: Cycles pro/con perspective debate and neutral synthesis.
 9. `tab-08-copilot.gif`: Cycles copilot chat and grounded evidence citations.
-10. `history-archive.gif`: Cycles archive grid overview and filterable cards.
-11. `app-walkthrough.gif`: Full multi-page tour.
+10. `tab-09-article.gif`: Cycles multi-style editorial generator and multilingual publishing kit.
+11. `tab-10-image.gif`: Cycles visual concept studio and generated editorial imagery gallery.
+12. `history-archive.gif`: Cycles archive grid overview and filterable cards.
+13. `app-walkthrough.gif`: Full multi-page tour.
 
 All GIFs are patched with:
 - 2.8s delay per frame (sufficient transition time)
@@ -21,6 +23,7 @@ All GIFs are patched with:
 import os
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 if hasattr(sys.stdout, "reconfigure"):
@@ -35,13 +38,17 @@ ASSETS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def capture_screenshot(url: str, output_path: Path, wait_ms: int = 3000):
+    user_data = tempfile.mkdtemp()
     cmd = [
         CHROME_EXE,
         "--headless",
+        "--disable-gpu",
+        "--no-sandbox",
         "--hide-scrollbars",
         "--window-size=1440,900",
+        f"--user-data-dir={user_data}",
         f"--virtual-time-budget={wait_ms}",
-        f"--screenshot={output_path}",
+        f"--screenshot={str(output_path.resolve())}",
         url,
     ]
     subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
@@ -152,6 +159,8 @@ def main():
         ("tab-06-quiz", "#quiz", 0, 420),
         ("tab-07-debate", "#debate", 0, 450),
         ("tab-08-copilot", "#copilot", 0, 400),
+        ("tab-09-article", "#article", 0, 480),
+        ("tab-10-image", "#image", 0, 450),
     ]
 
     walkthrough_frames = [ASSETS_DIR / "hero-overview.png"]

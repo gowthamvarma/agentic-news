@@ -19,7 +19,9 @@ $targets = @(
     @{ Name = "tab-05-insights.png"; Url = "http://localhost:5173/analysis/09c0dbae-2b01-4852-83de-ddc89fdb6614#insights"; Wait = 3000 },
     @{ Name = "tab-06-quiz.png"; Url = "http://localhost:5173/analysis/09c0dbae-2b01-4852-83de-ddc89fdb6614#quiz"; Wait = 3000 },
     @{ Name = "tab-07-debate.png"; Url = "http://localhost:5173/analysis/09c0dbae-2b01-4852-83de-ddc89fdb6614#debate"; Wait = 3000 },
-    @{ Name = "tab-08-copilot.png"; Url = "http://localhost:5173/analysis/09c0dbae-2b01-4852-83de-ddc89fdb6614#copilot"; Wait = 3000 }
+    @{ Name = "tab-08-copilot.png"; Url = "http://localhost:5173/analysis/09c0dbae-2b01-4852-83de-ddc89fdb6614#copilot"; Wait = 3000 },
+    @{ Name = "tab-09-article.png"; Url = "http://localhost:5173/analysis/09c0dbae-2b01-4852-83de-ddc89fdb6614#article"; Wait = 3000 },
+    @{ Name = "tab-10-image.png"; Url = "http://localhost:5173/analysis/09c0dbae-2b01-4852-83de-ddc89fdb6614#image"; Wait = 3000 }
 )
 
 foreach ($target in $targets) {
@@ -28,7 +30,8 @@ foreach ($target in $targets) {
     $waitMs = $target.Wait
     Write-Host "Capturing $($target.Name) from $url (wait: ${waitMs}ms)..."
     
-    $cmd = "`"$chromePath`" --headless --hide-scrollbars --window-size=1440,900 --virtual-time-budget=$waitMs --screenshot=`"$outFile`" `"$url`""
+    $tempUserData = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), [System.IO.Path]::GetRandomFileName())
+    $cmd = "`"$chromePath`" --headless --disable-gpu --no-sandbox --hide-scrollbars --window-size=1440,900 --user-data-dir=`"$tempUserData`" --virtual-time-budget=$waitMs --screenshot=`"$outFile`" `"$url`""
     cmd.exe /c $cmd | Out-Null
     
     if (Test-Path $outFile) {
@@ -52,7 +55,10 @@ $gifFrames = @(
     "tab-04-timeline.png",
     "tab-05-insights.png",
     "tab-06-quiz.png",
-    "tab-07-debate.png"
+    "tab-07-debate.png",
+    "tab-08-copilot.png",
+    "tab-09-article.png",
+    "tab-10-image.png"
 )
 
 # Build GIF using System.Drawing

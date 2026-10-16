@@ -110,11 +110,13 @@ Every interface surface in the Agentic News Analyser was designed to expose mult
 | **Tab 6: Active Recall Quiz** | Passive reading leading to rapid knowledge decay | `tutor_agent` | Generates adaptive, interactive multiple-choice questions with real-time scoring and deep pedagogical explanations. |
 | **Tab 7: Perspective Debate** | Polarization & inability to understand opposing viewpoints | `perspective_debate_agent` | Stages an evidence-grounded dialectical debate between credible opposing perspectives, culminating in an objective synthesis. |
 | **Tab 8: Research Copilot** | Inability to ask follow-up questions grounded in audited evidence | `research_copilot` | Dedicated investigation chat assistant grounded directly in the session's verified Evidence Ledger. |
+| **Tab 9: On-Demand Article Studio** | High-friction manual rewriting for different audiences, languages & mediums | `article_generator` | Generates publication-ready articles across 7 journalistic formats (Wire, Investigative, Executive, Op-Ed, ELI5, Academic, Newsletter) with Web Speech audio narration and 50+ language translations. |
+| **Tab 10: On-Demand Image Studio** | Lack of tailored editorial imagery, reliance on generic stock photos | `image_generator` | Synthesizes photorealistic and conceptual editorial graphics via Imagen 3 / Gemini across 5 style presets and 4 aspect ratios with Cloud Storage persistence. |
 | **History & Archive (`/history`)** | Loss of institutional knowledge and past investigations | `FirestoreService` | Searchable, tag-filtered, and bookmarkable repository of all multi-agent investigations with instant cache rehydration. |
 
 ---
 
-## 5. Comprehensive 8-Dimension Competitive Matrix
+## 5. Comprehensive 9-Dimension Competitive Matrix
 
 | Evaluation Dimension | Standard LLM Chatbots | Search-Augmented AI Assistants | Traditional News Aggregators | **Agentic News Analyser (Our Solution)** |
 | :--- | :--- | :--- | :--- | :--- |
@@ -126,6 +128,7 @@ Every interface surface in the Agentic News Analyser was designed to expose mult
 | **6. Dialectical Perspective Debates** | ⚠️ Can roleplay if specifically prompted | ❌ Informational answers only | ⚠️ Displays opposing headlines | **✅ Automated Pro vs Con dialectical debate grounded in cited evidence** |
 | **7. Multi-Agent Orchestration Framework** | ❌ Single-turn LLM call | ⚠️ Search + Synthesizer pipeline | ❌ Algorithmic scrapers | **✅ 25 Google ADK 2.0 specialized agents across 6 architectural layers** |
 | **8. Evidentiary Auditability** | ❌ Black box | ⚠️ Web URL footnotes | ⚠️ Publisher metadata | **✅ Immutable Evidence Ledger Plugin tracking claims, quotes, and primary DBs** |
+| **9. Multimodal Editorial Publishing** | ❌ Raw chat markdown only | ❌ Static text bullets | ⚠️ Pre-existing publisher images | **✅ 7-style Article Studio + Imagen 3 Image Studio + Audio TTS + 50+ language translations** |
 
 ---
 

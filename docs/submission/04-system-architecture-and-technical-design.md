@@ -16,12 +16,12 @@ flowchart TD
     subgraph Client ["Client Browser (React 19 SPA)"]
         UserAction["User Selects Topic or Enters Query"]
         ReactState["React Query / Local State"]
-        ActiveTab["Active Tab Controller<br/>(Brief | Sources | Verify | Timeline | Insights | Quiz | Debate | Copilot)"]
+        ActiveTab["Active Tab Controller<br/>(Brief | Sources | Verify | Timeline | Insights | Quiz | Debate | Copilot | Article Studio | Image Studio)"]
         UserAction --> ReactState --> ActiveTab
     end
 
     subgraph APIGateway ["API Gateway Tier (FastAPI Async)"]
-        Router["FastAPI APIRouter (/api/analyze, /api/chat)"]
+        Router["FastAPI APIRouter (/api/analyze, /api/chat, /api/analysis/{id}/articles, /api/analysis/{id}/images)"]
         ReqValidator["Pydantic Request Validation (AnalyzeRequest)"]
         SSEStreamer["SSE Event Streamer & Background Tasks"]
         Router --> ReqValidator --> SSEStreamer
@@ -130,8 +130,8 @@ sequenceDiagram
         DB-->>API: Write confirmed
         API-->>UI: 200 OK with full structured report
     end
-    UI->>UI: Render 8 tabs reactively (Metrics, Sources, Contradictions, Quiz)
-    User->>UI: Interacts with Quiz / Copilot / Debate
+    UI->>UI: Render 10 tabs reactively (Metrics, Sources, Contradictions, Timeline, Scenarios, Quiz, Debate, Copilot, Article Studio, Image Studio)
+    User->>UI: Interacts with Quiz / Copilot / Debate / Article Studio / Image Studio
 ```
 
 ---
@@ -162,6 +162,9 @@ class NewsIntelligenceReport(BaseModel):
     lessons_learned: List[LessonItem] = Field(default_factory=list, description="Actionable prevention directives")
     quiz: Optional[QuizPayload] = Field(default=None, description="Active recall interactive MCQs")
     perspective_debate: Optional[PerspectiveDebateReport] = Field(default=None, description="Pro/Con dialectical debate")
+    generated_articles: List[GeneratedArticleItem] = Field(default_factory=list, description="On-demand generated multi-style articles")
+    generated_images: List[GeneratedImageItem] = Field(default_factory=list, description="On-demand Imagen 3 / Gemini generated visual media")
+    image_prompts: List[ImagePromptSuggestion] = Field(default_factory=list, description="Forensic AI visual prompt suggestions")
     evidence_ledger: List[Dict[str, Any]] = Field(default_factory=list, description="Immutable tool audit trail")
 ```
 
@@ -226,3 +229,20 @@ Google ADK 2.0 provides an extensible plugin ecosystem. We developed three custo
 ### 3. `NewsGuardrailPlugin` (`news_guardrail.py`)
 * Intercepts model generation before it reaches the client.
 * Flags and suppresses unverified financial advice, partisan electoral endorsements, or uncorroborated allegations that lack primary source attribution.
+
+---
+
+## 6. Generative Media Studio Endpoints & Publishing Pipeline
+
+Beyond analysis and auditing, the platform exposes dedicated REST APIs for on-demand media generation:
+
+| Endpoint | Method | Request Payload | Response / Functionality |
+| :--- | :--- | :--- | :--- |
+| `/api/analysis/{id}/articles` | `POST` | `{ style, length, target_language, perspective_focus }` | Generates a publication-ready journalistic article across 7 styles, complete with audio narration and SEO social kit. |
+| `/api/analysis/{id}/articles` | `GET` | — | Retrieves all generated article variants saved to this investigation dossier. |
+| `/api/analysis/{id}/articles/{article_id}` | `DELETE` | — | Deletes an individual generated article edition from the database. |
+| `/api/analysis/{id}/image-prompts` | `GET` | — | Generates 5 forensic AI visual prompt recommendations grounded in verified facts. |
+| `/api/analysis/{id}/images` | `POST` | `{ prompt, style, aspect_ratio, negative_prompt }` | Generates editorial imagery via Google Imagen 3 / Gemini, persisting binary files to Cloud Storage. |
+| `/api/analysis/{id}/images` | `GET` | — | Retrieves all saved visual assets associated with this investigation. |
+| `/api/analysis/{id}/images/{image_id}` | `DELETE` | — | Removes an individual image record and deletes its Cloud Storage artifact. |
+| `/api/media/{path:path}` | `GET` | — | Streams cached local media or redirects to canonical Google Cloud Storage asset URLs. |
