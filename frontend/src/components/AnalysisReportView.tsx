@@ -21,7 +21,6 @@ import {
   Trash2,
   Copy,
   Check,
-  CirclePause,
   Play,
   User,
   Globe,
@@ -660,8 +659,8 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                   </span>
                 ) : (
                   <span className={`badge badge-sm gap-1.5 py-1 px-2.5 font-semibold ${activeTab === 'insights' ? 'badge-neutral' : 'badge-warning text-warning-content'}`}>
-                    <CirclePause size={12} />
-                    <span>Paused</span>
+                    <Sparkles size={12} />
+                    <span>On Demand</span>
                   </span>
                 )}
               </button>
@@ -692,8 +691,8 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                   </span>
                 ) : (
                   <span className={`badge badge-sm gap-1.5 py-1 px-2.5 font-semibold ${activeTab === 'quiz' ? 'badge-neutral' : 'badge-warning text-warning-content'}`}>
-                    <CirclePause size={12} />
-                    <span>Paused</span>
+                    <Sparkles size={12} />
+                    <span>On Demand</span>
                   </span>
                 )}
               </button>
@@ -724,8 +723,8 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                   </span>
                 ) : (
                   <span className={`badge badge-sm gap-1.5 py-1 px-2.5 font-semibold ${activeTab === 'debate' ? 'badge-neutral' : 'badge-warning text-warning-content'}`}>
-                    <CirclePause size={12} />
-                    <span>Paused</span>
+                    <Sparkles size={12} />
+                    <span>On Demand</span>
                   </span>
                 )}
               </button>
@@ -887,7 +886,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
             ) : scenariosStatus === 'ready' ? (
               <CheckCircle2 size={12} className={activeTab === 'insights' ? 'text-primary-content' : 'text-success'} />
             ) : (
-              <CirclePause size={12} className={activeTab === 'insights' ? 'text-primary-content' : 'text-warning'} />
+              <Sparkles size={12} className={activeTab === 'insights' ? 'text-primary-content' : 'text-warning'} />
             )}
           </button>
           <button
@@ -904,7 +903,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
             ) : quizStatus === 'ready' ? (
               <CheckCircle2 size={12} className={activeTab === 'quiz' ? 'text-primary-content' : 'text-success'} />
             ) : (
-              <CirclePause size={12} className={activeTab === 'quiz' ? 'text-primary-content' : 'text-warning'} />
+              <Sparkles size={12} className={activeTab === 'quiz' ? 'text-primary-content' : 'text-warning'} />
             )}
           </button>
           <button
@@ -921,7 +920,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
             ) : debateStatus === 'ready' ? (
               <CheckCircle2 size={12} className={activeTab === 'debate' ? 'text-primary-content' : 'text-success'} />
             ) : (
-              <CirclePause size={12} className={activeTab === 'debate' ? 'text-primary-content' : 'text-warning'} />
+              <Sparkles size={12} className={activeTab === 'debate' ? 'text-primary-content' : 'text-warning'} />
             )}
           </button>
           <button
@@ -1594,8 +1593,8 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 </div>
                 {scenariosStatus === 'paused' && (
                   <span className="badge badge-warning gap-2 py-2.5 px-3.5 text-xs font-bold shadow-sm my-0.5">
-                    <CirclePause size={14} />
-                    <span>Paused (Not Started)</span>
+                    <Sparkles size={14} />
+                    <span>On Demand</span>
                   </span>
                 )}
                 {scenariosStatus === 'loading' && (
@@ -1624,14 +1623,11 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
               )}
             </div>
 
-            {/* PAUSED STATE: Centered Action Trigger Card */}
+            {/* ON DEMAND STATE: Centered Action Trigger Card */}
             {scenariosStatus === 'paused' && (
               <div className="card bg-base-200 border border-base-300 shadow-xl p-8 md:p-14 text-center max-w-2xl mx-auto my-6 w-full">
                 <div className="relative w-20 h-20 mx-auto mb-4 flex items-center justify-center rounded-2xl bg-warning/15 text-warning border border-warning/30 shadow-inner">
-                  <CirclePause size={42} className="text-warning" />
-                </div>
-                <div className="badge badge-warning badge-sm uppercase tracking-wider font-bold mx-auto mb-3">
-                  On-Demand Simulation • Paused (Not Started)
+                  <TrendingUp size={42} className="text-warning" />
                 </div>
                 <h3 className="text-2xl font-black text-base-content mb-2">
                   Launch Why It Happened &amp; What&apos;s Next
@@ -1645,12 +1641,8 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                   className="btn btn-primary btn-md md:btn-lg gap-2.5 mx-auto shadow-xl hover:scale-105 transition-all font-bold px-8"
                 >
                   <Play size={20} className="fill-current" />
-                  <span>Run Analysis (On Demand)</span>
+                  <span>Start</span>
                 </button>
-                <div className="text-[11px] text-base-content/50 mt-4 flex items-center justify-center gap-1.5">
-                  <CheckCircle2 size={13} className="text-success" />
-                  <span>Results will be saved to prevent re-running in archive</span>
-                </div>
               </div>
             )}
 
@@ -1974,8 +1966,8 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                   </div>
                   {quizStatus === 'paused' && (
                     <span className="badge badge-warning gap-2 py-2.5 px-3.5 text-xs font-bold shadow-sm my-0.5">
-                      <CirclePause size={14} />
-                      <span>Ready to Start</span>
+                      <Sparkles size={14} />
+                      <span>On Demand</span>
                     </span>
                   )}
                   {quizStatus === 'loading' && (
@@ -2004,14 +1996,11 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 )}
               </div>
 
-              {/* PAUSED STATE: Centered Action Trigger Card */}
+              {/* ON DEMAND STATE: Centered Action Trigger Card */}
               {quizStatus === 'paused' && (
                 <div className="p-8 md:p-14 text-center max-w-2xl mx-auto my-4 w-full">
                   <div className="relative w-20 h-20 mx-auto mb-4 flex items-center justify-center rounded-2xl bg-warning/15 text-warning border border-warning/30 shadow-inner">
-                    <CirclePause size={42} className="text-warning" />
-                  </div>
-                  <div className="badge badge-warning badge-sm uppercase tracking-wider font-bold mx-auto mb-3">
-                    Quick Quiz • Ready to Start
+                    <BookOpen size={42} className="text-warning" />
                   </div>
                   <h3 className="text-2xl font-black text-base-content mb-2">
                     Start Knowledge Check
@@ -2025,12 +2014,8 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     className="btn btn-primary btn-md md:btn-lg gap-2.5 mx-auto shadow-xl hover:scale-105 transition-all font-bold px-8"
                   >
                     <Play size={20} className="fill-current" />
-                    <span>Start Knowledge Check</span>
+                    <span>Start</span>
                   </button>
-                  <div className="text-[11px] text-base-content/50 mt-4 flex items-center justify-center gap-1.5">
-                    <CheckCircle2 size={13} className="text-success" />
-                    <span>Saved to your report</span>
-                  </div>
                 </div>
               )}
 
@@ -2222,8 +2207,8 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                   </div>
                   {debateStatus === 'paused' && (
                     <span className="badge badge-warning gap-2 py-2.5 px-3.5 text-xs font-bold shadow-sm my-0.5">
-                      <CirclePause size={14} />
-                      <span>Ready to Start</span>
+                      <Sparkles size={14} />
+                      <span>On Demand</span>
                     </span>
                   )}
                   {debateStatus === 'loading' && (
@@ -2252,14 +2237,11 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 )}
               </div>
 
-              {/* PAUSED STATE: Centered Action Trigger Card */}
+              {/* ON DEMAND STATE: Centered Action Trigger Card */}
               {debateStatus === 'paused' && (
                 <div className="p-8 md:p-14 text-center max-w-2xl mx-auto my-4 w-full">
                   <div className="relative w-20 h-20 mx-auto mb-4 flex items-center justify-center rounded-2xl bg-warning/15 text-warning border border-warning/30 shadow-inner">
-                    <CirclePause size={42} className="text-warning" />
-                  </div>
-                  <div className="badge badge-warning badge-sm uppercase tracking-wider font-bold mx-auto mb-3">
-                    Perspective Debate • Ready to Start
+                    <Scale size={42} className="text-warning" />
                   </div>
                   <h3 className="text-2xl font-black text-base-content mb-2">
                     Start Both Sides Debate
@@ -2273,12 +2255,8 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     className="btn btn-warning btn-md md:btn-lg gap-2.5 mx-auto shadow-xl hover:scale-105 transition-all font-bold px-8 text-warning-content"
                   >
                     <Play size={20} className="fill-current" />
-                    <span>Start Debate Simulation</span>
+                    <span>Start</span>
                   </button>
-                  <div className="text-[11px] text-base-content/50 mt-4 flex items-center justify-center gap-1.5">
-                    <CheckCircle2 size={13} className="text-success" />
-                    <span>Saved to your report</span>
-                  </div>
                 </div>
               )}
 
