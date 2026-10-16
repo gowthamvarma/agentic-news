@@ -28,11 +28,11 @@ import type { NewsIntelligenceReport, TopicSuggestionsPayload } from '../types';
 import { useToast } from '../context/ToastContext';
 
 const FLEET_STAGES = [
-  { title: 'Stage 1: Multi-Outlet Ingestion', short: 'Ingestion', desc: 'Querying Google News RSS, Associated Press, Reuters, Bloomberg, WSJ...' },
-  { title: 'Stage 2: IFCN Forensic Claim Verification', short: 'Claim Audit', desc: 'Auditing assertions against primary records, federal registers & court dockets...' },
-  { title: 'Stage 3: Cross-Source Contradictions & Bias', short: 'Contradictions', desc: 'Detecting conflicting figures and charting ideological lean spectrums...' },
-  { title: 'Stage 4: Chronological Timeline Reconstruction', short: 'Timeline', desc: 'Aligning exact calendar dates, milestones, and narrative trajectory shifts...' },
-  { title: 'Stage 5: Who/Where/What Primer & Jargon Buster', short: 'Primers', desc: 'Compiling entity background primers, institutional backdrops, and legal glossaries...' }
+  { title: 'Stage 1: Gathering News Articles', short: 'Articles', desc: 'Searching Google News RSS, Associated Press, Reuters, Bloomberg, WSJ...' },
+  { title: 'Stage 2: Fact-Checking Claims', short: 'Fact Check', desc: 'Checking facts against official databases, public records, and verified sources...' },
+  { title: 'Stage 3: Spotting Disagreements & Media Lean', short: 'Clashing Claims', desc: 'Detecting conflicting numbers and comparing editorial perspectives...' },
+  { title: 'Stage 4: Building the Timeline', short: 'Timeline', desc: 'Putting key events in chronological order from background to breaking news...' },
+  { title: 'Stage 5: Key Players & Plain English Terms', short: 'Overview', desc: 'Explaining key people, organizations, background context, and difficult terms...' }
 ];
 
 export const TARGET_COUNTRIES = [
@@ -325,14 +325,14 @@ export const HomePage: React.FC = () => {
           </div>
 
           <h1 className="text-lg sm:text-3xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight px-1 break-words">
-            Autonomous Multi-Agent <br />
+            AI-Powered <br />
             <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-              Media Intelligence & Verification
+              News Verification & Deep Analysis
             </span>
           </h1>
 
           <p className="py-3 sm:py-4 text-base-content/75 text-xs sm:text-base md:text-lg max-w-2xl leading-relaxed px-2">
-            Forensic cross-source auditing under IFCN principles, contradiction detection, chronological narrative evolution, and causal consequence modeling.
+            Multi-source fact checking, conflicting claim detection, story timelines, and why-it-happened analysis—explained in clear, plain English.
           </p>
 
           {/* Search Box - Fully responsive */}
@@ -365,8 +365,8 @@ export const HomePage: React.FC = () => {
                 ) : (
                   <>
                     <Sparkles size={16} />
-                    <span className="hidden md:inline">Run Fleet (25 Agents)</span>
-                    <span className="md:hidden">Run Fleet</span>
+                    <span className="hidden md:inline">Analyze Story (25 Agents)</span>
+                    <span className="md:hidden">Analyze Story</span>
                   </>
                 )}
               </button>
@@ -752,10 +752,10 @@ export const HomePage: React.FC = () => {
           <section className="border-t border-base-300 pt-8">
             <div className="text-center max-w-2xl mx-auto mb-8">
               <div className="text-xs font-bold uppercase tracking-wider text-primary mb-1">
-                Architecture & Methodology
+                How It Works
               </div>
               <h3 className="text-2xl font-black">
-                How the 25-Agent ADK Intelligence Engine Audits the News
+                How the 25-Agent AI Engine Audits the News
               </h3>
             </div>
 
@@ -764,9 +764,9 @@ export const HomePage: React.FC = () => {
                 <div className="p-2.5 rounded-xl bg-primary/10 text-primary w-fit mb-3">
                   <ShieldCheck size={22} />
                 </div>
-                <h4 className="font-bold text-base mb-1">IFCN Forensic Claim Audit</h4>
+                <h4 className="font-bold text-base mb-1">Verified Facts & Claims</h4>
                 <p className="text-xs text-base-content/70 leading-relaxed">
-                  Extracts testable assertions and cross-references against federal archives, court dockets, and verified reporting.
+                  Extracts claims made in the news and verifies them against official records, public data, and verified reporting.
                 </p>
               </div>
 
@@ -774,9 +774,9 @@ export const HomePage: React.FC = () => {
                 <div className="p-2.5 rounded-xl bg-secondary/10 text-secondary w-fit mb-3">
                   <Scale size={22} />
                 </div>
-                <h4 className="font-bold text-base mb-1">Ideological Lean & Framing</h4>
+                <h4 className="font-bold text-base mb-1">Both Sides of the Debate</h4>
                 <p className="text-xs text-base-content/70 leading-relaxed">
-                  Charts media divergence, identifies loaded terminology, and isolates omitted contextual nuance across spectrums.
+                  Compares how different news outlets cover the story, highlighting key disagreements and media perspectives.
                 </p>
               </div>
 
@@ -784,9 +784,9 @@ export const HomePage: React.FC = () => {
                 <div className="p-2.5 rounded-xl bg-info/10 text-info w-fit mb-3">
                   <Clock size={22} />
                 </div>
-                <h4 className="font-bold text-base mb-1">Chronological Evolution</h4>
+                <h4 className="font-bold text-base mb-1">Story Timeline & Turning Points</h4>
                 <p className="text-xs text-base-content/70 leading-relaxed">
-                  Reconstructs precise milestone timelines with narrative inflection points and shifting media frames.
+                  Traces how the story unfolded step-by-step from early background events to the latest breaking developments.
                 </p>
               </div>
 

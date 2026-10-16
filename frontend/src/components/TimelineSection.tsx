@@ -109,10 +109,10 @@ export const TimelineSection: React.FC<TimelineSectionProps> = ({ timeline }) =>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-xl md:text-2xl font-black text-base-content tracking-tight">
-                  Chronological Event Timeline & Narrative Evolution
+                  Timeline & How the Story Unfolded
                 </h2>
                 <span className="badge badge-primary badge-sm font-bold">
-                  {rawEvents.length} Milestones
+                  {rawEvents.length} Key Events
                 </span>
                 {recentCount > 0 && (
                   <span className="badge badge-warning badge-sm font-bold gap-1 text-warning-content shadow-xs">
@@ -122,7 +122,7 @@ export const TimelineSection: React.FC<TimelineSectionProps> = ({ timeline }) =>
                 )}
               </div>
               <p className="text-xs md:text-sm text-base-content/70 mt-1 leading-relaxed">
-                Tracing early antecedent milestones up to the most recent trending incidents, real-time developments, and narrative shifts.
+                Follow how this story developed from early background events to the latest breaking news.
               </p>
             </div>
           </div>
@@ -135,8 +135,8 @@ export const TimelineSection: React.FC<TimelineSectionProps> = ({ timeline }) =>
               <Sparkles size={20} className="text-info flex-shrink-0 mt-0.5" />
               <div>
                 <div className="font-bold text-xs uppercase text-info tracking-wider flex items-center gap-2">
-                  <span>Narrative Evolution Synthesis</span>
-                  <span className="badge badge-info badge-outline badge-xs font-semibold">Traversing Full Arc</span>
+                  <span>How the Story Unfolded</span>
+                  <span className="badge badge-info badge-outline badge-xs font-semibold">Full Story Summary</span>
                 </div>
                 <div className="text-sm md:text-base text-base-content/90 mt-1 leading-relaxed">
                   {timeline.narrative_evolution_summary}
@@ -152,8 +152,8 @@ export const TimelineSection: React.FC<TimelineSectionProps> = ({ timeline }) =>
             <Info size={14} className="text-primary flex-shrink-0" />
             <span>
               {sortOrder === 'chronological'
-                ? 'Showing sequence from precursor antecedents down to latest trending developments'
-                : 'Showing latest breaking incidents at the top descending to historical antecedents'}
+                ? 'Showing events from earliest background to latest updates'
+                : 'Showing latest updates first'}
             </span>
           </div>
 

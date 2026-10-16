@@ -109,43 +109,43 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
         return {
           icon: <XCircle size={13} className="text-error" />,
           badgeClass: 'badge-error badge-outline text-error',
-          label: 'Fact Negation',
-          desc: 'Direct contradiction on factual claims'
+          label: 'Direct Conflict',
+          desc: 'Direct disagreement on key facts'
         };
       case 'Numerical Discrepancy':
         return {
           icon: <Hash size={13} className="text-warning" />,
           badgeClass: 'badge-warning badge-outline text-warning',
-          label: 'Numerical Discrepancy',
-          desc: 'Disputed metrics, percentages, or figures'
+          label: 'Conflicting Numbers',
+          desc: 'Different numbers, percentages, or statistics'
         };
       case 'Timeline Divergence':
         return {
           icon: <Clock size={13} className="text-info" />,
           badgeClass: 'badge-info badge-outline text-info',
-          label: 'Timeline Divergence',
-          desc: 'Conflicting event chronology or sequencing'
+          label: 'Conflicting Dates',
+          desc: 'Different sequence or timing of events'
         };
       case 'Causal Dispute':
         return {
           icon: <GitCompare size={13} className="text-secondary" />,
           badgeClass: 'badge-secondary badge-outline text-secondary',
-          label: 'Causal Dispute',
-          desc: 'Conflicting attribution of root causes or liability'
+          label: 'Disputed Cause',
+          desc: 'Different explanations for why it happened'
         };
       case 'Attribution Conflict':
         return {
           icon: <Radio size={13} className="text-accent" />,
           badgeClass: 'badge-accent badge-outline text-accent',
-          label: 'Attribution Conflict',
-          desc: 'Conflicting sources or disputed anonymous reporting'
+          label: 'Disputed Source',
+          desc: 'Conflicting sources or anonymous leaks'
         };
       default:
         return {
           icon: <AlertTriangle size={13} className="text-warning" />,
           badgeClass: 'badge-warning badge-outline',
-          label: type || 'Divergence',
-          desc: 'Cross-outlet report divergence'
+          label: type || 'Disagreement',
+          desc: 'Difference across reporting outlets'
         };
     }
   };
@@ -161,10 +161,10 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
             </div>
             <div>
               <h2 className="text-xl font-black text-base-content leading-tight">
-                Cross-Source Contradictions & Side-by-Side Divergence
+                Where News Outlets Disagree (Clashing Claims)
               </h2>
               <p className="text-xs text-base-content/60 mt-0.5">
-                Automated forensic discrepancy detection across audited reporting desks
+                Automated detection of conflicting claims across reporting news outlets
               </p>
             </div>
           </div>
@@ -174,10 +174,10 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
               <GitCompare size={28} />
             </div>
             <h3 className="text-base font-bold text-base-content">
-              No Cross-Source Contradictions Currently Loaded
+              No Conflicting Claims Found Yet
             </h3>
             <p className="text-sm text-base-content/70 max-w-md mt-1">
-              Cross-examine competing desks, contrasting casualty or financial estimates, and opposing editorial assertions.
+              Compare competing news outlets, contrasting figures, and opposing claims.
             </p>
             {topic && (
               <button
@@ -189,12 +189,12 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
                 {auditing ? (
                   <>
                     <span className="loading loading-spinner loading-xs" />
-                    <span>Auditing Cross-Source Divergences...</span>
+                    <span>Searching for clashing claims...</span>
                   </>
                 ) : (
                   <>
                     <GitCompare size={16} />
-                    <span>Run Forensic Contradiction Audit</span>
+                    <span>Find Conflicting Claims</span>
                   </>
                 )}
               </button>
@@ -216,14 +216,14 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-xl md:text-2xl font-black text-base-content tracking-tight">
-                Cross-Source Contradictions & Side-by-Side Divergence
+                Where News Outlets Disagree (Clashing Claims)
               </h2>
               <span className="badge badge-warning badge-sm font-bold flex-shrink-0">
                 {items.length} {items.length === 1 ? 'Clash' : 'Clashes'}
               </span>
             </div>
             <p className="text-xs md:text-sm text-base-content/70 mt-1 leading-relaxed">
-              Side-by-side forensic cross-examination of conflicting metrics, conflicting timelines, and diverging editorial claims across reporting desks.
+              Side-by-side comparison of conflicting figures, dates, and claims across different news outlets.
             </p>
           </div>
         </div>
@@ -237,10 +237,10 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
                 className="btn btn-sm btn-outline btn-warning gap-2 font-semibold shadow-xs"
                 onClick={handleRunContradictionAudit}
                 disabled={auditing}
-                title="Re-run forensic contradiction audit across reporting desks"
+                title="Re-check claims across reporting outlets"
               >
                 <RefreshCw size={14} className={auditing ? 'animate-spin' : ''} />
-                <span>{auditing ? 'Cross-examining reporting desks...' : 'Re-Audit Clashes'}</span>
+                <span>{auditing ? 'Comparing news outlets...' : 'Re-Check Claims'}</span>
               </button>
             )}
           </div>
@@ -253,7 +253,7 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
                 viewMode === 'cards' ? 'btn-primary text-primary-content shadow-xs' : 'btn-ghost text-base-content/70'
               }`}
               onClick={() => setViewMode('cards')}
-              title="Duel Cards view"
+              title="Side-by-Side Cards view"
             >
               <LayoutGrid size={15} />
               <span>Side-by-Side Cards</span>
@@ -264,10 +264,10 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
                 viewMode === 'table' ? 'btn-primary text-primary-content shadow-xs' : 'btn-ghost text-base-content/70'
               }`}
               onClick={() => setViewMode('table')}
-              title="Comparison Matrix table view"
+              title="Comparison Table view"
             >
               <TableIcon size={15} />
-              <span>Comparison Matrix</span>
+              <span>Comparison Table</span>
             </button>
           </div>
         </div>
@@ -443,7 +443,7 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
                         </div>
 
                         <div className="text-[11px] text-base-content/50 uppercase font-bold tracking-wider mt-3 pt-2 border-t border-primary/10">
-                          Stated Position / Assertion
+                          What Outlet A Reported
                         </div>
                       </div>
 
@@ -483,7 +483,7 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
                         </div>
 
                         <div className="text-[11px] text-base-content/50 uppercase font-bold tracking-wider mt-3 pt-2 border-t border-secondary/10">
-                          Counter-Assertion / Contradicting Account
+                          What Outlet B Reported
                         </div>
                       </div>
                     </div>
@@ -497,10 +497,10 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-2 flex-wrap mb-1">
                             <span className="text-xs font-black uppercase tracking-wider text-base-content/80 flex items-center gap-1.5">
-                              <span>Evidentiary Audit & Forensic Resolution</span>
+                              <span>Fact Check & What Actually Happened</span>
                             </span>
                             <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-base-300 text-base-content/60">
-                              Root Cause Synthesis
+                              Why Stories Differ
                             </span>
                           </div>
                           <p className="text-xs md:text-sm text-base-content/90 leading-relaxed">
@@ -525,12 +525,12 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
                   <th className="w-16">ID</th>
                   <th className="min-w-[180px]">Topic Aspect & Type</th>
                   <th className="min-w-[220px]">
-                    <span className="text-primary font-bold">Outlet A Position</span>
+                    <span className="text-primary font-bold">Outlet A Report</span>
                   </th>
                   <th className="min-w-[220px]">
-                    <span className="text-secondary font-bold">Outlet B Position</span>
+                    <span className="text-secondary font-bold">Outlet B Report</span>
                   </th>
-                  <th className="min-w-[260px]">Evidentiary Audit Finding</th>
+                  <th className="min-w-[260px]">Fact Check Finding</th>
                   <th className="w-12 text-center">Action</th>
                 </tr>
               </thead>
@@ -589,7 +589,7 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
                         <div className="p-2.5 rounded-lg bg-base-200/80 border border-base-300 text-xs text-base-content/85 leading-relaxed">
                           <div className="flex items-center gap-1 font-bold text-[10px] uppercase text-warning mb-1">
                             <Scale size={12} />
-                            <span>Forensic Finding</span>
+                            <span>Fact Check Finding</span>
                           </div>
                           {c.analysis}
                         </div>
@@ -619,11 +619,11 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
           <div className="flex items-center gap-1.5">
             <Scale size={14} className="text-warning flex-shrink-0" />
             <span>
-              Contradictions are flagged using comparative claim parsing and reconciled against verified regulatory, primary, and wire registries.
+              Contradictions are found by comparing different news outlets and checking claims against official records and reliable reports.
             </span>
           </div>
           <div className="font-semibold text-base-content/80">
-            Showing {filteredContradictions.length} of {contradictions.length} divergences
+            Showing {filteredContradictions.length} of {contradictions.length} clashing claims
           </div>
         </div>
       </div>

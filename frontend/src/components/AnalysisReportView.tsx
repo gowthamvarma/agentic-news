@@ -66,9 +66,9 @@ const LESSON_AUDIENCE_META: Record<
   LessonItem['target_audience'],
   { label: string; icon: React.ElementType; text: string; border: string }
 > = {
-  INDIVIDUALS: { label: 'Individuals', icon: User, text: 'text-info', border: 'border-t-info' },
-  ORGANISATIONS: { label: 'Organisations', icon: Building2, text: 'text-secondary', border: 'border-t-secondary' },
-  POLICYMAKERS: { label: 'Policymakers', icon: Landmark, text: 'text-accent', border: 'border-t-accent' },
+  INDIVIDUALS: { label: 'Everyday Citizens', icon: User, text: 'text-info', border: 'border-t-info' },
+  ORGANISATIONS: { label: 'Businesses & Workplaces', icon: Building2, text: 'text-secondary', border: 'border-t-secondary' },
+  POLICYMAKERS: { label: 'Lawmakers & Regulators', icon: Landmark, text: 'text-accent', border: 'border-t-accent' },
 };
 
 // Cache for resolved Wikipedia thumbnails to minimize network requests
@@ -575,7 +575,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
               >
                 <span className="flex items-center gap-2.5">
                   <FileText size={17} className={activeTab === 'brief' ? 'text-primary-content' : 'text-primary'} />
-                  <span>Executive Brief</span>
+                  <span>Summary &amp; Overview</span>
                 </span>
               </button>
             </li>
@@ -610,7 +610,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
               >
                 <span className="flex items-center gap-2.5">
                   <ShieldCheck size={17} className={activeTab === 'verification' ? 'text-primary-content' : 'text-success'} />
-                  <span>Fact Checks & Contradictions</span>
+                  <span>Fact Checks &amp; Clashing Claims</span>
                 </span>
                 <span className={`badge badge-xs font-bold ${activeTab === 'verification' ? 'badge-neutral' : 'badge-ghost'}`}>
                   {(report.verifications?.length || 0) + (report.contradictions?.length || 0)}
@@ -680,7 +680,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
               >
                 <span className="flex items-center gap-2.5">
                   <BookOpen size={17} className={activeTab === 'quiz' ? 'text-primary-content' : 'text-accent'} />
-                  <span>Active Recall Tutor</span>
+                  <span>Knowledge Check</span>
                 </span>
                 {quizStatus === 'loading' ? (
                   <span className="badge badge-sm badge-info gap-1.5 py-1 px-2.5 font-semibold shadow-xs">
@@ -712,7 +712,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
               >
                 <span className="flex items-center gap-2.5">
                   <Scale size={17} className={activeTab === 'debate' ? 'text-primary-content' : 'text-secondary'} />
-                  <span>Perspective Debate</span>
+                  <span>Both Sides Debate</span>
                 </span>
                 {debateStatus === 'loading' ? (
                   <span className="badge badge-sm badge-info gap-1.5 py-1 px-2.5 font-semibold shadow-xs">
@@ -744,7 +744,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
               >
                 <span className="flex items-center gap-2.5">
                   <MessageSquare size={17} className={activeTab === 'copilot' ? 'text-primary-content' : 'text-primary'} />
-                  <span>Research Copilot</span>
+                  <span>Ask AI Reporter</span>
                 </span>
               </button>
             </li>
@@ -856,7 +856,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
             }`}
             onClick={() => handleTabChange('brief')}
           >
-            Brief
+            Overview
           </button>
           <button
             className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
@@ -876,7 +876,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
             }`}
             onClick={() => handleTabChange('verification')}
           >
-            Fact Checks & Contradictions ({(report.verifications?.length || 0) + (report.contradictions?.length || 0)})
+            Fact Checks ({(report.verifications?.length || 0) + (report.contradictions?.length || 0)})
           </button>
           <button
             className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
@@ -913,7 +913,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
             }`}
             onClick={() => handleTabChange('quiz')}
           >
-            <span>Recall Tutor</span>
+            <span>Quiz</span>
             {quizStatus === 'loading' ? (
               <span className="loading loading-spinner loading-xs text-info"></span>
             ) : quizStatus === 'ready' ? (
@@ -930,7 +930,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
             }`}
             onClick={() => handleTabChange('debate')}
           >
-            <span>Debate</span>
+            <span>Both Sides</span>
             {debateStatus === 'loading' ? (
               <span className="loading loading-spinner loading-xs text-info"></span>
             ) : debateStatus === 'ready' ? (
@@ -947,7 +947,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
             }`}
             onClick={() => handleTabChange('copilot')}
           >
-            Copilot
+            Ask AI
           </button>
           <button
             className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
@@ -1001,7 +1001,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 <div className="flex flex-col gap-3 pb-3 border-b border-base-300">
                   <div className="card-title text-xl md:text-2xl font-black text-base-content flex items-center gap-3 mb-0 min-w-0">
                     <FileText size={24} className="text-primary flex-shrink-0" />
-                    <span className="break-words min-w-0">Executive Intelligence Brief: {report.topic}</span>
+                    <span className="break-words min-w-0">Summary &amp; Overview: {report.topic}</span>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2">
@@ -1057,7 +1057,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                   <div className="mt-8">
                     <div className="text-xs font-bold uppercase tracking-wider text-primary mb-3 flex items-center gap-2">
                       <BarChart3 size={16} />
-                      <span>Key Numbers & Statistical Baseline</span>
+                      <span>Key Facts &amp; Figures</span>
                     </div>
                     <div className="flex flex-col gap-3">
                       {report.key_metrics_and_numbers.map((metric, idx) => (
@@ -1079,22 +1079,22 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
               </div>
             </div>
 
-            {/* WHO / WHERE / WHAT PRIMER & JARGON BUSTER WITH ACCORDIONS */}
+            {/* WHO / WHERE / WHAT: KEY PLAYERS & JARGON EXPLAINER */}
             {report.context_primer && (
               <div className="card bg-base-200 border border-base-300 shadow-xl">
                 <div className="card-body p-6 md:p-8">
                   <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-3 border-b border-base-300">
                     <HelpCircle size={24} className="text-secondary flex-shrink-0" />
-                    <span>Who / Where / What Primer & Jargon Buster</span>
+                    <span>Key Players &amp; Terms Explained</span>
                   </div>
 
-                  {/* Origins & Historical Backdrop */}
+                  {/* Background & History */}
                   {report.context_primer.background_story && (
                     <div className="alert alert-info bg-info/10 text-base-content border border-info/30 rounded-xl mt-4 shadow-sm">
                       <Building2 size={22} className="flex-shrink-0 text-info" />
                       <div>
                         <div className="font-bold text-xs uppercase text-info tracking-wider">
-                          Origins & Historical Backdrop
+                          Background &amp; History
                         </div>
                         <div className="text-sm md:text-base text-base-content/90 mt-1 leading-relaxed">
                           {report.context_primer.background_story}
@@ -1123,10 +1123,10 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                             <div className="text-xs font-bold uppercase tracking-wider text-primary mb-3 flex flex-wrap items-center justify-between gap-2">
                               <div className="flex items-center gap-2 min-w-0 max-w-full">
                                 <Building2 size={16} className="shrink-0" />
-                                <span className="break-words">Key Organizations & Institutions ({orgItems.length})</span>
+                                <span className="break-words">Key Organizations ({orgItems.length})</span>
                               </div>
                               <span className="badge badge-primary badge-outline badge-xs font-semibold whitespace-normal h-auto py-1 text-center shrink-0">
-                                Corporate & Regulatory Bodies
+                                Agencies, Companies & Groups
                               </span>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1188,7 +1188,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                             <div className="text-xs font-bold uppercase tracking-wider text-secondary mb-3 flex flex-wrap items-center justify-between gap-2">
                               <div className="flex items-center gap-2 min-w-0 max-w-full">
                                 <User size={16} className="shrink-0" />
-                                <span className="break-words">Key Figures & Decision Makers (Persons) ({personItems.length})</span>
+                                <span className="break-words">Key People Involved ({personItems.length})</span>
                               </div>
                               <span className="badge badge-secondary badge-outline badge-xs font-semibold whitespace-normal h-auto py-1 text-center shrink-0">
                                 Leaders & Officials
@@ -1236,7 +1236,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                                         rel="noopener noreferrer"
                                         className="link link-secondary text-xs flex items-center gap-1 font-semibold hover:underline"
                                       >
-                                        <span>Wikipedia Dossier</span>
+                                        <span>Wikipedia Profile</span>
                                         <ExternalLink size={12} />
                                       </a>
                                     </div>
@@ -1252,7 +1252,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                           <div className="mt-6">
                             <div className="text-xs font-bold uppercase tracking-wider text-accent mb-3 flex items-center gap-2">
                               <HelpCircle size={16} />
-                              <span>Key Doctrines, Legal Frameworks & Locations</span>
+                              <span>Key Concepts, Laws & Places</span>
                             </div>
                             <div className="flex flex-col gap-2">
                               {conceptAndLocationItems.map((item, idx) => (
@@ -1315,7 +1315,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     <div className="mt-6">
                       <div className="text-xs font-bold uppercase tracking-wider text-accent mb-3 flex items-center gap-2">
                         <BookOpen size={16} />
-                        <span>Jargon Buster (Expand to Read Plain-Language Legal & Policy Terms)</span>
+                        <span>Jargon Buster (Key Terms Explained in Plain English)</span>
                       </div>
                       <div className="flex flex-col gap-2">
                         {Object.entries(report.context_primer.jargon_definitions).map(([term, def], idx) => (
@@ -1369,11 +1369,11 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 <div className="flex flex-col gap-2.5 pb-4 border-b border-base-300">
                   <div className="card-title text-xl font-black text-base-content flex items-center gap-3 min-w-0">
                     <Globe size={24} className="text-primary flex-shrink-0" />
-                    <span className="break-words">Verified Source Articles & Media Bias Directory</span>
+                    <span className="break-words">Verified News Sources & Media Outlets</span>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="badge badge-primary font-bold text-xs shrink-0">
-                      {report.articles_analyzed?.length || 0} Articles Audited
+                      {report.articles_analyzed?.length || 0} Articles Reviewed
                     </span>
                     <span className="badge badge-outline text-xs font-semibold shrink-0">
                       APAC & Major Economies
@@ -1382,7 +1382,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 </div>
 
                 <p className="text-sm text-base-content/80 mt-3 leading-relaxed break-words">
-                  Every source article ingested by the multi-agent fleet is verified, categorized by editorial lean, and linked directly with its canonical URL so you can inspect and audit the reporting firsthand.
+                  Every source article gathered by the AI fleet is checked, categorized by editorial lean, and linked directly so you can read and verify the reporting yourself.
                 </p>
 
                 {/* Articles Grid */}
@@ -1474,11 +1474,11 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 <div className="card-title text-xl font-black text-base-content flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-base-300">
                   <div className="flex items-center gap-3">
                     <ShieldCheck size={24} className="text-success flex-shrink-0" />
-                    <span>IFCN Forensic Claim Verification Audit</span>
+                    <span>Fact Checks & Claim Verifications</span>
                   </div>
                   {report.verifications && report.verifications.length > 0 && (
                     <span className="badge badge-success badge-outline font-bold text-xs py-2 px-3 self-start sm:self-auto">
-                      {report.verifications.length} {report.verifications.length === 1 ? 'Claim Audited' : 'Claims Audited'}
+                      {report.verifications.length} {report.verifications.length === 1 ? 'Claim Checked' : 'Claims Checked'}
                     </span>
                   )}
                 </div>
@@ -1985,12 +1985,12 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="card-title text-xl font-black text-base-content flex items-center gap-3">
                     <BookOpen size={24} className="text-success flex-shrink-0" />
-                    <span>Active Recall & News Literacy Tutor</span>
+                    <span>Knowledge Check Quiz</span>
                   </div>
                   {quizStatus === 'paused' && (
                     <span className="badge badge-warning gap-2 py-2.5 px-3.5 text-xs font-bold shadow-sm my-0.5">
                       <CirclePause size={14} />
-                      <span>Paused (Not Started)</span>
+                      <span>Ready to Start</span>
                     </span>
                   )}
                   {quizStatus === 'loading' && (
@@ -2026,13 +2026,13 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     <CirclePause size={42} className="text-warning" />
                   </div>
                   <div className="badge badge-warning badge-sm uppercase tracking-wider font-bold mx-auto mb-3">
-                    On-Demand Tutor • Paused (Not Started)
+                    Quick Quiz • Ready to Start
                   </div>
                   <h3 className="text-2xl font-black text-base-content mb-2">
-                    Generate Active Recall Quiz
+                    Start Knowledge Check
                   </h3>
                   <p className="text-sm text-base-content/75 max-w-md mx-auto mb-8 leading-relaxed">
-                    Test your news literacy with pedagogical multiple-choice questions grounded in audited evidence. Results will be saved permanently for this investigation.
+                    Test what you've learned with quick, multiple-choice questions based on verified facts from this story. Results will be saved for this report.
                   </p>
                   <button
                     onClick={handleLoadQuiz}
@@ -2040,11 +2040,11 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     className="btn btn-primary btn-md md:btn-lg gap-2.5 mx-auto shadow-xl hover:scale-105 transition-all font-bold px-8"
                   >
                     <Play size={20} className="fill-current" />
-                    <span>Launch Active Recall Tutor Quiz</span>
+                    <span>Start Knowledge Check</span>
                   </button>
                   <div className="text-[11px] text-base-content/50 mt-4 flex items-center justify-center gap-1.5">
                     <CheckCircle2 size={13} className="text-success" />
-                    <span>Saved for replay & archival access</span>
+                    <span>Saved to your report</span>
                   </div>
                 </div>
               )}
@@ -2057,14 +2057,14 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                       <span className="loading loading-spinner loading-md text-primary flex-shrink-0"></span>
                       <div>
                         <div className="font-bold text-sm text-info uppercase tracking-wider">
-                          Generating Active Recall Quiz Questions
+                          Generating Knowledge Check Questions
                         </div>
                         <div className="text-xs text-base-content/75 mt-0.5">
-                          Formulating multiple-choice questions grounded strictly in cross-source verified facts...
+                          Creating multiple-choice questions based on verified facts...
                         </div>
                       </div>
                     </div>
-                    <span className="badge badge-accent badge-sm font-mono animate-pulse">AI TUTOR ACTIVE</span>
+                    <span className="badge badge-accent badge-sm font-mono animate-pulse">CREATING QUIZ</span>
                   </div>
 
                   {/* Multiple Full-Width Question Skeletons */}
@@ -2233,18 +2233,18 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="card-title text-xl font-black text-base-content flex items-center gap-3">
                     <Scale size={24} className="text-warning flex-shrink-0" />
-                    <span>Dialectical Perspective Debate Simulator</span>
+                    <span>Both Sides of the Debate</span>
                   </div>
                   {debateStatus === 'paused' && (
                     <span className="badge badge-warning gap-2 py-2.5 px-3.5 text-xs font-bold shadow-sm my-0.5">
                       <CirclePause size={14} />
-                      <span>Paused (Not Started)</span>
+                      <span>Ready to Start</span>
                     </span>
                   )}
                   {debateStatus === 'loading' && (
                     <span className="badge badge-info gap-2 py-2.5 px-3.5 text-xs font-bold shadow-sm my-0.5">
                       <span className="loading loading-spinner loading-xs mr-1"></span>
-                      <span>Synthesizing Viewpoints...</span>
+                      <span>Gathering Perspectives...</span>
                     </span>
                   )}
                   {debateStatus === 'ready' && (
@@ -2274,13 +2274,13 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     <CirclePause size={42} className="text-warning" />
                   </div>
                   <div className="badge badge-warning badge-sm uppercase tracking-wider font-bold mx-auto mb-3">
-                    On-Demand Simulation • Paused (Not Started)
+                    Perspective Debate • Ready to Start
                   </div>
                   <h3 className="text-2xl font-black text-base-content mb-2">
-                    Simulate Perspective Debate
+                    Start Both Sides Debate
                   </h3>
                   <p className="text-sm text-base-content/75 max-w-md mx-auto mb-8 leading-relaxed">
-                    Generate steelmanned, grounded opposing arguments and a neutral compromise synthesis across stakeholders. Results will be saved permanently for this investigation.
+                    Explore the strongest arguments from both sides of this story and find common ground between them. Results will be saved for this report.
                   </p>
                   <button
                     onClick={handleLoadDebate}
@@ -2288,11 +2288,11 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     className="btn btn-warning btn-md md:btn-lg gap-2.5 mx-auto shadow-xl hover:scale-105 transition-all font-bold px-8 text-warning-content"
                   >
                     <Play size={20} className="fill-current" />
-                    <span>Simulate Perspective Debate</span>
+                    <span>Start Debate Simulation</span>
                   </button>
                   <div className="text-[11px] text-base-content/50 mt-4 flex items-center justify-center gap-1.5">
                     <CheckCircle2 size={13} className="text-success" />
-                    <span>Saved for replay & archival access</span>
+                    <span>Saved to your report</span>
                   </div>
                 </div>
               )}
@@ -2305,14 +2305,14 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                       <span className="loading loading-spinner loading-md text-primary flex-shrink-0"></span>
                       <div>
                         <div className="font-bold text-sm text-info uppercase tracking-wider">
-                          Convening Perspectives Debate Dialectic
+                          Setting Up Perspectives Debate
                         </div>
                         <div className="text-xs text-base-content/75 mt-0.5">
-                          Steelmanning opposing viewpoints and formulating objective compromise synthesis...
+                          Formulating strong arguments for each side and finding common ground...
                         </div>
                       </div>
                     </div>
-                    <span className="badge badge-warning badge-sm font-mono animate-pulse">DIALECTIC ACTIVE</span>
+                    <span className="badge badge-warning badge-sm font-mono animate-pulse">DEBATE ACTIVE</span>
                   </div>
 
                   {/* Resolution Banner Skeleton */}
@@ -2377,7 +2377,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                   <div className="alert alert-warning bg-warning/10 text-base-content border border-warning/30 shadow-sm rounded-xl mb-6">
                     <Scale size={22} className="text-warning flex-shrink-0" />
                     <div>
-                      <div className="font-bold text-xs uppercase tracking-wider text-warning">Resolution Under Debate</div>
+                      <div className="font-bold text-xs uppercase tracking-wider text-warning">The Central Question Under Debate</div>
                       <div className="text-base font-semibold mt-0.5">{debate.resolution_under_debate}</div>
                     </div>
                   </div>
@@ -2424,7 +2424,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                   <div className="card bg-base-100 border border-info/40 shadow-md p-6 rounded-2xl">
                     <div className="font-bold text-base md:text-lg text-info mb-2 flex items-center gap-2">
                       <Sparkles size={18} />
-                      <span>Neutral Compromise Synthesis & Policy Bridge</span>
+                      <span>Finding Common Ground (Balanced Takeaway)</span>
                     </div>
                     <p className="text-sm md:text-base text-base-content/90 leading-relaxed">
                       {debate.neutral_compromise_synthesis}
@@ -2451,8 +2451,8 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 />
                 <div className="min-w-0">
                   <div className="font-bold text-base md:text-lg text-base-content flex flex-wrap items-center gap-2">
-                    <span>Research Copilot</span>
-                    <span className="badge badge-primary badge-outline text-xs shrink-0">Autonomous Agent</span>
+                    <span>Ask AI Reporter</span>
+                    <span className="badge badge-primary badge-outline text-xs shrink-0">AI Assistant</span>
                   </div>
                   <div className="text-xs text-base-content/60 truncate max-w-[180px] sm:max-w-xs md:max-w-md">
                     Context: {report.topic}
