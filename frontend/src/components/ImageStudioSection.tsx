@@ -86,6 +86,8 @@ export const ImageStudioSection: React.FC<ImageStudioSectionProps> = ({
   const [copiedPrompt, setCopiedPrompt] = useState<boolean>(false);
   const [copiedUrl, setCopiedUrl] = useState<boolean>(false);
 
+  const selectedStyleObj = STYLE_OPTIONS.find((s) => s.id === style) || STYLE_OPTIONS[0];
+
   // Load existing images and initial prompt suggestions on mount
   useEffect(() => {
     if (!analysisId) return;
@@ -326,9 +328,17 @@ export const ImageStudioSection: React.FC<ImageStudioSectionProps> = ({
               </div>
 
               {loadingSuggestions ? (
-                <div className="p-4 rounded-xl bg-base-100/60 border border-base-300 flex items-center justify-center gap-2 text-xs text-base-content/70">
-                  <span className="loading loading-spinner loading-xs text-primary"></span>
-                  <span>Synthesizing grounded visual concepts...</span>
+                <div className="space-y-2">
+                  {[1, 2, 3].map((n) => (
+                    <div key={n} className="p-2.5 rounded-xl bg-base-100 border border-base-300 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="skeleton h-3.5 w-32"></div>
+                        <div className="skeleton h-3.5 w-14 rounded-full"></div>
+                      </div>
+                      <div className="skeleton h-3 w-full"></div>
+                      <div className="skeleton h-3 w-4/5"></div>
+                    </div>
+                  ))}
                 </div>
               ) : suggestions.length > 0 ? (
                 <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
@@ -468,7 +478,115 @@ export const ImageStudioSection: React.FC<ImageStudioSectionProps> = ({
 
         {/* Right Column: Multi-Image Sequential Media Gallery (7 cols) */}
         <div className="lg:col-span-7 space-y-6">
-          {!selectedImage ? (
+          {isGenerating ? (
+            <div className="card bg-base-100 border border-base-content/10 shadow-xl rounded-2xl overflow-hidden">
+              {/* Meta Ribbon showing all available fields */}
+              <div className="bg-base-200/90 px-6 py-3.5 border-b border-base-300 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center gap-2 text-xs">
+                  <span className="badge badge-primary font-bold text-[11px] uppercase">
+                    {aspectRatio}
+                  </span>
+                  <span className="badge badge-outline text-[11px] capitalize">
+                    {selectedStyleObj.label}
+                  </span>
+                  <span className="badge badge-ghost text-[11px] font-mono">
+                    Google Imagen 3
+                  </span>
+                  <span className="badge badge-primary badge-sm gap-1.5 animate-pulse font-bold text-[11px]">
+                    <span className="loading loading-spinner loading-xs"></span>
+                    Rendering Imagen 3...
+                  </span>
+                </div>
+
+                {/* Action Buttons Skeletons/Disabled */}
+                <div className="flex items-center gap-1.5">
+                  <button disabled className="btn btn-ghost btn-xs rounded-lg gap-1 border border-base-300 opacity-40 cursor-not-allowed">
+                    <Maximize2 size={13} />
+                    <span>Zoom</span>
+                  </button>
+                  <button disabled className="btn btn-ghost btn-xs rounded-lg gap-1 border border-base-300 opacity-40 cursor-not-allowed">
+                    <ExternalLink size={13} />
+                    <span>Link</span>
+                  </button>
+                  <button disabled className="btn btn-primary btn-xs rounded-lg gap-1 shadow-xs opacity-40 cursor-not-allowed">
+                    <Download size={13} />
+                    <span>Download</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Main Image Container: Skeleton for image not available */}
+              <div className="relative bg-base-300/30 flex items-center justify-center p-3 md:p-6 min-h-[340px] max-h-[560px] overflow-hidden">
+                <div
+                  className={`skeleton w-full rounded-2xl flex flex-col items-center justify-center p-8 text-center relative overflow-hidden transition-all ${
+                    aspectRatio === '16:9'
+                      ? 'aspect-video max-h-[480px]'
+                      : aspectRatio === '1:1'
+                      ? 'aspect-square max-w-[420px]'
+                      : aspectRatio === '4:3'
+                      ? 'aspect-[4/3] max-h-[480px]'
+                      : 'aspect-[9/16] max-h-[520px] max-w-[320px]'
+                  }`}
+                >
+                  <div className="flex flex-col items-center gap-3 z-10 p-4">
+                    <div className="w-16 h-16 rounded-full bg-base-100/70 backdrop-blur flex items-center justify-center shadow-lg border border-base-content/10">
+                      <span className="loading loading-spinner loading-md text-primary"></span>
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="text-base font-bold text-base-content">
+                        Diffusion Synthesis in Progress
+                      </h4>
+                      <p className="text-xs text-base-content/70 max-w-sm leading-relaxed">
+                        Google Imagen 3 is rendering photorealistic lighting, depth of field, and textures...
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+                      <span className="badge badge-sm badge-outline font-mono">{aspectRatio}</span>
+                      <span className="badge badge-sm badge-ghost capitalize">{style.replace('_', ' ')}</span>
+                      <span className="badge badge-sm badge-primary badge-outline">Imagen 3</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Prompt Details & Metadata: Show Available Field or Skeleton if not typed */}
+              <div className="p-4 md:p-5 bg-base-100 border-t border-base-300 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-base-content/70">
+                    {prompt.trim() ? 'Grounding Prompt' : 'Grounding Prompt (Awaiting Input)'}
+                  </span>
+                  {prompt.trim() && (
+                    <span className="badge badge-xs badge-ghost font-mono">{prompt.length} chars</span>
+                  )}
+                </div>
+                {prompt.trim() ? (
+                  <p className="text-xs md:text-sm text-base-content/85 leading-relaxed italic bg-base-200/50 p-3 rounded-xl border border-base-300">
+                    "{prompt}"
+                  </p>
+                ) : (
+                  <div className="space-y-2 bg-base-200/50 p-3 rounded-xl border border-base-300">
+                    <div className="skeleton h-3.5 w-full"></div>
+                    <div className="skeleton h-3.5 w-3/4"></div>
+                  </div>
+                )}
+                {negativePrompt.trim() && (
+                  <div className="text-[11px] text-base-content/60 flex items-center gap-1.5 pt-1">
+                    <span className="font-semibold text-error/80">Negative prompt:</span>
+                    <span className="italic">"{negativePrompt}"</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Card Footer Callout */}
+              <div className="bg-primary/10 px-6 py-3.5 border-t border-primary/20 flex items-center justify-between text-xs text-primary font-semibold">
+                <div className="flex items-center gap-2">
+                  <span className="loading loading-spinner loading-sm"></span>
+                  <span>Rendering photorealistic visual with Google Imagen 3...</span>
+                </div>
+                <span className="loading loading-dots loading-sm"></span>
+              </div>
+            </div>
+          ) : !selectedImage ? (
             <div className="card bg-base-200/50 border border-dashed border-base-content/20 rounded-2xl p-12 text-center space-y-4">
               <div className="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto shadow-inner">
                 <ImageIcon size={32} />
@@ -482,152 +600,169 @@ export const ImageStudioSection: React.FC<ImageStudioSectionProps> = ({
               </div>
             </div>
           ) : (
-            <div className="space-y-6">
-              {/* Selected Hero Image Viewer Card */}
-              <div className="card bg-base-100 border border-base-content/10 shadow-xl rounded-2xl overflow-hidden">
-                {/* Meta Ribbon */}
-                <div className="bg-base-200/90 px-6 py-3 border-b border-base-300 flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex flex-wrap items-center gap-2 text-xs">
-                    <span className="badge badge-primary font-bold text-[11px] uppercase">
-                      {selectedImage.aspect_ratio}
+            <div className="card bg-base-100 border border-base-content/10 shadow-xl rounded-2xl overflow-hidden">
+              {/* Meta Ribbon */}
+              <div className="bg-base-200/90 px-6 py-3 border-b border-base-300 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center gap-2 text-xs">
+                  <span className="badge badge-primary font-bold text-[11px] uppercase">
+                    {selectedImage.aspect_ratio}
+                  </span>
+                  <span className="badge badge-outline text-[11px] capitalize">
+                    {selectedImage.style.replace('_', ' ')}
+                  </span>
+                  <span className="badge badge-ghost text-[11px] font-mono">
+                    {selectedImage.model}
+                  </span>
+                  <span className="text-[11px] text-base-content/60 flex items-center gap-1">
+                    <Calendar size={12} />
+                    <span>
+                      {new Date(selectedImage.created_at * 1000).toLocaleString(undefined, {
+                        dateStyle: 'medium',
+                        timeStyle: 'short',
+                      })}
                     </span>
-                    <span className="badge badge-outline text-[11px] capitalize">
-                      {selectedImage.style.replace('_', ' ')}
-                    </span>
-                    <span className="badge badge-ghost text-[11px] font-mono">
-                      {selectedImage.model}
-                    </span>
-                    <span className="text-[11px] text-base-content/60 flex items-center gap-1">
-                      <Calendar size={12} />
-                      <span>
-                        {new Date(selectedImage.created_at * 1000).toLocaleString(undefined, {
-                          dateStyle: 'medium',
-                          timeStyle: 'short',
-                        })}
-                      </span>
-                    </span>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => setLightboxUrl(selectedImage.image_url)}
-                      className="btn btn-ghost btn-xs rounded-lg gap-1 border border-base-300"
-                      title="Full Screen Inspection"
-                    >
-                      <Maximize2 size={13} />
-                      <span>Zoom</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleCopyUrl}
-                      className="btn btn-ghost btn-xs rounded-lg gap-1 border border-base-300 font-semibold"
-                      title="Copy Public Image URL"
-                    >
-                      {copiedUrl ? <Check size={13} className="text-success" /> : <ExternalLink size={13} />}
-                      <span>{copiedUrl ? 'Copied' : 'Link'}</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleDownload}
-                      disabled={isDownloading}
-                      className="btn btn-primary btn-xs rounded-lg gap-1 shadow-xs font-semibold"
-                      title="Download Image File"
-                    >
-                      {isDownloading ? (
-                        <span className="loading loading-spinner loading-xs"></span>
-                      ) : (
-                        <Download size={13} />
-                      )}
-                      <span>{isDownloading ? 'Saving...' : 'Download'}</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(selectedImage.id)}
-                      className="btn btn-ghost btn-xs text-error rounded-lg"
-                      title="Delete Image"
-                    >
-                      <Trash2 size={13} />
-                    </button>
-                  </div>
+                  </span>
                 </div>
 
-                {/* Main Rendered Image Container */}
-                <div className="relative bg-base-300/30 flex items-center justify-center p-2 md:p-4 min-h-[340px] max-h-[560px] overflow-hidden">
-                  <img
-                    src={resolveMediaUrl(selectedImage.image_url)}
-                    alt={selectedImage.prompt}
-                    className="max-h-[520px] w-auto max-w-full rounded-xl shadow-md object-contain cursor-pointer hover:opacity-95 transition-opacity"
+                {/* Action Buttons */}
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
                     onClick={() => setLightboxUrl(selectedImage.image_url)}
-                    loading="lazy"
-                  />
-                </div>
-
-                {/* Prompt Details & Copy */}
-                <div className="p-4 md:p-5 bg-base-100 border-t border-base-300 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-base-content/70">
-                      Grounding Prompt Used
-                    </span>
-                    <button
-                      type="button"
-                      onClick={handleCopyPrompt}
-                      className="btn btn-ghost btn-xs gap-1 text-[11px] text-primary"
-                    >
-                      {copiedPrompt ? <Check size={12} className="text-success" /> : <Copy size={12} />}
-                      <span>{copiedPrompt ? 'Copied' : 'Copy Prompt'}</span>
-                    </button>
-                  </div>
-                  <p className="text-xs md:text-sm text-base-content/85 leading-relaxed italic bg-base-200/50 p-3 rounded-xl border border-base-300">
-                    "{selectedImage.prompt}"
-                  </p>
+                    className="btn btn-ghost btn-xs rounded-lg gap-1 border border-base-300"
+                    title="Full Screen Inspection"
+                  >
+                    <Maximize2 size={13} />
+                    <span>Zoom</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCopyUrl}
+                    className="btn btn-ghost btn-xs rounded-lg gap-1 border border-base-300 font-semibold"
+                    title="Copy Public Image URL"
+                  >
+                    {copiedUrl ? <Check size={13} className="text-success" /> : <ExternalLink size={13} />}
+                    <span>{copiedUrl ? 'Copied' : 'Link'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDownload}
+                    disabled={isDownloading}
+                    className="btn btn-primary btn-xs rounded-lg gap-1 shadow-xs font-semibold"
+                    title="Download Image File"
+                  >
+                    {isDownloading ? (
+                      <span className="loading loading-spinner loading-xs"></span>
+                    ) : (
+                      <Download size={13} />
+                    )}
+                    <span>{isDownloading ? 'Saving...' : 'Download'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(selectedImage.id)}
+                    className="btn btn-ghost btn-xs text-error rounded-lg"
+                    title="Delete Image"
+                  >
+                    <Trash2 size={13} />
+                  </button>
                 </div>
               </div>
 
-              {/* Sequential Multi-Image Thumbnails Filmstrip */}
-              {images.length > 1 && (
-                <div className="space-y-2 pt-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-base-content/80 flex items-center gap-1.5">
-                      <Layers size={13} className="text-primary" />
-                      <span>Story Gallery ({images.length} visuals)</span>
-                    </span>
-                    <span className="text-[11px] text-base-content/50">
-                      Click thumbnail to switch view
-                    </span>
-                  </div>
+              {/* Main Rendered Image Container */}
+              <div className="relative bg-base-300/30 flex items-center justify-center p-2 md:p-4 min-h-[340px] max-h-[560px] overflow-hidden">
+                <img
+                  key={selectedImage.id || selectedImage.image_url}
+                  src={resolveMediaUrl(selectedImage.image_url)}
+                  alt={selectedImage.prompt}
+                  className="max-h-[520px] w-auto max-w-full rounded-xl shadow-md object-contain cursor-pointer hover:opacity-95 transition-opacity"
+                  onClick={() => setLightboxUrl(selectedImage.image_url)}
+                />
+              </div>
 
-                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2.5">
-                    {images.map((img) => {
-                      const isSelected = selectedImage?.id === img.id;
-                      return (
-                        <div
-                          key={img.id}
-                          onClick={() => setSelectedImage(img)}
-                          className={`relative aspect-video rounded-xl overflow-hidden cursor-pointer border-2 transition-all group ${
-                            isSelected
-                              ? 'border-primary shadow-md scale-[1.02]'
-                              : 'border-base-300 hover:border-primary/50 opacity-80 hover:opacity-100'
-                          }`}
-                        >
-                          <img
-                            src={resolveMediaUrl(img.image_url)}
-                            alt={img.prompt}
-                            className="w-full h-full object-cover"
-                            loading="lazy"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-1">
-                            <span className="text-[9px] text-white font-mono uppercase font-bold">
-                              {img.aspect_ratio}
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+              {/* Prompt Details & Copy */}
+              <div className="p-4 md:p-5 bg-base-100 border-t border-base-300 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-base-content/70">
+                    Grounding Prompt Used
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleCopyPrompt}
+                    className="btn btn-ghost btn-xs gap-1 text-[11px] text-primary"
+                  >
+                    {copiedPrompt ? <Check size={12} className="text-success" /> : <Copy size={12} />}
+                    <span>{copiedPrompt ? 'Copied' : 'Copy Prompt'}</span>
+                  </button>
                 </div>
-              )}
+                {selectedImage.prompt ? (
+                  <p className="text-xs md:text-sm text-base-content/85 leading-relaxed italic bg-base-200/50 p-3 rounded-xl border border-base-300">
+                    "{selectedImage.prompt}"
+                  </p>
+                ) : (
+                  <div className="space-y-2 bg-base-200/50 p-3 rounded-xl border border-base-300">
+                    <div className="skeleton h-3.5 w-full"></div>
+                    <div className="skeleton h-3.5 w-3/4"></div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Sequential Multi-Image Thumbnails Filmstrip / Story Gallery */}
+          {/* Kept visible even while generating new image so previous images remain accessible */}
+          {images.length > 0 && (
+            <div className="space-y-2 pt-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-base-content/80 flex items-center gap-1.5">
+                  <Layers size={13} className="text-primary" />
+                  <span>Story Gallery ({images.length} {images.length === 1 ? 'visual' : 'visuals'})</span>
+                </span>
+                <span className="text-[11px] text-base-content/50">
+                  {isGenerating ? 'Rendering new image above...' : 'Click thumbnail to switch view'}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2.5">
+                {/* Active generating placeholder badge in filmstrip */}
+                {isGenerating && (
+                  <div className="relative aspect-video rounded-xl overflow-hidden border-2 border-primary/60 bg-primary/10 flex flex-col items-center justify-center p-1 animate-pulse shadow-sm">
+                    <span className="loading loading-spinner loading-xs text-primary"></span>
+                    <span className="text-[9px] font-bold text-primary mt-1">Generating...</span>
+                  </div>
+                )}
+
+                {images.map((img) => {
+                  const isSelected = !isGenerating && selectedImage?.id === img.id;
+                  return (
+                    <div
+                      key={img.id}
+                      onClick={() => {
+                        if (!isGenerating) {
+                          setSelectedImage(img);
+                        }
+                      }}
+                      className={`relative aspect-video rounded-xl overflow-hidden cursor-pointer border-2 transition-all group ${
+                        isSelected
+                          ? 'border-primary shadow-md scale-[1.02]'
+                          : 'border-base-300 hover:border-primary/50 opacity-80 hover:opacity-100'
+                      }`}
+                    >
+                      <img
+                        src={resolveMediaUrl(img.image_url)}
+                        alt={img.prompt}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-1">
+                        <span className="text-[9px] text-white font-mono uppercase font-bold">
+                          {img.aspect_ratio}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>

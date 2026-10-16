@@ -147,6 +147,33 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
   const [ttsState, setTtsState] = useState<'idle' | 'playing' | 'paused'>('idle');
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
+  // Computed configuration helpers for available fields
+  const targetWordsDisplay = useMemo(() => {
+    if (lengthPreset === 'flash') return '~250 words';
+    if (lengthPreset === 'standard') return '~600 words';
+    if (lengthPreset === 'longform') return '~1,200 words';
+    return `${customWords} words`;
+  }, [lengthPreset, customWords]);
+
+  const targetReadMinutes = useMemo(() => {
+    if (lengthPreset === 'flash') return '1';
+    if (lengthPreset === 'standard') return '2-3';
+    if (lengthPreset === 'longform') return '5-6';
+    return Math.max(1, Math.round(customWords / 200)).toString();
+  }, [lengthPreset, customWords]);
+
+  const selectedStyleObj = useMemo(() => {
+    return STYLE_OPTIONS.find((s) => s.id === style) || STYLE_OPTIONS[0];
+  }, [style]);
+
+  const selectedLangObj = useMemo(() => {
+    return findLanguage(selectedLanguage);
+  }, [selectedLanguage]);
+
+  const selectedFramingObj = useMemo(() => {
+    return FRAMING_OPTIONS.find((f) => f.id === framing) || FRAMING_OPTIONS[0];
+  }, [framing]);
+
   // Fetch articles on mount or analysisId change
   useEffect(() => {
     if (!analysisId) return;
@@ -494,6 +521,13 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
     setTtsState('idle');
   };
 
+  // Stop audio playback cleanly whenever active article switches
+  useEffect(() => {
+    if (ttsState !== 'idle') {
+      handleStopSpeech();
+    }
+  }, [currentArticle?.id]);
+
   return (
     <div className="space-y-8 animate-fadeIn">
       {/* Header Banner */}
@@ -763,7 +797,29 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
               <span className="text-[11px] text-base-content/50">Saved in Firestore</span>
             </div>
 
-            {articles.length === 0 ? (
+            {isGenerating && (
+              <div className="p-3 rounded-xl border border-primary/60 bg-primary/10 space-y-2 animate-pulse shadow-sm">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="skeleton h-3.5 w-3/4"></div>
+                  <span className="badge badge-xs badge-primary font-bold gap-1 shrink-0">
+                    <span className="loading loading-spinner loading-[10px]"></span>
+                    <span>Generating...</span>
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-base-content/60">
+                  <span className="badge badge-ghost badge-xs gap-1">
+                    <span>{selectedLangObj.flag}</span>
+                    <span>{selectedLangObj.name}</span>
+                  </span>
+                  <span>•</span>
+                  <span className="capitalize">{selectedStyleObj.label}</span>
+                  <span>•</span>
+                  <span>{targetWordsDisplay}</span>
+                </div>
+              </div>
+            )}
+
+            {articles.length === 0 && !isGenerating ? (
               <div className="text-center py-6 text-xs text-base-content/50 italic">
                 No articles generated for this story yet. Configure the panel above and click
                 Generate!
@@ -771,7 +827,7 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
             ) : (
               <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
                 {articles.map((art) => {
-                  const isSelected = currentArticle?.id === art.id;
+                  const isSelected = !isGenerating && currentArticle?.id === art.id;
                   const langObj = findLanguage(art.language);
                   const dateStr = art.created_at
                     ? new Date(art.created_at * 1000).toLocaleDateString(undefined, {
@@ -785,7 +841,11 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
                   return (
                     <div
                       key={art.id}
-                      onClick={() => setCurrentArticle(art)}
+                      onClick={() => {
+                        if (!isGenerating) {
+                          setCurrentArticle(art);
+                        }
+                      }}
                       className={`p-3 rounded-xl border text-left cursor-pointer transition-all flex items-start justify-between gap-3 ${
                         isSelected
                           ? 'bg-primary/10 border-primary shadow-sm'
@@ -831,7 +891,177 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
 
         {/* Right Column: Article Viewer & Read Aloud TTS (7 cols) */}
         <div className="lg:col-span-7 space-y-6">
-          {!currentArticle ? (
+          {isGenerating ? (
+            <div className="space-y-6">
+              {/* Audio TTS Status Ribbon / Card showing available fields */}
+              <div className="card bg-base-200/90 backdrop-blur border border-base-content/10 shadow-md rounded-2xl p-4 md:p-5 space-y-4">
+                <div className="flex items-center justify-between border-b border-base-300 pb-3">
+                  <div className="flex items-center gap-2.5 font-bold text-sm md:text-base text-base-content">
+                    <Volume2 size={18} className="text-primary/60" />
+                    <span>Browser Read Aloud (TTS)</span>
+                  </div>
+                  <span className="badge badge-sm badge-ghost text-[11px]">
+                    Awaiting Audio Generation
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-base-content/70">
+                  <span className="flex items-center gap-1.5">
+                    <span>Configured Speech Voice:</span>
+                    <span className="badge badge-xs badge-primary font-medium gap-1">
+                      <span>{selectedLangObj.flag}</span>
+                      <span>{selectedLangObj.name}</span>
+                    </span>
+                  </span>
+                  <span className="text-[11px] text-base-content/50">Audio synthesis activates once article text is available</span>
+                </div>
+                <div className="pt-2 border-t border-base-300 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <button disabled className="btn btn-primary btn-sm rounded-xl gap-2 font-bold shadow-sm px-4 opacity-40 cursor-not-allowed">
+                      <Play size={15} fill="currentColor" />
+                      <span>Play</span>
+                    </button>
+                    <button disabled className="btn btn-ghost btn-sm rounded-xl gap-1.5 border border-base-300 px-3 opacity-40 cursor-not-allowed">
+                      <Square size={13} fill="currentColor" />
+                      <span>Stop</span>
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="skeleton h-3.5 w-16"></div>
+                    <div className="skeleton h-3.5 w-24"></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Main Article Card with DaisyUI Skeletons for Text Not Available */}
+              <div className="card bg-base-100 border border-base-content/10 shadow-xl rounded-2xl overflow-hidden">
+                {/* Meta Ribbon showing all available fields */}
+                <div className="bg-base-200/90 px-6 py-3.5 border-b border-base-300 flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex flex-wrap items-center gap-2 text-xs">
+                    <span className="badge badge-primary font-bold gap-1 text-[11px]">
+                      <span>{selectedLangObj.flag}</span>
+                      <span>{selectedLangObj.name}</span>
+                    </span>
+                    <span className="badge badge-outline text-[11px] capitalize">
+                      {selectedStyleObj.label}
+                    </span>
+                    <span className="badge badge-ghost text-[11px] gap-1">
+                      <Clock size={12} />
+                      <span>{targetReadMinutes} min read ({targetWordsDisplay})</span>
+                    </span>
+                    <span className="badge badge-secondary badge-outline text-[11px]">
+                      {selectedFramingObj.label}
+                    </span>
+                    <span className="badge badge-primary badge-sm gap-1.5 animate-pulse font-bold text-[11px]">
+                      <span className="loading loading-spinner loading-xs"></span>
+                      Synthesizing Article...
+                    </span>
+                  </div>
+
+                  {/* Action Buttons Skeletons */}
+                  <div className="flex items-center gap-1.5">
+                    <div className="skeleton h-6 w-16 rounded-lg opacity-50"></div>
+                    <div className="skeleton h-6 w-16 rounded-lg opacity-50"></div>
+                    <div className="skeleton h-6 w-20 rounded-lg opacity-50"></div>
+                  </div>
+                </div>
+
+                {/* Article Content Area */}
+                <div className="p-6 md:p-8 space-y-6">
+                  {/* Available Field: Grounding Dossier Topic */}
+                  <div className="flex items-center justify-between gap-3 pb-2 border-b border-base-300">
+                    <div className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-2">
+                      <FileText size={15} />
+                      <span>Investigation Topic: {analysis.topic}</span>
+                    </div>
+                    <span className="badge badge-xs badge-ghost font-mono">
+                      AI Newsroom Synthesis
+                    </span>
+                  </div>
+
+                  {/* Headline & Subheadline Skeletons (Text Not Available) */}
+                  <div className="space-y-3 pb-2">
+                    <div className="skeleton h-8 md:h-10 w-4/5 rounded-xl"></div>
+                    <div className="skeleton h-4 md:h-5 w-3/5 rounded-md"></div>
+                  </div>
+
+                  {/* Article Body Paragraphs Skeletons (Text Not Available) */}
+                  <div className="space-y-5 pt-2">
+                    {/* Paragraph 1 */}
+                    <div className="space-y-2.5">
+                      <div className="skeleton h-4 w-full"></div>
+                      <div className="skeleton h-4 w-full"></div>
+                      <div className="skeleton h-4 w-11/12"></div>
+                      <div className="skeleton h-4 w-4/5"></div>
+                    </div>
+
+                    {/* Section Header + Paragraph 2 */}
+                    <div className="space-y-2.5 pt-2">
+                      <div className="skeleton h-6 w-1/3 rounded-lg"></div>
+                      <div className="skeleton h-4 w-full"></div>
+                      <div className="skeleton h-4 w-full"></div>
+                      <div className="skeleton h-4 w-5/6"></div>
+                    </div>
+
+                    {/* Section Header + Paragraph 3 */}
+                    <div className="space-y-2.5 pt-2">
+                      <div className="skeleton h-6 w-2/5 rounded-lg"></div>
+                      <div className="skeleton h-4 w-full"></div>
+                      <div className="skeleton h-4 w-full"></div>
+                      <div className="skeleton h-4 w-3/4"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Social & SEO Kit Skeletons if enabled */}
+                {includeSocialKit && (
+                  <div className="border-t border-base-300 bg-base-200/50 p-6 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="flex items-center gap-2 font-bold text-xs uppercase tracking-wider text-base-content/70">
+                        <Share2 size={15} className="text-primary" />
+                        <span>SEO & Multi-Platform Publishing Kit (Awaiting Generation)</span>
+                      </span>
+                      <div className="skeleton h-4 w-16"></div>
+                    </div>
+
+                    <div className="space-y-3 pt-1">
+                      <div className="p-3 bg-base-100 rounded-xl border border-base-300 space-y-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-base-content/60">
+                          SEO Meta Description (Search Snippet)
+                        </span>
+                        <div className="skeleton h-3.5 w-full"></div>
+                        <div className="skeleton h-3.5 w-4/5"></div>
+                      </div>
+
+                      <div className="p-3 bg-base-100 rounded-xl border border-base-300 space-y-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-base-content/60">
+                          Alternative Editorial Headlines
+                        </span>
+                        <div className="skeleton h-3.5 w-3/4"></div>
+                        <div className="skeleton h-3.5 w-2/3"></div>
+                      </div>
+
+                      <div className="p-3 bg-base-100 rounded-xl border border-base-300 space-y-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-base-content/60">
+                          Social Distribution Thread
+                        </span>
+                        <div className="skeleton h-8 w-full rounded-lg"></div>
+                        <div className="skeleton h-8 w-11/12 rounded-lg"></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Card Footer Callout */}
+                <div className="bg-primary/10 px-6 py-4 border-t border-primary/20 flex flex-wrap items-center justify-between gap-3 text-xs text-primary font-semibold">
+                  <div className="flex items-center gap-2">
+                    <span className="loading loading-spinner loading-sm"></span>
+                    <span>Multi-Agent Newsroom is synthesizing grounded article text across verified dossiers...</span>
+                  </div>
+                  <span className="loading loading-dots loading-sm"></span>
+                </div>
+              </div>
+            </div>
+          ) : !currentArticle ? (
             <div className="card bg-base-200/50 border border-dashed border-base-content/20 rounded-2xl p-12 text-center space-y-4">
               <div className="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto shadow-inner">
                 <Sparkles size={32} />
@@ -845,7 +1075,7 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
               </div>
             </div>
           ) : (
-            <div className="space-y-6">
+            <div key={currentArticle.id} className="space-y-6">
               {/* Read Aloud Audio Player Controller */}
               <div className="card bg-base-200/90 backdrop-blur border border-base-content/10 shadow-md rounded-2xl p-4 md:p-5 space-y-4">
                 <div className="flex items-center justify-between border-b border-base-300 pb-3">
