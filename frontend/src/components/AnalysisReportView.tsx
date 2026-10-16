@@ -1345,7 +1345,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 <div className="card-body p-6 md:p-8">
                   <div className="card-title text-xl font-black text-base-content flex items-center gap-3 pb-3 border-b border-base-300">
                     <CheckCircle2 size={24} className="text-success flex-shrink-0" />
-                    <span>Cross-Spectrum Consensus Points</span>
+                    <span>What All Sources Agree On</span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
                     {report.consensus_points.map((pt, idx) => (
