@@ -2124,7 +2124,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                                 key={optIdx}
                                 className={`label cursor-pointer justify-start gap-4 p-4 rounded-xl border transition-all ${labelBorder}`}
                                 onClick={() => {
-                                  if (!quizResult) {
+                                  if (!quizResult && !isGrading) {
                                     setUserAnswers((prev) => ({ ...prev, [q.question_id]: optIdx }));
                                   }
                                 }}
@@ -2135,11 +2135,11 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                                   className="radio radio-primary radio-md"
                                   checked={isSelected}
                                   onChange={() => {
-                                    if (!quizResult) {
+                                    if (!quizResult && !isGrading) {
                                       setUserAnswers((prev) => ({ ...prev, [q.question_id]: optIdx }));
                                     }
                                   }}
-                                  disabled={!!quizResult}
+                                  disabled={!!quizResult || isGrading}
                                 />
                                 <span className="badge badge-neutral font-bold text-xs">
                                   {String.fromCharCode(65 + optIdx)}
@@ -2194,11 +2194,18 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                       </div>
                     ) : (
                       <button
-                        className="btn btn-primary btn-block sm:btn-wide shadow-md font-bold text-base"
+                        className="btn btn-primary btn-block sm:btn-wide shadow-md font-bold text-base gap-2"
                         onClick={handleGradeQuiz}
-                        disabled={Object.keys(userAnswers).length === 0}
+                        disabled={Object.keys(userAnswers).length === 0 || isGrading}
                       >
-                        Submit & Grade Answers
+                        {isGrading ? (
+                          <>
+                            <span className="loading loading-spinner loading-sm"></span>
+                            <span>Validating Answers...</span>
+                          </>
+                        ) : (
+                          <span>Submit & Grade Answers</span>
+                        )}
                       </button>
                     )}
                   </div>
