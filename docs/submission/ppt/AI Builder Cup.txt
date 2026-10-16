@@ -1,0 +1,42 @@
+Team Details
+
+Team name: 
+Team leader name: 
+Problem Statement: 
+
+
+Brief about the idea
+
+Opportunities
+How different is it from any of the other existing ideas?
+How will it be able to solve the problem?
+USP of the proposed solution
+
+
+
+List of features offered by the solution
+
+Process flow diagram or Use-case diagram
+
+Wireframes/Mock diagrams of the proposed solution (optional)
+
+Architecture diagram of the proposed solution
+
+Technologies to be used in the solution
+
+Estimated implementation cost (optional)
+
+Snapshots of the prototype
+
+Prototype Performance report/Benchmarking
+
+Additional Details/Future Development (if any)
+
+Provide links to your:
+
+GitHub Public Repository
+Demo Video Link (3 Minutes)
+Final Product Link
+
+
+
