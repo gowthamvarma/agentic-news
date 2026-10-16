@@ -648,7 +648,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
               >
                 <span className="flex items-center gap-2.5">
                   <TrendingUp size={17} className={activeTab === 'insights' ? 'text-primary-content' : 'text-warning'} />
-                  <span>Causal & Scenarios</span>
+                  <span>Why &amp; What&apos;s Next</span>
                 </span>
                 {scenariosStatus === 'loading' ? (
                   <span className="badge badge-sm badge-info gap-1.5 py-1 px-2.5 font-semibold shadow-xs">
@@ -896,7 +896,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
             }`}
             onClick={() => handleTabChange('insights')}
           >
-            <span>Scenarios</span>
+            <span>Why &amp; Next</span>
             {scenariosStatus === 'loading' ? (
               <span className="loading loading-spinner loading-xs text-info"></span>
             ) : scenariosStatus === 'ready' ? (
@@ -1605,7 +1605,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
               <div className="flex flex-wrap items-center gap-3">
                 <div className="text-xl md:text-2xl font-black text-base-content flex items-center gap-3">
                   <TrendingUp size={24} className="text-primary flex-shrink-0" />
-                  <span>Causal Diagnostics & Forward Scenarios</span>
+                  <span>Why It Happened &amp; What&apos;s Next</span>
                 </div>
                 {scenariosStatus === 'paused' && (
                   <span className="badge badge-warning gap-2 py-2.5 px-3.5 text-xs font-bold shadow-sm my-0.5">
@@ -1649,10 +1649,10 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                   On-Demand Simulation • Paused (Not Started)
                 </div>
                 <h3 className="text-2xl font-black text-base-content mb-2">
-                  Launch Causal Diagnostics & Forward Scenarios
+                  Launch Why It Happened &amp; What&apos;s Next
                 </h3>
                 <p className="text-sm text-base-content/75 max-w-md mx-auto mb-8 leading-relaxed">
-                  Synthesize 3-tier consequence cascades, root-cause 5-Whys failure points, and forward probabilistic projections. Results will be saved permanently for instant viewing from the archive.
+                  Explore what sparked the event, how consequences ripple outward over time, and plausible future scenarios. Results will be saved permanently for instant viewing from the archive.
                 </p>
                 <button
                   onClick={handleLoadScenarios}
@@ -1660,7 +1660,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                   className="btn btn-primary btn-md md:btn-lg gap-2.5 mx-auto shadow-xl hover:scale-105 transition-all font-bold px-8"
                 >
                   <Play size={20} className="fill-current" />
-                  <span>Run Scenario Fleet (On Demand)</span>
+                  <span>Run Analysis (On Demand)</span>
                 </button>
                 <div className="text-[11px] text-base-content/50 mt-4 flex items-center justify-center gap-1.5">
                   <CheckCircle2 size={13} className="text-success" />
@@ -1677,19 +1677,19 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     <span className="loading loading-spinner loading-md text-primary flex-shrink-0"></span>
                     <div>
                       <div className="font-bold text-sm text-info uppercase tracking-wider">
-                        Simulating Causal Diagnostics & Forward Scenarios
+                        Simulating Why It Happened &amp; What&apos;s Next
                       </div>
                       <div className="text-xs text-base-content/75 mt-0.5">
-                        Synthesizing 3-tier consequence cascades, root-cause 5-Whys, and forward probabilistic trajectories on demand...
+                        Synthesizing root causes, consequence ripple effects, and future scenarios on demand...
                       </div>
                     </div>
                   </div>
                   <span className="badge badge-primary badge-sm font-mono animate-pulse">FLEET ACTIVE</span>
                 </div>
 
-                {/* 2-Column Causal Diagnostics & 3-Tier Consequences Skeleton */}
+                {/* 2-Column Why It Happened & Ripple Effects Skeleton */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full mb-8">
-                  {/* Left: Root Cause Diagnostics Skeleton */}
+                  {/* Left: Why It Happened Skeleton */}
                   <div className="card bg-base-100 border border-base-300 shadow-sm p-6 flex flex-col gap-4">
                     <div className="flex items-center gap-3 pb-3 border-b border-base-300">
                       <div className="skeleton w-8 h-8 rounded-lg"></div>
@@ -1707,7 +1707,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                     </div>
                   </div>
 
-                  {/* Right: 3-Tier Consequences Tree Skeleton */}
+                  {/* Right: Ripple Effects Skeleton */}
                   <div className="card bg-base-100 border border-base-300 shadow-sm p-6 flex flex-col gap-4">
                     <div className="flex items-center gap-3 pb-3 border-b border-base-300">
                       <div className="skeleton w-8 h-8 rounded-lg"></div>
@@ -1759,18 +1759,18 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
 
                 return (
                   <>
-                    {/* Root Cause & Consequences */}
+                    {/* Why It Happened & Ripple Effects */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       <div className="card bg-base-200 border border-base-300 shadow-xl">
                         <div className="card-body p-6">
                           <div className="card-title text-xl font-black text-base-content flex items-center gap-2 pb-2 border-b border-base-300">
                             <Brain size={22} className="text-error flex-shrink-0" />
-                            <span>Root Cause Diagnostics</span>
+                            <span>Why It Happened</span>
                           </div>
 
                           <div className="mt-4">
                             <div className="text-xs font-bold uppercase tracking-wider text-error mb-2">
-                              Immediate Triggers
+                              What Sparked It
                             </div>
                             <div className="flex flex-col gap-2">
                               {rootCause?.immediate_triggers?.map((trig: string, idx: number) => (
@@ -1783,7 +1783,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
 
                           <div className="mt-4">
                             <div className="text-xs font-bold uppercase tracking-wider text-error mb-2">
-                              Structural Failure Points
+                              System Breakdown
                             </div>
                             <div className="flex flex-col gap-2">
                               {rootCause?.structural_failure_points?.map((sf: string, idx: number) => (
@@ -1797,7 +1797,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                           {rootCause?.underlying_systemic_factors && rootCause.underlying_systemic_factors.length > 0 && (
                             <div className="mt-4">
                               <div className="text-xs font-bold uppercase tracking-wider text-warning mb-2">
-                                Underlying Systemic Factors
+                                Deeper Background Issues
                               </div>
                               <div className="flex flex-col gap-2">
                                 {rootCause.underlying_systemic_factors.map((usf: string, idx: number) => (
@@ -1815,7 +1815,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                         <div className="card-body p-6">
                           <div className="card-title text-xl font-black text-base-content flex items-center gap-2 pb-2 border-b border-base-300">
                             <TrendingUp size={22} className="text-info flex-shrink-0" />
-                            <span>3-Tier Consequences Tree</span>
+                            <span>Ripple Effects</span>
                           </div>
 
                           <div className="flex flex-col gap-3 mt-4">
@@ -1825,7 +1825,17 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                                 className="card bg-base-100 border-l-4 border-info border-y border-r border-base-300 p-4 shadow-sm"
                               >
                                 <div className="text-xs font-bold text-info uppercase tracking-wider">
-                                  {cq.order?.replace('_', ' ')}: {cq.affected_sector_or_group}
+                                  {(() => {
+                                    const orderLabel =
+                                      cq.order === 'FIRST_ORDER'
+                                        ? 'Immediate Impact (Days)'
+                                        : cq.order === 'SECOND_ORDER'
+                                        ? 'Ripple Effects (Months)'
+                                        : cq.order === 'THIRD_ORDER'
+                                        ? 'Long-Term Shift (Years)'
+                                        : cq.order?.replace('_', ' ') || 'Impact';
+                                    return `${orderLabel} • ${cq.affected_sector_or_group}`;
+                                  })()}
                                 </div>
                                 <div className="text-sm font-medium text-base-content mt-1 leading-snug">
                                   {cq.impact_description}
@@ -1843,10 +1853,10 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 pb-3 border-b border-base-300">
                           <div className="card-title text-xl font-black text-base-content flex items-center gap-3">
                             <Sparkles size={24} className="text-secondary flex-shrink-0" />
-                            <span>Forward-Looking Scenarios &amp; Probability Ratings</span>
+                            <span>Possible Future Scenarios</span>
                           </div>
                           <span className="badge badge-outline badge-warning text-[11px] font-medium py-2 px-2.5">
-                            Autonomous Projections • Speculative
+                            Forecast Projections • Speculative
                           </span>
                         </div>
 

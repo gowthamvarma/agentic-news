@@ -794,9 +794,9 @@ export const HomePage: React.FC = () => {
                 <div className="p-2.5 rounded-xl bg-accent/10 text-accent w-fit mb-3">
                   <TrendingUp size={22} />
                 </div>
-                <h4 className="font-bold text-base mb-1">3-Tier Causal Diagnostics</h4>
+                <h4 className="font-bold text-base mb-1">Why It Happened &amp; Ripple Effects</h4>
                 <p className="text-xs text-base-content/70 leading-relaxed">
-                  5-Whys root cause discovery, 1st/2nd/3rd order cascade trees, and forward probabilistic scenario simulations.
+                  Uncovers what sparked the event, maps how consequences ripple across society, and forecasts plausible future scenarios.
                 </p>
               </div>
             </div>

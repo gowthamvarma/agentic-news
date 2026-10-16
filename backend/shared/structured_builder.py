@@ -202,9 +202,9 @@ DO NOT output a fixed or pre-determined number of items for ANY list. The item c
 - "contradictions": list of ContradictionItem objects. Compare coverage across competing reporting desks, official authorities, defending entities, industry analysts, or opposing viewpoints on this story. Identify 2 to 4 substantive cross-source contradictions, clashes, or divergences where reporting desks or competing stakeholders disagree on figures, timelines, causality, legal culpability, or asserted facts (e.g. prosecution claims vs corporate defense, official projections vs industry cost audits, conflicting enforcement dates, or divergent figures). Schema: {{"contradiction_id": "CONT-01", "topic_aspect": "Disputed aspect", "outlet_a": "Outlet A", "claim_a": "Assertion A", "outlet_b": "Outlet B", "claim_b": "Assertion B", "divergence_type": "Fact Negation"|"Numerical Discrepancy"|"Timeline Divergence"|"Causal Dispute"|"Attribution Conflict", "analysis": "Clear explanation in direct English"}}.
 - "bias_evaluations": list of objects evaluating distinct reporting desks with 'outlet', 'assessed_lean', 'loaded_terms_identified', 'framing_narrative', 'omitted_context'.
 - "timeline": object with 'narrative_evolution_summary' (string) and 'events' (list of chronologically ordered milestone objects, bridging to current trending status).
-- "root_cause_analysis": object with 'immediate_triggers' (list of strings), 'underlying_systemic_factors' (list of strings), 'structural_failure_points' (list of strings).
-- "consequences_tree": list of objects with 'order' ('FIRST_ORDER'|'SECOND_ORDER'|'THIRD_ORDER'), 'impact_description', 'affected_sector_or_group'.
-- "future_scenarios": list of objects with 'scenario_title', 'scenario_type' ('MOST_LIKELY'|'BEST_CASE'|'WORST_CASE'), 'probability_rating', 'time_horizon', 'potential_impact', 'signals_to_watch', 'what_if_assumption'.
+- "root_cause_analysis": object with 'immediate_triggers' (list of strings explaining what sparked it in plain, simple English), 'underlying_systemic_factors' (list of strings explaining deeper background conditions in simple terms), 'structural_failure_points' (list of strings explaining where rules or checks failed).
+- "consequences_tree": list of objects with 'order' ('FIRST_ORDER'|'SECOND_ORDER'|'THIRD_ORDER'), 'impact_description' (clear everyday explanation of real-world impacts on people, jobs, or businesses), 'affected_sector_or_group'.
+- "future_scenarios": list of objects with 'scenario_title' (clear, conversational title), 'scenario_type' ('MOST_LIKELY'|'BEST_CASE'|'WORST_CASE'), 'probability_rating', 'time_horizon', 'potential_impact' (plain English explanation of what this outcome means), 'signals_to_watch', 'what_if_assumption'.
 - "lessons_learned": list of objects with 'lesson_takeaway', 'target_audience' ('INDIVIDUALS'|'ORGANISATIONS'|'POLICYMAKERS'), 'concrete_preventive_action'.
 """
         response = client.models.generate_content(
@@ -989,22 +989,31 @@ def build_structured_scenarios(topic: str) -> Dict[str, Any]:
             prompt = f"""Generate causal diagnostics, 3-tier ripple consequences, and future scenarios for:
 "{clean_topic}"
 
-CRITICAL READABILITY & TERMINOLOGY REQUIREMENT:
-1. Write causes, ripple consequences, and future scenarios in clear, direct, and straightforward sentence structures.
-2. PRESERVE TECHNICAL TERMS: Do NOT replace or dumb down accurate technical, scientific, economic, or legal terms with informal words (e.g. use "spectrum", not "airwaves"; keep terms like "injunction", "arbitrage", etc. intact).
+CRITICAL READABILITY & CLARITY REQUIREMENT (CASUAL-READER ACCESSIBILITY):
+1. Write causes, ripple consequences, and future scenarios in clear, accessible, everyday English (around an 8th-grade reading level) so any casual reader can effortlessly understand.
+2. Avoid dense legalistic jargon, academic phrasing, and bureaucratic acronyms. If a specialized term is unavoidable, immediately explain its plain-English meaning (e.g. explain that an "injunction" is a temporary court order freezing the rule).
+3. Frame causes directly:
+   - immediate_triggers: what specifically sparked this event right now in plain terms.
+   - structural_failure_points: where the system, rules, or safeguards failed to prevent the crisis.
+   - underlying_systemic_factors: the deeper background pressures or conditions that built up over time.
+4. Frame consequence ripple effects around real-world impacts on everyday people, jobs, and businesses:
+   - FIRST_ORDER: what happens right away in the first few days or weeks.
+   - SECOND_ORDER: the ripple reaction from markets, competitors, or workers over coming months.
+   - THIRD_ORDER: long-term lasting shifts in industry or society over years.
+5. Frame future scenarios around realistic, everyday outcomes with clear, conversational titles.
 
 Return a single JSON object with:
 - "topic": "{clean_topic}"
 - "root_cause_analysis": object with 'immediate_triggers' (list of strings, dynamic length), 'underlying_systemic_factors' (list of strings, dynamic length), 'structural_failure_points' (list of strings, dynamic length)
-- "consequences_tree": list of objects with 'order' ('FIRST_ORDER'|'SECOND_ORDER'|'THIRD_ORDER'), 'impact_description' (string with clear sentence structure), 'affected_sector_or_group' (string)
+- "consequences_tree": list of objects with 'order' ('FIRST_ORDER'|'SECOND_ORDER'|'THIRD_ORDER'), 'impact_description' (string with clear, simple sentence structure), 'affected_sector_or_group' (string)
 - "future_scenarios": list of objects (dynamic length covering plausible forward scenarios) with:
-  - "scenario_title": string in clear English
+  - "scenario_title": string in clear, conversational English
   - "scenario_type": 'MOST_LIKELY'|'BEST_CASE'|'WORST_CASE'
   - "probability_rating": 'HIGH'|'MODERATE'|'LOW'
   - "time_horizon": string (e.g. '1 - 3 Months')
-  - "potential_impact": string in clear, easy-to-read English preserving technical terms
-  - "signals_to_watch": list of strings
-  - "what_if_assumption": optional string
+  - "potential_impact": string in plain, easy-to-read English
+  - "signals_to_watch": list of strings in plain English
+  - "what_if_assumption": optional string in plain English
 - "lessons_learned": list of objects (covering applicable audiences like INDIVIDUALS, ORGANISATIONS, POLICYMAKERS) with:
   - "lesson_takeaway": string - what went wrong or right, and why
   - "target_audience": 'INDIVIDUALS'|'ORGANISATIONS'|'POLICYMAKERS'
@@ -1028,65 +1037,65 @@ Return a single JSON object with:
     root_cause = RootCauseReport(
         topic=clean_topic,
         immediate_triggers=[
-            f"Formal issuance of administrative directives concerning {subject} without advance notice-and-comment.",
-            "Shifting executive policy priorities emphasizing stringent domestic audits.",
+            f"Government authorities issued sudden new directives on {subject} without holding public discussions first.",
+            "New policy priorities triggered sudden compliance audits and unexpected inspections for businesses.",
         ],
         underlying_systemic_factors=[
-            "Chronic legislative deadlock leading to reliance on executive rulemaking.",
-            "Technological shifts creating rapid changes in workforce and compliance demands.",
+            "Longstanding political gridlock that led agencies to make major policy decisions through fast-track orders.",
+            "Fast-moving technological shifts moving faster than existing workplace laws and training programs.",
         ],
         structural_failure_points=[
-            "Lack of formal stakeholder consultation prior to directive publication.",
-            "Ambiguity between breaking press releases and formal legal gazette text.",
+            "No public feedback or consultation window before publishing the order.",
+            "Confusing differences between early press releases and the official legal text.",
         ],
     )
 
     consequences = [
         ConsequenceNode(
             order="FIRST_ORDER",
-            impact_description="Immediate administrative pause and internal compliance audit across affected organizations.",
-            affected_sector_or_group="Enterprise Legal & HR Teams",
+            impact_description="Companies immediately pause new projects and review paperwork to avoid fines.",
+            affected_sector_or_group="Company Legal & HR Teams",
         ),
         ConsequenceNode(
             order="SECOND_ORDER",
-            impact_description="Federal court emergency injunction hearings and contingency talent pipeline freezes.",
-            affected_sector_or_group="Tech, Financial, and Research Institutions",
+            impact_description="Affected groups take the matter to court seeking a temporary hold, while freezing hiring until the rules are cleared up.",
+            affected_sector_or_group="Tech & Research Companies",
         ),
         ConsequenceNode(
             order="THIRD_ORDER",
-            impact_description="Structural relocation of critical talent and expansion of foreign subsidiaries (Canada, UK, EU).",
-            affected_sector_or_group="Global Competitiveness & Innovation Ecosystems",
+            impact_description="Businesses shift key operations and staff to other countries with more predictable rules.",
+            affected_sector_or_group="Overall Industry Growth & Jobs",
         ),
     ]
 
     scenarios = [
         FutureScenario(
-            scenario_title="Judicial Stay & Grandfathering Compromise",
+            scenario_title="Court Pauses the Order for a Compromise",
             scenario_type="MOST_LIKELY",
             probability_rating="HIGH",
             time_horizon="1 - 3 Months",
-            potential_impact="Court issues nationwide preliminary injunction; agency issues revised interim rule with clear transition corridors.",
+            potential_impact="A court puts the new rule on hold, giving the government time to issue clearer guidelines and protect existing projects.",
             signals_to_watch=[
-                "District court ruling on Plaintiff's emergency TRO motion.",
-                "Department of Justice briefing statements regarding administrative clarifications.",
+                "First ruling from the court hearing.",
+                "Official statements clarifying whether transition periods will be granted.",
             ],
-            what_if_assumption="If court denies injunction, enterprise departures accelerate by 30%.",
+            what_if_assumption="If the court refuses to pause the rule, business departures could speed up sharply.",
         ),
         FutureScenario(
-            scenario_title="Regulatory Stalemate & Attrition",
+            scenario_title="Quick Fix via Online Self-Certification",
             scenario_type="BEST_CASE",
             probability_rating="MODERATE",
             time_horizon="3 - 6 Months",
-            potential_impact="Agency establishes expedited digital self-certification, alleviating 80% of processing friction.",
-            signals_to_watch=["Publication of digital compliance portal and revised agency FAQ."],
+            potential_impact="Regulators introduce a simple online portal, removing most delays and confusion.",
+            signals_to_watch=["Launch of the new compliance portal and updated public guidance."],
         ),
         FutureScenario(
-            scenario_title="Enforcement Hardening & Retaliation",
+            scenario_title="Strict Enforcement & International Backlash",
             scenario_type="WORST_CASE",
             probability_rating="LOW",
             time_horizon="6 - 12 Months",
-            potential_impact="Judicial approval of summary action triggers reciprocal regulatory measures from foreign trading partners.",
-            signals_to_watch=["Foreign ministry advisories and cross-border trade dispute filings."],
+            potential_impact="Regulators enforce penalties strictly, leading international partners to bring retaliatory trade and business restrictions.",
+            signals_to_watch=["Travel advisories and trade dispute notices filed by other governments."],
         ),
     ]
 

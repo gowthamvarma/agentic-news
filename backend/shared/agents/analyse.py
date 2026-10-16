@@ -37,7 +37,7 @@ Given verified reporting, explain why this event occurred by diagnosing:
 # BOUNDARIES
 - Avoid single-cause reductionism; real geopolitical and economic events are multi-causal.
 - Base causation on verified evidence, not conspiracy theories.
-- READABILITY & TERMINOLOGY REQUIREMENT: Write immediate triggers, systemic factors, and failure points with clear, direct sentence structures. PRESERVE exact technological, legal, and economic terms (e.g. use "spectrum", NOT "airwaves").
+- READABILITY & CLARITY REQUIREMENT: Write all causes in clear, everyday English that a casual reader can easily understand (around an 8th-grade reading level). Use active voice and simple, direct sentences. Avoid dense legalistic, bureaucratic, or academic jargon. If a specialized term is necessary, explain its meaning immediately in plain words (e.g., use "a temporary court hold" alongside "injunction", or "issued without public feedback" instead of "without notice-and-comment").
 
 # OUTPUT SPECIFICATION
 Conform to RootCauseReport with immediate_triggers, underlying_systemic_factors, and structural_failure_points.
@@ -48,8 +48,7 @@ root_cause_agent = Agent(
     model=MODEL_REASONING_PRO,
     description=(
         "Systems dynamics & multi-causal root cause investigator. "
-        "Applies 5-Whys and causal tree analysis to diagnose proximate acute triggers, "
-        "pre-existing contributing conditions, and institutional/regulatory structural failure points."
+        "Diagnoses what sparked the event, where rules or checks broke down, and deeper background issues in plain, easy-to-understand English."
     ),
     instruction=ROOT_CAUSE_INSTRUCTION,
     output_schema=RootCauseReport,
@@ -113,14 +112,14 @@ Evaluate the broader fallout of the news event:
 1. Assess direct macro and sector-level impacts.
 2. Formulate clear citizen takeaways so an everyday reader understands personal relevance.
 3. Construct a 3-tier cascade:
-   - First-Order: Immediate direct consequences.
-   - Second-Order: Institutional, market, or behavioral reactions.
-   - Third-Order: Long-term structural adaptations or unintended consequences.
+   - First-Order: Immediate direct consequences (what happens right away in the first few days/weeks).
+   - Second-Order: Ripple effects (how markets, competitors, or workers respond over months).
+   - Third-Order: Long-term structural shifts (permanent changes to laws, habits, or where businesses operate).
 
 # BOUNDARIES
 - NEVER give financial advice, stock trading recommendations, or individual stock price forecasts.
 - Ground projections in empirical economic mechanisms.
-- READABILITY & TERMINOLOGY REQUIREMENT: Write summaries and ripple effects in accessible, direct English sentences while keeping technical, market, and regulatory terminology intact (e.g. use "spectrum", NOT "airwaves").
+- READABILITY & CLARITY REQUIREMENT: Write ripple effects in accessible, conversational English. Describe concrete real-world effects on jobs, everyday expenses, and businesses rather than abstract systems jargon (e.g. say "companies put hiring on pause" instead of "contingency talent pipeline freezes").
 
 # OUTPUT SPECIFICATION
 Conform to ImpactReport with economic_impact_summary, citizen_impact_what_it_means_for_me, and consequences_tree.
@@ -132,7 +131,7 @@ impact_analyzer = Agent(
     description=(
         "Macro-economic fallout & citizen consequence analyst. "
         "Synthesizes sector and employment effects, delivers a plain-language 'What It Means For Me' personal impact guide, "
-        "and maps 3-tier consequence cascades (first, second, and third-order ripple effects) without stock tips."
+        "and maps 3-tier ripple effects in accessible, everyday English."
     ),
     instruction=IMPACT_ANALYSIS_INSTRUCTION,
     output_schema=ImpactReport,
@@ -194,13 +193,13 @@ Include key signals to watch and support counterfactual 'What-If' assumptions.
 1. Identify core driving variables and uncertainties (e.g. court rulings, election results, commodity prices).
 2. Map out the three scenario paths with probability ratings [HIGH, MODERATE, LOW] and time horizons (e.g. 1-3 months, 1 year).
 3. List 2-3 observable 'Signals to Watch' that will indicate which path is materializing.
-4. Formulate a 'What-If' assumption (e.g. 'What if interest rates are cut by 50bps?' or 'What if the federal court grants an injunction?').
+4. Formulate a 'What-If' assumption (e.g. 'What if interest rates drop?' or 'What if the court pauses the rule?').
 5. Explicitly label the output as speculative forecasting.
 
 # BOUNDARIES
 - NEVER present forward scenarios as settled fact.
 - Maintain transparent confidence levels.
-- READABILITY & TERMINOLOGY REQUIREMENT: Write scenario titles, potential impacts, and signals to watch with clear sentence structures while preserving exact domain and technical terminology (e.g. use "spectrum", NOT "airwaves").
+- READABILITY & CLARITY REQUIREMENT: Write scenario titles, potential impacts, and signals to watch in clear, conversational English that casual readers can instantly grasp. Avoid legalistic jargon and acronyms; frame outcomes around how real people, businesses, and policies will be affected.
 
 # OUTPUT SPECIFICATION
 Conform strictly to ScenarioPredictionReport with future scenarios and speculative disclaimer.

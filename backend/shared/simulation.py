@@ -104,27 +104,27 @@ Reconstructed timeline reconciling cross-outlet timestamps and narrative shifts:
 
 ---
 
-## 7. Root Cause Diagnostics & 3-Tier Consequence Tree
-- **Immediate Triggers**: Formal administrative directives and policy enforcement notices issued without prior notice-and-comment.
-- **Contributing Factors**: Chronic legislative inaction, technological labor market shifts, and heightened political polarization.
-- **Consequences Tree**:
-  - *First-Order (Immediate)*: Operational pause and compliance reviews across affected entities.
-  - *Second-Order (Intermediate)*: Legal challenges, temporary restraining orders, and talent retention contingencies.
-  - *Third-Order (Structural)*: Cross-border relocation of key operations to international jurisdictions (Canada, UK, EU) with more predictable regulatory climates.
+## 7. Why It Happened & Ripple Effects
+- **What Sparked It**: Sudden new government policy directives announced without public discussions or warning.
+- **Deeper Background Issues**: Years of legislative gridlock, rapid technology changes, and rising political tension.
+- **Ripple Effects**:
+  - *Immediate Impact (Days)*: Businesses immediately pause projects and review paperwork to avoid penalties.
+  - *Ripple Effects (Months)*: Lawsuits filed in court seeking a temporary hold, while companies freeze new hiring.
+  - *Long-Term Shift (Years)*: Companies move key operations and jobs to countries with more predictable rules.
 
 ---
 
 ## 8. Actionable Lessons Learned & Concrete Prevention Measures
-- **For Individuals**: Secure independent legal audits; document all statutory compliance milestones; maintain contingency professional accreditations.
-- **For Organisations**: Establish redundant operational corridors; maintain compliance reserves; diversify talent pipelines across multiple geographic jurisdictions.
-- **For Policymakers**: Enact clear statutory guidelines; avoid sudden administrative edicts without transition periods; implement transparent notice-and-comment procedures.
+- **For Individuals**: Check primary official notices before making major life or job moves; keep skills up-to-date.
+- **For Organisations**: Keep emergency financial reserves and set up backup plans across different locations.
+- **For Policymakers**: Offer clear transition timelines and consult with businesses and the public before passing sudden rules.
 
 ---
 
-## 9. Forward-Looking Scenario Forecast (Speculative)
-1. **Scenario A (Most Likely, 60% Probability, 1-3 Months)**: Federal courts issue a partial stay or preliminary injunction, pausing enforcement pending full merits hearings.
-2. **Scenario B (Moderate, 25% Probability, 3-6 Months)**: Regulatory agencies negotiate a revised administrative rule that narrows scope while grandfathering existing filers.
-3. **Scenario C (Worst Case, 15% Probability, 6-12 Months)**: Prolonged legal gridlock leading to enterprise departures and retaliatory cross-border measures.
+## 9. Possible Future Scenarios (Projections)
+1. **Scenario A (Most Likely, 60% Chance, 1-3 Months)**: A court temporarily pauses the rule, giving regulators time to write clearer guidelines and protect existing projects.
+2. **Scenario B (Moderate, 25% Chance, 3-6 Months)**: Regulators roll out an easy online portal, clearing up confusion and speeding up approvals.
+3. **Scenario C (Worst Case, 15% Chance, 6-12 Months)**: Prolonged legal fights drag on, leading companies to leave and triggering trade disputes with other countries.
 
 ---
 

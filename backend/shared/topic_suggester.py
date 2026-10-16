@@ -299,67 +299,67 @@ def _generate_heuristic_topics_for_country(
 
 
 def _get_offline_defaults_for_country(country_code: str, country_name: str) -> List[Dict[str, Any]]:
-    """Resilient offline fallback topics with precise headings and captivating story-driven narratives."""
+    """Resilient offline fallback topics written in clear, accessible everyday English."""
     templates = [
         (
-            f"{country_name} AI Developers Face Landmark Copyright Injunction Over Training Dataset Fair Use",
-            f"When major publishers and author guilds filed federal copyright lawsuits against frontier artificial intelligence developers, it ignited an existential battle over intellectual property. Tech executives assert that training neural networks on publicly accessible internet text constitutes protected, transformative fair use essential for technological progress. Meanwhile, media coalitions argue that uncompensated scraping cannibalizes the financial foundation of independent journalism, setting up a high-stakes legal precedent for creative labor in the algorithmic era.",
+            f"{country_name} AI Developers Face Lawsuits Over Using Online Articles to Train AI Models",
+            f"Major book publishers and news organizations filed lawsuits against leading AI companies for copying copyrighted work without permission. AI companies argue that learning from public online text is fair and necessary to build smart tools. Publishers counter that scraping their work without payment threatens the future of independent journalism.",
             "Technology & AI",
             "Policy Clash",
             "badge-primary",
         ),
         (
-            f"{country_name} Central Bank Tightens Monetary Policy as Inflation and Sovereign Debt Clash",
-            f"Central bank governors delivered an aggressive benchmark interest rate hike to quell persistent core inflation, sparking immediate fury from industrial coalitions and government treasuries. Proponents argue that sustained hawkish monetary discipline is the only proven defense against permanent price erosion for working households. Critics and corporate leaders counter that protracted rate tightening risks triggering sovereign debt yield spikes and mass layoffs, testing whether inflation suppression justifies near-term economic contraction.",
+            f"{country_name} Central Bank Raises Interest Rates Again as Inflation and Debt Collide",
+            f"The central bank announced another interest rate hike to fight rising consumer prices, sparking pushback from business leaders. Regulators argue that higher rates are the only proven way to bring everyday costs down. Critics and employers warn that higher borrowing costs hurt small businesses and risk causing layoffs.",
             "Economy & Markets",
             "Market Debate",
             "badge-accent",
         ),
         (
-            f"{country_name} Fast-Track Lithium Mining Concessions Ignite Battle Over Environmental Conservation",
-            f"A government decision to fast-track permits for critical battery mineral extraction has triggered intense protests across vulnerable watersheds. Pro-industry advocates insist that domestic lithium reserves are vital for clean energy independence and next-generation battery supply chains. Conversely, conservation biologists and local communities warn that toxic chemical runoff threatens scarce aquifers, exposing the painful trade-off between green industrial transformation and environmental conservation.",
+            f"{country_name} Fast-Track Lithium Mining Plans Spark Fierce Debate Over Water Safety",
+            f"A government plan to speed up permits for mining battery minerals has triggered major protests from local communities. Supporters say domestic lithium is urgently needed to build electric vehicles and reduce oil dependence. Conservation groups and residents warn that chemical runoff could pollute vital drinking water supplies.",
             "Energy & Climate",
             "Controversy",
             "badge-success",
         ),
         (
-            f"{country_name} Semiconductor Export Controls Provoke Fierce Debate Over Tech Sovereignty",
-            f"National security directives enforcing strict export bans on advanced lithography machinery and AI compute accelerators have opened a rift between defense officials and domestic manufacturers. National security analysts argue the embargo is paramount to prevent sovereign military vulnerabilities and technological encirclement. Semiconductor executives push back, warning that unilateral controls forfeit billions in research revenue and accelerate rival nations' drive toward chip self-sufficiency.",
+            f"{country_name} New Computer Chip Export Bans Trigger Rift Between Tech Firms and Defense Officials",
+            f"Strict trade bans preventing advanced computer chips and manufacturing gear from being sold abroad have divided defense leaders and tech companies. Security officials argue the limits prevent sensitive military technologies from leaking. Tech executives warn the rules cost billions in research revenue and push foreign rivals to build their own chips.",
             "Technology & AI",
             "Strategic",
             "badge-primary",
         ),
         (
-            f"{country_name} High Court Limits Administrative Agency Powers in Landmark Constitutional Ruling",
-            f"In a historic separation-of-powers decision, the highest appellate court ruled that statutory agencies cannot enforce expansive federal regulations without explicit legislative authorization. Constitutional traditionalists celebrated the verdict as a vital restoration of legislative accountability against unelected administrative overreach. Civil society watchdogs and consumer advocates argue the ruling paralyzes environmental and financial oversight, leaving the public defenseless against corporate misconduct.",
+            f"{country_name} High Court Limits Government Agency Powers in Historic Ruling",
+            f"The top court ruled that government regulatory agencies cannot enforce major new rules without direct approval from elected lawmakers. Supporters praised the decision for keeping power in the hands of elected representatives. Consumer advocates worry the ruling weakens environmental protections and financial oversight.",
             "Politics & Law",
             "Ethics Audit",
             "badge-secondary",
         ),
         (
-            f"{country_name} Retaliatory Tariffs on Industrial Imports Divide Domestic Manufacturers and Retailers",
-            f"The sudden implementation of defensive customs duties on foreign steel and manufacturing equipment has pitted heavy industrial producers directly against consumer retail groups. Factory owners insist tariffs are indispensable to defend sovereign factories against state-subsidized foreign dumping. Economists and retail associations warn that retaliatory escalations directly ignite consumer inflation and strain global shipping lanes, forcing a national reckoning over economic protectionism.",
+            f"{country_name} Import Taxes on Foreign Steel and Parts Divide Local Factories and Retailers",
+            f"Sudden new taxes on imported steel and machinery have divided domestic businesses. Local factory owners argue the taxes protect jobs from cheap foreign competition. Retailers and economists warn that higher import costs will quickly lead to higher prices for everyday shoppers.",
             "Economy & Markets",
             "Policy Clash",
             "badge-warning",
         ),
         (
-            f"{country_name} Telecom Security Mandates Clash With End-to-End Cryptographic Privacy Standards",
-            f"Security ministries triggered a fierce privacy revolt after proposing legislation mandating that telecommunications carriers build lawful interception backdoors into encrypted communication networks. Intelligence officials contend the capabilities are indispensable for neutralizing cybercrime syndicates and state-sponsored espionage. Cryptographers and digital rights defenders counter that deliberate backdoors fatally compromise global cybersecurity, leaving critical infrastructure vulnerable to catastrophic zero-day breaches.",
+            f"{country_name} Proposed Law to Add Backdoors to Encrypted Apps Sparks Privacy Backlash",
+            f"Security officials sparked fierce backlash after proposing rules requiring tech companies to build access backdoors into secure messaging apps. Officials say the capability is essential to catch criminals and foreign spies. Privacy advocates and cybersecurity experts counter that any backdoor makes everyone's personal data vulnerable to hackers.",
             "Technology & AI",
             "Investigation",
             "badge-primary",
         ),
         (
-            f"{country_name} Statutory Drug Price Negotiation Caps Spark Battle Over Healthcare Innovation",
-            f"A sweeping legislative push to enforce statutory price caps on life-saving pharmaceuticals has brought healthcare reformers and multinational biotechnology firms into open conflict. Patient advocacy coalitions praise the measures for providing essential relief to families burdened by astronomical prescription drug costs. Pharmaceutical lobbyists warn that price restrictions will force companies to slash research budgets and withdraw local clinical trials, challenging the balance between affordability and medical innovation.",
+            f"{country_name} Government Caps on Prescription Drug Prices Trigger Fight Over Medical Research",
+            f"New proposals to cap the price of life-saving medicines have brought patient advocacy groups and drugmakers into conflict. Families and health advocates say price caps provide desperately needed relief from soaring medical bills. Drug companies warn that price restrictions will force them to cut back on research for new cures.",
             "Health & Science",
             "Controversy",
             "badge-info",
         ),
         (
-            f"{country_name} Foreign Hydrocarbon Sanctions Enforcement Threatens Baseload Power Grid Stability",
-            f"Diplomatic commitments to enforce international boycotts against discounted foreign energy imports have sparked an acute domestic power crisis. Foreign ministry officials stress that honoring international alliance sanctions is non-negotiable for geopolitical credibility. Domestic utility executives warn that severing baseload fuel supplies before renewable infrastructure is mature risks widespread industrial brownouts, highlighting the stark friction between moral foreign policy and domestic grid security.",
+            f"{country_name} Energy Import Bans Threaten Power Grid Reliability as Winter Approaches",
+            f"A government decision to halt energy imports from sanctioned foreign nations has raised urgent concerns over electricity supplies. Officials emphasize that boycotts are necessary to support international alliances and human rights. Power plant operators warn that cutting off fuel before clean energy alternatives are ready could trigger blackouts.",
             "Geopolitics",
             "Strategic",
             "badge-warning",
@@ -421,19 +421,19 @@ INTELLIGENT NOISE FILTERING & STRICT GEOGRAPHIC RELEVANCE:
 - REJECT mundane administrative schedule notices without controversy.
 - SEMANTICALLY CLUSTER & DEDUPLICATE: If multiple headlines cover the same incident or trial, consolidate them into a single definitive, multi-perspective card. Ensure all 9 topics for a country represent diverse domains!
 
-TOPIC CARD SPECIFICATIONS:
+TOPIC CARD SPECIFICATIONS (CASUAL-READER ACCESSIBILITY STANDARD):
 1. 'topic' (HEADING):
-   - Precisely and clearly suggest what the topic is about (8-14 words).
-   - Frame the subject, the core conflict/tension, and what is at stake.
-   - Informative and sharp (e.g. 'DOJ Antitrust Lawsuit: Federal Regulators Push to Break Up Google Search Monopoly' or 'EU Tariffs on Chinese Electric Vehicles Spark Fierce Trade War Warnings').
-   - NEVER use vague 3-word titles or cryptic phrases.
+   - Write clear, punchy, and conversational headings in everyday English (8-14 words).
+   - Clearly state what happened and what the core tension is in plain terms that any reader can instantly grasp (e.g. 'Government Moves to Break Up Google Over Search Monopoly Fears' or 'New Tariffs on Chinese Electric Cars Trigger Warnings of Trade War').
+   - Avoid dense academic or bureaucratic phrasing.
 2. 'summary' (DESCRIPTION):
-   - Explain the main points in the topic LIKE A STORY TO GET THE USER INTERESTED (2-4 sentences).
-   - Hook the reader with the dramatic catalyst or breaking revelation.
-   - Clearly identify the opposing factions, what they argue, and why the stakes are high.
-   - Highlight the contrasting media narratives and the vital systemic, legal, or ethical lesson to learn.
-3. DOMAIN & VOCABULARY PRESERVATION:
-   - Preserve exact technical, legal, financial, and industry vocabulary (e.g., 'antitrust', 'subpoena', 'injunction', 'monetary tightening', 'basis points', 'lithography', 'generative AI', 'retaliatory tariffs', 'baseload capacity', 'sovereign debt yields').
+   - Write in clear, engaging, and accessible English (~8th-grade reading level) in 2-4 sentences.
+   - Hook the reader with what happened and why it matters to everyday people or businesses.
+   - Clearly explain both sides of the debate in simple, relatable terms.
+   - Conclude with the main takeaway or question observers are watching.
+3. ACCESSIBILITY & CLARITY:
+   - Use straightforward language rather than dense corporate or legal terms (e.g. explain that 'injunction' means a court freeze, or use 'interest rate hikes' rather than 'hawkish monetary policy tightening').
+   - Keep sentences active, crisp, and easy to read.
    - Ensure the 9 topics span varied categories:
      * Technology & AI
      * Economy & Markets
@@ -446,8 +446,8 @@ OUTPUT FORMAT:
 Return a STRICT JSON OBJECT with country codes as keys ({', '.join(country_codes)}).
 Under each key, provide an array of exactly 9 topic objects with:
 - "id": string (e.g., "{country_codes[0].lower()}-1", "{country_codes[0].lower()}-2", ...)
-- "topic": precise, crystal-clear heading framing the tension (8-14 words)
-- "summary": compelling narrative story explaining what happened, opposing arguments, and lessons (2-4 sentences)
+- "topic": clear, conversational heading framing the tension in plain English (8-14 words)
+- "summary": compelling narrative story in accessible everyday English explaining what happened, opposing arguments, and lessons (2-4 sentences)
 - "category": e.g., "Technology & AI", "Economy & Markets", "Politics & Law", "Geopolitics", "Energy & Climate", "Health & Science"
 - "badge": 1-2 words e.g. "Policy Clash", "Media Bias", "Controversy", "Market Debate", "Strategic", "Ethics Audit"
 - "badge_color": one of ["badge-primary", "badge-secondary", "badge-accent", "badge-info", "badge-warning", "badge-success"]
