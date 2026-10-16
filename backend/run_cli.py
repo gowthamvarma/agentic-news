@@ -98,20 +98,26 @@ async def run_agent_live(agent_name: str, query: str):
         role="user",
     )
 
+    from google.adk.tools.function_tool import _SYNC_CALLABLE_RUNNER
+    token = _SYNC_CALLABLE_RUNNER.set(lambda target, args: asyncio.to_thread(target, **args))
+
     print("Executing agent workflow through Google Gemini...")
     start_time = time.time()
     collected_text = []
 
-    async for event in runner.run_async(
-        user_id="cli_investigator",
-        session_id=session.id,
-        new_message=user_content,
-    ):
-        if hasattr(event, "content") and event.content:
-            for part in event.content.parts:
-                if hasattr(part, "text") and part.text:
-                    collected_text.append(part.text)
-                    print(part.text, end="", flush=True)
+    try:
+        async for event in runner.run_async(
+            user_id="cli_investigator",
+            session_id=session.id,
+            new_message=user_content,
+        ):
+            if hasattr(event, "content") and event.content:
+                for part in event.content.parts:
+                    if hasattr(part, "text") and part.text:
+                        collected_text.append(part.text)
+                        print(part.text, end="", flush=True)
+    finally:
+        _SYNC_CALLABLE_RUNNER.reset(token)
 
     elapsed = time.time() - start_time
     print()

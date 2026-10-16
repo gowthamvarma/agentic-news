@@ -103,7 +103,7 @@ export const TimelineSection: React.FC<TimelineSectionProps> = ({ timeline }) =>
         {/* Header with Title and Badges */}
         <div className="pb-4 border-b border-base-300">
           <div className="flex items-start sm:items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-primary/15 text-primary border border-primary/30 flex items-center justify-center flex-shrink-0 shadow-xs">
+            <div className="w-11 h-11 rounded-xl bg-primary/15 text-primary border border-primary/30 flex items-center justify-center flex-shrink-0 shadow-sm">
               <Clock size={24} />
             </div>
             <div>
@@ -115,7 +115,7 @@ export const TimelineSection: React.FC<TimelineSectionProps> = ({ timeline }) =>
                   {rawEvents.length} Key Events
                 </span>
                 {recentCount > 0 && (
-                  <span className="badge badge-warning badge-sm font-bold gap-1 text-warning-content shadow-xs">
+                  <span className="badge badge-warning badge-sm font-bold gap-1 text-warning-content shadow-sm">
                     <Flame size={12} className="fill-current" />
                     {recentCount} Recent / Trending
                   </span>
@@ -183,7 +183,7 @@ export const TimelineSection: React.FC<TimelineSectionProps> = ({ timeline }) =>
         <div className="flex flex-wrap items-center justify-between gap-3 pt-3 pb-2 border-t border-base-300/60 my-1">
           <div className="flex flex-wrap items-center gap-2">
             {/* Chronological / Reverse Toggle Group */}
-            <div className="join shadow-xs border border-base-300 rounded-lg overflow-hidden bg-base-100">
+            <div className="join shadow-sm border border-base-300 rounded-lg overflow-hidden bg-base-100">
               <button
                 type="button"
                 onClick={() => setSortOrder('chronological')}
@@ -215,7 +215,7 @@ export const TimelineSection: React.FC<TimelineSectionProps> = ({ timeline }) =>
               <button
                 type="button"
                 onClick={() => setFilterRecentOnly(!filterRecentOnly)}
-                className={`btn btn-sm gap-1.5 font-bold shadow-xs transition-all ${filterRecentOnly ? 'btn-warning text-warning-content' : 'btn-outline btn-warning'
+                className={`btn btn-sm gap-1.5 font-bold shadow-sm transition-all ${filterRecentOnly ? 'btn-warning text-warning-content' : 'btn-outline btn-warning'
                   }`}
               >
                 <Flame size={14} className={filterRecentOnly ? 'fill-current' : ''} />
@@ -231,7 +231,7 @@ export const TimelineSection: React.FC<TimelineSectionProps> = ({ timeline }) =>
 
         {/* Empty filter message */}
         {displayedEvents.length === 0 && (
-          <div className="bg-base-100 border border-base-300 rounded-xl p-8 text-center my-4 shadow-xs">
+          <div className="bg-base-100 border border-base-300 rounded-xl p-8 text-center my-4 shadow-sm">
             <Search size={24} className="mx-auto text-base-content/30 mb-2" />
             <div className="text-sm font-bold text-base-content">No events match your current filter</div>
             <p className="text-xs text-base-content/60 mt-1">

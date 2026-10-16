@@ -126,6 +126,18 @@ export const AnalysisDetailPage: React.FC = () => {
       });
   };
 
+  const handleUpdateReport = (
+    updatedOrPatch: Partial<NewsIntelligenceReport> | ((prev: NewsIntelligenceReport) => NewsIntelligenceReport)
+  ) => {
+    setReport((prev) => {
+      if (!prev) return prev;
+      if (typeof updatedOrPatch === 'function') {
+        return updatedOrPatch(prev);
+      }
+      return { ...prev, ...updatedOrPatch };
+    });
+  };
+
   return (
     <main className="container mx-auto px-4 lg:px-8 py-6 flex-1 max-w-7xl">
       {/* Top Header & Breadcrumbs / Actions Bar */}
@@ -298,8 +310,9 @@ export const AnalysisDetailPage: React.FC = () => {
       {/* Full Analysis Dashboard */}
       {!loading && report && (
         <AnalysisReportView
+          key={report.id || report.analysis_id || report.topic}
           report={report}
-          onUpdateReport={setReport}
+          onUpdateReport={handleUpdateReport}
         />
       )}
     </main>

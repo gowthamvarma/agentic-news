@@ -12,7 +12,13 @@ import json
 import logging
 from datetime import datetime, timezone, timedelta
 from typing import Any, Dict, List, Optional
-from shared.config import GEMINI_API_KEY, IS_SIMULATION_MODE, MODEL_AGENT_FAST, logger
+from shared.config import (
+    GEMINI_API_KEY,
+    IS_SIMULATION_MODE,
+    MODEL_AGENT_FAST,
+    MODEL_REASONING_PRO,
+    logger,
+)
 from shared.schemas import (
     NewsIntelligenceReport,
     FactVerifierReport,
@@ -35,6 +41,44 @@ from shared.schemas import (
     ContextPrimerPayload,
     SourceArticle,
 )
+
+
+def _safe_json_loads(raw_text: str) -> Any:
+    """Safely parses JSON from LLM text, stripping markdown code fences if present."""
+    cleaned = (raw_text or "").strip()
+    if cleaned.startswith("```"):
+        cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", cleaned, flags=re.DOTALL).strip()
+    return json.loads(cleaned)
+
+
+def _generate_json_with_model(
+    client: Any,
+    prompt: str,
+    model: str = MODEL_AGENT_FAST,
+    temperature: float = 0.2,
+    top_p: float = 0.9,
+) -> Optional[Dict[str, Any]]:
+    """Executes Gemini JSON generation with calibrated hyperparameters and model fallback."""
+    from google.genai import types
+
+    cfg = types.GenerateContentConfig(
+        response_mime_type="application/json",
+        temperature=temperature,
+        top_p=top_p,
+    )
+    try:
+        res = client.models.generate_content(model=model, contents=prompt, config=cfg)
+        if res.text:
+            return _safe_json_loads(res.text)
+    except Exception as primary_err:
+        if model != MODEL_AGENT_FAST:
+            logger.debug("Primary model '%s' failed (%s); falling back to '%s'", model, primary_err, MODEL_AGENT_FAST)
+            res = client.models.generate_content(model=MODEL_AGENT_FAST, contents=prompt, config=cfg)
+            if res.text:
+                return _safe_json_loads(res.text)
+        else:
+            raise primary_err
+    return None
 
 
 def _generate_heuristic_contradictions(topic: str) -> List[Dict[str, Any]]:
@@ -124,13 +168,14 @@ EACH item in the list MUST include:
 Return a single JSON object with:
 "contradictions": [ /* 2 to 4 ContradictionItem objects */ ]
 """
-        res = client.models.generate_content(
-            model=MODEL_AGENT_FAST,
-            contents=prompt,
-            config=types.GenerateContentConfig(response_mime_type="application/json")
+        parsed = _generate_json_with_model(
+            client,
+            prompt,
+            model=MODEL_REASONING_PRO,
+            temperature=0.1,
+            top_p=0.95,
         )
-        if res.text:
-            parsed = json.loads(res.text)
+        if parsed:
             contradictions = parsed.get("contradictions", [])
             if contradictions:
                 valid_items = []
@@ -162,7 +207,6 @@ def generate_live_topic_intelligence(topic: str) -> Optional[Dict[str, Any]]:
         return None
     try:
         from google import genai
-        from google.genai import types
 
         client = genai.Client(api_key=GEMINI_API_KEY)
         clean_topic = topic.strip()
@@ -207,13 +251,14 @@ DO NOT output a fixed or pre-determined number of items for ANY list. The item c
 - "future_scenarios": list of objects with 'scenario_title' (clear, conversational title), 'scenario_type' ('MOST_LIKELY'|'BEST_CASE'|'WORST_CASE'), 'probability_rating', 'time_horizon', 'potential_impact' (plain English explanation of what this outcome means), 'signals_to_watch', 'what_if_assumption'.
 - "lessons_learned": list of objects with 'lesson_takeaway', 'target_audience' ('INDIVIDUALS'|'ORGANISATIONS'|'POLICYMAKERS'), 'concrete_preventive_action'.
 """
-        response = client.models.generate_content(
-            model=MODEL_AGENT_FAST,
-            contents=prompt,
-            config=types.GenerateContentConfig(response_mime_type="application/json")
+        parsed = _generate_json_with_model(
+            client,
+            prompt,
+            model=MODEL_REASONING_PRO,
+            temperature=0.2,
+            top_p=0.95,
         )
-        if response.text:
-            parsed = json.loads(response.text)
+        if parsed:
             parsed["topic"] = clean_topic.title()
             if not parsed.get("contradictions"):
                 parsed["contradictions"] = generate_live_contradictions(clean_topic, news_context)
@@ -845,13 +890,14 @@ Return a single JSON object with:
   - "explanation": string explaining in clear, accessible English why the choice is correct according to evidence
   - "citation_source": string citing reputable journalism or official record
 """
-            res = client.models.generate_content(
+            parsed = _generate_json_with_model(
+                client,
+                prompt,
                 model=MODEL_AGENT_FAST,
-                contents=prompt,
-                config=types.GenerateContentConfig(response_mime_type="application/json")
+                temperature=0.3,
+                top_p=0.85,
             )
-            if res.text:
-                parsed = json.loads(res.text)
+            if parsed:
                 parsed["topic"] = clean_topic
                 return parsed
         except Exception as e:
@@ -911,7 +957,6 @@ def build_structured_debate(topic: str) -> Dict[str, Any]:
     if not IS_SIMULATION_MODE and GEMINI_API_KEY:
         try:
             from google import genai
-            from google.genai import types
 
             client = genai.Client(api_key=GEMINI_API_KEY)
             prompt = f"""Generate a high-level perspective debate regarding:
@@ -930,13 +975,14 @@ Return a single JSON object with:
   - "grounding_citations": list of 1-2 strings citing specific reports, audits, or precedents
 - "neutral_compromise_synthesis": string synthesizing common ground in plain, easy-to-read English
 """
-            res = client.models.generate_content(
-                model=MODEL_AGENT_FAST,
-                contents=prompt,
-                config=types.GenerateContentConfig(response_mime_type="application/json")
+            parsed = _generate_json_with_model(
+                client,
+                prompt,
+                model=MODEL_REASONING_PRO,
+                temperature=0.3,
+                top_p=0.9,
             )
-            if res.text:
-                parsed = json.loads(res.text)
+            if parsed:
                 parsed["topic"] = clean_topic
                 return parsed
         except Exception as e:
@@ -983,7 +1029,6 @@ def build_structured_scenarios(topic: str) -> Dict[str, Any]:
     if not IS_SIMULATION_MODE and GEMINI_API_KEY:
         try:
             from google import genai
-            from google.genai import types
 
             client = genai.Client(api_key=GEMINI_API_KEY)
             prompt = f"""Generate causal diagnostics, 3-tier ripple consequences, and future scenarios for:
@@ -1019,13 +1064,14 @@ Return a single JSON object with:
   - "target_audience": 'INDIVIDUALS'|'ORGANISATIONS'|'POLICYMAKERS'
   - "concrete_preventive_action": string - a specific, actionable step to avoid or mitigate a recurrence
 """
-            res = client.models.generate_content(
-                model=MODEL_AGENT_FAST,
-                contents=prompt,
-                config=types.GenerateContentConfig(response_mime_type="application/json")
+            parsed = _generate_json_with_model(
+                client,
+                prompt,
+                model=MODEL_REASONING_PRO,
+                temperature=0.3,
+                top_p=0.9,
             )
-            if res.text:
-                parsed = json.loads(res.text)
+            if parsed:
                 parsed["topic"] = clean_topic
                 return parsed
         except Exception as e:
@@ -1132,7 +1178,6 @@ def generate_live_brief(topic: str, articles_list: Optional[List[Dict[str, Any]]
         return None
     try:
         from google import genai
-        from google.genai import types
 
         client = genai.Client(api_key=GEMINI_API_KEY)
         clean_topic = topic.strip()
@@ -1187,13 +1232,14 @@ Return a single JSON object containing:
     "jargon_definitions": {{ /* dict of technical terms and plain-English definitions */ }}
   }}
 """
-        res = client.models.generate_content(
+        parsed = _generate_json_with_model(
+            client,
+            prompt,
             model=MODEL_AGENT_FAST,
-            contents=prompt,
-            config=types.GenerateContentConfig(response_mime_type="application/json")
+            temperature=0.2,
+            top_p=0.9,
         )
-        if res.text:
-            parsed = json.loads(res.text)
+        if parsed:
             parsed["topic"] = clean_topic.title()
             parsed["available_sections"] = ["brief"]
 
@@ -1233,7 +1279,6 @@ def generate_live_verifications(topic: str, articles_list: Optional[List[Dict[st
         return None
     try:
         from google import genai
-        from google.genai import types
 
         client = genai.Client(api_key=GEMINI_API_KEY)
         clean_topic = topic.strip()
@@ -1288,13 +1333,14 @@ Return a single JSON object containing:
     /* dynamic list of BiasEvaluation objects for reporting outlets */
   ]
 """
-        res = client.models.generate_content(
-            model=MODEL_AGENT_FAST,
-            contents=prompt,
-            config=types.GenerateContentConfig(response_mime_type="application/json")
+        parsed = _generate_json_with_model(
+            client,
+            prompt,
+            model=MODEL_REASONING_PRO,
+            temperature=0.0,
+            top_p=0.95,
         )
-        if res.text:
-            parsed = json.loads(res.text)
+        if parsed:
             parsed["available_sections"] = ["brief", "verification"]
             if not parsed.get("contradictions"):
                 parsed["contradictions"] = generate_live_contradictions(clean_topic, news_context)
@@ -1310,7 +1356,6 @@ def generate_live_timeline(topic: str, articles_list: Optional[List[Dict[str, An
         return None
     try:
         from google import genai
-        from google.genai import types
 
         client = genai.Client(api_key=GEMINI_API_KEY)
         clean_topic = topic.strip()
@@ -1372,13 +1417,14 @@ Return a single JSON object with:
     ]
   }}
 """
-        res = client.models.generate_content(
+        parsed = _generate_json_with_model(
+            client,
+            prompt,
             model=MODEL_AGENT_FAST,
-            contents=prompt,
-            config=types.GenerateContentConfig(response_mime_type="application/json")
+            temperature=0.0,
+            top_p=0.9,
         )
-        if res.text:
-            parsed = json.loads(res.text)
+        if parsed:
             parsed["available_sections"] = ["brief", "verification", "timeline"]
             return parsed
     except Exception as e:

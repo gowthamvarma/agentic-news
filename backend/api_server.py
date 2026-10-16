@@ -66,6 +66,13 @@ from shared.structured_builder import (
     generate_live_contradictions,
 )
 from shared.simulation import _route_simulation_response
+from shared.topic_suggester import generate_country_topic_suggestions
+from shared.adk_workflow import (
+    ingest_sources_node,
+    understand_brief_node,
+    verify_audit_node,
+    timeline_trajectory_node,
+)
 from shared.plugins.evidence_ledger import EvidenceLedgerPlugin
 from shared.plugins.token_tracker import TokenTrackerPlugin
 from shared.plugins.news_guardrail import NewsGuardrailPlugin
@@ -125,7 +132,7 @@ class UpdateAnalysisRequest(BaseModel):
 
 class QuizGradeRequest(BaseModel):
     quiz_id: str
-    user_answers: Dict[int, int] = Field(..., description="Map of question_id to selected_option_index")
+    user_answers: Dict[Any, int] = Field(..., description="Map of question_id to selected_option_index")
 
 
 async def execute_adk_agent(agent_name: str, target_agent: Any, prompt: str) -> tuple[str, List[Dict[str, Any]]]:
@@ -216,7 +223,7 @@ async def analyze_topic(req: AnalyzeRequest):
         raise HTTPException(status_code=400, detail="Topic cannot be empty.")
 
     start_time = time.time()
-    analysis_id = str(uuid.uuid4())
+    analysis_id = (req.analysis_id or "").strip() or str(uuid.uuid4())
     logger.info("Starting analysis for topic: '%s' (ID: %s)", topic, analysis_id)
 
     # Execute orchestrator
@@ -224,6 +231,11 @@ async def analyze_topic(req: AnalyzeRequest):
 
     # Build structured report in worker thread so event loop remains responsive for other tabs
     report_data = await asyncio.to_thread(build_structured_intelligence, topic, raw_markdown)
+    if not ledger and report_data.get("articles_analyzed"):
+        ev_plugin = EvidenceLedgerPlugin()
+        ev_plugin.record_articles(topic, report_data["articles_analyzed"])
+        ledger = ev_plugin.get_ledger()
+
     report_data["id"] = analysis_id
     report_data["analysis_id"] = analysis_id
     report_data["topic"] = topic
@@ -246,78 +258,98 @@ async def stream_analysis(topic: str = Query(..., description="Breaking news top
     if not clean_topic:
         raise HTTPException(status_code=400, detail="Topic cannot be empty.")
 
+    guardrail_plugin = NewsGuardrailPlugin()
+    violation = guardrail_plugin.validate_user_prompt(clean_topic)
+    if violation:
+        raise HTTPException(status_code=400, detail=violation)
+
     analysis_id = str(uuid.uuid4())
     stream_start_time = time.time()
+    evidence_plugin = EvidenceLedgerPlugin()
+    token_plugin = TokenTrackerPlugin()
 
     async def event_generator():
-        # Step 0: Initial metadata
-        initial_doc = {
-            "id": analysis_id,
-            "analysis_id": analysis_id,
-            "topic": clean_topic,
-            "status": "generating",
-            "available_sections": [],
-            "created_at": time.time(),
-        }
-        await FirestoreService.save_analysis(analysis_id, initial_doc)
-        yield f"event: init\ndata: {json.dumps(initial_doc)}\n\n"
-
-        # High-Performance Parallel Pipeline:
-        # 1. Fetch live articles once to avoid redundant network roundtrips
-        shared_articles: List[Dict[str, Any]] = []
         try:
-            from shared.tools import fetch_news_articles
-            raw_articles_str = await asyncio.to_thread(fetch_news_articles, clean_topic, 8)
-            shared_articles = json.loads(raw_articles_str)
-        except Exception as e:
-            logger.debug("Failed pre-fetching shared articles for stream: %s", e)
+            await token_plugin.before_run_callback()
+            # Step 0: Initial metadata
+            initial_doc = {
+                "id": analysis_id,
+                "analysis_id": analysis_id,
+                "topic": clean_topic,
+                "status": "generating",
+                "available_sections": [],
+                "created_at": time.time(),
+            }
+            await FirestoreService.save_analysis(analysis_id, initial_doc)
+            yield f"event: init\ndata: {json.dumps(initial_doc)}\n\n"
 
-        # 2. Launch all three independent stages concurrently
-        brief_task = asyncio.create_task(
-            asyncio.to_thread(build_stage_brief, clean_topic, shared_articles)
-        )
-        verif_task = asyncio.create_task(
-            asyncio.to_thread(build_stage_verifications, clean_topic, shared_articles)
-        )
-        timeline_task = asyncio.create_task(
-            asyncio.to_thread(build_stage_timeline, clean_topic, shared_articles)
-        )
+            # High-Performance Parallel ADK Checkpoint Pipeline:
+            # 1. Ingest live articles once via ADK checkpoint node to avoid redundant network roundtrips
+            shared_articles: List[Dict[str, Any]] = await ingest_sources_node(clean_topic, 8)
+            if shared_articles:
+                evidence_plugin.record_articles(clean_topic, shared_articles)
 
-        # Step 1: Executive Brief & Primer (~yields first)
-        brief_data = await brief_task
-        brief_data["id"] = analysis_id
-        brief_data["analysis_id"] = analysis_id
-        brief_data["status"] = "partial"
-        brief_data["created_at"] = initial_doc["created_at"]
-        await FirestoreService.update_analysis(analysis_id, brief_data)
-        yield f"event: step_brief\ndata: {json.dumps(brief_data)}\n\n"
+            # 2. Launch all three independent ADK checkpoint nodes concurrently
+            brief_task = asyncio.create_task(understand_brief_node(clean_topic, shared_articles))
+            verif_task = asyncio.create_task(verify_audit_node(clean_topic, shared_articles))
+            timeline_task = asyncio.create_task(timeline_trajectory_node(clean_topic, shared_articles))
 
-        # Step 2: Fact Verifications, Contradictions & Bias Spectrum
-        verif_data = await verif_task
-        verif_data["id"] = analysis_id
-        verif_data["analysis_id"] = analysis_id
-        await FirestoreService.update_analysis(analysis_id, verif_data)
-        yield f"event: step_verification\ndata: {json.dumps(verif_data)}\n\n"
+            # Step 1: Executive Brief & Primer (~yields first)
+            brief_data = await brief_task
+            brief_data["id"] = analysis_id
+            brief_data["analysis_id"] = analysis_id
+            brief_data["status"] = "partial"
+            brief_data["created_at"] = initial_doc["created_at"]
+            await FirestoreService.update_analysis(analysis_id, brief_data)
+            yield f"event: step_brief\ndata: {json.dumps(brief_data)}\n\n"
 
-        # Step 3: Chronological Timeline & Narrative Trajectory
-        timeline_data = await timeline_task
-        timeline_data["id"] = analysis_id
-        timeline_data["analysis_id"] = analysis_id
-        timeline_data["status"] = "completed"
-        await FirestoreService.update_analysis(analysis_id, timeline_data)
-        yield f"event: step_timeline\ndata: {json.dumps(timeline_data)}\n\n"
+            # Step 2: Fact Verifications, Contradictions & Bias Spectrum
+            verif_data = await verif_task
+            verif_data["id"] = analysis_id
+            verif_data["analysis_id"] = analysis_id
+            await FirestoreService.update_analysis(analysis_id, verif_data)
+            yield f"event: step_verification\ndata: {json.dumps(verif_data)}\n\n"
 
-        # Final complete frame from persisted document
-        full_doc = await FirestoreService.get_analysis(analysis_id)
-        if not full_doc:
-            full_doc = {**brief_data, **verif_data, **timeline_data}
-        full_doc["id"] = analysis_id
-        full_doc["analysis_id"] = analysis_id
-        full_doc["status"] = "completed"
-        full_doc["available_sections"] = ["brief", "verification", "timeline"]
-        full_doc["execution_time_seconds"] = round(time.time() - stream_start_time, 1)
-        await FirestoreService.save_analysis(analysis_id, full_doc)
-        yield f"event: complete\ndata: {json.dumps(full_doc)}\n\n"
+            # Step 3: Chronological Timeline & Narrative Trajectory
+            timeline_data = await timeline_task
+            timeline_data["id"] = analysis_id
+            timeline_data["analysis_id"] = analysis_id
+            timeline_data["status"] = "completed"
+            await FirestoreService.update_analysis(analysis_id, timeline_data)
+            yield f"event: step_timeline\ndata: {json.dumps(timeline_data)}\n\n"
+
+            await token_plugin.after_run_callback()
+            ledger = evidence_plugin.get_ledger()
+            if ledger:
+                await FirestoreService.save_evidence_ledger(analysis_id, ledger)
+
+            # Final complete frame from persisted document
+            full_doc = await FirestoreService.get_analysis(analysis_id)
+            if not full_doc:
+                full_doc = {**brief_data, **verif_data, **timeline_data}
+            full_doc["id"] = analysis_id
+            full_doc["analysis_id"] = analysis_id
+            full_doc["status"] = "completed"
+            full_doc["available_sections"] = ["brief", "verification", "timeline"]
+            full_doc["evidence_ledger"] = ledger
+            full_doc["token_metrics"] = token_plugin.get_metrics()
+            full_doc["execution_time_seconds"] = round(time.time() - stream_start_time, 1)
+            await FirestoreService.save_analysis(analysis_id, full_doc)
+            yield f"event: complete\ndata: {json.dumps(full_doc)}\n\n"
+        except Exception as exc:
+            logger.error("Error during streaming analysis: %s", exc, exc_info=True)
+            error_doc = {
+                "id": analysis_id,
+                "analysis_id": analysis_id,
+                "topic": clean_topic,
+                "status": "error",
+                "error": str(exc),
+            }
+            try:
+                await FirestoreService.update_analysis(analysis_id, {"status": "error", "error": str(exc)})
+            except Exception as e_save:
+                logger.warning("Could not persist error state to Firestore: %s", e_save)
+            yield f"event: error\ndata: {json.dumps(error_doc)}\n\n"
 
     return StreamingResponse(
         event_generator(),
@@ -401,6 +433,8 @@ async def fact_check_claim(req: AnalyzeRequest):
 async def generate_quiz(req: AnalyzeRequest):
     """Generates an active recall quiz for a topic."""
     topic = req.topic.strip()
+    if not topic:
+        raise HTTPException(status_code=400, detail="Topic cannot be empty.")
     quiz_id = str(uuid.uuid4())
     quiz_data = await asyncio.to_thread(build_structured_quiz, topic)
     quiz_data["quiz_id"] = quiz_id
@@ -425,11 +459,25 @@ async def grade_quiz(req: QuizGradeRequest):
     correct_count = 0
     feedback = []
 
+    # Normalize user_answers so keys can match whether qid is int or str
+    normalized_answers = {}
+    for k, v in req.user_answers.items():
+        normalized_answers[str(k)] = v
+        try:
+            normalized_answers[int(k)] = v
+        except (ValueError, TypeError):
+            pass
+
     for q in questions:
-        qid = q["question_id"]
-        correct_idx = q["correct_option_index"]
-        user_choice = req.user_answers.get(qid)
-        is_correct = user_choice == correct_idx
+        qid = q.get("question_id")
+        correct_idx = q.get("correct_option_index")
+        user_choice = normalized_answers.get(qid)
+        if user_choice is None:
+            user_choice = normalized_answers.get(str(qid))
+        if user_choice is None and str(qid).isdigit():
+            user_choice = normalized_answers.get(int(qid))
+
+        is_correct = (user_choice is not None) and (user_choice == correct_idx)
         if is_correct:
             correct_count += 1
         feedback.append({
@@ -454,6 +502,8 @@ async def grade_quiz(req: QuizGradeRequest):
 async def generate_perspective_debate(req: AnalyzeRequest):
     """Generates a structured, evidence-grounded perspective debate on an issue."""
     topic = req.topic.strip()
+    if not topic:
+        raise HTTPException(status_code=400, detail="Topic cannot be empty.")
     debate_id = str(uuid.uuid4())
     debate_data = await asyncio.to_thread(build_structured_debate, topic)
     debate_data["debate_id"] = debate_id
@@ -503,13 +553,46 @@ async def generate_topic_contradictions(req: AnalyzeRequest):
 async def chat_research_copilot(req: ChatRequest):
     """Interactive follow-up Q&A and investigation mode with Research Copilot.
     
-    Persists user & agent interaction history into Firestore when analysis_id is provided.
+    Persists user & agent interaction history into Firestore when analysis_id is provided,
+    and grounds responses in the saved analysis dossier and prior conversation turns.
     """
+    query = (req.query or "").strip()
+    if not query:
+        raise HTTPException(status_code=400, detail="Query cannot be empty.")
     analysis_id = (req.analysis_id or "").strip()
     user_time_str = time.strftime("%H:%M")
 
-    # If associated with an analysis report, persist user question to Firestore
+    prior_messages: List[Dict[str, Any]] = []
+    dossier_context = ""
+
+    # If associated with an analysis report, fetch dossier grounding and prior chat history
     if analysis_id:
+        prior_messages = await FirestoreService.get_chat_history(analysis_id)
+        dossier_doc = await FirestoreService.get_analysis(analysis_id)
+        if dossier_doc:
+            exec_sum = dossier_doc.get("executive_summary", "")
+            metrics = dossier_doc.get("key_metrics_and_numbers", [])[:5]
+            verifs = dossier_doc.get("verifications", [])[:5]
+            contras = dossier_doc.get("contradictions", [])[:4]
+            context_lines = []
+            if exec_sum:
+                context_lines.append(f"Executive Summary: {exec_sum}")
+            if metrics:
+                context_lines.append("Key Metrics: " + "; ".join(str(m) for m in metrics))
+            if verifs:
+                v_strs = [f"[{v.get('status', 'VERIFIED')}] {v.get('claim_text', '')}" for v in verifs if isinstance(v, dict)]
+                if v_strs:
+                    context_lines.append("Verified Claims: " + " | ".join(v_strs))
+            if contras:
+                c_strs = [
+                    f"{c.get('topic_aspect', '')}: {c.get('outlet_a', '')} ({c.get('claim_a', '')}) vs {c.get('outlet_b', '')} ({c.get('claim_b', '')})"
+                    for c in contras if isinstance(c, dict)
+                ]
+                if c_strs:
+                    context_lines.append("Cross-Source Contradictions: " + " | ".join(c_strs))
+            if context_lines:
+                dossier_context = "\nDossier Grounding Context:\n" + "\n".join(context_lines) + "\n"
+
         user_msg = {
             "id": str(uuid.uuid4()),
             "sender": "user",
@@ -519,8 +602,18 @@ async def chat_research_copilot(req: ChatRequest):
         }
         await FirestoreService.save_chat_message(analysis_id, user_msg)
 
+    history_context = ""
+    if prior_messages:
+        recent_turns = [
+            f"{'User' if m.get('sender') == 'user' else 'Copilot'}: {m.get('text', '')[:300]}"
+            for m in prior_messages[-6:]
+        ]
+        history_context = "\nRecent Conversation History:\n" + "\n".join(recent_turns) + "\n"
+
     prompt = (
         f"Topic Context: {req.topic}\n"
+        f"{dossier_context}"
+        f"{history_context}"
         f"User Question: {req.query}\n\n"
         "Instructions: Provide a quick, precise, neatly formatted response in Markdown with clear bold headings, bullet points, and source citations. "
         "Write in simple, clear, easy-to-read English sentence structures, but PRESERVE exact technical, legal, scientific, and industry terms (for example, use 'spectrum' rather than replacing it with 'airwaves'). Do NOT dumb down or substitute technical vocabulary."
@@ -788,9 +881,9 @@ async def get_analysis_images(analysis_id: str):
 async def delete_analysis_image(analysis_id: str, image_id: str):
     """Deletes image metadata and its underlying file storage."""
     success = await FirestoreService.delete_image_metadata(analysis_id, image_id)
-    # Also clean up local or GCS file
+    # Also clean up local or GCS file in worker thread so event loop does not block
     for ext in ["jpg", "png", "svg"]:
-        delete_image_file(f"{image_id}.{ext}")
+        await asyncio.to_thread(delete_image_file, f"{image_id}.{ext}")
     return {
         "success": success,
         "analysis_id": analysis_id,
@@ -890,7 +983,15 @@ if (DIST_DIR / "index.html").exists():
         # Let API 404s stay 404s
         if full_path.startswith("api"):
             raise HTTPException(status_code=404, detail="API endpoint not found")
-        file_path = DIST_DIR / full_path
+        # Prevent path traversal attacks
+        try:
+            resolved_dist = DIST_DIR.resolve()
+            file_path = (DIST_DIR / full_path).resolve()
+            if not file_path.is_relative_to(resolved_dist):
+                raise HTTPException(status_code=403, detail="Access denied")
+        except (ValueError, RuntimeError):
+            raise HTTPException(status_code=403, detail="Access denied")
+
         if full_path and file_path.is_file():
             return FileResponse(str(file_path))
         return FileResponse(str(DIST_DIR / "index.html"))

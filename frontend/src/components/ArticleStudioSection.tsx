@@ -36,6 +36,7 @@ import {
   findLanguage
 } from '../utils/languages';
 import { useToast } from '../context/ToastContext';
+import { FormattedMarkdown } from './FormattedMarkdown';
 
 interface ArticleStudioSectionProps {
   analysis: NewsIntelligenceReport;
@@ -205,6 +206,28 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
   const [speechPitch, setSpeechPitch] = useState<number>(1.0);
   const [ttsState, setTtsState] = useState<'idle' | 'playing' | 'paused'>('idle');
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const langDropdownRef = useRef<HTMLDivElement | null>(null);
+
+  // Close language dropdown on outside click or Escape key
+  useEffect(() => {
+    if (!isLangDropdownOpen) return;
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (langDropdownRef.current && !langDropdownRef.current.contains(e.target as Node)) {
+        setIsLangDropdownOpen(false);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsLangDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isLangDropdownOpen]);
 
   // Computed configuration helpers for available fields
   const targetWordsDisplay = useMemo(() => {
@@ -273,7 +296,8 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
     window.speechSynthesis.onvoiceschanged = loadVoices;
 
     return () => {
-      if (window.speechSynthesis) {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.onvoiceschanged = null;
         window.speechSynthesis.cancel();
       }
     };
@@ -288,13 +312,27 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
     return findLanguage(selectedLanguage);
   }, [selectedLanguage]);
 
-  // Handle Voice Change based on language
+  // Handle Voice Change based on active article language (or selected language)
+  const readerLanguageObj = useMemo(() => {
+    return findLanguage(currentArticle?.language || selectedLanguage);
+  }, [currentArticle?.language, selectedLanguage]);
+
   const languageFilteredVoices = useMemo(() => {
     if (!voices.length) return [];
-    const targetCode = activeLanguageObj.code.toLowerCase().split('-')[0];
+    const targetCode = readerLanguageObj.code.toLowerCase().split('-')[0];
     const matching = voices.filter((v) => v.lang.toLowerCase().startsWith(targetCode));
     return matching.length > 0 ? matching : voices;
-  }, [voices, activeLanguageObj]);
+  }, [voices, readerLanguageObj]);
+
+  // Auto-sync selectedVoiceUri when languageFilteredVoices changes
+  useEffect(() => {
+    if (languageFilteredVoices.length > 0) {
+      const stillValid = languageFilteredVoices.some((v) => v.voiceURI === selectedVoiceUri);
+      if (!stillValid) {
+        setSelectedVoiceUri(languageFilteredVoices[0].voiceURI);
+      }
+    }
+  }, [languageFilteredVoices, selectedVoiceUri]);
 
   // Generate Article Action
   const handleGenerate = async () => {
@@ -381,6 +419,19 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
   // Generate & Print / Save PDF for article only (isolated iframe)
   const handleDownloadArticlePdf = () => {
     if (!currentArticle) return;
+    const escapeHtml = (str: string) =>
+      str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    const formatInlineMd = (str: string) =>
+      escapeHtml(str)
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/`(.*?)`/g, '<code>$1</code>');
+
     const iframe = document.createElement('iframe');
     iframe.style.position = 'fixed';
     iframe.style.right = '0';
@@ -391,7 +442,12 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
     document.body.appendChild(iframe);
 
     const doc = iframe.contentWindow?.document;
-    if (!doc) return;
+    if (!doc) {
+      if (document.body.contains(iframe)) {
+        document.body.removeChild(iframe);
+      }
+      return;
+    }
 
     const dateStr = currentArticle.created_at
       ? new Date(currentArticle.created_at * 1000).toLocaleString(undefined, {
@@ -404,23 +460,33 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
       .split('\n\n')
       .map((p) => {
         const trimmed = p.trim();
-        if (trimmed.startsWith('## ')) {
-          return `<h2 style="font-size: 16pt; font-weight: 700; color: #0f172a; margin-top: 20pt; margin-bottom: 6pt; border-bottom: 1.5px solid #cbd5e1; padding-bottom: 4pt;">${trimmed.replace('## ', '')}</h2>`;
+        if (trimmed.startsWith('#### ')) {
+          return `<h4 style="font-size: 11.5pt; font-weight: 700; color: #334155; margin-top: 12pt; margin-bottom: 4pt;">${formatInlineMd(trimmed.replace(/^####\s+/, ''))}</h4>`;
         }
         if (trimmed.startsWith('### ')) {
-          return `<h3 style="font-size: 13pt; font-weight: 600; color: #334155; margin-top: 14pt; margin-bottom: 4pt;">${trimmed.replace('### ', '')}</h3>`;
+          return `<h3 style="font-size: 13pt; font-weight: 600; color: #334155; margin-top: 14pt; margin-bottom: 4pt;">${formatInlineMd(trimmed.replace(/^###\s+/, ''))}</h3>`;
         }
-        if (trimmed.startsWith('- ')) {
+        if (trimmed.startsWith('## ')) {
+          return `<h2 style="font-size: 16pt; font-weight: 700; color: #0f172a; margin-top: 20pt; margin-bottom: 6pt; border-bottom: 1.5px solid #cbd5e1; padding-bottom: 4pt;">${formatInlineMd(trimmed.replace(/^##\s+/, ''))}</h2>`;
+        }
+        if (trimmed.startsWith('# ')) {
+          return `<h2 style="font-size: 18pt; font-weight: 800; color: #0f172a; margin-top: 22pt; margin-bottom: 8pt;">${formatInlineMd(trimmed.replace(/^#\s+/, ''))}</h2>`;
+        }
+        if (trimmed.startsWith('> ')) {
+          const quoteText = trimmed
+            .split('\n')
+            .map((line) => formatInlineMd(line.replace(/^>\s?/, '')))
+            .join('<br/>');
+          return `<blockquote style="margin: 10pt 0; padding: 8pt 14pt; border-left: 3px solid #64748b; background: #f8fafc; font-style: italic; color: #334155;">${quoteText}</blockquote>`;
+        }
+        if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
           const items = trimmed
             .split('\n')
-            .map((li) => `<li style="margin-bottom: 4pt;">${li.replace(/^- /, '')}</li>`)
+            .map((li) => `<li style="margin-bottom: 4pt;">${formatInlineMd(li.replace(/^[-*]\s+/, ''))}</li>`)
             .join('');
           return `<ul style="margin: 8pt 0 12pt 20pt; line-height: 1.6; color: #334155;">${items}</ul>`;
         }
-        const formatted = trimmed
-          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-          .replace(/\*(.*?)\*/g, '<em>$1</em>');
-        return `<p style="font-size: 11pt; line-height: 1.75; color: #334155; margin-bottom: 11pt;">${formatted}</p>`;
+        return `<p style="font-size: 11pt; line-height: 1.75; color: #334155; margin-bottom: 11pt;">${formatInlineMd(trimmed)}</p>`;
       })
       .join('\n');
 
@@ -430,7 +496,7 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
       <html>
       <head>
         <meta charset="utf-8">
-        <title>${currentArticle.headline}</title>
+        <title>${escapeHtml(currentArticle.headline)}</title>
         <style>
           @page {
             margin: 18mm 16mm;
@@ -496,14 +562,14 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
       </head>
       <body>
         <div class="header">
-          <span class="badge">${currentArticle.language}</span>
-          <span class="badge">${STYLE_OPTIONS.find((s) => s.id === currentArticle.writing_style)?.label || currentArticle.writing_style.replace('_', ' ')}</span>
-          ${currentArticle.editorial_framing ? `<span class="badge">${FRAMING_OPTIONS.find((f) => f.id === currentArticle.editorial_framing)?.label || currentArticle.editorial_framing.replace('_', ' ')}</span>` : ''}
+          <span class="badge">${escapeHtml(currentArticle.language)}</span>
+          <span class="badge">${escapeHtml(STYLE_OPTIONS.find((s) => s.id === currentArticle.writing_style)?.label || currentArticle.writing_style.replace('_', ' '))}</span>
+          ${currentArticle.editorial_framing ? `<span class="badge">${escapeHtml(FRAMING_OPTIONS.find((f) => f.id === currentArticle.editorial_framing)?.label || currentArticle.editorial_framing.replace('_', ' '))}</span>` : ''}
           <span class="badge">${currentArticle.word_count} words</span>
-          <h1>${currentArticle.headline}</h1>
-          ${currentArticle.subheadline ? `<div class="subheadline">${currentArticle.subheadline}</div>` : ''}
+          <h1>${escapeHtml(currentArticle.headline)}</h1>
+          ${currentArticle.subheadline ? `<div class="subheadline">${escapeHtml(currentArticle.subheadline)}</div>` : ''}
           <div class="meta">
-            <span><strong>Generated:</strong> ${dateStr}</span>
+            <span><strong>Generated:</strong> ${escapeHtml(dateStr)}</span>
             <span><strong>Reading Time:</strong> ${currentArticle.reading_time_minutes} min read</span>
           </div>
         </div>
@@ -512,21 +578,26 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
         </main>
         <div class="footer">
           <span>Agentic News Intelligence • Dossier Grounded Article</span>
-          <span>Topic: ${currentArticle.topic}</span>
+          <span>Topic: ${escapeHtml(currentArticle.topic)}</span>
         </div>
       </body>
       </html>
     `);
     doc.close();
 
+    const removeIframe = () => {
+      if (document.body.contains(iframe)) {
+        document.body.removeChild(iframe);
+      }
+    };
+
+    if (iframe.contentWindow) {
+      iframe.contentWindow.onafterprint = removeIframe;
+    }
     iframe.contentWindow?.focus();
     setTimeout(() => {
       iframe.contentWindow?.print();
-      setTimeout(() => {
-        if (document.body.contains(iframe)) {
-          document.body.removeChild(iframe);
-        }
-      }, 1500);
+      setTimeout(removeIframe, 3000);
     }, 300);
   };
 
@@ -552,6 +623,7 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
 
     const utterance = new SpeechSynthesisUtterance(cleanText);
     utteranceRef.current = utterance;
+    utterance.lang = findLanguage(currentArticle.language).code;
 
     // Set Voice
     if (selectedVoiceUri) {
@@ -642,7 +714,7 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
               <label className="text-xs font-bold uppercase tracking-wider text-base-content/80">
                 1. Target Length
               </label>
-              <div className="grid grid-cols-4 gap-1.5">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                 {[
                   { id: 'flash', label: 'Flash (~250w)' },
                   { id: 'standard', label: 'Standard (~600w)' },
@@ -809,7 +881,7 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
             )}
 
             {/* 3. Searchable Language Selection (130+ Google Languages) */}
-            <div className="space-y-2 relative">
+            <div className="space-y-2 relative" ref={langDropdownRef}>
               <label className="text-xs font-bold uppercase tracking-wider text-base-content/80 flex items-center justify-between">
                 <span>3. Language (130+ Google Supported)</span>
                 <span className="badge badge-sm badge-ghost text-xs gap-1">
@@ -946,7 +1018,7 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
                 <div className="flex items-center justify-between gap-2">
                   <div className="skeleton h-3.5 w-3/4"></div>
                   <span className="badge badge-xs badge-primary font-bold gap-1 shrink-0">
-                    <span className="loading loading-spinner loading-[10px]"></span>
+                    <span className="loading loading-spinner loading-xs"></span>
                     <span>Generating...</span>
                   </span>
                 </div>
@@ -1414,10 +1486,16 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
                     <span className="text-[11px] text-base-content/60 flex items-center gap-1 shrink-0">
                       <Calendar size={12} />
                       <span>
-                        {new Date(currentArticle.created_at * 1000).toLocaleString(undefined, {
-                          dateStyle: 'medium',
-                          timeStyle: 'short',
-                        })}
+                        {currentArticle.created_at
+                          ? new Date(
+                              typeof currentArticle.created_at === 'number'
+                                ? (currentArticle.created_at > 1e11 ? currentArticle.created_at : currentArticle.created_at * 1000)
+                                : currentArticle.created_at
+                            ).toLocaleString(undefined, {
+                              dateStyle: 'medium',
+                              timeStyle: 'short',
+                            })
+                          : 'Recent'}
                       </span>
                     </span>
                   </div>
@@ -1445,7 +1523,7 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
                     <button
                       type="button"
                       onClick={handleDownloadArticlePdf}
-                      className="btn btn-primary btn-xs rounded-lg gap-1 shadow-xs font-semibold"
+                      className="btn btn-primary btn-xs rounded-lg gap-1 shadow-sm font-semibold"
                       title="Generate clean PDF containing solely this article"
                     >
                       <Printer size={13} />
@@ -1468,43 +1546,8 @@ export const ArticleStudioSection: React.FC<ArticleStudioSectionProps> = ({
                   </div>
 
                   {/* Rendered Body */}
-                  <div className="prose prose-sm md:prose-base max-w-none text-base-content leading-relaxed space-y-4">
-                    {currentArticle.content_markdown.split('\n\n').map((para, idx) => {
-                      if (para.startsWith('## ')) {
-                        return (
-                          <h2
-                            key={idx}
-                            className="text-xl md:text-2xl font-black text-primary pt-3 border-b border-base-300 pb-1"
-                          >
-                            {para.replace('## ', '')}
-                          </h2>
-                        );
-                      }
-                      if (para.startsWith('### ')) {
-                        return (
-                          <h3 key={idx} className="text-lg md:text-xl font-bold text-secondary pt-2">
-                            {para.replace('### ', '')}
-                          </h3>
-                        );
-                      }
-                      if (para.startsWith('- ')) {
-                        const items = para.split('\n').filter((l) => l.startsWith('- '));
-                        return (
-                          <ul key={idx} className="list-disc list-inside space-y-1.5 pl-2">
-                            {items.map((item, i) => (
-                              <li key={i} className="text-sm md:text-base text-base-content/90">
-                                {item.replace(/^- \*\*(.*?)\*\*:?/, '$1: ').replace(/^- /, '')}
-                              </li>
-                            ))}
-                          </ul>
-                        );
-                      }
-                      return (
-                        <p key={idx} className="text-sm md:text-base text-base-content/90 leading-relaxed">
-                          {para}
-                        </p>
-                      );
-                    })}
+                  <div className="prose prose-sm md:prose-base max-w-none text-base-content leading-relaxed">
+                    <FormattedMarkdown content={currentArticle.content_markdown || ''} />
                   </div>
                 </div>
 

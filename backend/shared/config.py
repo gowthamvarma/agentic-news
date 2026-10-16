@@ -34,15 +34,16 @@ cred_env = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
 if cred_env and not os.path.isfile(cred_env):
     os.environ.pop("GOOGLE_APPLICATION_CREDENTIALS", None)
 
-# Determine API Key availability
+# Determine API Key availability and simulation mode
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
-IS_SIMULATION_MODE = not bool(GEMINI_API_KEY and GEMINI_API_KEY.strip())
+_force_sim = os.environ.get("FORCE_SIMULATION_MODE", "").strip().lower() in ("1", "true", "yes")
+IS_SIMULATION_MODE = _force_sim or not bool(GEMINI_API_KEY and GEMINI_API_KEY.strip())
 
 # Official Verified Gemini & Imagen Models
-MODEL_AGENT_FAST = "gemini-3.8-flash"
-MODEL_REASONING_PRO = "gemini-3.1-pro-preview"
-MODEL_IMAGE = os.environ.get("MODEL_IMAGE", "gemini-3.1-flash-image")
-MODEL_IMAGEN = os.environ.get("MODEL_IMAGEN", "imagen-3.0-generate-002")
+MODEL_AGENT_FAST = os.environ.get("MODEL_AGENT_FAST", "gemini-3.8-flash").strip()
+MODEL_REASONING_PRO = os.environ.get("MODEL_REASONING_PRO", "gemini-3.1-pro-preview").strip()
+MODEL_IMAGE = os.environ.get("MODEL_IMAGE", "gemini-3.1-flash-image").strip()
+MODEL_IMAGEN = os.environ.get("MODEL_IMAGEN", "imagen-3.0-generate-002").strip()
 
 # Cloud Storage & Media Cache
 FIREBASE_PROJECT_ID = (

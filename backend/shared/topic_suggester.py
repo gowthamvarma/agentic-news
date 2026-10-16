@@ -31,6 +31,7 @@ COUNTRY_CONFIGS = [
         "code": "IN",
         "name": "India",
         "flag": "🇮🇳",
+        "rss_url": "https://news.google.com/rss?hl=en-IN&gl=IN&ceid=IN:en",
         "rss_urls": [
             "https://news.google.com/rss/headlines/section/topic/NATION?hl=en-IN&gl=IN&ceid=IN:en",
             "https://news.google.com/rss?hl=en-IN&gl=IN&ceid=IN:en",
@@ -41,6 +42,7 @@ COUNTRY_CONFIGS = [
         "code": "US",
         "name": "United States",
         "flag": "🇺🇸",
+        "rss_url": "https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en",
         "rss_urls": [
             "https://news.google.com/rss/headlines/section/topic/NATION?hl=en-US&gl=US&ceid=US:en",
             "https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en",
@@ -51,6 +53,7 @@ COUNTRY_CONFIGS = [
         "code": "CA",
         "name": "Canada",
         "flag": "🇨🇦",
+        "rss_url": "https://news.google.com/rss?hl=en-CA&gl=CA&ceid=CA:en",
         "rss_urls": [
             "https://news.google.com/rss/headlines/section/topic/NATION?hl=en-CA&gl=CA&ceid=CA:en",
             "https://news.google.com/rss?hl=en-CA&gl=CA&ceid=CA:en",
@@ -61,6 +64,7 @@ COUNTRY_CONFIGS = [
         "code": "CN",
         "name": "China",
         "flag": "🇨🇳",
+        "rss_url": "https://news.google.com/rss?hl=en-US&gl=CN&ceid=CN:en",
         "rss_urls": [
             "https://news.google.com/rss/search?q=China+when:3d&hl=en-US&gl=US&ceid=US:en",
             "https://news.google.com/rss/search?q=Beijing+OR+%22Chinese+economy%22+when:3d&hl=en-US&gl=US&ceid=US:en",
@@ -70,6 +74,7 @@ COUNTRY_CONFIGS = [
         "code": "RU",
         "name": "Russia",
         "flag": "🇷🇺",
+        "rss_url": "https://news.google.com/rss?hl=en-US&gl=RU&ceid=RU:en",
         "rss_urls": [
             "https://news.google.com/rss/search?q=Russia+when:3d&hl=en-US&gl=US&ceid=US:en",
             "https://news.google.com/rss/search?q=Moscow+OR+Kremlin+when:3d&hl=en-US&gl=US&ceid=US:en",
@@ -79,6 +84,7 @@ COUNTRY_CONFIGS = [
         "code": "GB",
         "name": "United Kingdom",
         "flag": "🇬🇧",
+        "rss_url": "https://news.google.com/rss?hl=en-GB&gl=GB&ceid=GB:en",
         "rss_urls": [
             "https://news.google.com/rss/headlines/section/topic/NATION?hl=en-GB&gl=GB&ceid=GB:en",
             "https://news.google.com/rss?hl=en-GB&gl=GB&ceid=GB:en",
@@ -89,6 +95,7 @@ COUNTRY_CONFIGS = [
         "code": "FR",
         "name": "France",
         "flag": "🇫🇷",
+        "rss_url": "https://news.google.com/rss?hl=en-US&gl=FR&ceid=FR:en",
         "rss_urls": [
             "https://news.google.com/rss/search?q=France+when:3d&hl=en-US&gl=US&ceid=US:en",
             "https://news.google.com/rss/search?q=Paris+OR+%22French+government%22+when:3d&hl=en-US&gl=US&ceid=US:en",
@@ -98,6 +105,7 @@ COUNTRY_CONFIGS = [
         "code": "DE",
         "name": "Germany",
         "flag": "🇩🇪",
+        "rss_url": "https://news.google.com/rss?hl=en-US&gl=DE&ceid=DE:en",
         "rss_urls": [
             "https://news.google.com/rss/search?q=Germany+when:3d&hl=en-US&gl=US&ceid=US:en",
             "https://news.google.com/rss/search?q=Berlin+OR+%22German+economy%22+when:3d&hl=en-US&gl=US&ceid=US:en",
@@ -107,6 +115,7 @@ COUNTRY_CONFIGS = [
         "code": "AE",
         "name": "United Arab Emirates",
         "flag": "🇦🇪",
+        "rss_url": "https://news.google.com/rss?hl=en-US&gl=AE&ceid=AE:en",
         "rss_urls": [
             "https://news.google.com/rss/search?q=UAE+OR+%22United+Arab+Emirates%22+OR+Dubai+when:3d&hl=en-US&gl=US&ceid=US:en",
             "https://news.google.com/rss/search?q=%22Abu+Dhabi%22+when:3d&hl=en-US&gl=US&ceid=US:en",
@@ -116,6 +125,7 @@ COUNTRY_CONFIGS = [
         "code": "SA",
         "name": "Saudi Arabia",
         "flag": "🇸🇦",
+        "rss_url": "https://news.google.com/rss?hl=en-US&gl=SA&ceid=SA:en",
         "rss_urls": [
             "https://news.google.com/rss/search?q=%22Saudi+Arabia%22+OR+Riyadh+when:3d&hl=en-US&gl=US&ceid=US:en",
             "https://news.google.com/rss/search?q=Aramco+when:3d&hl=en-US&gl=US&ceid=US:en",
@@ -125,6 +135,7 @@ COUNTRY_CONFIGS = [
         "code": "IL",
         "name": "Israel",
         "flag": "🇮🇱",
+        "rss_url": "https://news.google.com/rss?hl=en-IL&gl=IL&ceid=IL:en",
         "rss_urls": [
             "https://news.google.com/rss/search?q=Israel+when:3d&hl=en-US&gl=US&ceid=US:en",
             "https://news.google.com/rss/search?q=Knesset+OR+Netanyahu+when:3d&hl=en-US&gl=US&ceid=US:en",
@@ -134,6 +145,7 @@ COUNTRY_CONFIGS = [
         "code": "JP",
         "name": "Japan",
         "flag": "🇯🇵",
+        "rss_url": "https://news.google.com/rss?hl=en-US&gl=JP&ceid=JP:en",
         "rss_urls": [
             "https://news.google.com/rss/search?q=Japan+when:3d&hl=en-US&gl=US&ceid=US:en",
             "https://news.google.com/rss/search?q=Tokyo+OR+%22Bank+of+Japan%22+when:3d&hl=en-US&gl=US&ceid=US:en",
@@ -143,6 +155,7 @@ COUNTRY_CONFIGS = [
         "code": "SG",
         "name": "Singapore",
         "flag": "🇸🇬",
+        "rss_url": "https://news.google.com/rss?hl=en-SG&gl=SG&ceid=SG:en",
         "rss_urls": [
             "https://news.google.com/rss/headlines/section/topic/NATION?hl=en-SG&gl=SG&ceid=SG:en",
             "https://news.google.com/rss?hl=en-SG&gl=SG&ceid=SG:en",
@@ -153,6 +166,7 @@ COUNTRY_CONFIGS = [
         "code": "ID",
         "name": "Indonesia",
         "flag": "🇮🇩",
+        "rss_url": "https://news.google.com/rss?hl=en-ID&gl=ID&ceid=ID:en",
         "rss_urls": [
             "https://news.google.com/rss/search?q=Indonesia+when:3d&hl=en-US&gl=US&ceid=US:en",
             "https://news.google.com/rss/search?q=Jakarta+OR+Prabowo+when:3d&hl=en-US&gl=US&ceid=US:en",
@@ -162,6 +176,7 @@ COUNTRY_CONFIGS = [
         "code": "MY",
         "name": "Malaysia",
         "flag": "🇲🇾",
+        "rss_url": "https://news.google.com/rss?hl=en-MY&gl=MY&ceid=MY:en",
         "rss_urls": [
             "https://news.google.com/rss/headlines/section/topic/NATION?hl=en-MY&gl=MY&ceid=MY:en",
             "https://news.google.com/rss?hl=en-MY&gl=MY&ceid=MY:en",
@@ -172,6 +187,7 @@ COUNTRY_CONFIGS = [
         "code": "AU",
         "name": "Australia",
         "flag": "🇦🇺",
+        "rss_url": "https://news.google.com/rss?hl=en-AU&gl=AU&ceid=AU:en",
         "rss_urls": [
             "https://news.google.com/rss/headlines/section/topic/NATION?hl=en-AU&gl=AU&ceid=AU:en",
             "https://news.google.com/rss?hl=en-AU&gl=AU&ceid=AU:en",

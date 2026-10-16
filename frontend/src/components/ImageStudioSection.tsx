@@ -1136,7 +1136,7 @@ export const ImageStudioSection: React.FC<ImageStudioSectionProps> = ({
                       </div>
 
                       {/* Watermark preview tag */}
-                      <div className="absolute bottom-3 left-3 px-2.5 py-1 rounded-full bg-base-900/80 backdrop-blur border border-white/10 text-white text-[9px] font-medium flex items-center gap-1 shadow">
+                      <div className="absolute bottom-3 left-3 px-2.5 py-1 rounded-full bg-neutral/90 backdrop-blur border border-white/10 text-white text-[9px] font-medium flex items-center gap-1 shadow">
                         <ShieldCheck size={11} className="text-emerald-400" />
                         <span>C2PA Synthetic Media Provenance</span>
                       </div>
@@ -1157,7 +1157,7 @@ export const ImageStudioSection: React.FC<ImageStudioSectionProps> = ({
                     />
 
                     {/* Provenance Guardrail Overlay Tag */}
-                    <div className="absolute bottom-6 left-6 px-3 py-1 rounded-full bg-base-900/80 backdrop-blur border border-white/20 text-white text-[10px] font-semibold flex items-center gap-1.5 shadow-lg">
+                    <div className="absolute bottom-6 left-6 px-3 py-1 rounded-full bg-neutral/90 backdrop-blur border border-white/20 text-white text-[10px] font-semibold flex items-center gap-1.5 shadow-lg">
                       <ShieldCheck size={12} className="text-emerald-400" />
                       <span>AI-Generated Editorial Metaphor • Synthetic Media</span>
                     </div>
@@ -1297,10 +1297,16 @@ export const ImageStudioSection: React.FC<ImageStudioSectionProps> = ({
 
       {/* Lightbox Modal */}
       {lightboxUrl && (
-        <div className="modal modal-open z-50">
+        <div
+          className="modal modal-open z-50"
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') setLightboxUrl(null);
+          }}
+          tabIndex={-1}
+        >
           <div className="modal-box max-w-5xl p-4 bg-base-100/95 backdrop-blur-md rounded-3xl border border-base-content/10">
-            <div className="flex items-center justify-between pb-3 border-b border-base-300 mb-3">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-base-300 mb-3">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="badge badge-primary font-bold text-xs uppercase">
                   Google Imagen 3
                 </span>
@@ -1326,14 +1332,14 @@ export const ImageStudioSection: React.FC<ImageStudioSectionProps> = ({
               />
             </div>
 
-            <div className="pt-3 flex items-center justify-between text-xs text-base-content/60">
-              <span className="font-mono">
+            <div className="pt-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-base-content/60">
+              <span className="font-mono break-words">
                 AI-Generated Editorial Metaphor • Synthetic Visual Media • Not a Real Documentary Photo
               </span>
               <button
                 type="button"
                 onClick={handleDownload}
-                className="btn btn-primary btn-sm gap-1.5"
+                className="btn btn-primary btn-sm gap-1.5 shrink-0"
               >
                 <Download size={14} />
                 <span>Download Asset</span>

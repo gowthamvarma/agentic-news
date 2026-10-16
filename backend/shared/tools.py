@@ -113,7 +113,10 @@ def _generate_adaptive_mock_articles(topic: str, num_sources: int = 4) -> List[D
     ][:num_sources]
 
 
+import threading
+
 _NEWS_CACHE: Dict[str, tuple[float, List[Dict[str, Any]]]] = {}
+_NEWS_CACHE_LOCK = threading.Lock()
 _HTTP_CLIENT = httpx.Client(
     follow_redirects=True,
     timeout=httpx.Timeout(connect=3.0, read=4.0, write=3.0, pool=5.0),
@@ -137,11 +140,12 @@ def fetch_news_articles(topic: str, num_sources: int = 5) -> str:
     """
     topic_key = topic.strip().lower()
     now = time.time()
-    if topic_key in _NEWS_CACHE:
-        cached_time, cached_articles = _NEWS_CACHE[topic_key]
-        if now - cached_time < 300 and len(cached_articles) >= min(num_sources, 3):
-            logger.debug("Returning cached articles for '%s'", topic)
-            return json.dumps(cached_articles[:num_sources], indent=2)
+    with _NEWS_CACHE_LOCK:
+        if topic_key in _NEWS_CACHE:
+            cached_time, cached_articles = _NEWS_CACHE[topic_key]
+            if now - cached_time < 300 and len(cached_articles) >= min(num_sources, 3):
+                logger.debug("Returning cached articles for '%s'", topic)
+                return json.dumps(cached_articles[:num_sources], indent=2)
 
     logger.info("Tool fetch_news_articles called for topic: '%s'", topic)
     articles: List[Dict[str, Any]] = []
@@ -231,7 +235,8 @@ def fetch_news_articles(topic: str, num_sources: int = 5) -> str:
         articles = _generate_adaptive_mock_articles(topic, num_sources=num_sources)
 
     res_json = json.dumps(articles, indent=2)
-    _NEWS_CACHE[topic_key] = (now, articles)
+    with _NEWS_CACHE_LOCK:
+        _NEWS_CACHE[topic_key] = (now, articles)
     return res_json
 
 
@@ -291,49 +296,48 @@ def lookup_factcheck_db(claim: str) -> str:
     logger.info("Tool lookup_factcheck_db called for claim: '%s'", claim)
     lower_claim = claim.lower()
     
-    # 1. Attempt live query to dedicated fact-check databases
+    # 1. Attempt live query to dedicated fact-check databases using pooled HTTP client
     try:
         search_query = f'"{claim[:60]}" (site:politifact.com OR site:factcheck.org OR site:snopes.com OR site:reuters.com/fact-check)'
-        with httpx.Client(follow_redirects=True, timeout=5.0) as client:
-            res = client.post(
-                "https://html.duckduckgo.com/html/",
-                data={"q": search_query},
-                headers={"User-Agent": BROWSER_UA},
-            )
-            if res.status_code == 200:
-                soup = bs4.BeautifulSoup(res.text, "html.parser")
-                snippets = soup.find_all("a", class_="result__snippet")
-                titles = soup.find_all("a", class_="result__a")
-                
-                # Check for authentic fact-checking domains and keywords
-                for title_elem, snip_elem in zip(titles[:3], snippets[:3]):
-                    href = title_elem.get("href", "")
-                    title_text = title_elem.get_text().strip()
-                    snip_text = snip_elem.get_text().strip()
-                    text_blob = (title_text + " " + snip_text).lower()
+        res = _HTTP_CLIENT.post(
+            "https://html.duckduckgo.com/html/",
+            data={"q": search_query},
+            headers={"User-Agent": BROWSER_UA},
+        )
+        if res.status_code == 200:
+            soup = bs4.BeautifulSoup(res.text, "html.parser")
+            snippets = soup.find_all("a", class_="result__snippet")
+            titles = soup.find_all("a", class_="result__a")
+            
+            # Check for authentic fact-checking domains and keywords
+            for title_elem, snip_elem in zip(titles[:3], snippets[:3]):
+                href = title_elem.get("href", "")
+                title_text = title_elem.get_text().strip()
+                snip_text = snip_elem.get_text().strip()
+                text_blob = (title_text + " " + snip_text).lower()
 
-                    is_fact_checker = any(
-                        domain in href.lower() or domain in text_blob
-                        for domain in ["politifact", "factcheck.org", "snopes", "reuters.com/fact-check", "apnews.com/hub/ap-fact-check"]
-                    )
-                    has_verdict_kw = any(
-                        kw in text_blob
-                        for kw in ["fact check", "fact-check", "false", "misleading", "true", "partially true", "disputed", "pants on fire"]
-                    )
+                is_fact_checker = any(
+                    domain in href.lower() or domain in text_blob
+                    for domain in ["politifact", "factcheck.org", "snopes", "reuters.com/fact-check", "apnews.com/hub/ap-fact-check"]
+                )
+                has_verdict_kw = any(
+                    kw in text_blob
+                    for kw in ["fact check", "fact-check", "false", "misleading", "true", "partially true", "disputed", "pants on fire"]
+                )
 
-                    if is_fact_checker and has_verdict_kw:
-                        verdict = "PARTIALLY TRUE" if "partially" in text_blob or "half" in text_blob else (
-                            "FALSE" if "false" in text_blob or "debunk" in text_blob else "VERIFIED"
-                        )
-                        return json.dumps({
-                            "query": claim,
-                            "matched": True,
-                            "verdict": verdict,
-                            "checked_by": "IFCN Fact-Checking Registry",
-                            "headline": title_text,
-                            "analysis": snip_text,
-                            "url": href,
-                        }, indent=2)
+                if is_fact_checker and has_verdict_kw:
+                    verdict = "PARTIALLY TRUE" if "partially" in text_blob or "half" in text_blob else (
+                        "FALSE" if "false" in text_blob or "debunk" in text_blob else "VERIFIED"
+                    )
+                    return json.dumps({
+                        "query": claim,
+                        "matched": True,
+                        "verdict": verdict,
+                        "checked_by": "IFCN Fact-Checking Registry",
+                        "headline": title_text,
+                        "analysis": snip_text,
+                        "url": href,
+                    }, indent=2)
     except Exception as e:
         logger.debug("Fact-check live search error: %s", e)
 

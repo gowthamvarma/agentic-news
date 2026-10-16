@@ -199,7 +199,7 @@ class ContradictionItem(BaseModel):
     claim_a: str
     outlet_b: str
     claim_b: str
-    divergence_type: Literal["Numerical Discrepancy", "Causal Dispute", "Attribution Conflict", "Timeline Divergence", "Fact Negation"]
+    divergence_type: Literal["Numerical Discrepancy", "Causal Dispute", "Attribution Conflict", "Timeline Divergence", "Fact Negation"] = "Causal Dispute"
     analysis: str = Field(description="Synthesis of the discrepancy root cause (e.g. conditional funding vs headline)")
 
 

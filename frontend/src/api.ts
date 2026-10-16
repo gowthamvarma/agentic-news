@@ -26,7 +26,10 @@ export function resolveMediaUrl(url?: string): string {
   if (apiHost.startsWith('http://') || apiHost.startsWith('https://')) {
     return `${apiHost}${url.startsWith('/') ? '' : '/'}${url}`;
   }
-  return url;
+  if (apiHost.startsWith('/')) {
+    return `${apiHost}${url.startsWith('/') ? '' : '/'}${url}`;
+  }
+  return url.startsWith('/') ? url : `/${url}`;
 }
 
 export async function checkApiHealth() {
@@ -123,7 +126,7 @@ export async function updateAnalysis(
   analysisId: string,
   updates: { is_favorite?: boolean; notes?: string; [key: string]: any }
 ): Promise<any> {
-  const res = await fetch(`${API_BASE}/analysis/${analysisId}`, {
+  const res = await fetch(`${API_BASE}/analysis/${encodeURIComponent(analysisId)}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(updates),
@@ -133,7 +136,7 @@ export async function updateAnalysis(
 }
 
 export async function deleteAnalysis(analysisId: string): Promise<boolean> {
-  const res = await fetch(`${API_BASE}/analysis/${analysisId}`, {
+  const res = await fetch(`${API_BASE}/analysis/${encodeURIComponent(analysisId)}`, {
     method: 'DELETE',
   });
   if (!res.ok) throw new Error('Failed to delete analysis');
@@ -141,7 +144,7 @@ export async function deleteAnalysis(analysisId: string): Promise<boolean> {
 }
 
 export async function fetchAnalysisDetail(analysisId: string): Promise<NewsIntelligenceReport> {
-  const res = await fetch(`${API_BASE}/analysis/${analysisId}`);
+  const res = await fetch(`${API_BASE}/analysis/${encodeURIComponent(analysisId)}`);
   if (!res.ok) throw new Error('Analysis report not found');
   return res.json();
 }

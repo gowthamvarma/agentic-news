@@ -16,12 +16,12 @@ flowchart TD
     subgraph Client ["Client Browser (React 19 SPA)"]
         UserAction["User Selects Topic or Enters Query"]
         ReactState["React Query / Local State"]
-        ActiveTab["Active Tab Controller<br/>(Brief | Sources | Verify | Timeline | Insights | Quiz | Debate | Copilot | Article Studio | Image Studio)"]
+        ActiveTab["Active Tab Controller<br/>(Overview | Sources | Fact Checks | Timeline | Why & Next | Quiz | Both Sides | Ask AI | Article Studio | Image Studio)"]
         UserAction --> ReactState --> ActiveTab
     end
 
     subgraph APIGateway ["API Gateway Tier (FastAPI Async)"]
-        Router["FastAPI APIRouter (/api/analyze, /api/chat, /api/analysis/{id}/articles, /api/analysis/{id}/images)"]
+        Router["FastAPI APIRouter (/api/analyze, /api/chat, /api/analysis/{id}/article, /api/analysis/{id}/editorial-art-pipeline, /api/analysis/{id}/generate-image)"]
         ReqValidator["Pydantic Request Validation (AnalyzeRequest)"]
         SSEStreamer["SSE Event Streamer & Background Tasks"]
         Router --> ReqValidator --> SSEStreamer
@@ -234,15 +234,16 @@ Google ADK 2.0 provides an extensible plugin ecosystem. We developed three custo
 
 ## 6. Generative Media Studio Endpoints & Publishing Pipeline
 
-Beyond analysis and auditing, the platform exposes dedicated REST APIs for on-demand media generation:
+Beyond analysis and auditing, the platform exposes dedicated REST APIs for on-demand media generation and the multi-agent editorial art room:
 
 | Endpoint | Method | Request Payload | Response / Functionality |
 | :--- | :--- | :--- | :--- |
-| `/api/analysis/{id}/articles` | `POST` | `{ style, length, target_language, perspective_focus }` | Generates a publication-ready journalistic article across 7 styles, complete with audio narration and SEO social kit. |
+| `/api/analysis/{id}/article` | `POST` | `{ style, length, target_language, perspective_focus }` | Generates a publication-ready journalistic article across 7 styles, complete with audio narration and SEO social kit. |
 | `/api/analysis/{id}/articles` | `GET` | — | Retrieves all generated article variants saved to this investigation dossier. |
-| `/api/analysis/{id}/articles/{article_id}` | `DELETE` | — | Deletes an individual generated article edition from the database. |
-| `/api/analysis/{id}/image-prompts` | `GET` | — | Generates 5 forensic AI visual prompt recommendations grounded in verified facts. |
-| `/api/analysis/{id}/images` | `POST` | `{ prompt, style, aspect_ratio, negative_prompt }` | Generates editorial imagery via Google Imagen 3 / Gemini, persisting binary files to Cloud Storage. |
+| `/api/analysis/{id}/article/{article_id}` | `DELETE` | — | Deletes an individual generated article edition from the database. |
+| `/api/analysis/{id}/image-prompts` | `GET` / `POST` | — | Generates forensic AI visual prompt recommendations grounded in verified facts. |
+| `/api/analysis/{id}/editorial-art-pipeline` | `POST` | `{ context_override, preferred_style }` | Runs the 4-Agent Image Editorial Art Room (Analyst $\rightarrow$ Creative Director $\rightarrow$ Cinematographer $\rightarrow$ Critic) to formulate synesthetic, anti-deception prompts. |
+| `/api/analysis/{id}/generate-image` | `POST` | `{ prompt, style, aspect_ratio, negative_prompt }` | Generates editorial imagery via Google Imagen 3 / Gemini, persisting binary files to Cloud Storage. |
 | `/api/analysis/{id}/images` | `GET` | — | Retrieves all saved visual assets associated with this investigation. |
-| `/api/analysis/{id}/images/{image_id}` | `DELETE` | — | Removes an individual image record and deletes its Cloud Storage artifact. |
+| `/api/analysis/{id}/image/{image_id}` | `DELETE` | — | Removes an individual image record and deletes its Cloud Storage artifact. |
 | `/api/media/{path:path}` | `GET` | — | Streams cached local media or redirects to canonical Google Cloud Storage asset URLs. |

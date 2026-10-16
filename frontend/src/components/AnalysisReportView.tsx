@@ -140,7 +140,7 @@ export const EntityAvatar: React.FC<EntityAvatarProps> = ({
         src={imgSrc}
         alt={entityName}
         referrerPolicy="no-referrer"
-        className="w-11 h-11 rounded-lg object-contain bg-base-200 p-1 border border-base-300 flex-shrink-0 shadow-xs"
+        className="w-11 h-11 rounded-lg object-contain bg-base-200 p-1 border border-base-300 flex-shrink-0 shadow-sm"
         loading="lazy"
         onError={() => setHasError(true)}
       />
@@ -151,7 +151,7 @@ export const EntityAvatar: React.FC<EntityAvatarProps> = ({
   if (entityType === 'PERSON') {
     return (
       <div className="w-12 h-12 rounded-full bg-secondary/15 text-secondary flex items-center justify-center font-bold text-lg flex-shrink-0 border border-secondary/30">
-        {entityName.charAt(0)}
+        {(entityName || '?').charAt(0)}
       </div>
     );
   }
@@ -165,7 +165,9 @@ export const EntityAvatar: React.FC<EntityAvatarProps> = ({
 
 interface AnalysisReportViewProps {
   report: NewsIntelligenceReport;
-  onUpdateReport?: (updated: NewsIntelligenceReport) => void;
+  onUpdateReport?: (
+    updatedOrPatch: Partial<NewsIntelligenceReport> | ((prev: NewsIntelligenceReport) => NewsIntelligenceReport)
+  ) => void;
   isStreaming?: boolean;
   streamStatus?: string;
   initialTab?: AnalysisTabId;
@@ -263,23 +265,49 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
   });
   const [scenariosLoading, setScenariosLoading] = useState(false);
 
+  // Track report id to know when an entirely new report has loaded
+  const prevReportIdRef = useRef<string | undefined>(report.id || report.analysis_id);
+
   // Synchronize state if report changes (e.g. from cache or archive refresh)
   useEffect(() => {
-    if (report.quiz && !quiz) {
-      setQuiz(report.quiz);
+    const currentId = report.id || report.analysis_id;
+    const isDifferentReport = prevReportIdRef.current !== currentId;
+    prevReportIdRef.current = currentId;
+
+    if (isDifferentReport) {
+      // Switched to a new report: reset all on-demand sections to the new report's data
+      setQuiz(report.quiz || null);
+      setDebate(report.debate || null);
+      if (hasSavedScenarios) {
+        setScenariosData({
+          root_cause_analysis: report.root_cause_analysis,
+          consequences_tree: report.consequences_tree,
+          future_scenarios: report.future_scenarios,
+          lessons_learned: report.lessons_learned,
+        });
+      } else {
+        setScenariosData(null);
+      }
+      setUserAnswers({});
+      setQuizResult(null);
+    } else {
+      // Same report updating: only accept incoming data if present, never overwrite active local data with null!
+      if (report.quiz) {
+        setQuiz(report.quiz);
+      }
+      if (report.debate) {
+        setDebate(report.debate);
+      }
+      if (hasSavedScenarios) {
+        setScenariosData({
+          root_cause_analysis: report.root_cause_analysis,
+          consequences_tree: report.consequences_tree,
+          future_scenarios: report.future_scenarios,
+          lessons_learned: report.lessons_learned,
+        });
+      }
     }
-    if (report.debate && !debate) {
-      setDebate(report.debate);
-    }
-    if (hasSavedScenarios && !scenariosData) {
-      setScenariosData({
-        root_cause_analysis: report.root_cause_analysis,
-        consequences_tree: report.consequences_tree,
-        future_scenarios: report.future_scenarios,
-        lessons_learned: report.lessons_learned,
-      });
-    }
-  }, [report, hasSavedScenarios]);
+  }, [report.id, report.analysis_id, report.topic, report.quiz, report.debate, hasSavedScenarios, report.root_cause_analysis, report.consequences_tree, report.future_scenarios, report.lessons_learned]);
 
   // Derived execution statuses
   const scenariosStatus: 'ready' | 'loading' | 'paused' =
@@ -356,7 +384,6 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
       }
       if (onUpdateReport) {
         onUpdateReport({
-          ...report,
           root_cause_analysis: data.root_cause_analysis,
           consequences_tree: data.consequences_tree,
           future_scenarios: data.future_scenarios,
@@ -384,7 +411,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
         await updateAnalysis(targetId, { quiz: data });
       }
       if (onUpdateReport) {
-        onUpdateReport({ ...report, quiz: data });
+        onUpdateReport({ quiz: data });
       }
       showToast('Active Recall Quiz ready & saved', 'success');
     } catch (err: any) {
@@ -405,7 +432,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
         await updateAnalysis(targetId, { debate: data });
       }
       if (onUpdateReport) {
-        onUpdateReport({ ...report, debate: data });
+        onUpdateReport({ debate: data });
       }
       showToast('Perspective Debate dialectic generated & saved', 'success');
     } catch (err: any) {
@@ -431,8 +458,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
     const targetId = report.id || report.analysis_id;
     if (!targetId) return;
     const nextFav = !report.is_favorite;
-    const updated = { ...report, is_favorite: nextFav };
-    if (onUpdateReport) onUpdateReport(updated);
+    if (onUpdateReport) onUpdateReport({ is_favorite: nextFav });
 
     try {
       await updateAnalysis(targetId, { is_favorite: nextFav });
@@ -479,7 +505,6 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
       }
       if (targetId && onUpdateReport) {
         onUpdateReport({
-          ...report,
           chat_history: res.chat_history || [
             ...chatMessages,
             { sender: 'user', text: userText, time: currentTime },
@@ -515,30 +540,27 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
     setChatMessages([resetGreeting]);
     if (onUpdateReport) {
       onUpdateReport({
-        ...report,
         chat_history: []
       });
     }
     showToast('AI Reporter chat history cleared from Firestore');
   };
 
-  const renderProbabilityRating = (ratingStr: string) => {
+  const renderProbabilityRating = (ratingStr?: string) => {
     let score = 3;
-    const lower = ratingStr.toLowerCase();
+    const lower = (ratingStr || 'MODERATE').toLowerCase();
     if (lower.includes('high') || lower.includes('likely')) score = 5;
     else if (lower.includes('moderate') || lower.includes('medium')) score = 3;
     else if (lower.includes('low') || lower.includes('unlikely')) score = 1;
 
     return (
-      <div className="rating rating-xs" title={`Probability: ${ratingStr}`}>
+      <div className="rating rating-xs gap-0.5" title={`Probability: ${ratingStr || 'MODERATE'}`}>
         {[1, 2, 3, 4, 5].map((star) => (
-          <input
+          <span
             key={star}
-            type="radio"
-            name={`prob-rating-${star}`}
-            className="mask mask-star-2 bg-warning"
-            checked={star <= score}
-            readOnly
+            className={`mask mask-star-2 w-3.5 h-3.5 inline-block ${
+              star <= score ? 'bg-warning' : 'bg-base-300'
+            }`}
           />
         ))}
       </div>
@@ -1438,7 +1460,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                       </div>
                     ))
                   ) : (
-                    <div className="col-span-2 alert alert-info bg-info/10 text-base-content border border-info/30 rounded-xl">
+                    <div className="md:col-span-2 alert alert-info bg-info/10 text-base-content border border-info/30 rounded-xl">
                       <Globe size={20} className="text-info flex-shrink-0" />
                       <span>No individual source articles were indexed for this specific query run.</span>
                     </div>
@@ -1539,7 +1561,9 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
               topic={report.topic}
               analysisId={report.id || report.analysis_id}
               onContradictionsUpdated={(newItems) => {
-                report.contradictions = newItems;
+                if (onUpdateReport) {
+                  onUpdateReport({ contradictions: newItems });
+                }
               }}
             />
 
@@ -1551,27 +1575,42 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                   <span className="break-words">Media Framing & Political Lean Spectrum</span>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                  {report.bias_evaluations?.map((b, idx) => (
-                    <div key={idx} className="card bg-base-100 border border-base-300 shadow-sm p-4 sm:p-5 hover:border-accent transition-all overflow-hidden min-w-0 break-words">
-                      <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                        <span className="font-bold text-base text-base-content break-words">{b.outlet}</span>
-                        <span className="badge badge-accent badge-outline text-xs font-bold shrink-0">
-                          {b.assessed_lean}
-                        </span>
-                      </div>
-                      <p className="text-sm text-base-content/80 mt-1 leading-relaxed break-words">
-                        {b.framing_narrative}
-                      </p>
-                      {b.loaded_terms_identified?.length > 0 && (
-                        <div className="text-xs text-base-content/60 mt-3 pt-2 border-t border-base-200 break-words">
-                          <span className="font-bold text-warning">Loaded Terms:</span>{' '}
-                          {b.loaded_terms_identified.join(', ')}
+                {(!report.bias_evaluations || report.bias_evaluations.length === 0) ? (
+                  <div className="alert alert-info bg-info/10 text-base-content border border-info/30 rounded-xl mt-4">
+                    <Scale size={20} className="text-info flex-shrink-0" />
+                    <span>No media framing or political lean evaluations were recorded for this report.</span>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                    {report.bias_evaluations.map((b, idx) => {
+                      const leanUpper = (b.assessed_lean || 'CENTER').toUpperCase();
+                      const leanBadgeClass = leanUpper.includes('LEFT')
+                        ? 'badge-info'
+                        : leanUpper.includes('RIGHT')
+                        ? 'badge-error'
+                        : 'badge-accent';
+                      return (
+                        <div key={idx} className="card bg-base-100 border border-base-300 shadow-sm p-4 sm:p-5 hover:border-accent transition-all overflow-hidden min-w-0 break-words">
+                          <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                            <span className="font-bold text-base text-base-content break-words">{b.outlet}</span>
+                            <span className={`badge ${leanBadgeClass} badge-outline text-xs font-bold shrink-0`}>
+                              {b.assessed_lean}
+                            </span>
+                          </div>
+                          <p className="text-sm text-base-content/80 mt-1 leading-relaxed break-words">
+                            {b.framing_narrative}
+                          </p>
+                          {b.loaded_terms_identified?.length > 0 && (
+                            <div className="text-xs text-base-content/60 mt-3 pt-2 border-t border-base-200 break-words">
+                              <span className="font-bold text-warning">Loaded Terms:</span>{' '}
+                              {b.loaded_terms_identified.join(', ')}
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -2083,7 +2122,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
 
                         {/* DaisyUI Radio & Label Controls */}
                         <div className="flex flex-col gap-2.5">
-                          {q.options.map((opt, optIdx) => {
+                          {(q.options || []).map((opt, optIdx) => {
                             const isSelected = selected === optIdx;
                             let labelBorder = 'border-base-300 hover:border-primary hover:bg-base-200/50';
 
@@ -2348,7 +2387,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                   {/* DaisyUI Chat turns for debate */}
                   <div className="flex flex-col gap-4 mb-6">
                     {debate.debate_turns?.map((turn, idx) => {
-                      const isPro = turn.speaker_perspective.includes('PROPONENT');
+                      const isPro = (turn.speaker_perspective || '').includes('PROPONENT');
 
                       return (
                         <div
@@ -2401,7 +2440,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
 
         {/* TAB 7: LIVELY RESEARCH COPILOT (DaisyUI Chat Components) */}
         {activeTab === 'copilot' && (
-          <div className="card bg-base-200 border border-base-300 shadow-xl h-[700px] flex flex-col overflow-hidden min-w-0">
+          <div className="card bg-base-200 border border-base-300 shadow-xl h-[calc(100dvh-11rem)] min-h-[480px] max-h-[700px] flex flex-col overflow-hidden min-w-0">
             {/* Copilot Header */}
             <div className="p-4 md:p-6 border-b border-base-300 flex flex-wrap items-center justify-between gap-3 bg-base-200/50">
               <div className="flex items-center gap-3 min-w-0">
@@ -2542,10 +2581,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
             analysis={report}
             onUpdateAnalysis={(patch) => {
               if (onUpdateReport) {
-                onUpdateReport({
-                  ...report,
-                  ...patch,
-                });
+                onUpdateReport(patch);
               }
             }}
           />
@@ -2557,10 +2593,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
             analysis={report}
             onUpdateAnalysis={(patch) => {
               if (onUpdateReport) {
-                onUpdateReport({
-                  ...report,
-                  ...patch,
-                });
+                onUpdateReport(patch);
               }
             }}
           />
@@ -2574,7 +2607,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
           {prevTab ? (
             <button
               onClick={() => handleTabChange(prevTab.id)}
-              className="btn btn-outline border-base-300 hover:border-primary hover:bg-base-300/50 flex-1 flex items-center justify-between sm:justify-start gap-3 py-3 px-4 h-auto text-left shadow-xs transition-all group"
+              className="btn btn-outline border-base-300 hover:border-primary hover:bg-base-300/50 flex-1 flex items-center justify-between sm:justify-start gap-3 py-3 px-4 h-auto text-left shadow-sm transition-all group"
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <ChevronLeft size={20} className="text-primary group-hover:-translate-x-1 transition-transform shrink-0" />

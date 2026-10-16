@@ -226,6 +226,7 @@ export const HomePage: React.FC = () => {
 
     try {
       let finalReport: NewsIntelligenceReport | null = null;
+      let hasNavigated = false;
 
       await analyzeNewsTopicProgressive(q, (eventType, data) => {
         isStreamingActiveRef.current = true;
@@ -249,7 +250,8 @@ export const HomePage: React.FC = () => {
           const durationSec = data.execution_time_seconds || totalSec;
           showToast(`Intelligence Report generated in ${durationSec}s!`, 'success');
           const targetId = data.id || data.analysis_id;
-          if (targetId) {
+          if (targetId && !hasNavigated) {
+            hasNavigated = true;
             window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
             document.documentElement.scrollTop = 0;
             document.body.scrollTop = 0;
@@ -265,7 +267,8 @@ export const HomePage: React.FC = () => {
 
       // If streaming finished without navigating, handle fallback navigation
       const targetId = (finalReport as any).id || (finalReport as any).analysis_id;
-      if (targetId) {
+      if (targetId && !hasNavigated) {
+        hasNavigated = true;
         const totalSec = Math.max(1, Math.floor((Date.now() - startTime) / 1000));
         const durationSec = (finalReport as any).execution_time_seconds || totalSec;
         window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
@@ -409,7 +412,7 @@ export const HomePage: React.FC = () => {
                     <img
                       src={`https://flagcdn.com/24x18/${c.code.toLowerCase()}.png`}
                       alt=""
-                      className="w-4 h-3 rounded-2xs object-cover shadow-2xs shrink-0"
+                      className="w-4 h-3 rounded-sm object-cover shadow-sm shrink-0"
                       onError={(e) => {
                         (e.currentTarget as HTMLElement).style.display = 'none';
                       }}
@@ -429,7 +432,7 @@ export const HomePage: React.FC = () => {
                 <img
                   src={`https://flagcdn.com/28x21/${selectedCountry.toLowerCase()}.png`}
                   alt=""
-                  className="w-5 h-3.5 rounded-2xs object-cover shadow-2xs inline-block shrink-0"
+                  className="w-5 h-3.5 rounded-sm object-cover shadow-sm inline-block shrink-0"
                   onError={(e) => {
                     (e.currentTarget as HTMLElement).style.display = 'none';
                   }}
@@ -497,7 +500,7 @@ export const HomePage: React.FC = () => {
                   <div>
                     <div className="flex flex-wrap items-center justify-between gap-2 mb-2.5">
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className={`badge badge-xs sm:badge-sm font-semibold shadow-xs shrink-0 ${item.badge_color || 'badge-primary'}`}>
+                        <span className={`badge badge-xs sm:badge-sm font-semibold shadow-sm shrink-0 ${item.badge_color || 'badge-primary'}`}>
                           {item.badge}
                         </span>
                         <span className="badge badge-outline badge-xs sm:badge-sm text-base-content/75 font-medium shrink-0">
@@ -702,7 +705,7 @@ export const HomePage: React.FC = () => {
                     >
                       <div className="card-body p-4 sm:p-5">
                         <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                          <span className="badge badge-primary badge-outline badge-xs font-bold font-mono px-2.5 py-1 shadow-xs shrink-0">
+                          <span className="badge badge-primary badge-outline badge-xs font-bold font-mono px-2.5 py-1 shadow-sm shrink-0">
                             {dateStr}
                           </span>
                           {item.is_favorite && (

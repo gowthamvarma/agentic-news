@@ -186,7 +186,7 @@ async function main() {
 
   try {
     // -------------------------------------------------------------
-    // 1. Home Dashboard: 5 Countries Looping GIF
+    // 1. Home Dashboard: 5 Countries Looping GIF (Scrolled to topics)
     // -------------------------------------------------------------
     console.log('\n[1/4] Capturing 5-Country Regional Dashboard...');
     const countries = [
@@ -201,6 +201,8 @@ async function main() {
     for (const c of countries) {
       console.log(`  Capturing ${c.label} (?country=${c.code})...`);
       await client.navigate(`http://localhost:5173/?country=${c.code}`, 2200);
+      await client.evaluate(`window.scrollTo({ top: 380, behavior: 'instant' });`);
+      await new Promise(r => setTimeout(r, 400));
       const framePath = path.join(TEMP_DIR, `home_country_${c.code}.png`);
       await client.screenshot(framePath);
       countryFrames.push(framePath);
@@ -215,9 +217,9 @@ async function main() {
     );
 
     // -------------------------------------------------------------
-    // 2. 8 Analysis Tabs: Smooth Multi-Frame Scrolling GIFs
+    // 2. 10 Analysis Tabs: Smooth Multi-Frame Scrolling GIFs
     // -------------------------------------------------------------
-    console.log('\n[2/4] Capturing 8 Multi-Section Analysis Tabs with Smooth Scrolling...');
+    console.log('\n[2/4] Capturing 10 Multi-Section Analysis Tabs with Smooth Scrolling...');
     const analysisUrl = 'http://localhost:5173/analysis/09c0dbae-2b01-4852-83de-ddc89fdb6614';
 
     const tabs = [
@@ -229,9 +231,11 @@ async function main() {
       { name: 'tab-06-quiz', hash: '#quiz', maxScroll: 520 },
       { name: 'tab-07-debate', hash: '#debate', maxScroll: 560 },
       { name: 'tab-08-copilot', hash: '#copilot', maxScroll: 480 },
+      { name: 'tab-09-article', hash: '#article', maxScroll: 650 },
+      { name: 'tab-10-image', hash: '#image', maxScroll: 650 },
     ];
 
-    const walkthroughFrames = [path.join(ASSETS_DIR, 'hero-overview.png')];
+    const tabTopFrames = [];
 
     // Load analysis page once, then switch hashes
     await client.navigate(`${analysisUrl}#brief`, 2500);
@@ -239,20 +243,20 @@ async function main() {
     for (const tab of tabs) {
       console.log(`\n  Processing ${tab.name} (${tab.hash})...`);
 
-      // Switch tab and wait for tab transition
+      // Switch tab and wait for tab transition and async fetch
       await client.evaluate(`
         window.location.hash = '${tab.hash}';
         window.dispatchEvent(new HashChangeEvent('hashchange'));
         window.scrollTo({ top: 0, behavior: 'instant' });
       `);
-      await new Promise(r => setTimeout(r, 700));
+      await new Promise(r => setTimeout(r, 1600));
 
       // 1. Capture Top Resting View (Scroll 0)
       const topFrame = path.join(TEMP_DIR, `${tab.name}_top.png`);
       await client.screenshot(topFrame);
       // Save crisp static PNG for documentation
       fs.copyFileSync(topFrame, path.join(ASSETS_DIR, `${tab.name}.png`));
-      walkthroughFrames.push(topFrame);
+      tabTopFrames.push(topFrame);
 
       // 2. Determine actual full document scroll height dynamically
       const rHeight = await client.evaluate(`document.documentElement.scrollHeight - window.innerHeight`);
@@ -305,7 +309,6 @@ async function main() {
     const historyTop = path.join(TEMP_DIR, 'history_top.png');
     await client.screenshot(historyTop);
     fs.copyFileSync(historyTop, path.join(ASSETS_DIR, 'history-archive.png'));
-    walkthroughFrames.push(historyTop);
 
     const histHeight = await client.evaluate(`document.documentElement.scrollHeight - window.innerHeight`);
     const histMaxScroll = Math.max(0, histHeight.result?.value || 300);
@@ -335,9 +338,14 @@ async function main() {
     );
 
     // -------------------------------------------------------------
-    // 4. Full App Walkthrough Tour
+    // 4. Full App Walkthrough Tour (Home, History, and All 10 Tabs)
     // -------------------------------------------------------------
     console.log('\n[4/4] Building Multi-Page App Walkthrough Tour GIF...');
+    const walkthroughFrames = [
+      path.join(ASSETS_DIR, 'hero-overview.png'),
+      historyTop,
+      ...tabTopFrames
+    ];
     const walkthroughDelays = walkthroughFrames.map(() => 260); // 2.6s per key screen
     await buildGifFromFrames(
       walkthroughFrames,

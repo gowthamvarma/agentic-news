@@ -9,6 +9,8 @@ from __future__ import annotations
 from typing import Any, Optional
 from google.adk.plugins import BasePlugin
 from google.adk.agents import BaseAgent
+from google.adk.models.llm_response import LlmResponse
+from google.genai import types
 from shared.config import logger
 
 
@@ -36,6 +38,24 @@ class NewsGuardrailPlugin(BasePlugin):
         """Inspect agent invocation for security or integrity issues."""
         agent_name = getattr(agent, "name", "agent")
         logger.debug("NewsGuardrailPlugin inspecting agent turn: %s", agent_name)
+        return None
+
+    async def before_model_callback(
+        self,
+        *,
+        callback_context: Any,
+        llm_request: Any,
+    ) -> Optional[LlmResponse]:
+        """Intercepts model requests to block prompt injection and jailbreak attempts."""
+        prompt_text = str(getattr(llm_request, "contents", llm_request))
+        violation = self.validate_user_prompt(prompt_text)
+        if violation:
+            return LlmResponse(
+                content=types.Content(
+                    role="model",
+                    parts=[types.Part.from_text(text=f"[Guardrail Notice]: {violation}")],
+                )
+            )
         return None
 
     def validate_user_prompt(self, prompt: str) -> Optional[str]:

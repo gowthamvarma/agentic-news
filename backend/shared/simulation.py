@@ -104,7 +104,7 @@ Reconstructed timeline reconciling cross-outlet timestamps and narrative shifts:
 
 ---
 
-## 7. Why It Happened & Ripple Effects
+## 7. Why It Happened (Root Cause) & Ripple Effects
 - **What Sparked It**: Sudden new government policy directives announced without public discussions or warning.
 - **Deeper Background Issues**: Years of legislative gridlock, rapid technology changes, and rising political tension.
 - **Ripple Effects**:

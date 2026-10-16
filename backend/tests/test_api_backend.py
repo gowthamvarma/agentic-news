@@ -1,7 +1,12 @@
-"""Automated unit test suite verifying the FastAPI backend and Firestore persistence service.
-"""
-
+import os
+import sys
+from pathlib import Path
 import unittest
+
+BACKEND_ROOT = Path(__file__).resolve().parent.parent
+if str(BACKEND_ROOT) not in sys.path:
+    sys.path.insert(0, str(BACKEND_ROOT))
+
 from shared.firestore_service import FirestoreService
 from shared.structured_builder import (
     build_structured_intelligence,

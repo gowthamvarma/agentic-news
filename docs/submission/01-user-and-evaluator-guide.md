@@ -17,8 +17,8 @@ Evaluators and judges can explore the complete live platform in under 3 minutes:
    * **Frontend UI**: `http://localhost:5173/` (or run `cd frontend && npm run dev`)
 2. **Instant Golden Test Case**: Open [`http://localhost:5173/analysis/09c0dbae-2b01-4852-83de-ddc89fdb6614`](http://localhost:5173/analysis/09c0dbae-2b01-4852-83de-ddc89fdb6614) to load the pre-audited intelligence dossier for **"Elon Musk Starlink India Issue"**.
 3. **Tab Tour**: Click across the 10 investigation tabs on the left sidebar:
-   * **Executive Brief** $\rightarrow$ **Verified Sources** $\rightarrow$ **Fact Checks & Contradictions** $\rightarrow$ **Timeline** $\rightarrow$ **Causal & Scenarios** $\rightarrow$ **Active Recall Tutor** $\rightarrow$ **Perspective Debate** $\rightarrow$ **Research Copilot** $\rightarrow$ **Article Studio** $\rightarrow$ **Image Studio**.
-4. **Interactive Test**: Go to the **Active Recall Tutor** tab and answer Question 1 to see the instant feedback badge and pedagogical explanation, or explore the **Article Studio** tab to hear Web Speech audio narration or translate the brief into 50+ languages.
+   * **Summary & Overview** $\rightarrow$ **Verified Sources** $\rightarrow$ **Fact Checks & Clashing Claims** $\rightarrow$ **Timeline** $\rightarrow$ **Why & What's Next** $\rightarrow$ **Knowledge Check** $\rightarrow$ **Both Sides Debate** $\rightarrow$ **Ask AI Reporter** $\rightarrow$ **Article Studio** $\rightarrow$ **Image Studio**.
+4. **Interactive Test**: Go to the **Knowledge Check** tab and answer Question 1 to see the instant feedback badge and pedagogical explanation, test the **Ask AI Reporter** tab for grounded conversational QA, or explore the **Article Studio** tab to hear Web Speech audio narration or translate the brief into 50+ languages.
 
 ---
 
@@ -36,7 +36,7 @@ The user interface was built to deliver the responsiveness of a high-end financi
 
 ### Global Header & Navigation Controls
 * **Brain Logo & Fleet Status**: Shows active connectivity to the 25-agent Google ADK fleet.
-* **Top Navigation**: Direct access to `Search & Live Fleet` (`/`) and `History Archive` (`/history`).
+* **Top Navigation**: Direct access to `Search` (`/`) and `History` (`/history`).
 * **Firestore Sync Indicator**: Real-time badge indicating whether reports are persisting to Google Cloud Firestore or the local emulator.
 * **DaisyUI Multi-Theme Switcher**: Instant switching between `Dark`, `Light`, `Cyberpunk`, and `Synthwave` themes.
 * **Bidirectional Tab Navigation**: Pinned "Previous" and "Next" quick-switch buttons at the base of each analysis tab for effortless reading progression.
@@ -78,9 +78,9 @@ The user interface was built to deliver the responsiveness of a high-end financi
 
 *(Demonstrated using live sample: `http://localhost:5173/analysis/09c0dbae-2b01-4852-83de-ddc89fdb6614`)*
 
-### Tab 1: Executive Intelligence Brief (`#brief`)
+### Tab 1: Summary & Overview (`#brief`)
 
-![Tab 1: Executive Brief Multi-Section Tour](./assets/tab-01-brief.gif)
+![Tab 1: Summary & Overview Multi-Section Tour](./assets/tab-01-brief.gif)
 
 * **Problem It Solves**: Readers face cognitive overload from lengthy conflicting articles and lack the baseline institutional context to understand the stakeholders and technical jargon involved.
 * **How It Solves**: Synthesizes verified multi-source reporting into an authoritative consensus brief, extracts key numerical baselines, and generates a structured Who/Where/What entity primer with verified Wikipedia linkages.
@@ -96,7 +96,7 @@ The user interface was built to deliver the responsiveness of a high-end financi
 
 ---
 
-### Tab 2: Verified Sources & Media Bias (`#sources`)
+### Tab 2: Verified Sources (`#sources`)
 
 ![Tab 2: Verified Sources Multi-Section Tour](./assets/tab-02-sources.gif)
 
@@ -108,9 +108,9 @@ The user interface was built to deliver the responsiveness of a high-end financi
 
 ---
 
-### Tab 3: Fact Checks & Contradictions (`#verification`)
+### Tab 3: Fact Checks & Clashing Claims (`#verification`)
 
-![Tab 3: Verification & Contradictions Multi-Section Tour](./assets/tab-03-verification.gif)
+![Tab 3: Verification & Clashing Claims Multi-Section Tour](./assets/tab-03-verification.gif)
 
 * **Problem It Solves**: Conflicting factual assertions across competing news outlets are rarely juxtaposed directly, allowing partisan spin and unverified claims to spread unchecked.
 * **How It Solves**: Deploys automated IFCN-aligned claim auditing agents to assign confidence scores and builds a side-by-side contradiction matrix contrasting opposing reporting lines directly against verified evidence.
@@ -121,9 +121,9 @@ The user interface was built to deliver the responsiveness of a high-end financi
 
 ---
 
-### Tab 4: Chronological Event Timeline (`#timeline`)
+### Tab 4: Timeline (`#timeline`)
 
-![Tab 4: Chronological Timeline Multi-Section Tour](./assets/tab-04-timeline.gif)
+![Tab 4: Timeline Multi-Section Tour](./assets/tab-04-timeline.gif)
 
 * **Problem It Solves**: Fast-moving breaking events cause temporal confusion, obscuring the sequence of cause and effect and when media narratives shifted.
 * **How It Solves**: Extracts and orders all chronological milestones from precursor antecedents to trending developments, synthesizing narrative trajectory shifts across the reporting arc.
@@ -135,9 +135,9 @@ The user interface was built to deliver the responsiveness of a high-end financi
 
 ---
 
-### Tab 5: Causal & Scenarios (`#insights`)
+### Tab 5: Why & What's Next (`#insights`)
 
-![Tab 5: Causal & Scenarios Multi-Section Tour](./assets/tab-05-insights.gif)
+![Tab 5: Why & What's Next Multi-Section Tour](./assets/tab-05-insights.gif)
 
 * **Problem It Solves**: Conventional news describes symptoms rather than root causes, leaving readers unprepared for cascading consequences or future outcomes.
 * **How It Solves**: Conducts a structured 5-Whys causal root analysis, maps 3 tiers of systemic knock-on effects, and models probabilistic best/worst/likely future scenarios with leading indicator signals.
@@ -149,9 +149,9 @@ The user interface was built to deliver the responsiveness of a high-end financi
 
 ---
 
-### Tab 6: Active Recall Comprehension Quiz (`#quiz`)
+### Tab 6: Knowledge Check (`#quiz`)
 
-![Tab 6: Active Recall Quiz Multi-Section Tour](./assets/tab-06-quiz.gif)
+![Tab 6: Knowledge Check Multi-Section Tour](./assets/tab-06-quiz.gif)
 
 * **Problem It Solves**: Passive news reading results in the "illusion of competence," where readers forget over 70% of facts within 24 hours without retaining critical distinctions.
 * **How It Solves**: Generates interactive active-recall questions grounded directly in the verified facts and contradictions, providing instant pedagogical explanations and scoring.
@@ -162,9 +162,9 @@ The user interface was built to deliver the responsiveness of a high-end financi
 
 ---
 
-### Tab 7: Dialectical Perspective Debate (`#debate`)
+### Tab 7: Both Sides Debate (`#debate`)
 
-![Tab 7: Perspective Debate Multi-Section Tour](./assets/tab-07-debate.gif)
+![Tab 7: Both Sides Debate Multi-Section Tour](./assets/tab-07-debate.gif)
 
 * **Problem It Solves**: Hyper-partisan news reporting forces readers into polarized viewpoints, obscuring legitimate arguments held by opposing stakeholders.
 * **How It Solves**: Simulates a structured Socratic debate between steelmanned pro and con stakeholder representatives, culminating in an objective policy compromise synthesis.
@@ -175,20 +175,20 @@ The user interface was built to deliver the responsiveness of a high-end financi
 
 ---
 
-### Tab 8: Research Copilot (`#copilot`)
+### Tab 8: Ask AI Reporter (`#copilot`)
 
-![Tab 8: Research Copilot Multi-Section Tour](./assets/tab-08-copilot.gif)
+![Tab 8: Ask AI Reporter Multi-Section Tour](./assets/tab-08-copilot.gif)
 
 * **Problem It Solves**: Static news articles cannot answer specific user questions or clarify ambiguities in reporting.
 * **How It Solves**: Provides a conversational AI research partner powered by Gemini 2.5 Flash, strictly grounded in the session's verified evidence ledger with zero hallucinations.
 * **Sub-Sections & Core Functionality**:
-  1. **Copilot Agent Header & Status Badge**: Displays online agent status, Gemini model engine attribution, and conversation management controls (Clear Chat History).
+  1. **AI Reporter Header & Status Badge**: Displays online agent status, Gemini model engine attribution, and conversation management controls (Clear Chat History).
   2. **Evidence-Grounded Chat Stream**: Conversational message thread rendering user questions and agent responses in formatted markdown with direct citations to analyzed articles.
   3. **Interactive Investigation Input Bar**: Real-time query input enabling users to probe specific claims, request entity clarifications, or ask "what if" questions regarding the investigation.
 
 ---
 
-### Tab 9: On-Demand Article Studio (`#article`)
+### Tab 9: Article Studio (`#article`)
 
 ![Tab 9: Article Studio Multi-Section Tour](./assets/tab-09-article.gif)
 
@@ -208,20 +208,25 @@ The user interface was built to deliver the responsiveness of a high-end financi
 
 ---
 
-### Tab 10: On-Demand Image Studio (`#image`)
+### Tab 10: Image Studio (`#image`)
 
 ![Tab 10: Image Studio Multi-Section Tour](./assets/tab-10-image.gif)
 
-* **Problem It Solves**: Quality news reporting requires compelling, contextually grounded visuals, but journalists and readers are typically trapped between generic stock photos or copyright-infringing web grabs.
-* **How It Solves**: Leverages Google Imagen 3 and Gemini multimodal capabilities to generate photorealistic documentary photography, magazine-cover concept art, and technical diagrams grounded directly in the investigated facts, persisted to Google Cloud Storage.
+* **Problem It Solves**: Quality news reporting requires compelling, contextually grounded visuals, but journalists and readers are typically trapped between generic stock photos, misleading deepfakes, or copyright-infringing web grabs.
+* **How It Solves**: Orchestrates an **Image Editorial Art Room Crew** of 4 specialized agents (News Analyst, Creative Director, Imagen 3 Cinematographer, Editorial Critic) that translates investigative dossiers into synesthetic, metaphor-rich visual prompts rendered via Google Imagen 3, reinforced by anti-deception guardrails and Cloud Storage persistence.
 * **Sub-Sections & Core Functionality**:
-  1. **AI Editorial Prompt Suggestions**: 5 pre-formulated, forensic visual prompts generated specifically from the investigation's verified actors, locations, and events.
-  2. **Visual Style Presets (5 Aesthetics)**:
+  1. **Image Editorial Art Room Crew (4 Specialized Agents)**:
+     * *The News Analyst*: Extracts core tensions, emotional resonance, and sensory anchors from investigated reporting.
+     * *The Creative Director*: Formulates non-literal, symbolic visual metaphors avoiding trite clichés.
+     * *The Imagen 3 Cinematographer*: Engineers precise photographic directives (anamorphic lenses, 35mm film stock, volumetric lighting, aspect ratios).
+     * *The Editorial Critic*: Enforces anti-deception guardrails, prevents misleading deepfakes of public figures, and audits visual standards.
+  2. **AI Editorial Prompt Suggestions**: Pre-formulated visual concepts generated specifically from the investigation's verified actors, locations, and events.
+  3. **Visual Style Presets (5 Aesthetics)**:
      * *Photojournalism* (Authentic 35mm news photograph, candid natural lighting)
      * *Magazine Cover* (Conceptual editorial art inspired by The Economist & TIME)
      * *3D Isometric* (Clean technical diagram visualizing industrial infrastructure)
      * *Cinematic Still* (16:9 widescreen anamorphic depth with dramatic chiaroscuro)
      * *Minimalist Vector* (Bold Swiss graphic design and geometric symbolism)
-  3. **Multi-Platform Aspect Ratio Selector**: 16:9 Landscape (Hero headers), 1:1 Square (Social feeds), 4:3 Editorial (Print standard), and 9:16 Vertical (Mobile stories).
-  4. **Negative Prompting & Composition Controls**: Advanced negative prompt inputs to eliminate artifacts, watermarks, or unwanted visual elements.
-  5. **Cloud Storage Persistence & Asset Gallery**: Seamless upload to Google Cloud Storage with fast local caching, lightbox modal inspection, metadata display, and one-click image downloads.
+  4. **Multi-Platform Aspect Ratio Selector**: 16:9 Landscape (Hero headers), 1:1 Square (Social feeds), 4:3 Editorial (Print standard), and 9:16 Vertical (Mobile stories).
+  5. **Anti-Deception Guardrail Verified Badge**: Transparent verification indicator ensuring synthetic visual media compliance, preventing deceptive deepfakes of public leaders.
+  6. **Dossier Visual Archive & Lightbox Modal**: Interactive gallery filmstrip displaying saved and active rendering states, full-screen lightbox modal inspection, and one-click image downloads.

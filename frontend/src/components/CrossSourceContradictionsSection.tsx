@@ -210,7 +210,7 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
       <div className="card-body p-5 md:p-8">
         {/* Section Header - Line 1: Title, Badge & Subtitle */}
         <div className="flex items-start sm:items-center gap-3 pb-3">
-          <div className="w-11 h-11 rounded-xl bg-warning/15 text-warning border border-warning/30 flex items-center justify-center flex-shrink-0 shadow-xs">
+          <div className="w-11 h-11 rounded-xl bg-warning/15 text-warning border border-warning/30 flex items-center justify-center flex-shrink-0 shadow-sm">
             <GitCompare size={24} />
           </div>
           <div className="flex-1 min-w-0">
@@ -234,7 +234,7 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
             {topic && (
               <button
                 type="button"
-                className="btn btn-sm btn-outline btn-warning gap-2 font-semibold shadow-xs"
+                className="btn btn-sm btn-outline btn-warning gap-2 font-semibold shadow-sm"
                 onClick={handleRunContradictionAudit}
                 disabled={auditing}
                 title="Re-check claims across reporting outlets"
@@ -246,11 +246,11 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
           </div>
 
           {/* View Mode Toggle */}
-          <div className="join bg-base-100 p-1 rounded-xl border border-base-300 shadow-xs">
+          <div className="join bg-base-100 p-1 rounded-xl border border-base-300 shadow-sm">
             <button
               type="button"
               className={`join-item btn btn-xs md:btn-sm gap-1.5 font-bold ${
-                viewMode === 'cards' ? 'btn-primary text-primary-content shadow-xs' : 'btn-ghost text-base-content/70'
+                viewMode === 'cards' ? 'btn-primary text-primary-content shadow-sm' : 'btn-ghost text-base-content/70'
               }`}
               onClick={() => setViewMode('cards')}
               title="Side-by-Side Cards view"
@@ -261,7 +261,7 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
             <button
               type="button"
               className={`join-item btn btn-xs md:btn-sm gap-1.5 font-bold ${
-                viewMode === 'table' ? 'btn-primary text-primary-content shadow-xs' : 'btn-ghost text-base-content/70'
+                viewMode === 'table' ? 'btn-primary text-primary-content shadow-sm' : 'btn-ghost text-base-content/70'
               }`}
               onClick={() => setViewMode('table')}
               title="Comparison Table view"
@@ -334,7 +334,7 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
 
         {/* If filtered list is empty */}
         {filteredContradictions.length === 0 && (
-          <div className="bg-base-100 border border-base-300 rounded-xl p-8 text-center my-3 shadow-xs">
+          <div className="bg-base-100 border border-base-300 rounded-xl p-8 text-center my-3 shadow-sm">
             <Search size={24} className="mx-auto text-base-content/30 mb-2" />
             <div className="text-sm font-bold text-base-content">No matching contradictions found</div>
             <p className="text-xs text-base-content/60 mt-1">
@@ -378,7 +378,7 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
 
                     <div className="flex items-center gap-2">
                       <div
-                        className={`badge ${badgeInfo.badgeClass} gap-1 font-bold text-xs py-2 px-2.5 shadow-xs`}
+                        className={`badge ${badgeInfo.badgeClass} gap-1 font-bold text-xs py-2 px-2.5 shadow-sm`}
                         title={badgeInfo.desc}
                       >
                         {badgeInfo.icon}
@@ -415,7 +415,7 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
                       </div>
 
                       {/* OUTLET A CONTAINER */}
-                      <div className="flex flex-col justify-between rounded-xl p-4 md:p-5 bg-gradient-to-br from-primary/5 via-base-100 to-base-100 border-2 border-primary/30 shadow-xs relative overflow-hidden min-w-0 break-words">
+                      <div className="flex flex-col justify-between rounded-xl p-4 md:p-5 bg-gradient-to-br from-primary/5 via-base-100 to-base-100 border-2 border-primary/30 shadow-sm relative overflow-hidden min-w-0 break-words">
                         <div>
                           {/* Outlet Tag */}
                           <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -431,7 +431,7 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
                           </div>
 
                           {/* Claim Quote */}
-                          <div className="relative pl-3.5 border-l-3 border-primary/60 my-2">
+                          <div className="relative pl-3.5 border-l-4 border-primary/60 my-2">
                             <Quote
                               size={16}
                               className="text-primary/40 absolute -left-1.5 -top-2 fill-primary/10"
@@ -449,13 +449,13 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
 
                       {/* Mobile VS separator */}
                       <div className="flex md:hidden items-center justify-center my-1">
-                        <div className="w-8 h-8 rounded-full bg-base-200 border-2 border-warning text-warning flex items-center justify-center font-black text-xs shadow-xs">
+                        <div className="w-8 h-8 rounded-full bg-base-200 border-2 border-warning text-warning flex items-center justify-center font-black text-xs shadow-sm">
                           VS
                         </div>
                       </div>
 
                       {/* OUTLET B CONTAINER */}
-                      <div className="flex flex-col justify-between rounded-xl p-4 md:p-5 bg-gradient-to-br from-secondary/5 via-base-100 to-base-100 border-2 border-secondary/30 shadow-xs relative overflow-hidden min-w-0 break-words">
+                      <div className="flex flex-col justify-between rounded-xl p-4 md:p-5 bg-gradient-to-br from-secondary/5 via-base-100 to-base-100 border-2 border-secondary/30 shadow-sm relative overflow-hidden min-w-0 break-words">
                         <div>
                           {/* Outlet Tag */}
                           <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -471,7 +471,7 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
                           </div>
 
                           {/* Claim Quote */}
-                          <div className="relative pl-3.5 border-l-3 border-secondary/60 my-2">
+                          <div className="relative pl-3.5 border-l-4 border-secondary/60 my-2">
                             <Quote
                               size={16}
                               className="text-secondary/40 absolute -left-1.5 -top-2 fill-secondary/10"
@@ -623,7 +623,7 @@ export const CrossSourceContradictionsSection: React.FC<CrossSourceContradiction
             </span>
           </div>
           <div className="font-semibold text-base-content/80">
-            Showing {filteredContradictions.length} of {contradictions.length} clashing claims
+            Showing {filteredContradictions.length} of {items.length} clashing claims
           </div>
         </div>
       </div>

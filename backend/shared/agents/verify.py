@@ -38,6 +38,9 @@ fact_check_toolset = SkillToolset(skills=[_fact_check_skill])
 _framing_skill = load_skill_from_dir(_SKILLS_DIR / "media-framing-heuristics")
 framing_toolset = SkillToolset(skills=[_framing_skill])
 
+_global_bias_skill = load_skill_from_dir(_SKILLS_DIR / "global-media-bias-coverage")
+global_bias_toolset = SkillToolset(skills=[_global_bias_skill])
+
 
 FACT_VERIFIER_INSTRUCTION = """# IDENTITY
 You are the Chief Investigative Fact-Checker for the Agentic News Analyser platform. You adhere to the International Fact-Checking Network (IFCN) Code of Principles with uncompromising forensic standards.
@@ -62,6 +65,10 @@ Given atomic claims extracted from news coverage:
 - NEVER let ideological preferences influence factual determination.
 - Clearly separate verifiable empirical claims from forward projections or value judgments.
 - READABILITY & TERMINOLOGY REQUIREMENT: Write reasoning and verdict summaries with clear, direct sentence structures that are easy to understand. PRESERVE exact technical, scientific, legal, and regulatory terms (e.g. use "spectrum", NOT "airwaves"). Do not replace technical terms with informal words.
+
+# FEW-SHOT EXAMPLES
+- **Input Claim**: "Agency directive halts all pending H-1B PERM filings without exception."
+- **Output Verdict**: `status: "DISPUTED"`, `confidence: 0.94`, `reasoning: "Federal Register docket confirms grandfathering exemptions for applications certified prior to the cutoff date."`
 
 # OUTPUT SPECIFICATION
 Conform to ClaimVerification items detailing claim_id, claim_text, status, confidence, reasoning, corroborating_sources, and conflicting_sources.
@@ -92,16 +99,20 @@ You are the Media Integrity & Source Reliability Auditor for the News Intelligen
 Evaluate the journalistic credibility and institutional reliability of reporting outlets. Score outlets on their historical track record, sourcing quality (on-the-record vs anonymous leaks), and transparent corrections policies.
 
 # METHODOLOGY
-1. For each media outlet present in the news coverage, examine:
+1. Consult the `global-media-bias-coverage` skill for institutional tier benchmarks.
+2. For each media outlet present in the news coverage, examine:
    - Reliability Tier: [HIGH, MEDIUM, LOW, QUESTIONABLE].
    - Track Record Score: 0.00 to 1.00 based on factual error rate.
    - Sourcing Quality: Frequency of named officials, primary documents, or uncorroborated single-source leaks.
    - Corrections Policy: Established track record of publishing prompt, transparent corrections.
-2. Provide a structured audit for each outlet to calibrate downstream confidence scores.
+3. Provide a structured audit for each outlet to calibrate downstream confidence scores.
 
 # BOUNDARIES
 - Base evaluations on objective journalistic criteria, not ideological viewpoints.
 - Wire services (Reuters, AP) and established national broadcasters require evaluation based on sourcing standards.
+
+# FEW-SHOT EXAMPLES
+- **Input Outlet**: "Reuters" -> `tier: "HIGH"`, `track_record_score: 0.96`, `sourcing_quality: "Multi-source primary document verification"`
 
 # OUTPUT SPECIFICATION
 Return a SourceReliabilityReport containing topic and a list of SourceReliabilityScore entries with outlet, tier, track_record_score, sourcing_quality, and corrections_policy_status.
@@ -116,6 +127,7 @@ source_reliability_agent = Agent(
         "and factual track records to weight downstream claim credibility."
     ),
     instruction=SOURCE_RELIABILITY_INSTRUCTION,
+    tools=[global_bias_toolset],
     output_schema=SourceReliabilityReport,
     generate_content_config=types.GenerateContentConfig(
         temperature=0.1,
@@ -142,6 +154,10 @@ Compare coverage across all analyzed publications on the same story. Identify cr
 - Do NOT fabricate consensus where genuine contradiction exists.
 - Do NOT dismiss genuine discrepancies as mere 'differences in tone'; highlight hard factual discrepancies.
 - READABILITY & TERMINOLOGY REQUIREMENT: Write all divergence analyses and discrepancy explanations in clear, direct English sentence structures so any reader can easily see what each outlet claimed. PRESERVE exact technical, economic, and legal terms (e.g. use "spectrum", NOT "airwaves").
+
+# FEW-SHOT EXAMPLES
+- **Input**: Outlet A says "$10B unconditional grant" vs Outlet B says "$4B firm + $6B milestone loans".
+- **Output**: `divergence_type: "Numerical Discrepancy"`, `analysis: "Outlet A combined conditional loan guarantees with direct grants, whereas Outlet B separated firm outlays."`
 
 # OUTPUT SPECIFICATION
 Conform to ContradictionReport containing topic, divergence_summary, and a list of ContradictionItem objects.
@@ -171,7 +187,7 @@ You are the Nonpartisan Media Framing & Political Bias Analyst for the News Inte
 Evaluate media coverage for political lean, narrative framing, and omitted context across a 5-point spectrum: [Far Left, Left, Center-Left, Center, Center-Right, Right, Far Right].
 
 # METHODOLOGY
-1. Consult the loaded media-framing-heuristics skill.
+1. Consult the loaded `media-framing-heuristics` and `global-media-bias-coverage` skills.
 2. Analyze lexical choices: detect loaded adjectives, spin words, and emotionally manipulative framing.
 3. Evaluate story emphasis: did the outlet frame the event around economic burden, civil rights, or diplomatic triumph?
 4. Detect omissions: identify crucial facts or counter-perspectives reported by rival outlets that this publication excluded.
@@ -181,6 +197,10 @@ Evaluate media coverage for political lean, narrative framing, and omitted conte
 - NEVER classify reporting as biased simply because the topic is controversial.
 - ALWAYS provide direct textual evidence and quotes from the articles for flagged bias.
 - READABILITY & TERMINOLOGY REQUIREMENT: Explain media framing and narrative emphasis in clear, neutral English with accessible sentence structures. Keep exact technical and political terms intact without colloquial dumbing down.
+
+# FEW-SHOT EXAMPLES
+- **Input**: Article uses "reckless bureaucratic overreach" and omits consumer safety statistics.
+- **Output**: `assessed_lean: "Center Right"`, `loaded_terms_identified: ["reckless bureaucratic overreach"]`, `omitted_context: "Excluded agency safety audit statistics."`
 
 # OUTPUT SPECIFICATION
 Conform to BiasReport containing topic, evaluations (list of BiasEvaluation objects), and spectrum_summary.
@@ -195,7 +215,7 @@ bias_analyst = Agent(
         "editorial spin, narrative prioritization, and critical context omissions."
     ),
     instruction=BIAS_ANALYST_INSTRUCTION,
-    tools=[framing_toolset],
+    tools=[framing_toolset, global_bias_toolset],
     output_schema=BiasReport,
     generate_content_config=types.GenerateContentConfig(
         temperature=0.2,

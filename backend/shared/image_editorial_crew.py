@@ -82,7 +82,9 @@ def _call_gemini_json(
                 temperature=temperature,
             ),
         )
-        raw = resp.text or "{}"
+        raw = (resp.text or "{}").strip()
+        if raw.startswith("```"):
+            raw = re.sub(r"^```(?:json)?\s*|\s*```$", "", raw, flags=re.DOTALL).strip()
         return json.loads(raw)
     except Exception as exc:
         logger.warning("Gemini JSON call failed on model '%s': %s", model, exc)
@@ -620,51 +622,57 @@ def run_editorial_art_pipeline(
         )
     )
 
-    # 2 & 3. Secondary Cinematography Prompts from other concepts
+    # 2..5. Secondary & Alternative Cinematography Prompts executed concurrently
+    import concurrent.futures
+
+    secondary_tasks: List[Tuple[CreativeConceptItem, str, str, float]] = []
     for concept in director_out.concepts:
         if concept.concept_id == selected_concept.concept_id:
             continue
-        c_prompt = run_cinematographer_agent(concept, analyst_out, aspect_ratio=preferred_aspect_ratio)
-        prompts.append(
-            ImagePromptSuggestion(
-                concept_title=concept.title,
-                style_name=concept.style_name,
-                prompt_text=c_prompt.imagen_3_prompt,
-                recommended_aspect_ratio=c_prompt.aspect_ratio,
-                sonic_cues=analyst_out.sonic_cues,
-                attention_score=round(max(7.5, critic_out.attention_score - 0.5), 1),
-                guardrail_status="Verified Safe (Anti-Deception Guardrail Active)",
-                visual_metaphor=concept.metaphor,
-            )
-        )
+        secondary_tasks.append((
+            concept,
+            concept.style_name,
+            preferred_aspect_ratio,
+            round(max(7.5, critic_out.attention_score - 0.5), 1),
+        ))
 
-    # Fill up to 5 with distinct artistic lenses
     extra_styles = ["photojournalism", "minimalist", "isometric_3d"]
+    existing_styles = {selected_concept.style_name} | {t[1] for t in secondary_tasks}
     for extra_style in extra_styles:
-        if len(prompts) >= 5:
+        if 1 + len(secondary_tasks) >= 5:
             break
-        if any(p.style_name == extra_style for p in prompts):
+        if extra_style in existing_styles:
             continue
         alt_concept = CreativeConceptItem(
-            concept_id=f"concept_{len(prompts)+1}",
+            concept_id=f"concept_{1 + len(secondary_tasks) + 1}",
             title=f"Alternative Perspective ({extra_style.replace('_', ' ').title()})",
             metaphor=f"Conceptual exploration of {analyst_out.core_tension}",
             visual_hook=f"Bold {extra_style.replace('_', ' ')} composition",
             sensory_synesthesia=analyst_out.sonic_cues[0] if analyst_out.sonic_cues else "Atmospheric presence",
             style_name=extra_style,
         )
-        c_alt = run_cinematographer_agent(alt_concept, analyst_out, aspect_ratio=preferred_aspect_ratio)
-        prompts.append(
-            ImagePromptSuggestion(
-                concept_title=alt_concept.title,
-                style_name=extra_style,
-                prompt_text=c_alt.imagen_3_prompt,
-                recommended_aspect_ratio="16:9",
-                sonic_cues=analyst_out.sonic_cues,
-                attention_score=8.5,
-                guardrail_status="Verified Safe (Anti-Deception Guardrail Active)",
-                visual_metaphor=alt_concept.metaphor,
-            )
-        )
+        secondary_tasks.append((alt_concept, extra_style, "16:9", 8.5))
+        existing_styles.add(extra_style)
+
+    if secondary_tasks:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=len(secondary_tasks)) as executor:
+            futures = [
+                executor.submit(run_cinematographer_agent, task_concept, analyst_out, preferred_aspect_ratio)
+                for task_concept, _, _, _ in secondary_tasks
+            ]
+            for (task_concept, style_name, rec_ratio, att_score), fut in zip(secondary_tasks, futures):
+                c_out = fut.result()
+                prompts.append(
+                    ImagePromptSuggestion(
+                        concept_title=task_concept.title,
+                        style_name=style_name,
+                        prompt_text=c_out.imagen_3_prompt,
+                        recommended_aspect_ratio=c_out.aspect_ratio if rec_ratio == preferred_aspect_ratio else rec_ratio,
+                        sonic_cues=analyst_out.sonic_cues,
+                        attention_score=att_score,
+                        guardrail_status="Verified Safe (Anti-Deception Guardrail Active)",
+                        visual_metaphor=task_concept.metaphor,
+                    )
+                )
 
     return state, prompts

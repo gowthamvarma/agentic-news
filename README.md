@@ -19,6 +19,7 @@
 | 🛠️ [**Document 03**](docs/submission/03-tech-stack-and-antigravity.md)               | **Tech Stack & Antigravity CLI Journey**            | Full-stack rationale (React 19, FastAPI, DaisyUI), why Google ADK 2.0 & Python was chosen (tier-1 ADK launchpad, `asyncio.gather`), Firebase Firestore resilience, and development with Antigravity CLI. |
 | 🏛️ [**Document 04**](docs/submission/04-system-architecture-and-technical-design.md) | **Technical Design & System Architecture**          | End-to-end topological architecture, Mermaid sequence flows, Pydantic v2 structured JSON engine, 81.6% latency reduction via parallel fan-out, and enterprise guardrail plugins.                         |
 | 🤖 [**Document 05**](docs/submission/05-multi-agent-ecosystem-and-orchestration.md)  | **Multi-Agent Ecosystem & Orchestration**           | Deep dive into the 25-agent fleet across 6 stages, Editor-in-Chief orchestration pattern, agent-to-UI component mapping matrix, and 5-Pillar best practices compliance.                                  |
+| 🎬 [**3-Min Video Script**](VIDEO_SCRIPT.md)                                         | **3-Minute Video Script & Production Guide**        | Scene-by-scene script (exactly 180s) with voiceover narration, visual cues, sound effects, on-screen graphics, and recording checklist.                                 |
 
 ### 🎬 Live Platform Walkthrough
 

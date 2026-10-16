@@ -101,18 +101,18 @@ Every interface surface in the Agentic News Analyser was designed to expose mult
 
 | UI Page / Sub-Section | Problem It Solves | Which Agent Powers It | How It Differs From Normal Summarizers |
 | :--- | :--- | :--- | :--- |
-| **Home Page (`/`)** | Regional blind spots & delayed breaking awareness | `source_collector`, `topic_suggester` | Offers live breaking feeds filtered across 8 sovereign nations and real-time agent execution pipeline telemetry. |
-| **Tab 1: Executive Brief** | Lack of quick, structured situational awareness | `report_synthesizer`, `context_builder` | Combines statistical baseline cards, high-confidence consensus points, and a Jargon Buster entity glossary with Wikipedia links. |
-| **Tab 2: Sources & Bias** | Unconscious consumption of partisan framing | `bias_analyst`, `source_reliability_agent` | Visualizes the ideological distribution (Left, Center, Right) across outlets and flags loaded adjectives and omissions. |
-| **Tab 3: Verification & Contradictions** | Unchecked misinformation & conflicting reporting | `fact_verifier`, `contradiction_analyst`, `manipulation_detector` | Displays side-by-side contradiction cards contrasting Outlets A vs B, and assigns IFCN verification status badges. |
-| **Tab 4: Chronological Timeline** | Confusion over sequence of events & narrative shifts | `timeline_agent` | Reconstructs the exact chronological evolution of the event, marking when media narratives pivoted. |
-| **Tab 5: Causal & Scenarios** | Superficial focus on symptoms rather than root causes | `root_cause_agent`, `impact_analyzer`, `scenario_prediction_agent` | Conducts 5-Whys diagnostic analysis, models 3-tier consequence cascades (1st, 2nd, 3rd order), and forecasts Best/Likely/Worst scenarios with leading indicators. |
-| **Tab 6: Active Recall Quiz** | Passive reading leading to rapid knowledge decay | `tutor_agent` | Generates adaptive, interactive multiple-choice questions with real-time scoring and deep pedagogical explanations. |
-| **Tab 7: Perspective Debate** | Polarization & inability to understand opposing viewpoints | `perspective_debate_agent` | Stages an evidence-grounded dialectical debate between credible opposing perspectives, culminating in an objective synthesis. |
-| **Tab 8: Research Copilot** | Inability to ask follow-up questions grounded in audited evidence | `research_copilot` | Dedicated investigation chat assistant grounded directly in the session's verified Evidence Ledger. |
-| **Tab 9: On-Demand Article Studio** | High-friction manual rewriting for different audiences, languages & mediums | `article_generator` | Generates publication-ready articles across 7 journalistic formats (Wire, Investigative, Executive, Op-Ed, ELI5, Academic, Newsletter) with Web Speech audio narration and 50+ language translations. |
-| **Tab 10: On-Demand Image Studio** | Lack of tailored editorial imagery, reliance on generic stock photos | `image_generator` | Synthesizes photorealistic and conceptual editorial graphics via Imagen 3 / Gemini across 5 style presets and 4 aspect ratios with Cloud Storage persistence. |
-| **History & Archive (`/history`)** | Loss of institutional knowledge and past investigations | `FirestoreService` | Searchable, tag-filtered, and bookmarkable repository of all multi-agent investigations with instant cache rehydration. |
+| **Home Page (`/`)** | Regional blind spots & delayed breaking awareness | `source_collector`, `topic_suggester` | Offers live breaking feeds filtered across 16 sovereign nations and real-time agent execution pipeline telemetry. |
+| **Tab 1: Summary & Overview** | Lack of quick, structured situational awareness | `report_synthesizer`, `context_builder` | Combines statistical baseline cards, high-confidence consensus points, and a Jargon Buster entity glossary with Wikipedia links. |
+| **Tab 2: Verified Sources** | Unconscious consumption of partisan framing | `bias_analyst`, `source_reliability_agent` | Visualizes the ideological distribution (Left, Center, Right) across outlets and flags loaded adjectives and omissions. |
+| **Tab 3: Fact Checks & Clashing Claims** | Unchecked misinformation & conflicting reporting | `fact_verifier`, `contradiction_analyst`, `manipulation_detector` | Displays side-by-side contradiction cards contrasting Outlets A vs B, and assigns IFCN verification status badges. |
+| **Tab 4: Timeline** | Confusion over sequence of events & narrative shifts | `timeline_agent` | Reconstructs the exact chronological evolution of the event, marking when media narratives pivoted. |
+| **Tab 5: Why & What's Next** | Superficial focus on symptoms rather than root causes | `root_cause_agent`, `impact_analyzer`, `scenario_prediction_agent` | Conducts 5-Whys diagnostic analysis, models 3-tier consequence cascades (1st, 2nd, 3rd order), and forecasts Best/Likely/Worst scenarios with leading indicators. |
+| **Tab 6: Knowledge Check** | Passive reading leading to rapid knowledge decay | `tutor_agent` | Generates adaptive, interactive multiple-choice questions with real-time scoring and deep pedagogical explanations. |
+| **Tab 7: Both Sides Debate** | Polarization & inability to understand opposing viewpoints | `perspective_debate_agent` | Stages an evidence-grounded dialectical debate between credible opposing perspectives, culminating in an objective synthesis. |
+| **Tab 8: Ask AI Reporter** | Inability to ask follow-up questions grounded in audited evidence | `research_copilot` (`AI Reporter`) | Dedicated investigation chat assistant grounded directly in the session's verified Evidence Ledger. |
+| **Tab 9: Article Studio** | High-friction manual rewriting for different audiences, languages & mediums | `article_generator` | Generates publication-ready articles across 7 journalistic formats (Wire, Investigative, Executive, Op-Ed, ELI5, Academic, Newsletter) with Web Speech audio narration and 50+ language translations. |
+| **Tab 10: Image Studio** | Lack of tailored editorial imagery, reliance on generic stock photos | `Image Editorial Art Room Crew` (`image_analyst`, `creative_director`, `cinematographer`, `editorial_critic`) & `image_generator` | Synthesizes photorealistic and conceptual editorial graphics via Imagen 3 / Gemini across 5 style presets and 4 aspect ratios with Anti-Deception Guardrails and Cloud Storage persistence. |
+| **History Archive (`/history`)** | Loss of institutional knowledge and past investigations | `FirestoreService` | Searchable, tag-filtered, and bookmarkable repository of all multi-agent investigations with instant cache rehydration. |
 
 ---
 
@@ -128,7 +128,7 @@ Every interface surface in the Agentic News Analyser was designed to expose mult
 | **6. Dialectical Perspective Debates** | ⚠️ Can roleplay if specifically prompted | ❌ Informational answers only | ⚠️ Displays opposing headlines | **✅ Automated Pro vs Con dialectical debate grounded in cited evidence** |
 | **7. Multi-Agent Orchestration Framework** | ❌ Single-turn LLM call | ⚠️ Search + Synthesizer pipeline | ❌ Algorithmic scrapers | **✅ 25 Google ADK 2.0 specialized agents across 6 architectural layers** |
 | **8. Evidentiary Auditability** | ❌ Black box | ⚠️ Web URL footnotes | ⚠️ Publisher metadata | **✅ Immutable Evidence Ledger Plugin tracking claims, quotes, and primary DBs** |
-| **9. Multimodal Editorial Publishing** | ❌ Raw chat markdown only | ❌ Static text bullets | ⚠️ Pre-existing publisher images | **✅ 7-style Article Studio + Imagen 3 Image Studio + Audio TTS + 50+ language translations** |
+| **9. Multimodal Editorial Publishing** | ❌ Raw chat markdown only | ❌ Static text bullets | ⚠️ Pre-existing publisher images | **✅ 7-style Article Studio + 4-Agent Image Editorial Art Room (Imagen 3) + Anti-Deception Guardrail + Audio TTS + 50+ language translations** |
 
 ---
 

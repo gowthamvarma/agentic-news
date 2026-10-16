@@ -35,9 +35,18 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
 
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>('');
   const [favoritesOnly, setFavoritesOnly] = useState<boolean>(false);
   const [pageSize, setPageSize] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(1);
+
+  // Debounce search term to prevent keystroke network flooding
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 250);
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
 
   // Screen size detection: desktop mode (>= 768px) vs mobile mode (< 768px)
   const [isDesktop, setIsDesktop] = useState<boolean>(() => {
@@ -84,7 +93,7 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
       const res = await fetchAnalysesArchive({
         limit: pageSize,
         offset,
-        search: searchTerm.trim() || undefined,
+        search: debouncedSearchTerm.trim() || undefined,
         favorites_only: favoritesOnly || undefined,
       });
       setItems(res.items || []);
@@ -95,7 +104,7 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
     } finally {
       setLoading(false);
     }
-  }, [currentPage, pageSize, searchTerm, favoritesOnly]);
+  }, [currentPage, pageSize, debouncedSearchTerm, favoritesOnly]);
 
   useEffect(() => {
     loadData();
@@ -130,7 +139,11 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
 
     try {
       await deleteAnalysis(item.id);
-      loadData();
+      if (items.length <= 1 && currentPage > 1) {
+        setCurrentPage((prev) => prev - 1);
+      } else {
+        loadData();
+      }
     } catch (err: any) {
       alert(`Failed to delete record: ${err?.message || err}`);
     }

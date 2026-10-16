@@ -75,34 +75,43 @@ def _extract_grounding_context(analysis: Dict[str, Any]) -> str:
     metrics = analysis.get("key_metrics_and_numbers", [])
     consensus = analysis.get("consensus_points", [])
 
-    # Extract claims & verifications
+    # Extract claims & verifications (supports both schema keys and legacy keys)
     verifications = analysis.get("verifications", [])
     claims_text = []
     for v in verifications[:6]:
-        c = v.get("claim", "")
-        verd = v.get("verdict", "")
+        c = v.get("claim_text") or v.get("claim", "")
+        verd = v.get("status") or v.get("verdict", "")
         conf = v.get("confidence", 0)
-        claims_text.append(f"- Claim: \"{c}\" | Verdict: {verd} (Confidence: {conf * 100:.0f}%)")
+        reasoning = v.get("reasoning", "")
+        if c:
+            claims_text.append(
+                f"- Claim: \"{c}\" | Verdict: {verd} (Confidence: {conf * 100:.0f}%)"
+                + (f" — {reasoning}" if reasoning else "")
+            )
 
-    # Extract contradictions
+    # Extract contradictions (supports both ContradictionItem schema keys and legacy keys)
     contradictions = analysis.get("contradictions", [])
     contra_text = []
     for con in contradictions[:4]:
-        item = con.get("discrepancy_item", "")
-        s1 = con.get("source_a", "")
-        v1 = con.get("view_a", "")
-        s2 = con.get("source_b", "")
-        v2 = con.get("view_b", "")
-        contra_text.append(f"- Point: {item} | {s1}: \"{v1}\" vs {s2}: \"{v2}\"")
+        item = con.get("topic_aspect") or con.get("discrepancy_item", "")
+        s1 = con.get("outlet_a") or con.get("source_a", "")
+        v1 = con.get("claim_a") or con.get("view_a", "")
+        s2 = con.get("outlet_b") or con.get("source_b", "")
+        v2 = con.get("claim_b") or con.get("view_b", "")
+        if item or v1 or v2:
+            contra_text.append(f"- Point: {item} | {s1}: \"{v1}\" vs {s2}: \"{v2}\"")
 
-    # Extract timeline
+    # Extract timeline (supports both TimelineEvent schema keys and legacy keys)
     timeline = analysis.get("timeline", {})
     events = timeline.get("events", []) if isinstance(timeline, dict) else []
     timeline_text = []
     for ev in events[:5]:
-        d = ev.get("date_or_time", "")
-        e_desc = ev.get("event", "")
-        timeline_text.append(f"- {d}: {e_desc}")
+        d = ev.get("timestamp_or_date") or ev.get("date_or_time", "")
+        headline = ev.get("headline") or ev.get("event", "")
+        desc = ev.get("description", "")
+        e_desc = f"{headline}: {desc}" if headline and desc else (headline or desc)
+        if d or e_desc:
+            timeline_text.append(f"- {d}: {e_desc}")
 
     # Extract perspective debate
     debate = analysis.get("debate", {})
@@ -213,7 +222,9 @@ Return ONLY valid JSON.
                     top_p=0.9,
                 ),
             )
-            raw_text = res.text or ""
+            raw_text = (res.text or "").strip()
+            if raw_text.startswith("```"):
+                raw_text = re.sub(r"^```(?:json)?\s*|\s*```$", "", raw_text, flags=re.DOTALL).strip()
             data = json.loads(raw_text)
 
             headline = data.get("headline", topic)

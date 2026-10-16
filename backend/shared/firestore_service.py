@@ -26,8 +26,8 @@ if cred_env and not os.path.isfile(cred_env):
     logger.info("GOOGLE_APPLICATION_CREDENTIALS ('%s') is not a valid file path. Clearing from environment.", cred_env)
     del os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
 
-FIRESTORE_TIMEOUT_READ = 10.0
-FIRESTORE_TIMEOUT_WRITE = 15.0
+FIRESTORE_TIMEOUT_READ = 5.0
+FIRESTORE_TIMEOUT_WRITE = 10.0
 
 _client_instance: Optional[Any] = None
 _client_attempted: bool = False
