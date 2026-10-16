@@ -1126,7 +1126,7 @@ Return a single JSON object with:
     }
 
 
-def generate_live_brief(topic: str) -> Optional[Dict[str, Any]]:
+def generate_live_brief(topic: str, articles_list: Optional[List[Dict[str, Any]]] = None) -> Optional[Dict[str, Any]]:
     """Generates Stage 1 (Executive Brief, Metrics & Primer) rapidly in ~3-5 seconds."""
     if IS_SIMULATION_MODE or not GEMINI_API_KEY:
         return None
@@ -1138,18 +1138,20 @@ def generate_live_brief(topic: str) -> Optional[Dict[str, Any]]:
         clean_topic = topic.strip()
 
         news_context = ""
-        live_articles = []
-        try:
-            from shared.tools import fetch_news_articles
-            raw_articles_str = fetch_news_articles(clean_topic, num_sources=8)
-            live_articles = json.loads(raw_articles_str)
-            if live_articles:
-                news_context = "\nReal-Time News Feeds Ingested:\n" + "\n".join([
-                    f"- [{a.get('published_date', 'Recent')}] {a.get('outlet')}: \"{a.get('title')}\" ({a.get('url', '')})\n  Excerpt: {a.get('content', '')[:180]}"
-                    for a in live_articles
-                ])
-        except Exception as e_news:
-            logger.debug("Failed fetching live articles for brief: %s", e_news)
+        live_articles = articles_list if articles_list is not None else []
+        if not live_articles:
+            try:
+                from shared.tools import fetch_news_articles
+                raw_articles_str = fetch_news_articles(clean_topic, num_sources=8)
+                live_articles = json.loads(raw_articles_str)
+            except Exception as e_news:
+                logger.debug("Failed fetching live articles for brief: %s", e_news)
+
+        if live_articles:
+            news_context = "\nReal-Time News Feeds Ingested:\n" + "\n".join([
+                f"- [{a.get('published_date', 'Recent')}] {a.get('outlet')}: \"{a.get('title')}\" ({a.get('url', '')})\n  Excerpt: {a.get('content', '')[:180]}"
+                for a in live_articles
+            ])
 
         prompt = f"""You are a senior news intelligence analyst. Generate an Executive Intelligence Brief for:
 "{clean_topic}"
@@ -1225,7 +1227,7 @@ Return a single JSON object containing:
     return None
 
 
-def generate_live_verifications(topic: str) -> Optional[Dict[str, Any]]:
+def generate_live_verifications(topic: str, articles_list: Optional[List[Dict[str, Any]]] = None) -> Optional[Dict[str, Any]]:
     """Generates Stage 2 (Fact Checks, Contradictions, Bias Spectrum & Consensus) in ~4-6 seconds."""
     if IS_SIMULATION_MODE or not GEMINI_API_KEY:
         return None
@@ -1237,17 +1239,20 @@ def generate_live_verifications(topic: str) -> Optional[Dict[str, Any]]:
         clean_topic = topic.strip()
 
         news_context = ""
-        try:
-            from shared.tools import fetch_news_articles
-            raw_articles_str = fetch_news_articles(clean_topic, num_sources=8)
-            live_articles = json.loads(raw_articles_str)
-            if live_articles:
-                news_context = "\nReal-Time News Feeds Ingested for Cross-Verification:\n" + "\n".join([
-                    f"- [{a.get('published_date', 'Recent')}] {a.get('outlet')}: \"{a.get('title')}\"\n  Text: {a.get('content', '')[:200]}"
-                    for a in live_articles
-                ])
-        except Exception as e_news:
-            logger.debug("Failed fetching live articles for verifications: %s", e_news)
+        live_articles = articles_list if articles_list is not None else []
+        if not live_articles:
+            try:
+                from shared.tools import fetch_news_articles
+                raw_articles_str = fetch_news_articles(clean_topic, num_sources=8)
+                live_articles = json.loads(raw_articles_str)
+            except Exception as e_news:
+                logger.debug("Failed fetching live articles for verifications: %s", e_news)
+
+        if live_articles:
+            news_context = "\nReal-Time News Feeds Ingested for Cross-Verification:\n" + "\n".join([
+                f"- [{a.get('published_date', 'Recent')}] {a.get('outlet')}: \"{a.get('title')}\"\n  Text: {a.get('content', '')[:200]}"
+                for a in live_articles
+            ])
 
         prompt = f"""You are an IFCN forensic fact checker and cross-source intelligence auditor.
 Audit claims, cross-source contradictions, and media bias for:
@@ -1299,7 +1304,7 @@ Return a single JSON object containing:
     return None
 
 
-def generate_live_timeline(topic: str) -> Optional[Dict[str, Any]]:
+def generate_live_timeline(topic: str, articles_list: Optional[List[Dict[str, Any]]] = None) -> Optional[Dict[str, Any]]:
     """Generates Stage 3 (Chronological Timeline & Narrative Trajectory) grounded with recent reporting."""
     if IS_SIMULATION_MODE or not GEMINI_API_KEY:
         return None
@@ -1312,19 +1317,21 @@ def generate_live_timeline(topic: str) -> Optional[Dict[str, Any]]:
         now_dt = datetime.now(timezone.utc)
         current_time_str = now_dt.strftime("%B %d, %Y (%H:%M UTC)")
 
-        # Fetch recent live articles to ground recent/trending developments
         news_context = ""
-        try:
-            from shared.tools import fetch_news_articles
-            raw_articles = fetch_news_articles(clean_topic, num_sources=6)
-            articles_list = json.loads(raw_articles)
-            if articles_list:
-                news_context = "\nRecent Real-Time & Live Reporting Feeds:\n" + "\n".join([
-                    f"- [{a.get('published_date', 'Recent')}] {a.get('outlet')}: {a.get('title')} ({a.get('url', '')})\n  Snippet: {a.get('content', '')[:160]}"
-                    for a in articles_list
-                ])
-        except Exception as e_news:
-            logger.debug("Failed fetching live articles for timeline grounding: %s", e_news)
+        live_articles = articles_list if articles_list is not None else []
+        if not live_articles:
+            try:
+                from shared.tools import fetch_news_articles
+                raw_articles = fetch_news_articles(clean_topic, num_sources=6)
+                live_articles = json.loads(raw_articles)
+            except Exception as e_news:
+                logger.debug("Failed fetching live articles for timeline grounding: %s", e_news)
+
+        if live_articles:
+            news_context = "\nRecent Real-Time & Live Reporting Feeds:\n" + "\n".join([
+                f"- [{a.get('published_date', 'Recent')}] {a.get('outlet')}: {a.get('title')} ({a.get('url', '')})\n  Snippet: {a.get('content', '')[:160]}"
+                for a in live_articles
+            ])
 
         prompt = f"""You are a chronological news investigator and timeline reconstruction intelligence agent.
 Reconstruct the full chronological trajectory for:
@@ -1379,9 +1386,9 @@ Return a single JSON object with:
     return None
 
 
-def build_stage_brief(topic: str) -> Dict[str, Any]:
+def build_stage_brief(topic: str, articles_list: Optional[List[Dict[str, Any]]] = None) -> Dict[str, Any]:
     """Builds Stage 1: Executive Brief, Key Numbers, Context Primer, and Analyzed Articles."""
-    live = generate_live_brief(topic)
+    live = generate_live_brief(topic, articles_list=articles_list)
     if live:
         return live
 
@@ -1397,9 +1404,9 @@ def build_stage_brief(topic: str) -> Dict[str, Any]:
     }
 
 
-def build_stage_verifications(topic: str) -> Dict[str, Any]:
+def build_stage_verifications(topic: str, articles_list: Optional[List[Dict[str, Any]]] = None) -> Dict[str, Any]:
     """Builds Stage 2: Forensic Claim Verifications, Contradictions, Bias Spectrum & Consensus."""
-    live = generate_live_verifications(topic)
+    live = generate_live_verifications(topic, articles_list=articles_list)
     if live:
         if not live.get("contradictions"):
             live["contradictions"] = generate_live_contradictions(topic)
@@ -1416,9 +1423,9 @@ def build_stage_verifications(topic: str) -> Dict[str, Any]:
     }
 
 
-def build_stage_timeline(topic: str) -> Dict[str, Any]:
+def build_stage_timeline(topic: str, articles_list: Optional[List[Dict[str, Any]]] = None) -> Dict[str, Any]:
     """Builds Stage 3: Chronological Event Timeline & Narrative Trajectory."""
-    live = generate_live_timeline(topic)
+    live = generate_live_timeline(topic, articles_list=articles_list)
     if live:
         return live
 

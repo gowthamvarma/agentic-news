@@ -114,6 +114,12 @@ def _generate_adaptive_mock_articles(topic: str, num_sources: int = 4) -> List[D
 
 
 _NEWS_CACHE: Dict[str, tuple[float, List[Dict[str, Any]]]] = {}
+_HTTP_CLIENT = httpx.Client(
+    follow_redirects=True,
+    timeout=httpx.Timeout(connect=3.0, read=4.0, write=3.0, pool=5.0),
+    limits=httpx.Limits(max_keepalive_connections=20, max_connections=40),
+    headers={"User-Agent": BROWSER_UA},
+)
 
 
 def fetch_news_articles(topic: str, num_sources: int = 5) -> str:
@@ -140,14 +146,13 @@ def fetch_news_articles(topic: str, num_sources: int = 5) -> str:
     logger.info("Tool fetch_news_articles called for topic: '%s'", topic)
     articles: List[Dict[str, Any]] = []
 
-    # 1. Attempt Live Google News RSS Search
+    # 1. Attempt Live Google News RSS Search via pooled HTTP client
     try:
         encoded_topic = urllib.parse.quote(topic.strip())
         rss_url = f"https://news.google.com/rss/search?q={encoded_topic}&hl=en-US&gl=US&ceid=US:en"
-        req = urllib.request.Request(rss_url, headers={"User-Agent": BROWSER_UA})
-        with urllib.request.urlopen(req, timeout=6) as response:
-            xml_data = response.read()
-            root = ET.fromstring(xml_data)
+        response = _HTTP_CLIENT.get(rss_url)
+        if response.status_code == 200:
+            root = ET.fromstring(response.content)
             items = root.findall(".//item")
             
             seen_outlets = set()
@@ -189,35 +194,34 @@ def fetch_news_articles(topic: str, num_sources: int = 5) -> str:
     # 2. Supplementary DuckDuckGo Search if needed
     if len(articles) < num_sources:
         try:
-            with httpx.Client(follow_redirects=True, timeout=5.0) as client:
-                res = client.post(
-                    "https://html.duckduckgo.com/html/",
-                    data={"q": f"{topic} news"},
-                    headers={"User-Agent": BROWSER_UA},
-                )
-                if res.status_code == 200:
-                    soup = bs4.BeautifulSoup(res.text, "html.parser")
-                    results = soup.find_all("div", class_="result")
-                    for r in results:
-                        title_tag = r.find("a", class_="result__a")
-                        snippet_tag = r.find("a", class_="result__snippet")
-                        url_tag = r.find("a", class_="result__url")
-                        if title_tag and snippet_tag:
-                            title = title_tag.get_text().strip()
-                            url = title_tag.get("href", "")
-                            snippet = snippet_tag.get_text().strip()
-                            outlet_hint = url_tag.get_text().strip().split("/")[0] if url_tag else "Web Outlet"
+            res = _HTTP_CLIENT.post(
+                "https://html.duckduckgo.com/html/",
+                data={"q": f"{topic} news"},
+                headers={"User-Agent": BROWSER_UA},
+            )
+            if res.status_code == 200:
+                soup = bs4.BeautifulSoup(res.text, "html.parser")
+                results = soup.find_all("div", class_="result")
+                for r in results:
+                    title_tag = r.find("a", class_="result__a")
+                    snippet_tag = r.find("a", class_="result__snippet")
+                    url_tag = r.find("a", class_="result__url")
+                    if title_tag and snippet_tag:
+                        title = title_tag.get_text().strip()
+                        url = title_tag.get("href", "")
+                        snippet = snippet_tag.get_text().strip()
+                        outlet_hint = url_tag.get_text().strip().split("/")[0] if url_tag else "Web Outlet"
 
-                            articles.append({
-                                "url": url,
-                                "title": title,
-                                "outlet": outlet_hint.replace("www.", "").title(),
-                                "published_date": "Recent",
-                                "author": outlet_hint,
-                                "content": snippet,
-                            })
-                            if len(articles) >= num_sources:
-                                break
+                        articles.append({
+                            "url": url,
+                            "title": title,
+                            "outlet": outlet_hint.replace("www.", "").title(),
+                            "published_date": "Recent",
+                            "author": outlet_hint,
+                            "content": snippet,
+                        })
+                        if len(articles) >= num_sources:
+                            break
         except Exception as e:
             logger.debug("DuckDuckGo search fallback encountered error: %s", e)
 
@@ -242,25 +246,24 @@ def scrape_article_text(url: str) -> str:
     """
     logger.info("Tool scrape_article_text called for URL: '%s'", url)
     try:
-        with httpx.Client(follow_redirects=True, timeout=6.0) as client:
-            resp = client.get(url, headers={"User-Agent": USER_AGENT})
-            if resp.status_code == 200:
-                soup = bs4.BeautifulSoup(resp.text, "html.parser")
-                title = soup.find("title").get_text().strip() if soup.find("title") else "Article"
-                for tag in soup(["script", "style", "nav", "footer", "header", "noscript"]):
-                    tag.decompose()
-                
-                # Locate article tag or paragraphs
-                body_elem = soup.find("article") or soup.find("main") or soup.body
-                paragraphs = [p.get_text().strip() for p in (body_elem.find_all("p") if body_elem else []) if len(p.get_text().strip()) > 35]
-                clean_body = "\n\n".join(paragraphs[:15]) if paragraphs else soup.get_text(separator=" ", strip=True)[:1500]
+        resp = _HTTP_CLIENT.get(url, headers={"User-Agent": USER_AGENT})
+        if resp.status_code == 200:
+            soup = bs4.BeautifulSoup(resp.text, "html.parser")
+            title = soup.find("title").get_text().strip() if soup.find("title") else "Article"
+            for tag in soup(["script", "style", "nav", "footer", "header", "noscript"]):
+                tag.decompose()
+            
+            # Locate article tag or paragraphs
+            body_elem = soup.find("article") or soup.find("main") or soup.body
+            paragraphs = [p.get_text().strip() for p in (body_elem.find_all("p") if body_elem else []) if len(p.get_text().strip()) > 35]
+            clean_body = "\n\n".join(paragraphs[:15]) if paragraphs else soup.get_text(separator=" ", strip=True)[:1500]
 
-                return json.dumps({
-                    "url": str(resp.url),
-                    "title": title,
-                    "content": clean_body if clean_body else "Article content inaccessible or paywalled.",
-                    "status": "success",
-                }, indent=2)
+            return json.dumps({
+                "url": str(resp.url),
+                "title": title,
+                "content": clean_body if clean_body else "Article content inaccessible or paywalled.",
+                "status": "success",
+            }, indent=2)
     except Exception as e:
         logger.debug("Live scrape failed for %s: %s", url, e)
 

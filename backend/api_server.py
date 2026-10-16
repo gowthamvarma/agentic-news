@@ -257,8 +257,29 @@ async def stream_analysis(topic: str = Query(..., description="Breaking news top
         await FirestoreService.save_analysis(analysis_id, initial_doc)
         yield f"event: init\ndata: {json.dumps(initial_doc)}\n\n"
 
+        # High-Performance Parallel Pipeline:
+        # 1. Fetch live articles once to avoid redundant network roundtrips
+        shared_articles: List[Dict[str, Any]] = []
+        try:
+            from shared.tools import fetch_news_articles
+            raw_articles_str = await asyncio.to_thread(fetch_news_articles, clean_topic, 8)
+            shared_articles = json.loads(raw_articles_str)
+        except Exception as e:
+            logger.debug("Failed pre-fetching shared articles for stream: %s", e)
+
+        # 2. Launch all three independent stages concurrently
+        brief_task = asyncio.create_task(
+            asyncio.to_thread(build_stage_brief, clean_topic, shared_articles)
+        )
+        verif_task = asyncio.create_task(
+            asyncio.to_thread(build_stage_verifications, clean_topic, shared_articles)
+        )
+        timeline_task = asyncio.create_task(
+            asyncio.to_thread(build_stage_timeline, clean_topic, shared_articles)
+        )
+
         # Step 1: Executive Brief & Primer (~yields first)
-        brief_data = await asyncio.to_thread(build_stage_brief, clean_topic)
+        brief_data = await brief_task
         brief_data["id"] = analysis_id
         brief_data["analysis_id"] = analysis_id
         brief_data["status"] = "partial"
@@ -267,14 +288,14 @@ async def stream_analysis(topic: str = Query(..., description="Breaking news top
         yield f"event: step_brief\ndata: {json.dumps(brief_data)}\n\n"
 
         # Step 2: Fact Verifications, Contradictions & Bias Spectrum
-        verif_data = await asyncio.to_thread(build_stage_verifications, clean_topic)
+        verif_data = await verif_task
         verif_data["id"] = analysis_id
         verif_data["analysis_id"] = analysis_id
         await FirestoreService.update_analysis(analysis_id, verif_data)
         yield f"event: step_verification\ndata: {json.dumps(verif_data)}\n\n"
 
         # Step 3: Chronological Timeline & Narrative Trajectory
-        timeline_data = await asyncio.to_thread(build_stage_timeline, clean_topic)
+        timeline_data = await timeline_task
         timeline_data["id"] = analysis_id
         timeline_data["analysis_id"] = analysis_id
         timeline_data["status"] = "completed"
