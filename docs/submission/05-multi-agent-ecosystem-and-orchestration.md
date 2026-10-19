@@ -71,7 +71,7 @@ flowchart TD
         A26["✍️ article_generator"]
     end
 
-    subgraph S6 ["Stage 6: Engage & Active Recall"]
+    subgraph S6 ["Stage 6: Engage, Active Recall & Visual Publishing"]
         direction TB
         subgraph S6A ["Interactive Learning"]
             direction LR
@@ -79,13 +79,21 @@ flowchart TD
             A22["⚔️ perspective_debate_agent"]
             A23["💬 research_copilot"]
         end
-        subgraph S6B ["Discovery, Media & Resilience"]
+        subgraph S6B ["Discovery & Media Generation"]
             direction LR
             A24["🔥 topic_curator"]
             A25["⚡ offline_simulation_agent"]
             A27["🎨 image_generator"]
         end
+        subgraph S6C ["4-Agent Editorial Art Room Crew"]
+            direction LR
+            A28["👁️ image_analyst"]
+            A29["🪄 creative_director"]
+            A30["🎥 cinematographer"]
+            A31["🛡️ editorial_critic"]
+        end
         S6A --> S6B
+        S6B --> S6C
     end
 
     Root ==> S1

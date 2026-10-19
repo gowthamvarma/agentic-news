@@ -146,26 +146,29 @@ All intelligence data contracts inherit from Pydantic `BaseModel` with strict fi
 ```python
 class NewsIntelligenceReport(BaseModel):
     """Master Data Contract for Multi-Agent News Intelligence."""
-    id: str = Field(description="Unique UUID for this investigation")
+    id: Optional[str] = Field(default=None, description="Unique analysis dossier ID")
     topic: str = Field(description="Normalized news event or investigation title")
     executive_summary: str = Field(description="Authoritative, neutral executive brief")
-    key_metrics: List[str] = Field(default_factory=list, description="Key statistical baseline facts")
-    consensus_points: List[str] = Field(default_factory=list, description="Verified high-confidence facts")
-    sources: List[SourceArticle] = Field(default_factory=list, description="All audited source publications")
-    claims: List[ClaimVerification] = Field(default_factory=list, description="Audited claims with IFCN verdicts")
-    contradictions: List[ContradictionItem] = Field(default_factory=list, description="Side-by-side outlet disputes")
-    bias_evaluation: Optional[BiasEvaluation] = Field(default=None, description="Media framing & ideological lean")
-    timeline: Optional[TimelinePayload] = Field(default=None, description="Chronological event reconstruction")
-    root_cause_analysis: Optional[RootCauseReport] = Field(default=None, description="5-Whys diagnostic tree")
-    consequences_tree: List[ConsequenceNode] = Field(default_factory=list, description="3-Tier consequence ripple effects")
-    future_scenarios: List[FutureScenario] = Field(default_factory=list, description="Best/Likely/Worst forward forecasts")
-    lessons_learned: List[LessonItem] = Field(default_factory=list, description="Actionable prevention directives")
-    quiz: Optional[QuizPayload] = Field(default=None, description="Active recall interactive MCQs")
-    perspective_debate: Optional[PerspectiveDebateReport] = Field(default=None, description="Pro/Con dialectical debate")
-    generated_articles: List[GeneratedArticleItem] = Field(default_factory=list, description="On-demand generated multi-style articles")
-    generated_images: List[GeneratedImageItem] = Field(default_factory=list, description="On-demand Imagen 3 / Gemini generated visual media")
-    image_prompts: List[ImagePromptSuggestion] = Field(default_factory=list, description="Forensic AI visual prompt suggestions")
-    evidence_ledger: List[Dict[str, Any]] = Field(default_factory=list, description="Immutable tool audit trail")
+    key_metrics_and_numbers: List[str] = Field(default_factory=list, description="Key statistical baseline indicators")
+    consensus_points: List[str] = Field(default_factory=list, description="Verified high-confidence facts across all reporting")
+    timeline: Optional[TimelinePayload] = Field(default=None, description="Chronological event reconstruction and narrative trajectory")
+    contradictions: List[ContradictionItem] = Field(default_factory=list, description="Side-by-side outlet disputes and divergences")
+    verifications: List[ClaimVerification] = Field(default_factory=list, description="Audited claims with IFCN verdicts and confidence")
+    bias_evaluations: List[BiasEvaluation] = Field(default_factory=list, description="Media framing & ideological lean across outlets")
+    root_cause_analysis: Optional[RootCauseReport] = Field(default=None, description="5-Whys diagnostic tree (triggers, systemic, structural)")
+    consequences_tree: List[ConsequenceNode] = Field(default_factory=list, description="3-Tier consequence ripple effects (1st, 2nd, 3rd order)")
+    future_scenarios: List[FutureScenario] = Field(default_factory=list, description="Best/Likely/Worst forward forecasts with leading indicators")
+    lessons_learned: List[LessonItem] = Field(default_factory=list, description="Actionable prevention directives for citizens, industry, regulators")
+    sources_analyzed: List[str] = Field(default_factory=list, description="List of source outlet domains analyzed")
+    context_primer: Optional[ContextPrimerPayload] = Field(default=None, description="Who/Where/What entity explainers and jargon glossary")
+    articles_analyzed: List[SourceArticle] = Field(default_factory=list, description="Detailed primary source articles analysed with metadata")
+    quiz: Optional[QuizPayload] = Field(default=None, description="Active recall interactive MCQs and explanations")
+    debate: Optional[PerspectiveDebateReport] = Field(default=None, description="Pro/Con dialectical debate and compromise synthesis")
+    generated_articles: List[Dict[str, Any]] = Field(default_factory=list, description="On-demand generated multi-style articles")
+    generated_images: List[Dict[str, Any]] = Field(default_factory=list, description="On-demand Imagen 3 / Gemini generated visual media")
+    image_prompts: List[Dict[str, Any]] = Field(default_factory=list, description="Forensic AI visual prompt suggestions")
+    evidence_ledger: Optional[List[Dict[str, Any]]] = Field(default_factory=list, description="Immutable tool audit trail")
+    execution_time_seconds: Optional[float] = Field(default=None, description="Total execution duration in seconds")
 ```
 
 ### The Three-Tier Structured Builder Pipeline (`backend/shared/structured_builder.py`)
@@ -180,31 +183,29 @@ To translate raw LLM outputs into compliant Pydantic instances without ever rais
 
 ---
 
-## 4. Concurrency & Performance Engine
+## 4. Concurrency & ADK Graph Workflow Checkpoint Engine
 
 Evaluating 25 specialized agents sequentially would take over 45 seconds per topic—an unacceptable latency for user experience. 
 
-We engineered a **Parallel Fan-Out Supervisor** utilizing Python's `asyncio.gather`:
+We engineered a **Parallel Fan-Out Supervisor** utilizing Python's `asyncio.gather` and official **ADK 2.0 Graph Workflow Checkpoint Nodes** (`backend/shared/adk_workflow.py`):
 
 ```python
-# Asynchronous parallel supervisor evaluation pattern
-async def evaluate_audit_layer(topic: str, claims: List[AtomicClaim], sources: List[SourceArticle]):
-    # Trigger all 4 audit specialists simultaneously
-    fact_task = asyncio.create_task(fact_verifier.evaluate_async(claims))
-    bias_task = asyncio.create_task(bias_analyst.evaluate_async(sources))
-    contra_task = asyncio.create_task(contradiction_analyst.evaluate_async(claims, sources))
-    timeline_task = asyncio.create_task(timeline_agent.evaluate_async(topic, sources))
+# ADK 2.0 Checkpoint Nodes with Rerun-on-Resume Guarantees
+@node(rerun_on_resume=True)
+async def ingest_sources_node(topic: str, num_sources: int = 8) -> List[Dict[str, Any]]:
+    """Stage 1: Ingests multi-spectrum source articles."""
+    return await asyncio.to_thread(fetch_news_articles, topic, num_sources)
 
-    # Wait for all specialists in parallel
-    fact_res, bias_res, contra_res, time_res = await asyncio.gather(
-        fact_task, bias_task, contra_task, timeline_task, return_exceptions=True
+@node(rerun_on_resume=True)
+async def parallel_news_supervisor_node(topic: str) -> Dict[str, Any]:
+    """Concurrent execution of Understand, Verify, and Timeline layers via asyncio.gather."""
+    articles = await ingest_sources_node(topic, 8)
+    brief_data, verif_data, timeline_data = await asyncio.gather(
+        understand_brief_node(topic, articles),
+        verify_audit_node(topic, articles),
+        timeline_trajectory_node(topic, articles),
     )
-    return {
-        "verifications": fact_res,
-        "bias": bias_res,
-        "contradictions": contra_res,
-        "timeline": time_res
-    }
+    return {**brief_data, **verif_data, **timeline_data}
 ```
 
 ### Performance Benchmarks
@@ -232,18 +233,49 @@ Google ADK 2.0 provides an extensible plugin ecosystem. We developed three custo
 
 ---
 
-## 6. Generative Media Studio Endpoints & Publishing Pipeline
+## 6. Complete REST API Reference & Generative Studio Endpoints
 
-Beyond analysis and auditing, the platform exposes dedicated REST APIs for on-demand media generation and the multi-agent editorial art room:
+The FastAPI backend (`backend/api_server.py`) exposes a comprehensive REST and Server-Sent Events (SSE) interface:
 
+### Core Investigation & Streaming
 | Endpoint | Method | Request Payload | Response / Functionality |
 | :--- | :--- | :--- | :--- |
-| `/api/analysis/{id}/article` | `POST` | `{ style, length, target_language, perspective_focus }` | Generates a publication-ready journalistic article across 7 styles, complete with audio narration and SEO social kit. |
+| `/api/health` | `GET` | — | Returns server status, simulation mode, model names, and active agent fleet. |
+| `/api/analyze` | `POST` | `AnalyzeRequest { topic, run_live, analysis_id }` | Triggers the complete 25-agent pipeline, persisting full report to Firestore. |
+| `/api/analyze/stream` | `GET` | `?topic=...` | Streams partial analysis stage-by-stage via Server-Sent Events (SSE: init, step_brief, step_verification, step_timeline, complete). |
+| `/api/analyses` | `GET` | `?limit=20&offset=0&search=...&favorites_only=...` | Retrieves paginated and filtered historical investigations from Firestore. |
+| `/api/analysis/{analysis_id}` | `GET` | — | Fetches a specific news analysis intelligence dossier by UUID. |
+| `/api/analysis/{analysis_id}` | `PATCH` | `UpdateAnalysisRequest { is_favorite, notes, ... }` | Updates favorite status, notes, or on-demand sections in Firestore. |
+| `/api/analysis/{analysis_id}` | `DELETE` | — | Permanently deletes an analysis dossier from Firestore. |
+| `/api/fact-check` | `POST` | `AnalyzeRequest { topic }` | Forensic verification of a specific isolated claim against fact-checking databases. |
+
+### Active Engagement & On-Demand Diagnostics
+| Endpoint | Method | Request Payload | Response / Functionality |
+| :--- | :--- | :--- | :--- |
+| `/api/scenarios` | `POST` | `AnalyzeRequest { topic, analysis_id }` | On-demand generation of 5-Whys causal diagnostics, 3-tier consequence tree, and future scenarios. |
+| `/api/contradictions` | `POST` | `AnalyzeRequest { topic, analysis_id }` | On-demand generation of cross-outlet contradiction cards and framing divergence analysis. |
+| `/api/tutor/quiz` | `POST` | `AnalyzeRequest { topic, analysis_id }` | Generates active recall comprehension multiple-choice questions with answer keys. |
+| `/api/tutor/grade` | `POST` | `QuizGradeRequest { quiz_id, user_answers }` | Grades submitted answers with explanatory rationales and radial literacy scorecard. |
+| `/api/debate` | `POST` | `AnalyzeRequest { topic, analysis_id }` | Generates dialectical Socratic debate between steelmanned pro/con viewpoints and compromise synthesis. |
+| `/api/chat` | `POST` | `ChatRequest { query, topic, session_id, analysis_id }` | Multi-turn conversational investigation partner (`AI Reporter`) grounded in session Evidence Ledger and dossier context. |
+| `/api/chat/history/{analysis_id}` | `GET` | — | Retrieves persistent Research Copilot conversation history from Firestore. |
+| `/api/chat/history/{analysis_id}` | `DELETE` | — | Clears saved Research Copilot conversation history. |
+
+### Generative Media Studios & Publishing
+| Endpoint | Method | Request Payload | Response / Functionality |
+| :--- | :--- | :--- | :--- |
+| `/api/analysis/{id}/article` | `POST` | `ArticleGenerateRequest { writing_style, target_length, language, ... }` | Synthesizes publication-ready journalism across 7 styles, 130+ languages, audio TTS, and social kit. |
 | `/api/analysis/{id}/articles` | `GET` | — | Retrieves all generated article variants saved to this investigation dossier. |
 | `/api/analysis/{id}/article/{article_id}` | `DELETE` | — | Deletes an individual generated article edition from the database. |
-| `/api/analysis/{id}/image-prompts` | `GET` / `POST` | — | Generates forensic AI visual prompt recommendations grounded in verified facts. |
-| `/api/analysis/{id}/editorial-art-pipeline` | `POST` | `{ context_override, preferred_style }` | Runs the 4-Agent Image Editorial Art Room (Analyst $\rightarrow$ Creative Director $\rightarrow$ Cinematographer $\rightarrow$ Critic) to formulate synesthetic, anti-deception prompts. |
-| `/api/analysis/{id}/generate-image` | `POST` | `{ prompt, style, aspect_ratio, negative_prompt }` | Generates editorial imagery via Google Imagen 3 / Gemini, persisting binary files to Cloud Storage. |
+| `/api/analysis/{id}/image-prompts` | `GET` / `POST` | `?refresh=false` | Retrieves cached or generates 5 tailored editorial visual prompts grounded in verified reporting. |
+| `/api/analysis/{id}/editorial-art-pipeline` | `POST` | `MultiAgentPipelineRequest` | Runs the 4-Agent Image Editorial Art Room (Analyst $\rightarrow$ Director $\rightarrow$ Cinematographer $\rightarrow$ Critic). |
+| `/api/analysis/{id}/generate-image` | `POST` | `ImageGenerateRequest { prompt, style, aspect_ratio, ... }` | Synthesizes editorial visual via Google Imagen 3 / Gemini with Anti-Deception Guardrails. |
 | `/api/analysis/{id}/images` | `GET` | — | Retrieves all saved visual assets associated with this investigation. |
-| `/api/analysis/{id}/image/{image_id}` | `DELETE` | — | Removes an individual image record and deletes its Cloud Storage artifact. |
-| `/api/media/{path:path}` | `GET` | — | Streams cached local media or redirects to canonical Google Cloud Storage asset URLs. |
+| `/api/analysis/{id}/image/{image_id}` | `DELETE` | — | Removes image record and underlying Google Cloud Storage / local media file. |
+| `/api/media/{filename}` | `GET` | `?download=false` | Streams locally cached media or provides binary file download. |
+
+### Global Discovery & Breaking Topics
+| Endpoint | Method | Request Payload | Response / Functionality |
+| :--- | :--- | :--- | :--- |
+| `/api/topics/suggestions` | `GET` | — | Returns country-grouped curated breaking topics across 16 sovereign nations with 24h cache. |
+| `/api/topics/suggestions/refresh` | `POST` | — | Single-flight deduplicated on-demand refresh of 16-nation breaking topics. |

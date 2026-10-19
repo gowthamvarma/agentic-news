@@ -116,7 +116,7 @@ erDiagram
 5. `generated_articles`: Sub-collection / persistent records for on-demand generated journalistic articles across 7 styles, complete with target languages and social publishing kits.
 6. `generated_images`: Stored records for Imagen 3 / Gemini generated visual media, prompts, styles, aspect ratios, and media URLs.
 7. `evidence_ledger`: Immutable audit trails recording direct text quotes, URLs, and retrieval timestamps.
-8. `storage_service.py` (Google Cloud Storage + Cache): Unified asset manager saving generated binary images to Google Cloud Storage with resilient local disk caching (`backend/media/generated_images/`) and `/api/media/{path}` streaming.
+8. `storage_service.py` (Google Cloud Storage + Local Media Cache): Unified asset manager saving generated binary images to Google Cloud Storage with resilient local disk caching (`backend/media_cache/`) and `/api/media/{filename}` streaming.
 
 ### Resilience Engineering: The Three-Tier Storage Fallback
 To ensure the application operates flawlessly during hackathon evaluation, cloud outages, or automated CI/CD testing:
@@ -136,13 +136,14 @@ Antigravity CLI served as an autonomous pair-programmer and agentic engineering 
 Using Antigravity CLI commands and subagent templates, we generated 25 specialized agent modules with strict 5-pillar instruction standards, dedicated Pydantic input/output schemas, and domain-specific tools in hours rather than weeks.
 
 ### 2. Autonomous Testing & Regression Suites
-Antigravity CLI orchestrated comprehensive test runs across our test suite:
+Antigravity CLI orchestrated comprehensive test runs across our test suite via Python's standard `unittest`:
 * `backend/tests/test_schemas.py`: Validating Pydantic v2 models against edge cases.
 * `backend/tests/test_contradictions_pipeline.py`: Verifying divergence detection heuristics.
 * `backend/tests/test_article_studio.py`: Verifying multi-style article generation and multilingual translation schemas.
 * `backend/tests/test_image_studio.py`: Verifying Imagen 3 image generation, prompt curation, and storage persistence.
 * `backend/tests/test_concurrency.py`: Ensuring thread-safe, non-blocking execution under heavy load.
 * `backend/tests/test_firestore_archive.py`: Auditing local emulator persistence and cache rehydration.
+* `backend/tests/test_api_backend.py`: End-to-end integration test validating REST endpoints and health checks.
 
 ### 3. Progressive Skills & Toolset Integration
 Antigravity CLI enabled the rapid configuration of modular agent skills (e.g., `fact-verification-heuristics`, `global-media-bias-coverage`, `media-framing-heuristics`), ensuring agents load analytical domain knowledge dynamically on demand without context window bloat.

@@ -51,13 +51,13 @@ The user interface was built to deliver the responsiveness of a high-end financi
 ![Home Dashboard Dynamic Country Tour](./assets/home-countries.gif)
 
 * **Problem It Solves**: In breaking news, readers suffer from geographic information silos, echo chambers, and delayed awareness of international developments across foreign media outlets.
-* **How It Solves**: Ingests multi-region RSS feeds across 16 sovereign nations, applying Gemini 2.5 Flash to automatically curate, categorize, and synthesize real-time breaking events into verified intelligence prompts before firing the 25-agent autonomous fleet.
+* **How It Solves**: Ingests multi-region RSS feeds across 16 sovereign nations, applying Gemini 3.8 Flash to automatically curate, categorize, and synthesize real-time breaking events into verified intelligence prompts before firing the 25-agent autonomous fleet.
 * **Sub-Sections & Core Functionality**:
   1. **Investigative Dispatch & Query Terminal**: High-visibility search console accepting natural language queries, controversial claims, or direct news URLs with instant submission to the 25-agent fleet.
   2. **16-Nation Sovereign Feed Switcher**: Regional selector bar featuring country flags and ISO codes for rapid toggling across major global media ecosystems (IN, US, GB, JP, DE, FR, CA, CN, RU, etc.).
   3. **Live Regional Feed Status & Cache Monitor**: Dynamic status bar displaying active country, last update timestamp, 24-hour Firestore cache verification badge, and on-demand RSS feed refresh trigger.
   4. **Curated Breaking Topics Grid (9 Intelligence Cards)**: Responsive 3-column card matrix displaying curated breaking topics with category badges (Politics & Law, Economy & Markets, etc.), source outlet attribution, and one-click "Analyze with 25 Agents $\rightarrow$ Deploy Fleet" execution.
-  5. **Real-Time 6-Stage Pipeline Stepper**: Interactive visual execution pipeline displaying live progress across all 6 stages (Ingestion $\rightarrow$ Understand $\rightarrow$ Verify $\rightarrow$ Analyse $\rightarrow$ Synthesis $\rightarrow$ Engage) via Server-Sent Events (SSE).
+  5. **Real-Time 6-Stage Pipeline Stepper & Telemetry**: Interactive visual execution pipeline displaying live progress across all 6 stages (Ingestion $\rightarrow$ Understand $\rightarrow$ Verify $\rightarrow$ Analyse $\rightarrow$ Synthesis $\rightarrow$ Engage) via Server-Sent Events (SSE), complete with live execution elapsed time counter and monotonic stage progress guarantees.
 
 ---
 
@@ -140,7 +140,7 @@ The user interface was built to deliver the responsiveness of a high-end financi
 ![Tab 5: Why & What's Next Multi-Section Tour](./assets/tab-05-insights.gif)
 
 * **Problem It Solves**: Conventional news describes symptoms rather than root causes, leaving readers unprepared for cascading consequences or future outcomes.
-* **How It Solves**: Conducts a structured 5-Whys causal root analysis, maps 3 tiers of systemic knock-on effects, and models probabilistic best/worst/likely future scenarios with leading indicator signals.
+* **How It Solves**: Conducts a structured 5-Whys causal root analysis, maps 3 tiers of systemic knock-on effects, and models probabilistic best/worst/likely future scenarios with leading indicator signals. Available both pre-compiled in cached dossiers and on-demand via single-click execution.
 * **Sub-Sections & Core Functionality**:
   1. **Root Cause Diagnostics**: Deconstructs the underlying drivers into Immediate Triggers, Structural Failure Points, and Underlying Systemic Factors.
   2. **3-Tier Consequences Tree**: Hierarchical impact breakdown mapping First-Order (direct operational), Second-Order (industry/market), and Third-Order (macroeconomic/geopolitical) repercussions.
@@ -154,11 +154,12 @@ The user interface was built to deliver the responsiveness of a high-end financi
 ![Tab 6: Knowledge Check Multi-Section Tour](./assets/tab-06-quiz.gif)
 
 * **Problem It Solves**: Passive news reading results in the "illusion of competence," where readers forget over 70% of facts within 24 hours without retaining critical distinctions.
-* **How It Solves**: Generates interactive active-recall questions grounded directly in the verified facts and contradictions, providing instant pedagogical explanations and scoring.
+* **How It Solves**: Generates interactive active-recall questions grounded directly in the verified facts and contradictions, providing instant pedagogical explanations, scoring, and on-demand generation with async grading protection.
 * **Sub-Sections & Core Functionality**:
   1. **Active Recall Tutor Header & Status**: Displays quiz status, Firestore persistence state, and on-demand quiz generation triggers.
   2. **Pedagogical Multiple-Choice Question Cards**: Interactive question modules with single-select radio options (A, B, C, D) testing comprehension of contested claims, timelines, and causal drivers.
-  3. **Automated Grading Engine & Radial Scorecard**: Submits user answers for instant grading, revealing visual feedback badges, explanatory rationales for correct/incorrect choices, and an overall comprehension score meter.
+  3. **Async Grading Protection & Loading Spinner**: When the user submits their answers, radio buttons are locked and a loading spinner is displayed during evaluation, preventing race conditions or double submissions.
+  4. **Automated Grading Engine & Radial Scorecard**: Submits user answers for instant grading, revealing visual feedback badges, explanatory rationales for correct/incorrect choices, and an overall comprehension score meter.
 
 ---
 
@@ -167,7 +168,7 @@ The user interface was built to deliver the responsiveness of a high-end financi
 ![Tab 7: Both Sides Debate Multi-Section Tour](./assets/tab-07-debate.gif)
 
 * **Problem It Solves**: Hyper-partisan news reporting forces readers into polarized viewpoints, obscuring legitimate arguments held by opposing stakeholders.
-* **How It Solves**: Simulates a structured Socratic debate between steelmanned pro and con stakeholder representatives, culminating in an objective policy compromise synthesis.
+* **How It Solves**: Simulates a structured Socratic debate between steelmanned pro and con stakeholder representatives, culminating in an objective policy compromise synthesis, available on-demand with automatic Firestore caching.
 * **Sub-Sections & Core Functionality**:
   1. **Debate Resolution Banner**: Formulates the central contentious proposition under debate (e.g., administrative spectrum allocation vs. open competitive auction).
   2. **Steelmanned Pro/Con Dialectic Exchange**: Alternating speaker cards representing opposing perspectives with avatar badges, core thesis statements, and grounding evidence citations.
@@ -180,10 +181,10 @@ The user interface was built to deliver the responsiveness of a high-end financi
 ![Tab 8: Ask AI Reporter Multi-Section Tour](./assets/tab-08-copilot.gif)
 
 * **Problem It Solves**: Static news articles cannot answer specific user questions or clarify ambiguities in reporting.
-* **How It Solves**: Provides a conversational AI research partner powered by Gemini 2.5 Flash, strictly grounded in the session's verified evidence ledger with zero hallucinations.
+* **How It Solves**: Provides a conversational AI research partner powered by Gemini 3.8 Flash and Gemini 3.1 Pro, strictly grounded in the session's verified evidence ledger and dossier context with zero hallucinations.
 * **Sub-Sections & Core Functionality**:
   1. **AI Reporter Header & Status Badge**: Displays online agent status, Gemini model engine attribution, and conversation management controls (Clear Chat History).
-  2. **Evidence-Grounded Chat Stream**: Conversational message thread rendering user questions and agent responses in formatted markdown with direct citations to analyzed articles.
+  2. **Evidence-Grounded Chat Stream & History**: Conversational message thread rendering user questions and agent responses in formatted markdown with direct citations, automatically persisted in Firestore across browser sessions.
   3. **Interactive Investigation Input Bar**: Real-time query input enabling users to probe specific claims, request entity clarifications, or ask "what if" questions regarding the investigation.
 
 ---
@@ -213,7 +214,7 @@ The user interface was built to deliver the responsiveness of a high-end financi
 ![Tab 10: Image Studio Multi-Section Tour](./assets/tab-10-image.gif)
 
 * **Problem It Solves**: Quality news reporting requires compelling, contextually grounded visuals, but journalists and readers are typically trapped between generic stock photos, misleading deepfakes, or copyright-infringing web grabs.
-* **How It Solves**: Orchestrates an **Image Editorial Art Room Crew** of 4 specialized agents (News Analyst, Creative Director, Imagen 3 Cinematographer, Editorial Critic) that translates investigative dossiers into synesthetic, metaphor-rich visual prompts rendered via Google Imagen 3, reinforced by anti-deception guardrails and Cloud Storage persistence.
+* **How It Solves**: Orchestrates an **Image Editorial Art Room Crew** of 4 specialized agents (News Analyst, Creative Director, Imagen 3 Cinematographer, Editorial Critic) that translates investigative dossiers into synesthetic, metaphor-rich visual prompts rendered via Google Imagen 3, reinforced by anti-deception guardrails, Google Cloud Storage persistence, and resilient local `media_cache/` fallback.
 * **Sub-Sections & Core Functionality**:
   1. **Image Editorial Art Room Crew (4 Specialized Agents)**:
      * *The News Analyst*: Extracts core tensions, emotional resonance, and sensory anchors from investigated reporting.

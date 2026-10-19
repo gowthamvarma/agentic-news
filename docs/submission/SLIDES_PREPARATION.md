@@ -25,7 +25,7 @@ Rather than outputting passive, generic paragraphs, our platform treats news as 
 3. **Audits media manipulation & political bias** across a calibrated 7-point ideological spectrum.
 4. **Performs 5-Whys causal forensics** and forecasts 3-tier ripple effects and probabilistic scenarios.
 5. **Reinforces human memory** through active recall comprehension quizzes and steelmanned debates.
-6. **Produces on-demand publication-ready journalism** across 7 editorial styles with multilingual translation (50+ languages), audio speech, and Imagen 3 concept art.
+6. **Produces on-demand publication-ready journalism** across 7 editorial styles with multilingual translation (130+ languages), Web Speech audio narration, and Imagen 3 concept art.
 
 ### Opportunities
 * **Enterprise & Policy Intelligence**: Corporate risk officers, sovereign analysts, and regulatory teams spend millions manually reviewing conflicting international press.
@@ -52,19 +52,19 @@ By replacing single-turn prompting with an **orchestrated 6-stage multi-agent bu
 ### 1. Global Ingestion & Multi-Nation Feeds
 * **16-Nation Sovereign Feed Switcher**: Real-time breaking RSS news ingestion filtered across 16 major nations (IN, US, GB, JP, DE, FR, CA, etc.).
 * **Breaking Topic Intelligence Cards**: Instant categorization and one-click fleet deployment.
-* **6-Stage Live Execution Stepper**: Real-time Server-Sent Events (SSE) telemetry displaying agent activity stage-by-stage.
+* **6-Stage Live Execution Stepper & Telemetry**: Real-time Server-Sent Events (SSE) telemetry displaying agent activity stage-by-stage with monotonic progress and live elapsed time counter.
 
 ### 2. Forensic Investigation & Reporting (10 Dedicated Tabs)
 1. **Tab 1: Summary & Overview (`#brief`)**: Consensus points, key metrics, Who/Where/What entity primers with Wikipedia links, and Jargon Buster glossaries.
 2. **Tab 2: Verified Sources (`#sources`)**: 7-point ideological spectrum (Far Left to Far Right), publisher reliability tiers, and unaddressed coverage gaps.
 3. **Tab 3: Fact Checks & Clashing Claims (`#verification`)**: IFCN-aligned claim verification badges with confidence meters, plus a side-by-side Contradiction Matrix classifying divergences (*Numerical Discrepancy*, *Timeline Divergence*, *Fact Negation*).
 4. **Tab 4: Timeline (`#timeline`)**: Bidirectional chronological event flow tracking media narrative evolution and reporting pivots.
-5. **Tab 5: Why & What's Next (`#insights`)**: 5-Whys root cause diagnosis, 3-tier consequence cascades (1st, 2nd, 3rd order), probabilistic Best/Likely/Worst scenarios, and leading indicator tripwires.
-6. **Tab 6: Knowledge Check (`#quiz`)**: Interactive Socratic multiple-choice quiz with auto-grading, radial scorecard, and pedagogical explanations.
+5. **Tab 5: Why & What's Next (`#insights`)**: On-demand 5-Whys root cause diagnosis, 3-tier consequence cascades (1st, 2nd, 3rd order), probabilistic Best/Likely/Worst scenarios, and leading indicator tripwires.
+6. **Tab 6: Knowledge Check (`#quiz`)**: Interactive Socratic multiple-choice quiz with auto-grading, answer-locking spinner during evaluation, radial scorecard, and pedagogical explanations.
 7. **Tab 7: Both Sides Debate (`#debate`)**: Steelmanned Socratic debate between credible opposing stakeholders, concluding with an objective compromise synthesis.
-8. **Tab 8: Ask AI Reporter (`#copilot`)**: Conversational research assistant (`AI Reporter`) strictly grounded in the session's verified Evidence Ledger with zero hallucinations.
-9. **Tab 9: Article Studio (`#article`)**: Automated journalism generator spanning 7 distinct editorial styles (Wire, Investigative, Executive, Op-Ed, ELI5, Academic, Newsletter), 50+ language translations, Web Speech audio narration, and social SEO publishing kits.
-10. **Tab 10: Image Studio (`#image`)**: 4-Agent Image Editorial Art Room Crew (News Analyst, Creative Director, Cinematographer, Editorial Critic) synthesizing conceptual and photorealistic visual media via Imagen 3 with Anti-Deception Guardrails and Google Cloud Storage persistence.
+8. **Tab 8: Ask AI Reporter (`#copilot`)**: Conversational research assistant (`AI Reporter`) strictly grounded in the session's verified Evidence Ledger and dossier context, with persistent Firestore chat history.
+9. **Tab 9: Article Studio (`#article`)**: Automated journalism generator spanning 7 distinct editorial styles (Wire, Investigative, Executive, Op-Ed, ELI5, Academic, Newsletter), 130+ language translations, Web Speech audio narration, and social SEO publishing kits.
+10. **Tab 10: Image Studio (`#image`)**: 4-Agent Image Editorial Art Room Crew (News Analyst, Creative Director, Cinematographer, Editorial Critic) synthesizing conceptual and photorealistic visual media via Imagen 3 with Anti-Deception Guardrails, Google Cloud Storage persistence, and local `media_cache/` fallback.
 
 ### 3. Institutional Memory & Persistence
 * **History Archive Repository (`/history`)**: Instant sub-100ms rehydration of past investigations with full-text search, star/favorite curation, and auto-switching Table/Card views.
