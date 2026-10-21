@@ -96,8 +96,28 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
         search: debouncedSearchTerm.trim() || undefined,
         favorites_only: favoritesOnly || undefined,
       });
-      setItems(res.items || []);
-      setTotal(res.total || 0);
+
+      const rawItems = res.items || [];
+      // Clean, sanitize, and normalize items from server/database
+      const validItems: AnalysisArchiveItem[] = rawItems
+        .filter((it: any) => it && (it.id || it.analysis_id || it.topic || it.executive_summary))
+        .map((it: any, idx: number) => {
+          const docId = String(it.id || it.analysis_id || `archive-${idx}-${Date.now()}`);
+          return {
+            ...it,
+            id: docId,
+            topic: it.topic || 'Untitled Investigation',
+            executive_summary: it.executive_summary || '',
+            is_favorite: Boolean(it.is_favorite),
+            created_at: typeof it.created_at === 'number' ? it.created_at : (typeof it.updated_at === 'number' ? it.updated_at : Date.now() / 1000),
+            sources_analyzed: Array.isArray(it.sources_analyzed) ? it.sources_analyzed : [],
+            articles_analyzed: Array.isArray(it.articles_analyzed) ? it.articles_analyzed : [],
+            verifications: Array.isArray(it.verifications) ? it.verifications : [],
+          };
+        });
+
+      setItems(validItems);
+      setTotal(typeof res.total === 'number' ? res.total : validItems.length);
     } catch (err: any) {
       console.error('Failed to load analyses:', err);
       setError(err?.message || 'Error fetching analysis archives from server');
@@ -112,15 +132,17 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
 
   const handleToggleFavorite = async (item: AnalysisArchiveItem, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
+    const itemId = item.id || (item as any).analysis_id;
+    if (!itemId) return;
     const newStatus = !item.is_favorite;
 
     // Optimistic update
     setItems((prev) =>
-      prev.map((r) => (r.id === item.id ? { ...r, is_favorite: newStatus } : r))
+      prev.map((r) => (r.id === itemId ? { ...r, is_favorite: newStatus } : r))
     );
 
     try {
-      await updateAnalysis(item.id, { is_favorite: newStatus });
+      await updateAnalysis(itemId, { is_favorite: newStatus });
       if (favoritesOnly && !newStatus) {
         loadData();
       }
@@ -128,17 +150,19 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
       console.error('Failed to update favorite:', err);
       // Revert optimistic update
       setItems((prev) =>
-        prev.map((r) => (r.id === item.id ? { ...r, is_favorite: !newStatus } : r))
+        prev.map((r) => (r.id === itemId ? { ...r, is_favorite: !newStatus } : r))
       );
     }
   };
 
   const handleDelete = async (item: AnalysisArchiveItem, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    if (!window.confirm(`Permanently delete investigation archive:\n"${item.topic}"?`)) return;
+    const itemId = item.id || (item as any).analysis_id;
+    if (!itemId) return;
+    if (!window.confirm(`Permanently delete investigation archive:\n"${item.topic || 'Untitled'}"?`)) return;
 
     try {
-      await deleteAnalysis(item.id);
+      await deleteAnalysis(itemId);
       if (items.length <= 1 && currentPage > 1) {
         setCurrentPage((prev) => prev - 1);
       } else {
@@ -197,13 +221,20 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   const formatTimestamp = (timestamp?: number) => {
-    if (!timestamp) return 'Recent';
-    const d = new Date(timestamp * 1000);
-    return d.toLocaleDateString(undefined, {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    }) + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    if (!timestamp || isNaN(timestamp)) return 'Recent';
+    try {
+      const d = new Date(timestamp * 1000);
+      if (isNaN(d.getTime())) return 'Recent';
+      return (
+        d.toLocaleDateString(undefined, {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        }) + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      );
+    } catch {
+      return 'Recent';
+    }
   };
 
   return (
@@ -491,7 +522,9 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
                     </tr>
                   ))
                 ) : sortedItems.length > 0 ? (
-                  sortedItems.map((item) => {
+                  sortedItems.map((item, idx) => {
+                    const itemId = item.id || (item as any).analysis_id || `archive-${idx}`;
+                    const displayId = itemId.length > 12 ? `${itemId.slice(0, 12)}...` : itemId;
                     const sourcesCount = Math.max(
                       item.sources_analyzed?.length || 0,
                       item.articles_analyzed?.length || 0
@@ -500,8 +533,8 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
 
                     return (
                       <tr
-                        key={item.id}
-                        onClick={() => onSelectAnalysis(item.id)}
+                        key={itemId}
+                        onClick={() => onSelectAnalysis(itemId)}
                         className="hover:bg-primary/5 transition-colors cursor-pointer group"
                       >
                         {/* Star / Favorite */}
@@ -523,11 +556,11 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
                         <td className="py-3.5">
                           <div className="flex flex-col gap-1 pr-2">
                             <span className="font-bold text-sm text-base-content group-hover:text-primary transition-colors line-clamp-1">
-                              {item.topic}
+                              {item.topic || 'Untitled Investigation'}
                             </span>
                             <div className="flex items-center gap-2 text-[11px] text-base-content/60">
                               <span className="badge badge-xs badge-neutral font-mono font-normal px-2 py-0.5 my-0.5">
-                                {item.id.slice(0, 12)}...
+                                {displayId}
                               </span>
                               {verificationsCount > 0 && (
                                 <span className="text-[11px] text-base-content/60">
@@ -571,7 +604,7 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                onSelectAnalysis(item.id);
+                                onSelectAnalysis(itemId);
                               }}
                               className="btn btn-primary btn-xs gap-1 shadow-sm group-hover:scale-105 transition-transform font-semibold"
                             >
@@ -660,7 +693,9 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
               </div>
             ) : sortedItems.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
-                {sortedItems.map((item) => {
+                {sortedItems.map((item, idx) => {
+                  const itemId = item.id || (item as any).analysis_id || `archive-${idx}`;
+                  const displayId = itemId.length > 12 ? `${itemId.slice(0, 12)}...` : itemId;
                   const sourcesCount = Math.max(
                     item.sources_analyzed?.length || 0,
                     item.articles_analyzed?.length || 0
@@ -669,8 +704,8 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
 
                   return (
                     <div
-                      key={item.id}
-                      onClick={() => onSelectAnalysis(item.id)}
+                      key={itemId}
+                      onClick={() => onSelectAnalysis(itemId)}
                       className="card bg-base-100 border border-base-300 hover:border-primary/50 shadow-sm hover:shadow-xl transition-all p-4 sm:p-5 flex flex-col justify-between group cursor-pointer rounded-xl"
                     >
                       <div>
@@ -692,12 +727,12 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
                         </div>
 
                         <h3 className="font-bold text-base text-base-content group-hover:text-primary transition-colors line-clamp-2">
-                          {item.topic}
+                          {item.topic || 'Untitled Investigation'}
                         </h3>
 
                         <div className="flex items-center gap-2 mt-1.5 text-[11px] text-base-content/60">
                           <span className="badge badge-xs badge-neutral font-mono font-normal px-2 py-0.5">
-                            {item.id.slice(0, 12)}...
+                            {displayId}
                           </span>
                           {verificationsCount > 0 && (
                             <span className="text-[11px] text-base-content/60 font-medium">
@@ -721,7 +756,7 @@ export const AnalysisHistoryGrid: React.FC<AnalysisHistoryGridProps> = ({ onSele
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              onSelectAnalysis(item.id);
+                              onSelectAnalysis(itemId);
                             }}
                             className="btn btn-primary btn-xs gap-1 shadow-sm font-semibold group-hover:scale-105 transition-transform"
                           >

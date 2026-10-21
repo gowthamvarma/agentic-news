@@ -182,13 +182,23 @@ class FirestoreService:
                 doc_ref = client.collection("analyses").document(analysis_id)
                 doc = await asyncio.wait_for(doc_ref.get(), timeout=FIRESTORE_TIMEOUT_READ)
                 if doc.exists:
-                    data = doc.to_dict()
+                    data = doc.to_dict() or {}
+                    doc_id = data.get("id") or data.get("analysis_id") or analysis_id
+                    data["id"] = doc_id
+                    if not data.get("analysis_id"):
+                        data["analysis_id"] = doc_id
                     _MEMORY_STORE["analyses"][analysis_id] = data
                     return data
             except Exception as e:
                 logger.warning("Failed getting analysis from Firestore (%s). Checking memory.", e)
 
-        return _MEMORY_STORE["analyses"].get(analysis_id)
+        res = _MEMORY_STORE["analyses"].get(analysis_id)
+        if res and isinstance(res, dict):
+            if not res.get("id"):
+                res["id"] = res.get("analysis_id") or analysis_id
+            if not res.get("analysis_id"):
+                res["analysis_id"] = res.get("id") or analysis_id
+        return res
 
     @staticmethod
     async def list_recent_analyses(limit: int = 20) -> List[Dict[str, Any]]:
@@ -210,7 +220,20 @@ class FirestoreService:
             try:
                 col_ref = client.collection("analyses")
                 docs = await asyncio.wait_for(col_ref.get(), timeout=FIRESTORE_TIMEOUT_READ)
-                items = [d.to_dict() for d in docs]
+                raw_items = []
+                for d in docs:
+                    data = d.to_dict()
+                    if not data or not isinstance(data, dict):
+                        continue
+                    # Must contain a topic or summary or sources to be a valid analysis report
+                    if not data.get("topic") and not data.get("executive_summary") and not data.get("sources_analyzed"):
+                        continue
+                    doc_id = data.get("id") or data.get("analysis_id") or d.id
+                    data["id"] = doc_id
+                    if not data.get("analysis_id"):
+                        data["analysis_id"] = doc_id
+                    raw_items.append(data)
+                items = raw_items
                 for it in items:
                     if "id" in it:
                         _MEMORY_STORE["analyses"][it["id"]] = it
@@ -219,6 +242,24 @@ class FirestoreService:
                 items = list(_MEMORY_STORE["analyses"].copy().values())
         else:
             items = list(_MEMORY_STORE["analyses"].copy().values())
+
+        # Ensure memory store items are also sanitized and validated
+        sanitized_items = []
+        for it in items:
+            if not isinstance(it, dict):
+                continue
+            if not it.get("topic") and not it.get("executive_summary") and not it.get("sources_analyzed"):
+                continue
+            doc_id = it.get("id") or it.get("analysis_id")
+            if not doc_id:
+                continue
+            it["id"] = doc_id
+            if not it.get("analysis_id"):
+                it["analysis_id"] = doc_id
+            if not it.get("topic"):
+                it["topic"] = "Untitled Investigation"
+            sanitized_items.append(it)
+        items = sanitized_items
 
         if favorites_only:
             items = [item for item in items if item.get("is_favorite") is True]
@@ -230,7 +271,14 @@ class FirestoreService:
                 if q in str(item.get("topic", "")).lower() or q in str(item.get("executive_summary", "")).lower()
             ]
 
-        items.sort(key=lambda x: x.get("created_at", 0), reverse=True)
+        def get_sort_key(x: Dict[str, Any]) -> float:
+            val = x.get("created_at") or x.get("updated_at") or 0
+            try:
+                return float(val)
+            except (ValueError, TypeError):
+                return 0.0
+
+        items.sort(key=get_sort_key, reverse=True)
         total = len(items)
         paginated_items = items[offset : offset + limit]
 
@@ -353,9 +401,11 @@ class FirestoreService:
                     "updated_at": time.time(),
                 }), timeout=FIRESTORE_TIMEOUT_WRITE)
 
-                # Also sync into analyses document if it exists
+                # Also sync into analyses document ONLY if it exists to avoid ghost stub records
                 analysis_doc_ref = client.collection("analyses").document(analysis_id)
-                await asyncio.wait_for(analysis_doc_ref.set({"chat_history": existing_messages, "updated_at": time.time()}, merge=True), timeout=FIRESTORE_TIMEOUT_WRITE)
+                adoc = await asyncio.wait_for(analysis_doc_ref.get(), timeout=FIRESTORE_TIMEOUT_READ)
+                if adoc.exists:
+                    await asyncio.wait_for(analysis_doc_ref.set({"chat_history": existing_messages, "updated_at": time.time()}, merge=True), timeout=FIRESTORE_TIMEOUT_WRITE)
             except Exception as e:
                 logger.warning("Failed saving chat history to Firestore (%s). Preserved in memory.", e)
 
@@ -409,7 +459,9 @@ class FirestoreService:
                 await asyncio.wait_for(chat_doc_ref.delete(), timeout=FIRESTORE_TIMEOUT_WRITE)
 
                 analysis_doc_ref = client.collection("analyses").document(analysis_id)
-                await asyncio.wait_for(analysis_doc_ref.set({"chat_history": [], "updated_at": time.time()}, merge=True), timeout=FIRESTORE_TIMEOUT_WRITE)
+                adoc = await asyncio.wait_for(analysis_doc_ref.get(), timeout=FIRESTORE_TIMEOUT_READ)
+                if adoc.exists:
+                    await asyncio.wait_for(analysis_doc_ref.set({"chat_history": [], "updated_at": time.time()}, merge=True), timeout=FIRESTORE_TIMEOUT_WRITE)
             except Exception as e:
                 logger.warning("Failed clearing chat history in Firestore (%s). Cleared in memory.", e)
 
@@ -705,11 +757,13 @@ class FirestoreService:
         if client:
             try:
                 doc_ref = client.collection("analyses").document(analysis_id)
-                await asyncio.wait_for(
-                    doc_ref.set({"image_prompts": prompts, "updated_at": time.time()}, merge=True),
-                    timeout=FIRESTORE_TIMEOUT_WRITE,
-                )
-                logger.info("Persisted %d image prompts in Firestore for analysis '%s'", len(prompts), analysis_id)
+                adoc = await asyncio.wait_for(doc_ref.get(), timeout=FIRESTORE_TIMEOUT_READ)
+                if adoc.exists:
+                    await asyncio.wait_for(
+                        doc_ref.set({"image_prompts": prompts, "updated_at": time.time()}, merge=True),
+                        timeout=FIRESTORE_TIMEOUT_WRITE,
+                    )
+                    logger.info("Persisted %d image prompts in Firestore for analysis '%s'", len(prompts), analysis_id)
                 return True
             except Exception as e:
                 logger.warning("Failed saving image prompts to Firestore (%s). Saved in memory.", e)
